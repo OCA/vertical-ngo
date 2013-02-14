@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <report auto="False" id="report_logistic_request" model="logistic.request" name="logistic.request" rml="logistic_request/report/logistic_request.rml" string="Logistic Request"/>
+    </data>
+</openerp>
