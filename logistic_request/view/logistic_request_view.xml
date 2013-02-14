@@ -133,11 +133,11 @@
         <field name="arch" type="xml">
             <form string="Logistic Request" version="7.0">
                 <header>
-                    <button name="request_cancel" states="draft,sent,in_progress" string="Cancel" type="object" icon="gtk-cancel" />
-                    <button name="request_in_progress" states="draft" string="Start" type="object" icon="gtk-apply" />
-                    <button name="request_reset" states="done,cancel" string="Reset to Draft" type="object" icon="gtk-convert" />
-                    <button name="request_done" states="sent" string="Done" type="object" icon="gtk-jump-to" />
-                    <button name="request_sent" states="in_progress" string="Send To Requester" type="object" icon="gtk-jump-to" />
+                    <button name="request_cancel" states="draft,sent,in_progress" string="Cancel" type="object" />
+                    <button name="request_in_progress" states="draft" string="Validate" type="object" />
+                    <button name="request_reset" states="done,cancel" string="Reset to Draft" type="object" />
+                    <button name="request_done" states="sent" string="Done" type="object" />
+                    <button name="request_sent" states="in_progress" string="Quote Sent" type="object" />
                     <field name="state" select="1" readonly ="1" widget="statusbar" statusbar_visible="draft,in_progress,sent,done" statusbar_colors='{"in_progress":"blue"}'/>
                 </header>
                 <sheet string="Logistic Request">
@@ -161,12 +161,6 @@
                             <field name="analytic_id"/>
                             <field name="activity_code"/>
                             <field name="origin"/>
-                        </group>
-                    </group>
-                    <group>
-                        <group colspan="4">
-                            <field name="warehouse_id"/>
-                            <field name="address_id"/>
                         </group>
                     </group>
                 <notebook>
@@ -203,6 +197,8 @@
                             <field name="amount_total" class="oe_subtotal_footer_separator" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                         </group>
                         <group>
+                            <field name="warehouse_id" class="oe_inline"/>
+                            <field name="address_id" class="oe_inline"/>
                             <field name="prefered_transport" class="oe_inline"/>
                         </group>
                         <div class="oe_clear">
@@ -233,7 +229,7 @@
                 <field name="user_id"/>
                 <field name="date_start"/>
                 <field name="date_end"/>
-                <field name="origin"/>
+                <field name="country_id"/>
                 <field name="company_id"/>
                 <field name="analytic_id"/>
                 <field name="state"/>

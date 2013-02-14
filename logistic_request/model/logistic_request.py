@@ -126,7 +126,7 @@ class LogisticRequest(osv.Model):
             required=True
         ),
         'user_id': fields.many2one(
-            'res.users', 'Logistic Request Responsible', required=True, 
+            'res.users', 'Request Responsible', required=True, 
             states={
                 'in_progress':[('readonly',True)],
                 'sent':[('readonly',True)],
@@ -142,7 +142,13 @@ class LogisticRequest(osv.Model):
                 'done':[('readonly',True)]
             }
         ),
-        'country_id': fields.many2one('res.country', 'Country'),
+        'country_id': fields.many2one('res.country', 'Country',
+            states={
+                'in_progress':[('readonly',True)],
+                'sent':[('readonly',True)],
+                'done':[('readonly',True)]
+            }
+        ),
         'company_id': fields.many2one(
             'res.company', 'Account N° / Company', required=True, 
             states={
@@ -190,7 +196,7 @@ class LogisticRequest(osv.Model):
                 ('land','Land'),
                 ('sea','Sea'),
                 ('air','Air')],
-            'Transport Required By', 
+            'Prefered Transport', 
             states={
                 'in_progress':[('readonly',True)],
                 'sent':[('readonly',True)],
@@ -384,6 +390,7 @@ class LogisticRequestLine(osv.osv):
             [
                 ('draft','Draft'),
                 ('assigned','Assigned'),
+                ('cost_estimated','Cost Estimated'),
                 ('quoted','Quoted'),
                 ('waiting','Waiting Approval'),
                 ('done','Done'),
