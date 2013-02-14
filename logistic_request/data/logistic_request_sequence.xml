@@ -9,7 +9,18 @@
         <record id="seq_logistic_request" model="ir.sequence">
             <field name="name">Logistic Request Order</field>
             <field name="code">logistic.request</field>
-            <field name="prefix">LSR</field>
+            <field name="prefix">LRO</field>
+            <field name="padding">5</field>
+        </record>
+        
+         <record id="seq_type_logistic_request_line" model="ir.sequence.type">
+            <field name="name">Logistic Request Line</field>
+            <field name="code">logistic.request.line</field>
+        </record>
+        <record id="seq_logistic_request_line" model="ir.sequence">
+            <field name="name">Logistic Request Line</field>
+            <field name="code">logistic.request.line</field>
+            <field name="prefix">LRL</field>
             <field name="padding">5</field>
         </record>
     </data>

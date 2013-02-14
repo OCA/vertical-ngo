@@ -2,6 +2,13 @@
 <openerp>
     <data>
 
+        <menuitem name="Logistic Management"
+            id="menu_logistic"
+            sequence="25"/>
+        <menuitem id="menu_logistic_request_base" name="Logistic Request" parent="menu_logistic" sequence="2"/>
+
+
+
 <!--    Keep this temporarly until we decide how to handle cost estimate
         It could be useful...
 
@@ -124,8 +131,7 @@
         </field>
     </record>
  -->
- 
- 
+
     <record model="ir.ui.view" id="view_logistic_request_form">
         <field name="name">logistic.request.form</field>
         <field name="type">form</field>
@@ -275,7 +281,7 @@
 
 
     <record model="ir.actions.act_window" id="action_logistic_request">
-        <field name="name">Logistic Requests</field>
+        <field name="name">Requests</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">logistic.request</field>
         <field name="view_type">form</field>
@@ -286,10 +292,124 @@
     </record>
 
     <menuitem
-        id="menu_logistic_request_pro_mgt"
+        id="menu_logistic_request"
         sequence="0"
-        parent="purchase.menu_procurement_management"
+        parent="menu_logistic_request_base"
         action="action_logistic_request"/>
+
+    <record model="ir.ui.view" id="view_logistic_request_line_tree">
+        <field name="name">logistic.request.line.tree</field>
+        <field name="type">tree</field>
+        <field name="model">logistic.request.line</field>
+        <field name="arch" type="xml">
+           <tree string="Logistic Request Line">
+             <field name="product_id" on_change="onchange_product_id(product_id,product_uom_id)"/>
+             <field name="description"/>
+             <field name="product_qty"/>
+             <field name="product_uom_id"/>
+             <field name="logistic_user_id"/>
+             <field name="budget_unit_price"/>
+             <field name="budget_tot_price"/>
+             <field name="state" invisible="1"/>
+             <button name="action_proc" string="Procure" type="object" states="draft" icon="gtk-go-forward"/>
+             <button name="action_cancel" string="Cancel" type="object" states="draft" icon="terp-dialog-close"/>
+           </tree>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="view_logistic_request_line_form">
+        <field name="name">logistic.request.line.form</field>
+        <field name="type">form</field>
+        <field name="model">logistic.request.line</field>
+        <field name="arch" type="xml">
+            <form string="Logistic Request Line" version="7.0">
+                <header>
+                    <!-- <button name="request_cancel" states="draft,sent,in_progress" string="Cancel" type="object" /> -->
+                    <field name="state" select="1" readonly ="1" widget="statusbar" statusbar_visible="draft,assigned,cost_estimated,quoted,waiting,done" statusbar_colors='{"assigned":"blue"}'/>
+                </header>
+                <sheet string="Request Line">
+                    <div class="oe_title">
+                        <h1>
+                            <label string="Request Line" />
+                            <field name="name" class="oe_inline" attrs="{'invisible': [('state', '=', 'draft')]}"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                             <field name="product_id" on_change="onchange_product_id(product_id,product_uom_id)"/>
+                             <field name="description"/>
+                             <field name="product_qty"/>
+                             <field name="product_uom_id"/>
+                             <field name="logistic_user_id"/>
+                             <field name="procurement_user_id"/>
+                        </group>
+                        <group>
+                             <field name="state" invisible="1"/>
+                             <field name="budget_unit_price"/>
+                             <field name="budget_tot_price"/>
+                             <button name="action_proc" string="Procure" type="object" states="draft" icon="gtk-go-forward"/>
+                             <button name="action_cancel" string="Cancel" type="object" states="draft" icon="terp-dialog-close"/>
+                        </group>
+                    </group>
+                </sheet>
+                <!-- 
+                May be useful...
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div> -->
+            </form>
+        </field>
+    </record>
+
+
+    <record id="view_logistic_request_line_filter" model="ir.ui.view">
+            <field name="name">logistic.request.line.list.select</field>
+            <field name="model">logistic.request.line</field>
+            <field name="type">search</field>
+            <field name="arch" type="xml">
+                <search string="Search Logistic Request Line">
+                 <group>
+                    <filter name="draft" string="New" domain="[('state','=','draft')]" help="New Logistic Request Line"/>
+                    <filter name="assigned" string="Assigned" domain="[('state','=','assigned')]" help="Assigned Logistic Request Line"/>
+                    <filter name="cost_estimated" string="Cost Estimated" domain="[('state','=','cost_estimated')]" help="Cost Estimated Request Lines"/>
+                    <filter name="quoted" string="Quoted" domain="[('state','=','quoted')]"/>
+                    <separator orientation="vertical"/>
+                    <filter string="Unassigned"  domain="[('logistic_user_id','=', False)]" help="Unassigned Request"/>
+                    <separator orientation="vertical"/>
+                    <field name="description" />
+                    <field name="request_id" />
+                    <field name="logistic_user_id" />
+                    <field name="procurement_user_id" />
+                </group>
+                <newline/>
+                  <group expand="0" string="Group By..." groups="base.group_extended">
+                    <filter string="Assigned Specialist" domain="[]" context="{'group_by':'logistic_user_id'}"/>
+                    <filter string="Procurement Officer" domain="[]" context="{'group_by':'procurement_user_id'}"/>
+                    <filter string="Logistic Request" domain="[]" context="{'group_by':'request_id'}"/>
+                    <separator orientation="vertical"/>
+                    <filter string="State" domain="[]" context="{'group_by':'state'}"/>
+                </group>
+              </search>
+            </field>
+        </record>
+
+    <record model="ir.actions.act_window" id="action_logistic_request_line">
+        <field name="name">Requests Lines</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">logistic.request.line</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context">{"search_default_logistic_user_id":uid,}</field>
+        <field name="search_view_id" ref="view_logistic_request_line_filter"/>
+        <field name="help"></field>
+    </record>
+
+    <menuitem
+        id="menu_logistic_request_line"
+        sequence="10"
+        parent="menu_logistic_request_base"
+        action="action_logistic_request_line"/>
 
 <!--     <record model="ir.ui.view" id="product_normal_form_view_inherit">
         <field name="name">product.form.inherit</field>

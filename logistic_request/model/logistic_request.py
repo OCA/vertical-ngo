@@ -366,9 +366,10 @@ class LogisticRequestLine(osv.osv):
         return res
 
     _columns = {
+        'name': fields.char('Line Ref.', size=32, required=True, readonly=True),
         'product_id': fields.many2one('product.product', 'Product', required=True),
         'description': fields.char('Description', size=256, required=True),
-        'product_qty': fields.float('Quantity', digits_compute=dp.get_precision('Product UoM'), required=True),
+        'product_qty': fields.float('Quantity', digits_compute=dp.get_precision('Product UoM')),
         'product_uom_id': fields.many2one('product.uom', 'Product UoM', required=True),
         'budget_tot_price': fields.float('Budget Total Price', digits_compute=dp.get_precision('Account')),
         # 'budget_unit_price': fields.float('Budget Unit Price', digits_compute=dp.get_precision('Account')),
@@ -408,6 +409,7 @@ class LogisticRequestLine(osv.osv):
 
     _defaults = {
         'state': 'draft',
+        'name': lambda obj, cr, uid, context: obj.pool.get('ir.sequence').get(cr, uid, 'logistic.request.line'),
         #####################################################################################################
         # Todo : See if we do need company ID on lines...
         # 'company_id': lambda self, cr, uid, c: self.pool.get('res.company')._company_default_get(cr, uid, 'logistic.request.line', context=c),
