@@ -2,7 +2,7 @@
 <openerp>
 <data noupdate="1">
 
-    <record model="ir.module.category" id="module_category_logistic_request">
+    <!-- <record model="ir.module.category" id="module_category_logistic_request">
         <field name="name">Logistic Request</field>
         <field name="parent_id" ref="base.module_category_purchase_management"/>
         <field name="sequence">9</field>
@@ -18,7 +18,7 @@
         <field name="category_id" ref="module_category_logistic_request"/>
         <field name="implied_ids" eval="[(4, ref('group_logistic_request_user'))]"/>
     </record>
-    
+     -->
     <!--
         Not sure we need multi-company rule setup here !
          

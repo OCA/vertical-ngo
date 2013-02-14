@@ -29,10 +29,10 @@
     "website" : "http://www.openerp.com",
     "description": """
 This module allows you to manage your Logistic Request.
-===========================================================
+=======================================================
 
-When a purchase order is created, you now have the opportunity to save the related request.
-This new object will regroup and will allow you to easily keep track and order all your purchase orders.
+A Logistic request express a need that is requested somewhere.
+
 """,
     "depends" : [
         "purchase",
@@ -42,12 +42,12 @@ This new object will regroup and will allow you to easily keep track and order a
     "data" : [
             "security/logistic_request.xml",
             "security/ir.model.access.csv",
-            "wizard/logistic_request_partner_view.xml",
             "data/logistic_request_data.xml",
             "data/logistic_request_sequence.xml",
             "view/logistic_request_view.xml",
             "logistic_request_report.xml",
             "logistic_workflow.xml",
+            # "wizard/logistic_request_partner_view.xml",
     ],
     "auto_install": False,
     "test":[],

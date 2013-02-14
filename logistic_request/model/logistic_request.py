@@ -72,10 +72,27 @@ _logger = logging.getLogger(__name__)
 class LogisticRequest(osv.Model):
     _name = "logistic.request"
     _description="Logistic Request"
-            
+
+    def _get_request_line(self, cr, uid, ids, context=None):
+        result = {}
+        for line in self.pool.get('logistic.request.line').browse(cr, uid, ids, context=context):
+            result[line.request_id.id] = True
+        return result.keys()
+
+    def _amount_all(self, cr, uid, ids, name, args, context=None):
+        res = {}
+        for request in self.browse(cr, uid, ids, context=context):
+            res[request.id] = {
+                'amount_total': 0.0
+            }
+            for line in request.line_ids:
+                res[request.id]['amount_total'] += line.budget_tot_price
+        return res
+
     _columns = {
         'name': fields.char(
-            'Request Reference', size=32,required=True, 
+            'Request Reference', size=32,required=True,
+            readonly=True,
             states={
                 'in_progress':[('readonly',True)], 
                 'sent':[('readonly',True)], 
@@ -96,7 +113,8 @@ class LogisticRequest(osv.Model):
                 'in_progress':[('readonly',True)], 
                 'sent':[('readonly',True)],
                 'done':[('readonly',True)]
-                }
+                },
+            required=True
         ),
         'date_end': fields.datetime(
             'Desired Delivery Date', 
@@ -113,7 +131,7 @@ class LogisticRequest(osv.Model):
                 'in_progress':[('readonly',True)],
                 'sent':[('readonly',True)],
                 'done':[('readonly',True)]
-                }
+                },
             help = "Mobilization Officer or Logistic Coordinator in charge of the Logistic Request"
         ),
         'requestor_id': fields.many2one(
@@ -135,7 +153,7 @@ class LogisticRequest(osv.Model):
         ),
         'analytic_id':  fields.many2one('account.analytic.account', 'Project'),
         'activity_code': fields.char(
-            'Activity Code', size=32,required=True, 
+            'Activity Code', size=32,
             states={
                 'in_progress':[('readonly',True)], 
                 'sent':[('readonly',True)], 
@@ -195,6 +213,16 @@ class LogisticRequest(osv.Model):
                 ('done','Done')], 
             'State', required=True
         ),
+        'amount_total': fields.function(_amount_all, digits_compute=dp.get_precision('Account'), string='Total Budget',
+            store={
+                'logistic.request': (lambda self, cr, uid, ids, c={}: ids, ['line_ids'], 20),
+                'logistic.request.line': (
+                    _get_request_line, 
+                    ['product_qty','budget_unit_price','budget_tot_price','request_id'], 
+                    20
+                ),
+            },
+            multi='all'),
         #####################################################################################################
         # Todo : May be make a function field to show all lines related Offers
         # 'purchase_ids' : fields.one2many('purchase.order','request_id','Purchase Orders',states={'done': [('readonly', True)]}),
@@ -324,14 +352,22 @@ class LogisticRequestLine(osv.osv):
         self.write(cr, uid, ids, {'state': 'done'})
         return True
 
+    def _unit_amount_line(self, cr, uid, ids, prop, unknow_none, unknow_dict):
+        res = {}
+        for line in self.browse(cr, uid, ids):
+            price = line.budget_tot_price / line.product_qty
+            res[line.id] = price
+        return res
 
     _columns = {
         'product_id': fields.many2one('product.product', 'Product', required=True),
         'description': fields.char('Description', size=256, required=True),
         'product_qty': fields.float('Quantity', digits_compute=dp.get_precision('Product UoM'), required=True),
         'product_uom_id': fields.many2one('product.uom', 'Product UoM', required=True),
-        'budget_unit_price': fields.float('Budget Unit Price', digits_compute=dp.get_precision('Account')),
         'budget_tot_price': fields.float('Budget Total Price', digits_compute=dp.get_precision('Account')),
+        # 'budget_unit_price': fields.float('Budget Unit Price', digits_compute=dp.get_precision('Account')),
+        'budget_unit_price': fields.function(_unit_amount_line, string='Budget Unit Price', type="float",
+            digits_compute= dp.get_precision('Account'), store=True),
         'request_id' : fields.many2one('logistic.request','Logistic Request', ondelete='cascade'),
         'logistic_user_id': fields.many2one(
             'res.users', 'Assigned Logistic Specialist',
@@ -353,7 +389,7 @@ class LogisticRequestLine(osv.osv):
                 ('done','Done'),
                 ('refused','Refused'),
             ],
-            'State'
+            'State',
             help = "Draft: Created"
                    "Assigned: Line taken in charge by Logistic Officer"
                    "Quoted: Quotation made for the line"

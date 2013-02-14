@@ -144,29 +144,73 @@
                     <div class="oe_title">
                         <h1>
                             <label string="Logistic Request" />
-                            <field name="name" class="oe_inline"/>
+                            <field name="name" class="oe_inline" attrs="{'invisible': [('state', '=', 'draft')]}"/>
                         </h1>
                     </div>
                     <group>
                         <group>
-                            <field name="requestor_id"/>
                             <field name="country_id"/>
+                            <field name="requestor_id"/>
+                            <field name="type"/>
                             <field name="date_start"/>
                             <field name="date_end"/>
-                            <field name="warehouse_id"/>
-                            <field name="address_id"/>
-                            <field name="type"/>
-                            <field name="prefered_transport"/>
                         </group>
                         <group>
                             <field name="user_id"/>
-
                             <field name="company_id"/>
                             <field name="analytic_id"/>
                             <field name="activity_code"/>
                             <field name="origin"/>
                         </group>
                     </group>
+                    <group>
+                        <group colspan="4">
+                            <field name="warehouse_id"/>
+                            <field name="address_id"/>
+                        </group>
+                    </group>
+                <notebook>
+                    <page string="Request Lines">
+                        <field name="line_ids" colspan="4" nolabel="1">
+                            <tree string="Request Lines" editable="bottom">
+                                <field name="product_id" on_change="onchange_product_id(product_id,product_uom_id)"/>
+                                <field name="description"/>
+                                <field name="product_qty"/>
+                                <field name="product_uom_id"/>
+                                <field name="logistic_user_id"/>
+                                <field name="budget_unit_price"/>
+                                <field name="budget_tot_price"/>
+                                <field name="state" invisible="1"/>
+                                <button name="action_proc" string="Procure" type="object" states="draft" icon="gtk-go-forward"/>
+                                <button name="action_cancel" string="Cancel" type="object" states="draft" icon="terp-dialog-close"/>
+                            </tree>
+                            <form string="Request Lines">
+                                <field name="product_id" on_change="onchange_product_id(product_id,product_uom_id)"/>
+                                <field name="description"/>
+                                <field name="product_qty"/>
+                                <field name="product_uom_id"/>
+                                <field name="logistic_user_id"/>
+                                <field name="procurement_user_id"/>
+                                <field name="state" invisible="1"/>
+                                <field name="budget_unit_price"/>
+                                <field name="budget_tot_price"/>
+                                <button name="action_proc" string="Procure" type="object" states="draft" icon="gtk-go-forward"/>
+                                <button name="action_cancel" string="Cancel" type="object" states="draft" icon="terp-dialog-close"/>
+                            </form>
+
+                        </field>
+                        <group class="oe_subtotal_footer oe_right">
+                            <field name="amount_total" class="oe_subtotal_footer_separator" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                        </group>
+                        <group>
+                            <field name="prefered_transport" class="oe_inline"/>
+                        </group>
+                        <div class="oe_clear">
+                            <label for="description"/>
+                        </div>
+                        <field name="description" colspan="4" class="oe_inline" placeholder="Additional notes..."/>
+                    </page>
+                </notebook>
                 </sheet>
                 <!-- 
                 May be useful...
@@ -174,72 +218,10 @@
                     <field name="message_follower_ids" widget="mail_followers"/>
                     <field name="message_ids" widget="mail_thread"/>
                 </div> -->
-                
-                <notebook colspan="4">
-                    <page string="Products">
-                        <field name="line_ids" colspan="4" nolabel="1">
-                            <tree string="Products" editable="bottom">
-                                <field name="product_id" on_change="onchange_product_id(product_id,product_uom_id)"/>
-                                <field name="description"/>
-                                <field name="product_qty"/>
-                                <field name="product_uom_id"/>
-                                <field name="budget_unit_price"/>
-                                <field name="budget_tot_price"/>
-                                <field name="logistic_user_id"/>
-                                <field name="state" invisible="1"/>
-                                <button name="action_proc" string="Procure" type="object" states="draft" icon="gtk-go-forward"/>
-                                <button name="action_cancel" string="Cancel" type="object" states="draft" icon="terp-dialog-close"/>
-                            </tree>
-                            <form string="Products">
-                                <field name="product_id" on_change="onchange_product_id(product_id,product_uom_id)"/>
-                                <field name="description"/>
-                                <field name="product_qty"/>
-                                <field name="product_uom_id"/>
-                                <field name="budget_unit_price"/>
-                                <field name="budget_tot_price"/>
-                                <field name="logistic_user_id"/>
-                                <field name="procurement_user_id"/>
-                                <field name="state" invisible="1"/>
-                                <button name="action_proc" string="Procure" type="object" states="draft" icon="gtk-go-forward"/>
-                                <button name="action_cancel" string="Cancel" type="object" states="draft" icon="terp-dialog-close"/>
-                            </form>
-
-                        </field>
-                    <separator colspan="4"/>
-                    </page>
-                    <!-- To See if we implement the function field on related offers
-                        
-                        <page string="Costs Estimate">
-                                            <field colspan="4" name="purchase_ids" nolabel="1" mode="tree,form">
-                                                <tree string="Purchase Order">
-                                                    <field name="name" string="Reference"/>
-                                                    <field name="date_order" string="Order Date"/>
-                                                    <field name="date_valid"/>
-                                                    <field name="partner_id"/>
-                                                    <field name="company_id" groups="base.group_multi_company" widget="selection"/>
-                                                    <field name="location_id"/>
-                                                    <field name="minimum_planned_date"/>
-                                                    <field name="origin"/>
-                                                    <field name="state"/>
-                                                    <button name="purchase_cancel" states="draft,confirmed,wait_auth" string="Cancel Purchase Order" icon="gtk-cancel"/>                                
-                                                    <button name="purchase_confirm" states="draft" string="Confirm Purchase Order" icon="gtk-apply"/>
-                                                    <button name="purchase_approve" states="confirmed" string="Approved by Supplier" icon="gtk-ok"/>
-                                                </tree>
-                                             </field>
-                                            <separator colspan="4" string=""/>
-                                             <group col="8" colspan="4">
-                                              <label colspan="6"  string=""/>
-                                            <button name="%(action_logistic_request_partner)d" string="Request a Quotation" type="action" icon="gtk-execute"
-                                               attrs="{'readonly': [('state', '=', 'done')]}" />
-                                            </group>
-                                       </page> -->
-                    <page string="Notes">
-                        <field name="description" colspan="4" nolabel="1"/>
-                    </page>
-                </notebook>
             </form>
         </field>
     </record>
+
     <record model="ir.ui.view" id="view_logistic_request_tree">
         <field name="name">logistic.request.tree</field>
         <field name="type">tree</field>
@@ -275,8 +257,8 @@
                     <separator orientation="vertical"/>
                     <field name="name"/>
                     <field name="user_id" />
-                    <field name="exclusive" />
-                    <field name="type" />
+                    <field name="requestor_id" />
+                    <field name="analytic_id" />
                 </group>
                 <newline/>
                   <group expand="0" string="Group By..." groups="base.group_extended">
