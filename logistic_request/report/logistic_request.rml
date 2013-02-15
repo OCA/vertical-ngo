@@ -193,10 +193,10 @@
             <para style="terp_default_9">[ [[ (line_ids.product_id and line_ids.product_id.code) or '' ]] ] [[ (line_ids.product_id and line_ids.product_id.name) or '' ]]</para>
           </td>
           <td>
-            <para style="terp_default_Centre_9">[[ formatLang(line_ids.product_qty) ]]</para>
+            <para style="terp_default_Centre_9">[[ formatLang(line_ids.requested_qty) ]]</para>
           </td>
           <td>
-            <para style="terp_default_Centre_9">[[ (line_ids.product_uom_id and line_ids.product_uom_id.category_id and line_ids.product_uom_id.category_id.name) or '' ]]</para>
+            <para style="terp_default_Centre_9">[[ (line_ids.requested_uom_id and line_ids.requested_uom_id.category_id and line_ids.requested_uom_id.category_id.name) or '' ]]</para>
           </td>
         </tr>
       </blockTable>

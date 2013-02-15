@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-
+import logistic_request_split_line
 # import logistic_request_partner
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

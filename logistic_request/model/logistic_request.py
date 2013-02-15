@@ -91,7 +91,7 @@ class LogisticRequest(osv.Model):
 
     _columns = {
         'name': fields.char(
-            'Request Reference', size=32,required=True,
+            'Reference', size=32,required=True,
             readonly=True,
             states={
                 'in_progress':[('readonly',True)], 
@@ -224,7 +224,7 @@ class LogisticRequest(osv.Model):
                 'logistic.request': (lambda self, cr, uid, ids, c={}: ids, ['line_ids'], 20),
                 'logistic.request.line': (
                     _get_request_line, 
-                    ['product_qty','budget_unit_price','budget_tot_price','request_id'], 
+                    ['requested_qty','budget_unit_price','budget_tot_price','request_id'], 
                     20
                 ),
             },
@@ -239,8 +239,16 @@ class LogisticRequest(osv.Model):
         'state': 'draft',
         # 'company_id': lambda self, cr, uid, c: self.pool.get('res.company')._company_default_get(cr, uid, 'logistic.request', context=c),
         'user_id': lambda self, cr, uid, c: self.pool.get('res.users').browse(cr, uid, uid, c).id ,
-        'name': lambda obj, cr, uid, context: obj.pool.get('ir.sequence').get(cr, uid, 'logistic.request'),
+        'name': lambda obj, cr, uid, context: '/',
     }
+    _sql_constraints = [
+        ('name_uniq', 'unique(name)', 'Logistic Request Reference must be unique !'),
+    ]
+
+    def create(self, cr, uid, vals, context=None):
+        if vals.get('name','/')=='/':
+            vals['name'] = self.pool.get('ir.sequence').get(cr, uid, 'logistic.request') or '/'
+        return super(LogisticRequest, self).create(cr, uid, vals, context=context)
 
     def copy(self, cr, uid, id, default=None, context=None):
         if not default:
@@ -249,14 +257,14 @@ class LogisticRequest(osv.Model):
             'state':'draft',
             'name': self.pool.get('ir.sequence').get(cr, uid, 'logistic.request'),
         })
-        return super(LogisticRequest, self).copy(cr, uid, id, default, context)
+        return super(LogisticRequest, self).copy(cr, uid, id, default=default, context=context)
 
     def request_cancel(self, cr, uid, ids, context=None):
-        purchase_order_obj = self.pool.get('purchase.order')
-        for purchase in self.browse(cr, uid, ids, context=context):
-            for purchase_id in purchase.purchase_ids:
-                if str(purchase_id.state) in('draft','wait'):
-                    purchase_order_obj.action_cancel(cr,uid,[purchase_id.id])
+        # purchase_order_obj = self.pool.get('purchase.order')
+        # for purchase in self.browse(cr, uid, ids, context=context):
+        #     for purchase_id in purchase.purchase_ids:
+        #         if str(purchase_id.state) in('draft','wait'):
+        #             purchase_order_obj.action_cancel(cr,uid,[purchase_id.id])
         self.write(cr, uid, ids, {'state': 'cancel'})
         return True
 
@@ -299,7 +307,7 @@ class LogisticRequest(osv.Model):
     #     supplier_info = self.pool.get("product.supplierinfo")
     #     product = request_line.product_id
     #     default_uom_po_id = product.uom_po_id.id
-    #     qty = product_uom._compute_qty(cr, uid, request_line.product_uom_id.id, request_line.product_qty, default_uom_po_id)
+    #     qty = product_uom._compute_qty(cr, uid, request_line.requested_uom_id.id, request_line.requested_qty, default_uom_po_id)
     #     seller_delay = 0.0
     #     seller_price = False
     #     seller_qty = False
@@ -319,7 +327,14 @@ class LogisticRequest(osv.Model):
 class LogisticRequestLine(osv.osv):
 
     _name = "logistic.request.line"
-    _description="Logistic Request Line"
+    _description = "Logistic Request Line"
+    _rec_name = "id"
+    _inherit = ['mail.thread']
+    _track =  {
+        'state': {
+            'logistic_request.mt_request_line_assigned': lambda self, cr, uid, obj, ctx=None: obj['state'] == 'assigned',
+        },
+    }
 
     def action_proc(self, cr, uid, ids, context=None):
         """ Makes the procurement to warehouse set in logistic request
@@ -338,8 +353,8 @@ class LogisticRequestLine(osv.osv):
                         'origin': procurement_name,
                         'date_planned': date_planned,
                         'product_id': line.product_id.id,
-                        'product_qty': line.product_qty,
-                        'product_uom': line.product_uom_id.id,
+                        'requested_qty': line.requested_qty,
+                        'product_uom': line.requested_uom_id.id,
                         'location_id': location_id,
                         'procure_method': 'make_to_order',
                         'user_id': line.request_id.user_id.id,
@@ -351,87 +366,200 @@ class LogisticRequestLine(osv.osv):
         # set state to done
         self.write(cr, uid, ids, {'state': 'done'})
         return True
-
-    def action_cancel(self, cr, uid, ids, context=None):
-        """ Mark line as done => done by cost estimate
-        """
-        self.write(cr, uid, ids, {'state': 'done'})
-        return True
-
+    
     def _unit_amount_line(self, cr, uid, ids, prop, unknow_none, unknow_dict):
         res = {}
         for line in self.browse(cr, uid, ids):
-            price = line.budget_tot_price / line.product_qty
+            price = line.budget_tot_price / line.requested_qty
             res[line.id] = price
         return res
 
+    def _estimate_tot_cost(self, cr, uid, ids, prop, unknow_none, unknow_dict):
+        res = {}
+        for line in self.browse(cr, uid, ids):
+            price = line.estimated_goods_cost + line.estimated_transportation_cost
+            res[line.id] = price
+        return res
+
+    def _get_state(self, cr, uid, ids, prop, unknow_none, unknow_dict):
+        res = {}
+        for line in self.browse(cr, uid, ids):
+            state = line.state
+            res[line.id] = state
+        return res
+
     _columns = {
-        'name': fields.char('Line Ref.', size=32, required=True, readonly=True),
-        'product_id': fields.many2one('product.product', 'Product', required=True),
+        'id': fields.integer('ID', required=True, readonly=True),
+        'product_id': fields.many2one('product.product', 'Product'),
         'description': fields.char('Description', size=256, required=True),
-        'product_qty': fields.float('Quantity', digits_compute=dp.get_precision('Product UoM')),
-        'product_uom_id': fields.many2one('product.uom', 'Product UoM', required=True),
+        'requested_qty': fields.float('Req. Qty', digits_compute=dp.get_precision('Product UoM')),
+        'requested_uom_id': fields.many2one('product.uom', 'Product UoM', required=True),
         'budget_tot_price': fields.float('Budget Total Price', digits_compute=dp.get_precision('Account')),
         # 'budget_unit_price': fields.float('Budget Unit Price', digits_compute=dp.get_precision('Account')),
         'budget_unit_price': fields.function(_unit_amount_line, string='Budget Unit Price', type="float",
             digits_compute= dp.get_precision('Account'), store=True),
-        'request_id' : fields.many2one('logistic.request','Logistic Request', ondelete='cascade'),
+        'request_id' : fields.many2one('logistic.request','Request', ondelete='cascade'),
+        'requested_date': fields.related('request_id','date_end', string='Requested Date of Delivery', 
+            type='date', required=True, select=True, store = True),
+
         'logistic_user_id': fields.many2one(
             'res.users', 'Assigned Logistic Specialist',
-            help = "Logistic Specialist in charge of the Logistic Request Line"
+            help = "Logistic Specialist in charge of the Logistic Request Line",
+            track_visibility='onchange',
         ),
         'procurement_user_id': fields.many2one(
             'res.users', 'Assigned Procurement Officer',
-            help = "Assigned Procurement Officer in charge of the Logistic Request Line"
+            help = "Assigned Procurement Officer in charge of the Logistic Request Line",
+            track_visibility='onchange',
         ),
+        'confirmed_qty': fields.float('Prop. Qty', digits_compute=dp.get_precision('Product UoM')),
+        # 'confirmed_uom_id': fields.many2one('product.uom', 'Product UoM', required=True),
+        'source_supplier_id': fields.many2one('res.partner', 'Sourced From'),
+        'etd_date': fields.date('ETD', help="Estimated Date of Delivery"),
+        'estimated_goods_cost': fields.float('Goods Tot. Cost', digits_compute=dp.get_precision('Account')),
+        'estimated_transportation_cost': fields.float('Transportation Cost', digits_compute=dp.get_precision('Account')),
+        'estimated_tot_cost': fields.function(_estimate_tot_cost, string='Estimated Total Cost', type="float",
+            digits_compute= dp.get_precision('Account'), store=True),
+        
         # Do not remind what was this for...
         # 'company_id': fields.related('request_id','company_id',
         # type='many2one',relation='res.company',string='Company', store=True, readonly=True),
-        'state': fields.selection(
-            [
-                ('draft','Draft'),
+        'state': fields.selection([('draft','Draft'),
                 ('assigned','Assigned'),
                 ('cost_estimated','Cost Estimated'),
                 ('quoted','Quoted'),
                 ('waiting','Waiting Approval'),
-                ('done','Done'),
                 ('refused','Refused'),
-            ],
-            'State',
-            help = "Draft: Created"
-                   "Assigned: Line taken in charge by Logistic Officer"
-                   "Quoted: Quotation made for the line"
-                   "Waiting Approval: Wait on the requestor to approve the quote"
-                   "Done: The line has been processed and quote was accepted"
+                ('done','Done'),
+            ], 
+            'Status', required=True, 
+            help = "Draft: Created\n"
+                   "Assigned: Line taken in charge by Logistic Officer\n"
+                   "Quoted: Quotation made for the line\n"
+                   "Waiting Approval: Wait on the requestor to approve the quote\n"
+                   "Done: The line has been processed and quote was accepted\n"
                    "Refused: The line has been processed and quote was refused"
         ),
+        'status': fields.function(_get_state, string='Status', type="Selection", selection=[('draft','Draft'),
+                ('assigned','Assigned'),
+                ('cost_estimated','Cost Estimated'),
+                ('quoted','Quoted'),
+                ('waiting','Waiting Approval'),
+                ('refused','Refused'),
+                ('done','Done'),
+            ],),
+        
     }
 
     _defaults = {
         'state': 'draft',
-        'name': lambda obj, cr, uid, context: obj.pool.get('ir.sequence').get(cr, uid, 'logistic.request.line'),
         #####################################################################################################
         # Todo : See if we do need company ID on lines...
         # 'company_id': lambda self, cr, uid, c: self.pool.get('res.company')._company_default_get(cr, uid, 'logistic.request.line', context=c),
         #####################################################################################################
-
     }
+    
+    def copy_data(self, cr, uid, id, default=None, context=None):
+        if not default:
+            default = {}
+        default.update({
+                'state':'draft',
+                'logistic_user_id': False,
+                'procurement_user_id': False,
+            })
+        return super(LogisticRequestLine, self).copy_data(cr, uid, id, default=default, context=context)
+    # Seems like we need copy_data here instead !
+    ################################################################################
+    # def copy(self, cr, uid, id, default=None, context=None):
+    #     if not default:
+    #         default = {}
+    #     default.update({
+    #         'state':'draft',
+    #         'logistic_user_id': False,
+    #         'procurement_user_id': False,
+    #     })
+    #     return super(LogisticRequestLine, self).copy(cr, uid, id, default=default, context=context)
 
-    def onchange_product_id(self, cr, uid, ids, product_id, product_uom_id, context=None):
+    def _assign_logistic_user(self, cr, uid, req_line, logistic_user ,context=None):
+        """ Assign logistic user to the request line. Add it as a followers of the line
+        and set the state of the line as 'assigned' if actual state is draft.
+        
+        :param object req_line: browse record of the request.line to process
+        :param int logistic_user: id of the user assigned as the logistic specialist
+        """
+        self.message_subscribe_users(
+            cr, uid, [req_line.id],
+            user_ids=[logistic_user],
+            context=context)
+        if req_line.state == 'draft':
+            self.write(cr, uid, [req_line.id], {'state':'assigned'}, context=context)
+        return True
+
+    def write(self, cr, uid, ids, vals, context=None):
+        """ When setting a Logistic specialist or a procurement officer, automatically
+        add them to the message queue as followers. If already set and we change it,
+        remove the ol one from the followers list.
+        """
+        for request_line in self.browse(cr, uid, ids, context):
+            if 'logistic_user_id' in vals:
+                if request_line.logistic_user_id:
+                    self.message_unsubscribe_users(
+                        cr, uid, ids, 
+                        user_ids=[request_line.logistic_user_id.id],
+                        context=context)
+                self._assign_logistic_user(cr, uid, request_line, vals['logistic_user_id'], context=context)
+            elif 'procurement_user_id' in vals:
+                if request_line.procurement_user_id:
+                    self.message_unsubscribe_users(
+                        cr, uid, ids, 
+                        user_ids=[request_line.procurement_user_id.id],
+                        context=context)
+                self.message_subscribe_users(
+                    cr, uid, ids,
+                    user_ids=[vals['procurement_user_id']],
+                    context=context)
+        return super(LogisticRequestLine, self).write(cr, uid, ids, vals, context=context)
+
+    def onchange_product_id(self, cr, uid, ids, product_id, requested_uom_id, context=None):
         """ Changes UoM and name if product_id changes.
         @param name: Name of the field
         @param product_id: Changed product_id
         @return:  Dictionary of changed values
         """
-        value = {'product_uom_id': ''}
+        value = {'requested_uom_id': ''}
         if product_id:
             prod = self.pool.get('product.product').browse(cr, uid, product_id, context=context)
             value = {
-                    'product_uom_id': prod.uom_id.id,
-                    'product_qty': 1.0,
+                    'requested_uom_id': prod.uom_id.id,
+                    # 'confirmed_uom_id': prod.uom_id.id,
+                    'requested_qty': 1.0,
                     'description' : prod.name
                 }
         return {'value': value}
+
+    def line_assigned(self, cr, uid, ids, context=None):
+        self.write(cr, uid, ids, {'state':'assigned'}, context=context)
+        return True        
+
+    def line_estimated(self, cr, uid, ids, context=None):
+        self.write(cr, uid, ids, {'state':'cost_estimated'}, context=context)
+        return True        
+
+    def line_quoted(self, cr, uid, ids, context=None):
+        self.write(cr, uid, ids, {'state':'quoted'}, context=context)
+        return True        
+
+    def line_waiting(self, cr, uid, ids, context=None):
+        self.write(cr, uid, ids, {'state':'waiting'}, context=context)
+        return True        
+
+    def line_done(self, cr, uid, ids, context=None):
+        self.write(cr, uid, ids, {'state':'done'}, context=context)
+        return True        
+
+    def line_refused(self, cr, uid, ids, context=None):
+        self.write(cr, uid, ids, {'state':'refused'}, context=context)
+        return True        
 
     #####################################################################################################
     # TODO : Originally made on logisitc request not line. See if we can re-use part of it
@@ -480,7 +608,7 @@ class LogisticRequestLine(osv.osv):
     #             purchase_order_line.create(cr, uid, {
     #                 'order_id': purchase_id,
     #                 'name': product.partner_ref,
-    #                 'product_qty': qty,
+    #                 'requested_qty': qty,
     #                 'product_id': product.id,
     #                 'product_uom': default_uom_po_id,
     #                 'price_unit': seller_price,
@@ -532,8 +660,8 @@ class LogisticRequestLine(osv.osv):
 #                     'company_id':procurement.company_id.id,
 #                     'line_ids': [(0,0,{
 #                         'product_id': procurement.product_id.id,
-#                         'product_uom_id': procurement.product_uom.id,
-#                         'product_qty': procurement.product_qty
+#                         'requested_uom_id': procurement.product_uom.id,
+#                         'requested_qty': procurement.requested_qty
 # 
 #                     })],
 #                     'purchase_ids': [(6,0,[po_id])]

@@ -7,131 +7,6 @@
             sequence="25"/>
         <menuitem id="menu_logistic_request_base" name="Logistic Request" parent="menu_logistic" sequence="2"/>
 
-
-
-<!--    Keep this temporarly until we decide how to handle cost estimate
-        It could be useful...
-
-        <record id="purchase.purchase_order_form" model="ir.ui.view">
-            <field name="name">purchase.order.form</field>
-            <field name="model">purchase.order</field>
-            <field name="type">form</field>
-            <field name="arch" type="xml">
-                <form string="Cost Estimate">
-                    <group col="6" colspan="4">
-                        <field name="name"/>
-                        <field name="date_order"/>
-                        <newline/>
-                        <field name="warehouse_id" on_change="onchange_warehouse_id(warehouse_id)" widget="selection"/>
-                        <field name="partner_ref"/>
-                        <field name="company_id" groups="base.group_multi_company" widget="selection"/>
-                    </group>
-                    <notebook colspan="4">
-                        <page string="Cost Estimate">
-                            <field name="partner_id" on_change="onchange_partner_id(partner_id)" context="{'search_default_supplier':1,'default_supplier':1,'default_customer':0}"  options='{"quick_create": false}'/>
-                            <field name="partner_address_id" options='{"quick_create": false}'/>
-                            <field domain="[('type','=','purchase')]" name="pricelist_id" groups="base.group_extended"/>
-                            <field name="origin" groups="base.group_extended"/>
-                            <newline/>
-                            <field colspan="4" name="order_line" nolabel="1" mode="tree,form">
-                                <tree string="Cost Estimate Lines">
-                                    <field name="date_planned"/>
-                                    <field name="name"/>
-                                    <field name="product_qty"/>
-                                    <field name="product_uom"/>
-                                    <field name="price_unit"/>
-                                    <field name="price_subtotal"/>
-                                </tree>
-                            </field>
-                            <group col="7" colspan="4">
-                                <field name="amount_untaxed" sum="Untaxed amount"/>
-                                <field name="amount_tax"/>
-                                <field name="amount_total" sum="Total amount"/>
-                                <button name="button_dummy" states="draft" string="Compute" type="object" icon="gtk-execute"/>
-                            </group>
-                            <separator string="Rejection Reason" colspan="4"/>
-                            <field name="reject" colspan="4" nolabel="1"/>
-                            <group col="11" colspan="4">
-                                <field name="state" widget="statusbar" statusbar_visible="draft,approved,done" statusbar_colors='{"except_picking":"red","except_invoice":"red","confirmed":"blue","wait":"blue"}' readonly="1"/>
-                                <button name="purchase_cancel" states="draft,confirmed,wait_auth" string="Refuse" icon="gtk-cancel"/>
-                                <button name="action_cancel_draft" states="cancel" string="Set to Draft" type="object" icon="gtk-convert"/>
-                                <button name="action_cancel" states="approved,except_picking,except_invoice,wait" string="Refuse" type="object" icon="gtk-cancel"/>
-                                <button name="picking_ok" states="except_picking" string="Manually Corrected" icon="gtk-convert"/>
-                                <button name="invoice_ok" states="except_invoice" string="Manually Corrected" icon="gtk-convert"/>
-                                <button name="purchase_confirm" states="draft" string="Convert to Cost Estimate" icon="gtk-go-forward"/>
-                                <button name="purchase_appbuyer" states="wait_auth" string="Approve Cost Estimate" icon="gtk-ok"/>
-                                <button name="purchase_approve" states="confirmed" string="Approved" icon="gtk-go-forward"/>
-                                <button name="%(purchase.report_purchase_order)d" string="Print" states="approved" type="action" icon="gtk-print"/>
-                            </group>
-                        </page>
-                        <page string="Delivery &amp; Invoicing" groups="base.group_extended">
-                            <group colspan="2" col="2">
-                                <separator string="Delivery" colspan="2"/>
-                                <field name="dest_address_id" on_change="onchange_dest_address_id(dest_address_id)"/>
-                                <field name="minimum_planned_date"/>
-                                <field name="location_id"/>
-                            </group>
-                            <group colspan="2" col="2">
-                                <separator string="Invoice Control" colspan="2"/>
-                                <field name="invoice_method" invisible="1"/>
-                                <field name="partner_invoice_id"/>
-                                <field name="fiscal_position" widget="selection"/>
-                            </group>
-                            <newline/>
-                            <separator string="Purchase Control" colspan="4"/>
-                            <field name="validator"/>
-                            <field name="date_approve"/>
-                        </page>
-                        <page string="Notes">
-                            <field colspan="4" name="notes" nolabel="1"/>
-                        </page>
-                    </notebook>
-                </form>
-            </field>
-        </record>
-
-
-
-    <record model="ir.ui.view" id="purchase_order_form_inherit">
-        <field name="name">purchase.order.form.inherit</field>
-        <field name="type">form</field>
-        <field name="model">purchase.order</field>
-        <field name="inherit_id" ref="purchase.purchase_order_form"/>
-        <field name="arch" type="xml">
-            <field name="date_order" position="after">
-                <field name="date_valid"/>
-                <field name="request_id" groups="base.group_extended"/>
-            </field>
-        </field>
-    </record>
-
-    <record model="ir.ui.view" id="purchase_order_search_inherit">
-        <field name="name">purchase.order.list.select.inherit</field>
-        <field name="type">form</field>
-        <field name="model">purchase.order</field>
-        <field name="inherit_id" ref="purchase.view_purchase_order_filter"/>
-        <field name="arch" type="xml">
-            <xpath expr="/search/group/filter[@name='not_invoiced']" position="after">
-             <separator orientation="vertical"/>
-             <filter icon="terp-gtk-jump-to-rtl" string="Request" domain="[('request_id','!=',False)]"  help="Purchase Orders with request"/>
-            </xpath>
-        </field>
-    </record>
-
-    <record model="ir.ui.view" id="request_for_quotation_inherit">
-        <field name="name">request.for.quotation.select.inherit</field>
-        <field name="type">form</field>
-        <field name="model">purchase.order</field>
-        <field name="inherit_id" ref="purchase.view_request_for_quotation_filter"/>
-        <field name="arch" type="xml">
-            <xpath expr="/search/group/filter[@name='not_invoiced']" position="after">
-             <separator orientation="vertical"/>
-             <filter icon="terp-gtk-jump-to-rtl" string="Request" domain="[('request_id','!=',False)]"  help="Purchase Orders with request"/>
-            </xpath>
-        </field>
-    </record>
- -->
-
     <record model="ir.ui.view" id="view_logistic_request_form">
         <field name="name">logistic.request.form</field>
         <field name="type">form</field>
@@ -173,10 +48,11 @@
                     <page string="Request Lines">
                         <field name="line_ids" colspan="4" nolabel="1">
                             <tree string="Request Lines" editable="bottom">
-                                <field name="product_id" on_change="onchange_product_id(product_id,product_uom_id)"/>
+                                <field name="product_id" on_change="onchange_product_id(product_id,requested_uom_id)"/>
                                 <field name="description"/>
-                                <field name="product_qty"/>
-                                <field name="product_uom_id"/>
+                                <field name="requested_qty"/>
+                                <field name="requested_uom_id"/>
+                                <!-- <field name="confirmed_uom_id" invisible="True"/> -->
                                 <field name="logistic_user_id"/>
                                 <field name="budget_unit_price"/>
                                 <field name="budget_tot_price"/>
@@ -185,10 +61,11 @@
                                 <button name="action_cancel" string="Cancel" type="object" states="draft" icon="terp-dialog-close"/>
                             </tree>
                             <form string="Request Lines">
-                                <field name="product_id" on_change="onchange_product_id(product_id,product_uom_id)"/>
+                                <field name="product_id" on_change="onchange_product_id(product_id,requested_uom_id)"/>
                                 <field name="description"/>
-                                <field name="product_qty"/>
-                                <field name="product_uom_id"/>
+                                <field name="requested_qty"/>
+                                <field name="requested_uom_id"/>
+                                <!-- <field name="confirmed_uom_id" invisible="True"/> -->
                                 <field name="logistic_user_id"/>
                                 <field name="procurement_user_id"/>
                                 <field name="state" invisible="1"/>
@@ -238,6 +115,7 @@
                 <field name="country_id"/>
                 <field name="company_id"/>
                 <field name="analytic_id"/>
+                <field name="amount_total" sum="Total Budget"/>
                 <field name="state"/>
             </tree>
         </field>
@@ -286,7 +164,9 @@
         <field name="res_model">logistic.request</field>
         <field name="view_type">form</field>
         <field name="view_mode">tree,form</field>
-        <field name="context">{"search_default_user_id":uid,}</field>
+        <field name="context">{}</field>
+        <!-- Example to open in a blink the right filtred list -->
+        <!-- <field name="context">{"search_default_user_id":uid,}</field> -->
         <field name="search_view_id" ref="view_logistic_request_filter"/>
         <field name="help"></field>
     </record>
@@ -303,14 +183,16 @@
         <field name="model">logistic.request.line</field>
         <field name="arch" type="xml">
            <tree string="Logistic Request Line">
-             <field name="product_id" on_change="onchange_product_id(product_id,product_uom_id)"/>
+             <field name="request_id"/>
+             <field name="product_id" on_change="onchange_product_id(product_id,requested_uom_id)"/>
              <field name="description"/>
-             <field name="product_qty"/>
-             <field name="product_uom_id"/>
+             <field name="requested_qty"/>
+             <field name="requested_uom_id"/>
              <field name="logistic_user_id"/>
+             <field name="procurement_user_id"/>
              <field name="budget_unit_price"/>
-             <field name="budget_tot_price"/>
-             <field name="state" invisible="1"/>
+             <field name="budget_tot_price" sum="Total Budget"/>
+             <field name="state"/>
              <button name="action_proc" string="Procure" type="object" states="draft" icon="gtk-go-forward"/>
              <button name="action_cancel" string="Cancel" type="object" states="draft" icon="terp-dialog-close"/>
            </tree>
@@ -324,40 +206,70 @@
         <field name="arch" type="xml">
             <form string="Logistic Request Line" version="7.0">
                 <header>
-                    <!-- <button name="request_cancel" states="draft,sent,in_progress" string="Cancel" type="object" /> -->
-                    <field name="state" select="1" readonly ="1" widget="statusbar" statusbar_visible="draft,assigned,cost_estimated,quoted,waiting,done" statusbar_colors='{"assigned":"blue"}'/>
+                    <button name="line_assigned" states="draft" string="Assigned" type="object" />
+                    <button name="line_estimated" states="assigned" string="Estimated" type="object" />
+                    <button name="line_quoted" states="cost_estimated" string="Quoted" type="object" />
+                    <button name="line_waiting" states="quoted" string="Waiting" type="object" />
+                    <button name="line_done" states="quoted,waiting" string="Done" type="object" />
+                    <button name="line_refused" states="draft,assigned,cost_estimated,quoted,waiting" string="Refused" type="object" />
+                    <!-- <field name="state" widget="statusbar" /> -->
+                    <field name="status" widget="statusbar" />
                 </header>
-                <sheet string="Request Line">
-                    <div class="oe_title">
+                <sheet>
+                    <!-- <div class="oe_title"> -->
                         <h1>
-                            <label string="Request Line" />
-                            <field name="name" class="oe_inline" attrs="{'invisible': [('state', '=', 'draft')]}"/>
+                            <label string="Request"/>
+                            <field name="request_id" class="oe_inline" readonly="1"/> / 
+                            <label string="Line N° "/>
+                            <field name="id" class="oe_inline" readonly="1"/>
                         </h1>
-                    </div>
+                    <!-- </div> -->
                     <group>
                         <group>
-                             <field name="product_id" on_change="onchange_product_id(product_id,product_uom_id)"/>
-                             <field name="description"/>
-                             <field name="product_qty"/>
-                             <field name="product_uom_id"/>
-                             <field name="logistic_user_id"/>
-                             <field name="procurement_user_id"/>
+                            
+                            <!-- <label string="Product: " attrs="{'invisible': [('product_id', '=', False)]}"/> -->
+                            <field name="product_id" on_change="onchange_product_id(product_id,requested_uom_id)"/>
+                            <!-- <label string="Description: " attrs="{'invisible': [('product_id', '!=', False)]}"/> -->
+                            <field name="description"/>
                         </group>
                         <group>
-                             <field name="state" invisible="1"/>
-                             <field name="budget_unit_price"/>
-                             <field name="budget_tot_price"/>
-                             <button name="action_proc" string="Procure" type="object" states="draft" icon="gtk-go-forward"/>
-                             <button name="action_cancel" string="Cancel" type="object" states="draft" icon="terp-dialog-close"/>
+                            <field name="logistic_user_id"/>
+                            <field name="procurement_user_id"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group name="requested_grp" string="Demand">
+                             <label for="requested_qty"/>
+                             <div>
+                                 <field name="requested_qty" class="oe_inline"/>
+                                 <field name="requested_uom_id" class="oe_inline"/>
+                                 <button name="%(action_request_split_into)d" string="Split it" type="action" states="draft,assigned" />
+                             </div>
+                             <field name="requested_date"/>
+                             <field name="budget_unit_price" widget="monetary"/>
+                             <field name="budget_tot_price" widget="monetary"/>
+                        </group>
+                        <group name="sourced_grp" string="Proposed">
+                            <label for="confirmed_qty"/>
+                            <div>
+                                <field name="confirmed_qty" class="oe_inline"/>
+                                <!-- <field name="confirmed_uom_id" class="oe_inline"/> -->
+                            </div>
+                            <field name="etd_date"/>
+                            <field name="source_supplier_id"/>
+                            <button name="action_proc" string="Procure" type="object" states="draft" icon="gtk-go-forward"/>
+                            <button name="action_cancel" string="Cancel" type="object" states="draft" icon="terp-dialog-close"/>
+                            <field name="estimated_goods_cost" widget="monetary"/>
+                            <field name="estimated_transportation_cost" widget="monetary"/>
+                            <field name="estimated_tot_cost" widget="monetary"/>
+                            <field name="state" invisible="1"/>
                         </group>
                     </group>
                 </sheet>
-                <!-- 
-                May be useful...
                 <div class="oe_chatter">
                     <field name="message_follower_ids" widget="mail_followers"/>
                     <field name="message_ids" widget="mail_thread"/>
-                </div> -->
+                </div>
             </form>
         </field>
     </record>
@@ -400,7 +312,9 @@
         <field name="res_model">logistic.request.line</field>
         <field name="view_type">form</field>
         <field name="view_mode">tree,form</field>
-        <field name="context">{"search_default_logistic_user_id":uid,}</field>
+        <field name="context">{}</field>
+        <!-- Example to open in a blink the right filtred list -->
+        <!-- <field name="context">{"search_default_logistic_user_id":uid,}</field> -->
         <field name="search_view_id" ref="view_logistic_request_line_filter"/>
         <field name="help"></field>
     </record>

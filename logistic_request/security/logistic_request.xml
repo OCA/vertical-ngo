@@ -24,14 +24,14 @@
          
         <record model="ir.rule" id="logistic_request_comp_rule">
             <field name="name">Logistic Request multi-company</field>
-            <field name="model_id" ref="model_logistic_request"/>
+            <field name="model_id" ref="requested_qty"/>
             <field name="global" eval="True"/>
             <field name="domain_force">['|',('company_id','=',False),('company_id','child_of',[user.company_id.id])]</field>
         </record>
 
         <record model="ir.rule" id="logistic_request_line_comp_rule">
             <field name="name">Logistic Request Line multi-company</field>
-            <field name="model_id" ref="model_logistic_request_line"/>
+            <field name="model_id" ref="requested_qty_line"/>
             <field name="global" eval="True"/>
             <field name="domain_force">['|',('company_id','=',False),('company_id','child_of',[user.company_id.id])]</field>
         </record> -->

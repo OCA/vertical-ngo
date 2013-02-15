@@ -7,4 +7,14 @@
             model="ir.values"
             name="set"/>
     </data>
+    <data noupdate="1">
+        
+        <!-- LR line-related subtypes for messaging / Chatter -->
+        <record id="mt_request_line_assigned" model="mail.message.subtype">
+            <field name="name">Request Line Assigned</field>
+            <field name="res_model">logistic.request.line</field>
+            <field name="default" eval="False"/>
+            <field name="description">Request Line Assigned</field>
+        </record>
+    </data>
 </openerp>
