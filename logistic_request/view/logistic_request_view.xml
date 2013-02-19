@@ -258,7 +258,7 @@
                                 <!-- <field name="confirmed_uom_id" class="oe_inline"/> -->
                             </div>
                             <field name="etd_date"/>
-                            <field name="source_supplier_id"/>
+                            <field name="procure_supplier_id"/>
                             <field name="confirmed_type"/>
                             <field name="dispatch_wh_id"/>
                             <button name="action_proc" string="Procure" type="object" states="draft" icon="gtk-go-forward"/>
