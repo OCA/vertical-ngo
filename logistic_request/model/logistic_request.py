@@ -457,13 +457,12 @@ class LogisticRequestLine(osv.osv):
         ),
         'confirmed_qty': fields.float('Prop. Qty', digits_compute=dp.get_precision('Product UoM')),
         # 'confirmed_uom_id': fields.many2one('product.uom', 'Product UoM', required=True),
-        'confirmed_type': fields.related('request_id','type', string='Confirmed Type', 
-            type='selection', store=True,
-            selection=[
-                ('procurement','Procurement'),
-                ('cost_estimate','Cost Estimate Only'),
-                ('wh_dispatch','Warehouse Dispatch')]
-            ),
+        'confirmed_type': fields.selection([
+            ('procurement','Procurement'),
+            ('cost_estimate','Cost Estimate Only'),
+            ('wh_dispatch','Warehouse Dispatch')],
+            'Confirmed Type',
+        ),
         'procure_supplier_id': fields.many2one('res.partner', 'Procured From'),
         'dispatch_wh_id': fields.many2one('stock.warehouse', 'Dispatch from Warehouse'),
         'etd_date': fields.date('ETD', help="Estimated Date of Delivery"),
