@@ -61,6 +61,8 @@ class LogisticRequestSplitLine(TransientModel):
                     'logistic_user_id': line.logistic_user_id.id,
                     'procurement_user_id': line.procurement_user_id.id,
                 }
+                # TODO: Think to implement messaging posting on new generated line, we
+                # want to explicit that we split the line, warn the concerned users about it, etc..
                 current_line = line_obj.copy(cr, uid, line.id, default = default_val, context=context)
         return {'type': 'ir.actions.act_window_close'}
 

@@ -329,6 +329,7 @@ class LogisticRequestLine(osv.osv):
     _name = "logistic.request.line"
     _description = "Logistic Request Line"
     _rec_name = "id"
+    _order = "request_id asc"
     _inherit = ['mail.thread']
     _track =  {
         'state': {
@@ -435,7 +436,7 @@ class LogisticRequestLine(osv.osv):
         'budget_unit_price': fields.function(_unit_amount_line, string='Budget Unit Price', type="float",
             digits_compute= dp.get_precision('Account'), store=True),
         'request_id' : fields.many2one('logistic.request','Request', ondelete='cascade'),
-        'requested_date': fields.related('request_id','date_end', string='Requested Date of Delivery', 
+        'requested_date': fields.related('request_id','date_end', string='Requested Date', 
             type='date', select=True, store = True, track_visibility='always'),
 
         'logistic_user_id': fields.many2one(
@@ -498,15 +499,16 @@ class LogisticRequestLine(osv.osv):
     def copy_data(self, cr, uid, id, default=None, context=None):
         if not default:
             default = {}
-        default.update({
-                'state':'draft',
-                'logistic_user_id': False,
-                'procurement_user_id': False,
-                'procurement_user_id': False,
-                'message_ids' : [],
-                'message_follower_ids' : [],
-            })
-        return super(LogisticRequestLine, self).copy_data(cr, uid, id, default=default, context=context)
+        std_default = {
+                    'logistic_user_id': False,
+                    'procurement_user_id': False,
+                    # TODO: Not sure it's mandatory, but seems to be needed otherwise
+                    # Messages are copied... strange...
+                    # 'message_ids' : [],
+                    # 'message_follower_ids' : [],
+        }
+        std_default.update(default)
+        return super(LogisticRequestLine, self).copy_data(cr, uid, id, default=std_default, context=context)
 
     def _message_get_auto_subscribe_fields(self, cr, uid, updated_fields, auto_follow_fields=['user_id'], context=None):
         """ Returns the list of relational fields linking to res.users that should
