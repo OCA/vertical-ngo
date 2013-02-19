@@ -107,7 +107,7 @@ class LogisticRequest(osv.Model):
                 'done':[('readonly',True)]
             }
         ),
-        'date_start': fields.datetime(
+        'date_start': fields.date(
             'Request Date', 
             states={
                 'in_progress':[('readonly',True)], 
@@ -116,7 +116,7 @@ class LogisticRequest(osv.Model):
                 },
             required=True
         ),
-        'date_end': fields.datetime(
+        'date_end': fields.date(
             'Desired Delivery Date', 
             states={
                 'in_progress':[('readonly',True)],
@@ -333,8 +333,42 @@ class LogisticRequestLine(osv.osv):
     _track =  {
         'state': {
             'logistic_request.mt_request_line_assigned': lambda self, cr, uid, obj, ctx=None: obj['state'] == 'assigned',
+            'logistic_request.mt_request_line_quoted': lambda self, cr, uid, obj, ctx=None: obj['state'] == 'quoted',
         },
     }
+
+    # TODO: We could use the messageload method overriding to display in the LR line
+    # some message that would have been sent on his parent LR:
+    # Messages display management
+    #     ++++++++++++++++++++++++++++
+    # 
+    #     By default, the mail_thread widget shows all messages related to the current document beside the document, 
+    #     in the History and comments section. However, you may want to display other messages in the widget. 
+    #     For example, the OpenChatter on res.users model shows
+    # 
+    #      - messages related to the user, as usual (messages with ``model = res.users, res_id = current_document_id``)
+    #      - messages directly pushed to this user (containing @login)
+    # 
+    #     The best way to direct the messages that will be displayed in the OpenChatter widget is to override the ``message_load`` method. For example, the following method fetches messages as usual, but also fetches messages linked to the task project that contain the task name. Please refer to the API for more details about the arguments.
+    # 
+    #     ::
+    # 
+    #       def message_load(self, cr, uid, ids, limit=100, offset=0, domain=[], ascent=False, root_ids=[False], context=None):
+    #         msg_obj = self.pool.get('mail.message')
+    #         for my_task in self.browse(cr, uid, ids, context=context):
+    #           # search as usual messages related to the current document
+    #           msg_ids += msg_obj.search(cr, uid, ['|', '&', ('res_id', '=', my_task.id), ('model', '=', self._name),
+    #             # add: search in the current task project messages
+    #             '&', '&', ('res_id', '=', my_task.project_id.id), ('model', '=', 'project.project'),
+    #             # ... containing the task name
+    #             '|', ('body', 'like', '%s' % (my_task.name)), ('body_html', 'like', '%s' % (my_task.name))
+    #             ] + domain, limit=limit, offset=offset, context=context)
+    #         # if asked: add ancestor ids to have complete threads
+    #         if (ascent): msg_ids = self._message_add_ancestor_ids(cr, uid, ids, msg_ids, root_ids, context=context)
+    #         return msg_obj.read(cr, uid, msg_ids, context=context)
+    #     
+
+
 
     def action_proc(self, cr, uid, ids, context=None):
         """ Makes the procurement to warehouse set in logistic request
@@ -391,8 +425,10 @@ class LogisticRequestLine(osv.osv):
     _columns = {
         'id': fields.integer('ID', required=True, readonly=True),
         'product_id': fields.many2one('product.product', 'Product'),
-        'description': fields.char('Description', size=256, required=True),
-        'requested_qty': fields.float('Req. Qty', digits_compute=dp.get_precision('Product UoM')),
+        'description': fields.char('Description', size=256, required=True, track_visibility='always'),
+        'requested_qty': fields.float('Req. Qty', 
+            digits_compute=dp.get_precision('Product UoM'), 
+            track_visibility='always',),
         'requested_uom_id': fields.many2one('product.uom', 'Product UoM', required=True),
         'budget_tot_price': fields.float('Budget Total Price', digits_compute=dp.get_precision('Account')),
         # 'budget_unit_price': fields.float('Budget Unit Price', digits_compute=dp.get_precision('Account')),
@@ -400,15 +436,15 @@ class LogisticRequestLine(osv.osv):
             digits_compute= dp.get_precision('Account'), store=True),
         'request_id' : fields.many2one('logistic.request','Request', ondelete='cascade'),
         'requested_date': fields.related('request_id','date_end', string='Requested Date of Delivery', 
-            type='date', required=True, select=True, store = True),
+            type='date', select=True, store = True, track_visibility='always'),
 
         'logistic_user_id': fields.many2one(
-            'res.users', 'Assigned Logistic Specialist',
+            'res.users', 'Logistic Specialist',
             help = "Logistic Specialist in charge of the Logistic Request Line",
             track_visibility='onchange',
         ),
         'procurement_user_id': fields.many2one(
-            'res.users', 'Assigned Procurement Officer',
+            'res.users', 'Procurement Officer',
             help = "Assigned Procurement Officer in charge of the Logistic Request Line",
             track_visibility='onchange',
         ),
@@ -432,7 +468,7 @@ class LogisticRequestLine(osv.osv):
                 ('refused','Refused'),
                 ('done','Done'),
             ], 
-            'Status', required=True, 
+            'Status', required=True, track_visibility='onchange',
             help = "Draft: Created\n"
                    "Assigned: Line taken in charge by Logistic Officer\n"
                    "Quoted: Quotation made for the line\n"
@@ -466,58 +502,68 @@ class LogisticRequestLine(osv.osv):
                 'state':'draft',
                 'logistic_user_id': False,
                 'procurement_user_id': False,
+                'procurement_user_id': False,
+                'message_ids' : [],
+                'message_follower_ids' : [],
             })
         return super(LogisticRequestLine, self).copy_data(cr, uid, id, default=default, context=context)
-    # Seems like we need copy_data here instead !
-    ################################################################################
-    # def copy(self, cr, uid, id, default=None, context=None):
-    #     if not default:
-    #         default = {}
-    #     default.update({
-    #         'state':'draft',
-    #         'logistic_user_id': False,
-    #         'procurement_user_id': False,
-    #     })
-    #     return super(LogisticRequestLine, self).copy(cr, uid, id, default=default, context=context)
 
-    def _assign_logistic_user(self, cr, uid, req_line, logistic_user ,context=None):
-        """ Assign logistic user to the request line. Add it as a followers of the line
-        and set the state of the line as 'assigned' if actual state is draft.
+    def _message_get_auto_subscribe_fields(self, cr, uid, updated_fields, auto_follow_fields=['user_id'], context=None):
+        """ Returns the list of relational fields linking to res.users that should
+            trigger an auto subscribe. The default list checks for the fields
+            - called 'user_id'
+            - linking to res.users
+            - with track_visibility set
+            We override it here to add logistic_user_id and procurement_user_id to the list
+        """
+        fields_to_follow = ['logistic_user_id','procurement_user_id']
+        fields_to_follow.extend(auto_follow_fields)
+        res = super(LogisticRequestLine, self)._message_get_auto_subscribe_fields(cr, uid, updated_fields, 
+            auto_follow_fields = fields_to_follow,
+            context=context)
+        return res
+
+    def _send_note_to_logistic_user(self, cr, uid, req_line, context=None):
+        """Post a message to warn the logistic specialist that a new line has been associated."""
+        subject = "Logistic Request Line %s Assigned" %(req_line.request_id.name+'/'+str(req_line.id))
+        details = "This new request concerns %s and is due for %s" %(req_line.description,req_line.requested_date)
+        # TODO: Posting the message here do not send it to the just added foloowers...
+        # We need to find a way to propagate this properly.
+        self.message_post(cr, uid, [req_line.id], body=details, subject=subject, context=context)
+        
+    def _manage_logistic_user_change(self, cr, uid, req_line ,context=None):
+        """Set the state of the line as 'assigned' if actual state is draftand post
+        a message to let the logistic user about the new request line to be trated.
         
         :param object req_line: browse record of the request.line to process
-        :param int logistic_user: id of the user assigned as the logistic specialist
         """
-        self.message_subscribe_users(
-            cr, uid, [req_line.id],
-            user_ids=[logistic_user],
-            context=context)
+        self._send_note_to_logistic_user(cr, uid, req_line, context=context)
         if req_line.state == 'draft':
             self.write(cr, uid, [req_line.id], {'state':'assigned'}, context=context)
         return True
 
     def write(self, cr, uid, ids, vals, context=None):
-        """ When setting a Logistic specialist or a procurement officer, automatically
-        add them to the message queue as followers. If already set and we change it,
-        remove the ol one from the followers list.
+        """ Call the _assign_logistic_user whenb changing it. This will also
+        pass the state to 'assigned' if stil in draft.
         """
         for request_line in self.browse(cr, uid, ids, context):
             if 'logistic_user_id' in vals:
-                if request_line.logistic_user_id:
-                    self.message_unsubscribe_users(
-                        cr, uid, ids, 
-                        user_ids=[request_line.logistic_user_id.id],
-                        context=context)
-                self._assign_logistic_user(cr, uid, request_line, vals['logistic_user_id'], context=context)
-            elif 'procurement_user_id' in vals:
-                if request_line.procurement_user_id:
-                    self.message_unsubscribe_users(
-                        cr, uid, ids, 
-                        user_ids=[request_line.procurement_user_id.id],
-                        context=context)
-                self.message_subscribe_users(
-                    cr, uid, ids,
-                    user_ids=[vals['procurement_user_id']],
-                    context=context)
+                # if request_line.logistic_user_id:
+                #     self.message_unsubscribe_users(
+                #         cr, uid, ids, 
+                #         user_ids=[request_line.logistic_user_id.id],
+                #         context=context)
+                self._manage_logistic_user_change(cr, uid, request_line, context=context)
+            # elif 'procurement_user_id' in vals:
+            #     if request_line.procurement_user_id:
+            #         self.message_unsubscribe_users(
+            #             cr, uid, ids, 
+            #             user_ids=[request_line.procurement_user_id.id],
+            #             context=context)
+            #     self.message_subscribe_users(
+            #         cr, uid, ids,
+            #         user_ids=[vals['procurement_user_id']],
+            #         context=context)
         return super(LogisticRequestLine, self).write(cr, uid, ids, vals, context=context)
 
     def onchange_product_id(self, cr, uid, ids, product_id, requested_uom_id, context=None):

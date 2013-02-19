@@ -39,7 +39,7 @@ A Logistic request express a need that is requested somewhere.
         "mrp", # May be not needed
         "mail",
         ],
-    "demo_xml" : ['data/logistic_request_demo.xml'],
+    "demo" : ['data/logistic_request_demo.xml'],
     "data" : [
             "wizard/logistic_request_split_line_view.xml",
             "security/logistic_request.xml",

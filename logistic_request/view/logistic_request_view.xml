@@ -184,6 +184,7 @@
         <field name="arch" type="xml">
            <tree string="Logistic Request Line">
              <field name="request_id"/>
+             <field name="requested_date"/>
              <field name="product_id" on_change="onchange_product_id(product_id,requested_uom_id)"/>
              <field name="description"/>
              <field name="requested_qty"/>
