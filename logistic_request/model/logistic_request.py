@@ -438,7 +438,13 @@ class LogisticRequestLine(osv.osv):
         'request_id' : fields.many2one('logistic.request','Request', ondelete='cascade'),
         'requested_date': fields.related('request_id','date_end', string='Requested Date', 
             type='date', select=True, store = True, track_visibility='always'),
-
+        'requested_type': fields.related('request_id','type', string='Requested Type', 
+            type='selection', store=True,
+            selection=[
+                ('procurement','Procurement'),
+                ('cost_estimate','Cost Estimate Only'),
+                ('wh_dispatch','Warehouse Dispatch')]
+            ),
         'logistic_user_id': fields.many2one(
             'res.users', 'Logistic Specialist',
             help = "Logistic Specialist in charge of the Logistic Request Line",
@@ -451,7 +457,15 @@ class LogisticRequestLine(osv.osv):
         ),
         'confirmed_qty': fields.float('Prop. Qty', digits_compute=dp.get_precision('Product UoM')),
         # 'confirmed_uom_id': fields.many2one('product.uom', 'Product UoM', required=True),
-        'source_supplier_id': fields.many2one('res.partner', 'Sourced From'),
+        'confirmed_type': fields.related('request_id','type', string='Confirmed Type', 
+            type='selection', store=True,
+            selection=[
+                ('procurement','Procurement'),
+                ('cost_estimate','Cost Estimate Only'),
+                ('wh_dispatch','Warehouse Dispatch')]
+            ),
+        'procure_supplier_id': fields.many2one('res.partner', 'Procured From'),
+        'dispatch_wh_id': fields.many2one('stock.warehouse', 'Dispatch from Warehouse'),
         'etd_date': fields.date('ETD', help="Estimated Date of Delivery"),
         'estimated_goods_cost': fields.float('Goods Tot. Cost', digits_compute=dp.get_precision('Account')),
         'estimated_transportation_cost': fields.float('Transportation Cost', digits_compute=dp.get_precision('Account')),

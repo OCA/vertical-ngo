@@ -246,6 +246,7 @@
                                  <field name="requested_uom_id" class="oe_inline"/>
                                  <button name="%(action_request_split_into)d" string="Split it" type="action" states="draft,assigned" />
                              </div>
+                             <field name="requested_type"/>
                              <field name="requested_date"/>
                              <field name="budget_unit_price" widget="monetary"/>
                              <field name="budget_tot_price" widget="monetary"/>
@@ -258,6 +259,8 @@
                             </div>
                             <field name="etd_date"/>
                             <field name="source_supplier_id"/>
+                            <field name="confirmed_type"/>
+                            <field name="dispatch_wh_id"/>
                             <button name="action_proc" string="Procure" type="object" states="draft" icon="gtk-go-forward"/>
                             <button name="action_cancel" string="Cancel" type="object" states="draft" icon="terp-dialog-close"/>
                             <field name="estimated_goods_cost" widget="monetary"/>
