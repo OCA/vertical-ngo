@@ -11,6 +11,8 @@
         <field name="arch" type="xml">
             <form string="Logistic Request" version="7.0">
                 <header>
+                    <button name="action_view_lines" string="View Lines" type="object" class="oe_highlight"
+                        attrs="{'invisible': [('line_ids', '=', False)]}" />
                     <button name="set_to_draft" states="cancel" string="Cancel" type="object" />
                     <button name="request_cancel" states="draft,sent,in_progress" string="Cancel" type="object" />
                     <button name="request_in_progress" states="draft" string="Validate" type="object" />
@@ -192,8 +194,7 @@
              <field name="procurement_user_id"/>
              <field name="budget_tot_price" sum="Total Budget"/>
              <field name="state"/>
-             <button name="action_proc" string="Procure" type="object" states="draft" icon="gtk-go-forward"/>
-             <button name="action_cancel" string="Cancel" type="object" states="draft" icon="terp-dialog-close"/>
+             <button name="%(action_request_split_into)d" icon="gtk-justify-fill" string="Split the line" type="action" states="draft,assigned" />
            </tree>
         </field>
     </record>
@@ -237,9 +238,14 @@
                     </group>
                     <group>
                         <group name="transport_grp" string="Transport">
-                             <field name="transport_order_id"/>
+                            <field name="transport_order_id" class="oe_inline"/>
                         </group>
-                        <group>
+                        <group name="rfq_grp" string="Purchase Requisition">
+                            <label for="po_requisition_id"/>
+                            <div>
+                                <field name="po_requisition_id" class="oe_inline"/>
+                                <button name="action_create_po_requisition" string="Make RFQ" type="object" states="draft,assigned" />
+                             </div>
                         </group>
                         <group name="requested_grp" string="Demand">
                              <field name="requested_type"/>

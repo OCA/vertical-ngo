@@ -37,12 +37,14 @@ A Logistic request express a need that is requested somewhere.
     "depends" : [
         "transport_order",
         "purchase",
+        "purchase_requisition",
         # "mrp", # May be not needed
         "mail",
         ],
     "demo" : ['data/logistic_request_demo.xml'],
     "data" : [
             "wizard/logistic_request_split_line_view.xml",
+            "wizard/logistic_line_create_requisition_view.xml",
             "security/logistic_request.xml",
             "security/ir.model.access.csv",
             "data/logistic_request_data.xml",

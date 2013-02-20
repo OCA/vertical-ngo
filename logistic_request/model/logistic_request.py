@@ -289,7 +289,24 @@ class LogisticRequest(osv.Model):
     def request_sent(self, cr, uid, ids, context=None):
         self.write(cr, uid, ids, {'state':'sent'}, context=context)
         return True
-        
+
+    def action_view_lines(self, cr, uid, ids, context=None):
+        """
+        This function returns an action that display related lines.
+        """
+        mod_obj = self.pool.get('ir.model.data')
+        act_obj = self.pool.get('ir.actions.act_window')
+        result = mod_obj.get_object_reference(cr, uid, 'logistic_request', 'action_logistic_request_line')
+        id = result and result[1] or False
+        result = act_obj.read(cr, uid, [id], context=context)[0]
+        #compute the number of invoices to display
+        inv_ids = []
+        for lr in self.browse(cr, uid, ids, context=context):
+            inv_ids += [line.id for line in lr.line_ids]
+        if len(inv_ids)>1:
+            result['domain'] = "[('id','in',["+','.join(map(str, inv_ids))+"])]"
+        return result
+    
     #####################################################################################################
     # TODO : Check if still necessary, depending on the way we'll create the quote to requestor...
     # 
@@ -372,36 +389,80 @@ class LogisticRequestLine(osv.osv):
     #         return msg_obj.read(cr, uid, msg_ids, context=context)
     #     
 
-    def action_proc(self, cr, uid, ids, context=None):
-        """ Makes the procurement to warehouse set in logistic request
-        @return:
-        """
-        
-        wf_service = netsvc.LocalService("workflow")
-        procurement_order = self.pool.get('procurement.order')
-        
+    def _prepare_po_requisition(self, cr, uid, ids, context=None):
+        # TODO : Make the prepare for the lines
+        return
+
+    def _action_create_po_requisition(self, cr, uid, ids, context=None):
+        if context is None:
+            context = {}
+        rfq_obj = self.pool.get('purchase.requisition')
+        rfq_line_obj = self.pool.get('purchase.requisition.line')
+        lines = []
+        company_id = False
+        warehouse_id = False
         for line in self.browse(cr, uid, ids, context=context):
-            date_planned = line.date_planned or line.request_id.date_end
-            procurement_name = line.request_id and line.request_id.name
-            location_id = line.request_id.warehouse_id.lot_stock_id.id
-            procurement_id = procurement_order.create(cr, uid, {
-                        'name': procurement_name,
-                        'origin': procurement_name,
-                        'date_planned': date_planned,
-                        'product_id': line.product_id.id,
-                        'requested_qty': line.requested_qty,
-                        'product_uom': line.requested_uom_id.id,
-                        'location_id': location_id,
-                        'procure_method': 'make_to_order',
-                        'user_id': line.request_id.user_id.id,
-                        'date_expiracy': time.strftime('%Y-%m-%d %H:%M:%S'),
-                        # 'move_id': shipment_move_id,
-                        'company_id': line.company_id.id,
-                    })
-            wf_service.trg_validate(uid, procurement_order._name, procurement_id, 'button_confirm', cr)
-        # set state to done
-        self.write(cr, uid, ids, {'state': 'done'})
-        return True
+            # TODO: origin is only 32 Char long !!! We override it for every line => we must
+            # find a way to deal with that !
+            origin = line.request_id.name + '/' + str(line.id)
+            user_id = line.procurement_user_id and line.procurement_user_id.id
+            if line.po_requisition_id:
+                raise osv.except_osv(
+                    _('Existing !'),
+                    _('Your logistic request line is already linked to a Purchase Requisition.'))
+            if not line.product_id:
+                raise osv.except_osv(
+                    _('Missing infos!'),
+                    _('Your logistic request line do not have any product set, please choose one.'))
+            if not company_id:
+                company_id = line.request_id.company_id.id
+            else:
+                assert company_id == line.request_id.company_id.id, \
+                    'You can only create a purchase requisition from line that belong to the same company.'
+            if not warehouse_id:
+                warehouse_id = line.request_id.warehouse_id.id
+            else:
+                assert warehouse_id == line.request_id.warehouse_id.id, \
+                    'You can only create a purchase requisition from line that will be shipped to same warehouse.'
+            # TODO: Make this more "factorized" by using _prepare method hook !!!
+            lines.append({
+                'product_id': line.product_id.id,
+                'product_uom_id': line.requested_uom_id.id,
+                'product_qty': line.requested_qty,
+            })
+        # TODO : make this looking like : vals = _prepare_po_requisition()
+        rfq_id = rfq_obj.create(cr, uid, {
+                        'origin': origin,
+                        'user_id': user_id,
+                        'company_id': company_id,
+                        'warehouse_id': warehouse_id,
+                        }, context=context)
+        # TODO: Make this more "factorized" by using _prepare method hook !!!
+        for rfq_line in lines:
+            rfq_line_obj.create(cr, uid, {
+                'product_id': rfq_line['product_id'],
+                'product_uom_id': rfq_line['product_uom_id'],
+                'product_qty': rfq_line['product_qty'],
+                'requisition_id': rfq_id,
+            }, context=context)
+        for line in self.browse(cr, uid, ids, context=context):
+            self.write(cr, uid, [line.id], {'po_requisition_id': rfq_id}, context=context)
+        return rfq_id
+        
+    def action_create_po_requisition(self, cr, uid, ids, context=None):
+        if context is None:
+            context = {}
+        rfq_id = self._action_create_po_requisition(cr, uid, ids, context=context)
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Purchase Requisition'),
+            'res_model': 'purchase.requisition',
+            'res_id': rfq_id,
+            'view_type': 'form',
+            'view_mode': 'form',
+            'target': 'current',
+            'nodestroy': True,
+        }
     
     def _unit_amount_line(self, cr, uid, ids, prop, unknow_none, unknow_dict):
         res = {}
@@ -464,6 +525,14 @@ class LogisticRequestLine(osv.osv):
                     'done':[('readonly',True)]
             },
         ),
+        'po_requisition_id': fields.many2one(
+            'purchase.requisition', 'Purchase Requisition', 
+            states={
+                    'in_progress':[('readonly',True)],
+                    'sent':[('readonly',True)],
+                    'done':[('readonly',True)]
+            },
+        ),
         'confirmed_qty': fields.float('Prop. Qty', digits_compute=dp.get_precision('Product UoM')),
         # 'confirmed_uom_id': fields.many2one('product.uom', 'Product UoM', required=True),
         'confirmed_type': fields.selection([
@@ -518,6 +587,9 @@ class LogisticRequestLine(osv.osv):
         # 'company_id': lambda self, cr, uid, c: self.pool.get('res.company')._company_default_get(cr, uid, 'logistic.request.line', context=c),
         #####################################################################################################
     }
+    
+    # TODO : transport_order_id Must belong to same detsination and company !!!!
+    # Make a _contraints [] !!!
     
     def copy_data(self, cr, uid, id, default=None, context=None):
         if not default:

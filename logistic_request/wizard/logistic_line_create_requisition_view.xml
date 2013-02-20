@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <record id="view_create_requisition_from_line" model="ir.ui.view">
+            <field name="name">Create Purchase Requisition From Request Line</field>
+            <field name="model">logistic.request.line.create.requisition</field>
+            <field name="arch" type="xml">
+               <form string="Create Requisition" version="7.0">
+                    <group>
+                        <separator string="Are you sure you want to create a requisition from those lines ?"/>
+                        <label string="
+Please note that: &#10; &#10;
+Requisition will only be created if: &#10;
+* Lines belong to the same company &#10;
+* Lines has to be delivered in the same warehouse &#10;
+* Products are define on all selected lines &#10; &#10;
+" colspan="4"/>
+                    </group>
+                    
+                    <footer>
+                        <button name="create_po_requisition" string="Create Requisition" type="object" class="oe_highlight"/>
+                        or
+                        <button string="Cancel" class="oe_link" special="cancel" />
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <act_window name="Create Purchase Requisition"
+            context="{'search_default_draft': 1,}"
+            res_model="logistic.request.line.create.requisition"
+            src_model="logistic.request.line"
+            view_mode="form"
+            target="new"
+            multi="True"
+            key2="client_action_multi"
+            id="action_view_create_requisition_from_line"/>
+
+    </data>
+</openerp>
+

@@ -19,7 +19,7 @@
 #
 ##############################################################################
 import logistic_request_split_line
-# import logistic_request_partner
+import logistic_line_create_requisition
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
 
