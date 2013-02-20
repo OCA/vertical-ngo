@@ -2,10 +2,7 @@
 <openerp>
     <data>
 
-        <menuitem name="Logistic Management"
-            id="menu_logistic"
-            sequence="25"/>
-        <menuitem id="menu_logistic_request_base" name="Logistic Request" parent="menu_logistic" sequence="2"/>
+        <menuitem id="menu_logistic_request_base" name="Logistic Request" parent="transport_order.menu_logistic" sequence="2"/>
 
     <record model="ir.ui.view" id="view_logistic_request_form">
         <field name="name">logistic.request.form</field>
@@ -14,6 +11,7 @@
         <field name="arch" type="xml">
             <form string="Logistic Request" version="7.0">
                 <header>
+                    <button name="set_to_draft" states="cancel" string="Cancel" type="object" />
                     <button name="request_cancel" states="draft,sent,in_progress" string="Cancel" type="object" />
                     <button name="request_in_progress" states="draft" string="Validate" type="object" />
                     <button name="request_reset" states="done,cancel" string="Reset to Draft" type="object" />
@@ -185,13 +183,13 @@
            <tree string="Logistic Request Line">
              <field name="request_id"/>
              <field name="requested_date"/>
-             <field name="product_id" on_change="onchange_product_id(product_id,requested_uom_id)"/>
-             <field name="description"/>
              <field name="requested_qty"/>
              <field name="requested_uom_id"/>
+             <field name="product_id" on_change="onchange_product_id(product_id,requested_uom_id)"/>
+             <field name="description"/>
+             <field name="transport_order_id"/>
              <field name="logistic_user_id"/>
              <field name="procurement_user_id"/>
-             <field name="budget_unit_price"/>
              <field name="budget_tot_price" sum="Total Budget"/>
              <field name="state"/>
              <button name="action_proc" string="Procure" type="object" states="draft" icon="gtk-go-forward"/>
@@ -227,7 +225,6 @@
                     <!-- </div> -->
                     <group>
                         <group>
-                            
                             <!-- <label string="Product: " attrs="{'invisible': [('product_id', '=', False)]}"/> -->
                             <field name="product_id" on_change="onchange_product_id(product_id,requested_uom_id)"/>
                             <!-- <label string="Description: " attrs="{'invisible': [('product_id', '!=', False)]}"/> -->
@@ -239,19 +236,25 @@
                         </group>
                     </group>
                     <group>
+                        <group name="transport_grp" string="Transport">
+                             <field name="transport_order_id"/>
+                        </group>
+                        <group>
+                        </group>
                         <group name="requested_grp" string="Demand">
+                             <field name="requested_type"/>
                              <label for="requested_qty"/>
                              <div>
                                  <field name="requested_qty" class="oe_inline"/>
                                  <field name="requested_uom_id" class="oe_inline"/>
                                  <button name="%(action_request_split_into)d" string="Split it" type="action" states="draft,assigned" />
                              </div>
-                             <field name="requested_type"/>
                              <field name="requested_date"/>
                              <field name="budget_unit_price" widget="monetary"/>
                              <field name="budget_tot_price" widget="monetary"/>
                         </group>
                         <group name="sourced_grp" string="Proposed">
+                            <field name="confirmed_type"/>
                             <label for="confirmed_qty"/>
                             <div>
                                 <field name="confirmed_qty" class="oe_inline"/>
@@ -259,10 +262,8 @@
                             </div>
                             <field name="etd_date"/>
                             <field name="procure_supplier_id"/>
-                            <field name="confirmed_type"/>
+
                             <field name="dispatch_wh_id"/>
-                            <button name="action_proc" string="Procure" type="object" states="draft" icon="gtk-go-forward"/>
-                            <button name="action_cancel" string="Cancel" type="object" states="draft" icon="terp-dialog-close"/>
                             <field name="estimated_goods_cost" widget="monetary"/>
                             <field name="estimated_transportation_cost" widget="monetary"/>
                             <field name="estimated_tot_cost" widget="monetary"/>
@@ -305,6 +306,7 @@
                     <filter string="Logistic Request" domain="[]" context="{'group_by':'request_id'}"/>
                     <separator orientation="vertical"/>
                     <filter string="State" domain="[]" context="{'group_by':'state'}"/>
+                    <filter string="Product" domain="[]" context="{'group_by':'product_id'}"/>
                 </group>
               </search>
             </field>

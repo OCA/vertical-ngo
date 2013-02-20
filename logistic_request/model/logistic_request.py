@@ -203,7 +203,6 @@ class LogisticRequest(osv.Model):
                 'done':[('readonly',True)]
             }
         ),
-        
         'description': fields.text('Remarks/Description'),
         'line_ids' : fields.one2many(
             'logistic.request.line',
@@ -239,7 +238,7 @@ class LogisticRequest(osv.Model):
         'state': 'draft',
         # 'company_id': lambda self, cr, uid, c: self.pool.get('res.company')._company_default_get(cr, uid, 'logistic.request', context=c),
         'user_id': lambda self, cr, uid, c: self.pool.get('res.users').browse(cr, uid, uid, c).id ,
-        'name': lambda obj, cr, uid, context: '/',
+        'name': '/',
     }
     _sql_constraints = [
         ('name_uniq', 'unique(name)', 'Logistic Request Reference must be unique !'),
@@ -258,6 +257,10 @@ class LogisticRequest(osv.Model):
             'name': self.pool.get('ir.sequence').get(cr, uid, 'logistic.request'),
         })
         return super(LogisticRequest, self).copy(cr, uid, id, default=default, context=context)
+
+    def set_to_draft(self, cr, uid, ids, context=None):
+        self.write(cr, uid, ids, {'state': 'draft'})
+        return True
 
     def request_cancel(self, cr, uid, ids, context=None):
         # purchase_order_obj = self.pool.get('purchase.order')
@@ -369,8 +372,6 @@ class LogisticRequestLine(osv.osv):
     #         return msg_obj.read(cr, uid, msg_ids, context=context)
     #     
 
-
-
     def action_proc(self, cr, uid, ids, context=None):
         """ Makes the procurement to warehouse set in logistic request
         @return:
@@ -455,6 +456,14 @@ class LogisticRequestLine(osv.osv):
             help = "Assigned Procurement Officer in charge of the Logistic Request Line",
             track_visibility='onchange',
         ),
+        'transport_order_id': fields.many2one(
+            'transport.order', 'Transport Order', 
+            states={
+                    'in_progress':[('readonly',True)],
+                    'sent':[('readonly',True)],
+                    'done':[('readonly',True)]
+            },
+        ),
         'confirmed_qty': fields.float('Prop. Qty', digits_compute=dp.get_precision('Product UoM')),
         # 'confirmed_uom_id': fields.many2one('product.uom', 'Product UoM', required=True),
         'confirmed_type': fields.selection([
@@ -467,7 +476,8 @@ class LogisticRequestLine(osv.osv):
         'dispatch_wh_id': fields.many2one('stock.warehouse', 'Dispatch from Warehouse'),
         'etd_date': fields.date('ETD', help="Estimated Date of Delivery"),
         'estimated_goods_cost': fields.float('Goods Tot. Cost', digits_compute=dp.get_precision('Account')),
-        'estimated_transportation_cost': fields.float('Transportation Cost', digits_compute=dp.get_precision('Account')),
+        'estimated_transportation_cost': fields.related('transport_order_id','transport_tot_cost',
+            string='Transportation Cost', store=True, readonly=True),
         'estimated_tot_cost': fields.function(_estimate_tot_cost, string='Estimated Total Cost', type="float",
             digits_compute= dp.get_precision('Account'), store=True),
         
