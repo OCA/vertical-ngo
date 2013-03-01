@@ -11,14 +11,13 @@
         <field name="arch" type="xml">
             <form string="Logistic Request" version="7.0">
                 <header>
-                    <button name="action_view_lines" string="View Lines" type="object" class="oe_highlight"
-                        attrs="{'invisible': [('line_ids', '=', False)]}" />
-                    <button name="set_to_draft" states="cancel" string="Cancel" type="object" />
-                    <button name="request_cancel" states="draft,sent,in_progress" string="Cancel" type="object" />
-                    <button name="request_in_progress" states="draft" string="Validate" type="object" />
-                    <button name="request_reset" states="done,cancel" string="Reset to Draft" type="object" />
-                    <button name="request_done" states="sent" string="Done" type="object" />
-                    <button name="request_sent" states="in_progress" string="Quote Sent" type="object" />
+                    <button name="button_view_lines"   string="View Lines"     states="in_progress,sent,cancel,done" type="object" />
+                    <button name="button_confirm"      string="Confirm"        states="draft" class="oe_highlight" type="object" />
+                    <button name="button_reset"        string="Reset to Draft" states="cancel" type="object" />
+                    <button name="request_done"        string="Done"           states="sent" type="object" />
+                    <button name="request_sent"        string="Quote Sent"     states="in_progress"  type="object" />
+                    <button name="button_cancel"       string="Cancel"         states="draft,sent,in_progress" type="object" />
+
                     <field name="state" select="1" readonly ="1" widget="statusbar" statusbar_visible="draft,in_progress,sent,done" statusbar_colors='{"in_progress":"blue"}'/>
                 </header>
                 <sheet string="Logistic Request">
@@ -30,6 +29,7 @@
                     </div>
                     <group>
                         <group>
+                            <field name="requestor_partner_id"/>
                             <field name="country_id"/>
                             <field name="requestor_id"/>
                             <field name="type"/>
@@ -53,12 +53,15 @@
                                 <field name="requested_qty"/>
                                 <field name="requested_uom_id"/>
                                 <!-- <field name="confirmed_uom_id" invisible="True"/> -->
-                                <field name="logistic_user_id"/>
                                 <field name="budget_unit_price"/>
                                 <field name="budget_tot_price"/>
-                                <field name="state" invisible="1"/>
+                                <field name="state"/>
+                                <field name="logistic_user_id" attrs="{'invisible':[('state','=','draft')]}"/>
+                                <button name="button_assign" string="Assign" type="object" states="draft" icon="gtk-go-forward"/>
+                                <!--
                                 <button name="action_proc" string="Procure" type="object" states="draft" icon="gtk-go-forward"/>
                                 <button name="action_cancel" string="Cancel" type="object" states="draft" icon="terp-dialog-close"/>
+                                -->
                             </tree>
                             <form string="Request Lines">
                                 <field name="product_id" on_change="onchange_product_id(product_id,requested_uom_id)"/>
@@ -199,6 +202,15 @@
         </field>
     </record>
 
+    <record model="ir.actions.act_window" id="act_stock_by_location">
+        <field name="name">Stock by Location</field>
+        <field name="res_model">stock.location</field>
+        <field name="src_model">product.product</field>
+        <field name="view_mode">tree</field>
+        <field name="target">current</field>
+        <field name="context">{'product_id':context['active_id']}</field>
+    </record>
+
     <record model="ir.ui.view" id="view_logistic_request_line_form">
         <field name="name">logistic.request.line.form</field>
         <field name="type">form</field>
@@ -206,6 +218,7 @@
         <field name="arch" type="xml">
             <form string="Logistic Request Line" version="7.0">
                 <header>
+                    <button name="button_make_so_quotation" string="Make Sales Quotation" type="object" />
                     <button name="line_assigned" states="draft" string="Assigned" type="object" />
                     <button name="line_estimated" states="assigned" string="Estimated" type="object" />
                     <button name="line_quoted" states="cost_estimated" string="Quoted" type="object" />
@@ -216,14 +229,17 @@
                     <field name="status" widget="statusbar" />
                 </header>
                 <sheet>
-                    <!-- <div class="oe_title"> -->
+                    <div class="oe_title">
                         <h1>
                             <label string="Request"/>
                             <field name="request_id" class="oe_inline" readonly="1"/> / 
                             <label string="Line N° "/>
                             <field name="id" class="oe_inline" readonly="1"/>
                         </h1>
-                    <!-- </div> -->
+                    </div>
+                    <div class="oe_right oe_button_box" name="buttons">
+                        <button string="View Stock" name="%(act_stock_by_location)d" type="action"/>
+                    </div>
                     <group>
                         <group>
                             <!-- <label string="Product: " attrs="{'invisible': [('product_id', '=', False)]}"/> -->
@@ -236,46 +252,52 @@
                             <field name="procurement_user_id"/>
                         </group>
                     </group>
-                    <group>
-                        <group name="transport_grp" string="Transport">
-                            <field name="transport_order_id" class="oe_inline"/>
+                    <notebook>
+                      <page string="Request">
+                        <group>
+                            <group name="requested_grp" string="Demand">
+                                 <field name="requested_type"/>
+                                 <label for="requested_qty"/>
+                                 <div>
+                                     <field name="requested_qty" class="oe_inline"/>
+                                     <field name="requested_uom_id" class="oe_inline"/>
+                                     <button name="%(action_request_split_into)d" string="Split it" type="action" states="draft,assigned" />
+                                 </div>
+                                 <field name="requested_date"/>
+                                 <field name="budget_unit_price" widget="monetary"/>
+                                 <field name="budget_tot_price" widget="monetary"/>
+                            </group>
+                            <group name="sourced_grp" string="Proposal">
+                                <field name="confirmed_type"/>
+                                <label for="confirmed_qty"/>
+                                <div>
+                                    <field name="confirmed_qty" class="oe_inline"/>
+                                    <!-- <field name="confirmed_uom_id" class="oe_inline"/> -->
+                                </div>
+                                <field name="etd_date"/>
+                                <field name="dispatch_location_id" attrs="{'invisible':[('confirmed_type','!=','stock')]}"/>
+                                <field name="purchase_id" attrs="{'invisible':[('confirmed_type','!=','order')]}"/>
+                                <field name="estimated_goods_cost" widget="monetary"/>
+                                <field name="transport_order_id" class="oe_inline"/>
+                                <field name="estimated_transportation_cost" widget="monetary"/>
+                                <field name="estimated_tot_cost" widget="monetary"/>
+                                <field name="state" invisible="1"/>
+                            </group>
+                            <group name="rfq_grp" string="Purchase Requisition">
+                                <label for="po_requisition_id"/>
+                                <div>
+                                    <field name="po_requisition_id" class="oe_inline"/>
+                                    <button name="action_create_po_requisition" string="Make RFQ" type="object" states="draft,assigned" />
+                                 </div>
+                            </group>
                         </group>
-                        <group name="rfq_grp" string="Purchase Requisition">
-                            <label for="po_requisition_id"/>
-                            <div>
-                                <field name="po_requisition_id" class="oe_inline"/>
-                                <button name="action_create_po_requisition" string="Make RFQ" type="object" states="draft,assigned" />
-                             </div>
-                        </group>
-                        <group name="requested_grp" string="Demand">
-                             <field name="requested_type"/>
-                             <label for="requested_qty"/>
-                             <div>
-                                 <field name="requested_qty" class="oe_inline"/>
-                                 <field name="requested_uom_id" class="oe_inline"/>
-                                 <button name="%(action_request_split_into)d" string="Split it" type="action" states="draft,assigned" />
-                             </div>
-                             <field name="requested_date"/>
-                             <field name="budget_unit_price" widget="monetary"/>
-                             <field name="budget_tot_price" widget="monetary"/>
-                        </group>
-                        <group name="sourced_grp" string="Proposed">
-                            <field name="confirmed_type"/>
-                            <label for="confirmed_qty"/>
-                            <div>
-                                <field name="confirmed_qty" class="oe_inline"/>
-                                <!-- <field name="confirmed_uom_id" class="oe_inline"/> -->
-                            </div>
-                            <field name="etd_date"/>
-                            <field name="procure_supplier_id"/>
-
-                            <field name="dispatch_wh_id"/>
-                            <field name="estimated_goods_cost" widget="monetary"/>
-                            <field name="estimated_transportation_cost" widget="monetary"/>
-                            <field name="estimated_tot_cost" widget="monetary"/>
-                            <field name="state" invisible="1"/>
-                        </group>
-                    </group>
+                      </page>
+                      <page string="Offers">
+                        <field name="offer_ids"/>
+                      </page>
+                      <page string="Remarks">
+                      </page>
+                    </notebook>
                 </sheet>
                 <div class="oe_chatter">
                     <field name="message_follower_ids" widget="mail_followers"/>

@@ -50,6 +50,7 @@ A Logistic request express a need that is requested somewhere.
             "data/logistic_request_data.xml",
             "data/logistic_request_sequence.xml",
             "view/logistic_request_view.xml",
+            "view/sale_order.xml",
             "logistic_request_report.xml",
             "logistic_workflow.xml",
     ],

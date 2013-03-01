@@ -72,23 +72,6 @@ _logger = logging.getLogger(__name__)
 class LogisticRequest(osv.Model):
     _name = "logistic.request"
     _description="Logistic Request"
-
-    def _get_request_line(self, cr, uid, ids, context=None):
-        result = {}
-        for line in self.pool.get('logistic.request.line').browse(cr, uid, ids, context=context):
-            result[line.request_id.id] = True
-        return result.keys()
-
-    def _amount_all(self, cr, uid, ids, name, args, context=None):
-        res = {}
-        for request in self.browse(cr, uid, ids, context=context):
-            res[request.id] = {
-                'amount_total': 0.0
-            }
-            for line in request.line_ids:
-                res[request.id]['amount_total'] += line.budget_tot_price
-        return res
-
     _columns = {
         'name': fields.char(
             'Reference', size=32,required=True,
@@ -135,7 +118,15 @@ class LogisticRequest(osv.Model):
             help = "Mobilization Officer or Logistic Coordinator in charge of the Logistic Request"
         ),
         'requestor_id': fields.many2one(
-            'res.users', 'Requestor', required=True, 
+            'res.users', 'Requestor', required=True,
+            states={
+                'in_progress':[('readonly',True)],
+                'sent':[('readonly',True)],
+                'done':[('readonly',True)]
+            }
+        ),
+        'requestor_partner_id': fields.many2one(
+            'res.partner', 'Requestor', required=True,
             states={
                 'in_progress':[('readonly',True)],
                 'sent':[('readonly',True)],
@@ -174,7 +165,7 @@ class LogisticRequest(osv.Model):
                 'done':[('readonly',True)]
             },
             required=True
-        ),       
+        ),
         'address_id': fields.related('warehouse_id','partner_id', 
             type='many2one', readonly=True, relation='res.partner', 
             store=True, string='Address'
@@ -210,22 +201,19 @@ class LogisticRequest(osv.Model):
             'Products to Purchase',
             states={'done': [('readonly', True)]}
         ),
-        'state': fields.selection(
-                [('draft','New'),
-                ('in_progress','Needs Validated'),
+        'state': fields.selection([
+                ('draft','Draft'),
+                ('in_progress','Needs Confirmed'),
                 ('sent','Quote Sent'),
+                ('done','Done'),
                 ('cancel','Cancelled'),
-                ('done','Done')], 
+                ],
             'State', required=True
         ),
-        'amount_total': fields.function(_amount_all, digits_compute=dp.get_precision('Account'), string='Total Budget',
+        'amount_total': fields.function(lambda self, *args, **kwargs:self._get_amount_all(*args,**kwargs), digits_compute=dp.get_precision('Account'), string='Total Budget',
             store={
-                'logistic.request': (lambda self, cr, uid, ids, c={}: ids, ['line_ids'], 20),
-                'logistic.request.line': (
-                    _get_request_line, 
-                    ['requested_qty','budget_unit_price','budget_tot_price','request_id'], 
-                    20
-                ),
+                'logistic.request': (lambda self, cr, uid, ids, c=None: ids, ['line_ids'], 20),
+                'logistic.request.line': (lambda self,*args,**kwargs:self._store__get_requests(*args,**kwargs), ['requested_qty','budget_unit_price','budget_tot_price','request_id'], 20),
             },
             multi='all'),
         #####################################################################################################
@@ -234,7 +222,7 @@ class LogisticRequest(osv.Model):
         #####################################################################################################
     }
     _defaults = {
-        'date_start': time.strftime('%Y-%m-%d %H:%M:%S'),
+        'date_start': time.strftime('%Y-%m-%d %H:%M:%S'),#FIX: TZ
         'state': 'draft',
         # 'company_id': lambda self, cr, uid, c: self.pool.get('res.company')._company_default_get(cr, uid, 'logistic.request', context=c),
         'user_id': lambda self, cr, uid, c: self.pool.get('res.users').browse(cr, uid, uid, c).id ,
@@ -244,11 +232,33 @@ class LogisticRequest(osv.Model):
         ('name_uniq', 'unique(name)', 'Logistic Request Reference must be unique !'),
     ]
 
+    def _get_amount_all(self, cr, uid, ids, name, args, context=None):
+        res = {}
+        for request in self.browse(cr, uid, ids, context=context):
+            res[request.id] = {
+                'amount_total': 0.0
+            }
+            for line in request.line_ids:
+                res[request.id]['amount_total'] += line.budget_tot_price
+        return res
+
+    def _do_cancel(self, cr, uid, ids, context=None):
+        line_ids=reduce(lambda x,y:x+y,[x['line_ids'] for x in self.read(cr,uid,ids,['line_ids'],context=context,load='_classic_write')],[])
+        line_ids and self.pool.get('logistic.request.line')._do_cancel(cr,uid,line_ids,context=context)
+        self.write(cr, uid, ids, {'state': 'cancel'})
+    def _do_confirm(self, cr, uid, ids, context=None):
+        line_ids=reduce(lambda x,y:x+y,[x['line_ids'] for x in self.read(cr,uid,ids,['line_ids'],context=context,load='_classic_write')],[])
+        line_ids and self.pool.get('logistic.request.line')._do_confirm(cr,uid,line_ids,context=context)
+        self.write(cr, uid, ids, {'state':'in_progress'} ,context=context)
+    def _do_draft(self, cr, uid, ids, context=None):
+        line_ids=reduce(lambda x,y:x+y,[x['line_ids'] for x in self.read(cr,uid,ids,['line_ids'],context=context,load='_classic_write')],[])
+        line_ids and self.pool.get('logistic.request.line')._do_draft(cr,uid,line_ids,context=context)
+        self.write(cr, uid, ids, {'state': 'draft'})
+
     def create(self, cr, uid, vals, context=None):
         if vals.get('name','/')=='/':
             vals['name'] = self.pool.get('ir.sequence').get(cr, uid, 'logistic.request') or '/'
         return super(LogisticRequest, self).create(cr, uid, vals, context=context)
-
     def copy(self, cr, uid, id, default=None, context=None):
         if not default:
             default = {}
@@ -258,39 +268,17 @@ class LogisticRequest(osv.Model):
         })
         return super(LogisticRequest, self).copy(cr, uid, id, default=default, context=context)
 
-    def set_to_draft(self, cr, uid, ids, context=None):
-        self.write(cr, uid, ids, {'state': 'draft'})
+    def button_cancel(self, cr, uid, ids, context=None):
+        #TODO: ask confirmation
+        self._do_cancel(cr,uid,ids,context=context)
         return True
-
-    def request_cancel(self, cr, uid, ids, context=None):
-        # purchase_order_obj = self.pool.get('purchase.order')
-        # for purchase in self.browse(cr, uid, ids, context=context):
-        #     for purchase_id in purchase.purchase_ids:
-        #         if str(purchase_id.state) in('draft','wait'):
-        #             purchase_order_obj.action_cancel(cr,uid,[purchase_id.id])
-        self.write(cr, uid, ids, {'state': 'cancel'})
+    def button_confirm(self, cr, uid, ids, context=None):
+        self._do_confirm(cr,uid,ids,context=context)
         return True
-
-    def request_in_progress(self, cr, uid, ids, context=None):
-        self.write(cr, uid, ids, {'state':'in_progress'} ,context=context)
+    def button_reset(self, cr, uid, ids, context=None):
+        self._do_draft(cr,uid,ids,context=context)
         return True
-
-    def request_reset(self, cr, uid, ids, context=None):
-        self.write(cr, uid, ids, {'state': 'draft'})
-        return True
-
-    def request_done(self, cr, uid, ids, context=None):
-        self.write(cr, uid, ids, {'state':'done', 'date_end':time.strftime('%Y-%m-%d %H:%M:%S')}, context=context)
-        line_obj = self.pool.get('logistic.request.line')
-        for line in self.browse(cr,uid,ids):
-            line_obj.write(cr,uid,[line.id],{'state':'done'})
-        return True
-
-    def request_sent(self, cr, uid, ids, context=None):
-        self.write(cr, uid, ids, {'state':'sent'}, context=context)
-        return True
-
-    def action_view_lines(self, cr, uid, ids, context=None):
+    def button_view_lines(self, cr, uid, ids, context=None):
         """
         This function returns an action that display related lines.
         """
@@ -306,6 +294,20 @@ class LogisticRequest(osv.Model):
         if len(inv_ids)>1:
             result['domain'] = "[('id','in',["+','.join(map(str, inv_ids))+"])]"
         return result
+
+
+
+    def request_done(self, cr, uid, ids, context=None):
+        self.write(cr, uid, ids, {'state':'done', 'date_end':time.strftime('%Y-%m-%d %H:%M:%S')}, context=context)
+        line_obj = self.pool.get('logistic.request.line')
+        for line in self.browse(cr,uid,ids):
+            line_obj.write(cr,uid,[line.id],{'state':'done'})
+        return True
+
+    def request_sent(self, cr, uid, ids, context=None):
+        self.write(cr, uid, ids, {'state':'sent'}, context=context)
+        return True
+
     
     #####################################################################################################
     # TODO : Check if still necessary, depending on the way we'll create the quote to requestor...
@@ -357,6 +359,115 @@ class LogisticRequestLine(osv.osv):
             'logistic_request.mt_request_line_quoted': lambda self, cr, uid, obj, ctx=None: obj['state'] == 'quoted',
         },
     }
+    _columns = {
+        'id': fields.integer('ID', required=True, readonly=True),
+        'request_id' : fields.many2one('logistic.request','Request', ondelete='cascade'),
+        'logistic_user_id': fields.many2one(
+            'res.users', 'Logistic Specialist',
+            help = "Logistic Specialist in charge of the Logistic Request Line",
+            track_visibility='onchange',
+        ),
+        'procurement_user_id': fields.many2one(
+            'res.users', 'Procurement Officer',
+            help = "Assigned Procurement Officer in charge of the Logistic Request Line",
+            track_visibility='onchange',
+        ),
+        #DEMAND
+        'product_id': fields.many2one('product.product', 'Product'),
+        'description': fields.char('Description', size=256, required=True, track_visibility='always'),
+        'requested_qty': fields.float('Req. Qty', 
+            digits_compute=dp.get_precision('Product UoM'), 
+            track_visibility='always',),
+        'requested_uom_id': fields.many2one('product.uom', 'Product UoM', required=True),
+        'budget_tot_price': fields.float('Budget Total Price', digits_compute=dp.get_precision('Account')),
+        # 'budget_unit_price': fields.float('Budget Unit Price', digits_compute=dp.get_precision('Account')),
+        'budget_unit_price': fields.function(lambda self,*args,**kwargs:self._get_unit_amount_line(*args,**kwargs), string='Budget Unit Price', type="float",
+            digits_compute=dp.get_precision('Account'), store=True),
+        'requested_date': fields.related('request_id','date_end', string='Requested Date', 
+            type='date', select=True, store = True, track_visibility='always'),
+        'requested_type': fields.related('request_id','type', string='Requested Type', 
+            type='selection', store=True,
+            selection=[
+                ('procurement','Procurement'),
+                ('cost_estimate','Cost Estimate Only'),
+                ('wh_dispatch','Warehouse Dispatch')]
+            ),
+        'transport_order_id': fields.many2one(
+            'transport.order', 'Transport Order', 
+            states={
+                    'in_progress':[('readonly',True)],
+                    'sent':[('readonly',True)],
+                    'done':[('readonly',True)]
+            },
+        ),
+        #PURCHASE REQUISITION
+        'po_requisition_id': fields.many2one(
+            'purchase.requisition', 'Purchase Requisition', 
+            states={
+                    'in_progress':[('readonly',True)],
+                    'sent':[('readonly',True)],
+                    'done':[('readonly',True)]
+            },
+        ),
+        #PROPOSAL
+        'confirmed_qty': fields.float('Prop. Qty', digits_compute=dp.get_precision('Product UoM')),
+        # 'confirmed_uom_id': fields.many2one('product.uom', 'Product UoM', required=True),
+        'confirmed_type': fields.selection([
+            ('stock','Dispatch from Warehouse'),
+            ('order','Purchase'),
+            ],
+            'Procurement Method',
+        ),
+        #'procure_supplier_id': fields.many2one('res.partner', 'Procured From'),
+        'dispatch_location_id': fields.many2one('stock.location', 'Dispatch From'),
+        'purchase_id': fields.many2one('purchase.order', 'Purchase Order'),
+        'etd_date': fields.date('ETD', help="Estimated Date of Departure"), #NOTE: date that should be used for the stock move reservation
+        'offer_ids': fields.one2many('sale.order.line','request_id','Sales Quotation Lines'),
+        'estimated_goods_cost': fields.float('Goods Tot. Cost', digits_compute=dp.get_precision('Account')),
+        'estimated_transportation_cost': fields.related('transport_order_id','transport_tot_cost',
+            string='Transportation Cost', store=True, readonly=True),
+        'estimated_tot_cost': fields.function(lambda self,*args,**kwargs:self._get_estimate_tot_cost(*args,**kwargs), string='Estimated Total Cost', type="float",
+            digits_compute= dp.get_precision('Account'), store=True),
+        # Do not remind what was this for...
+        # 'company_id': fields.related('request_id','company_id',
+        # type='many2one',relation='res.company',string='Company', store=True, readonly=True),
+        'state': fields.selection([
+                ('draft','Draft'),
+                ('in_progress','Need Confirmed'),
+                ('assigned','Assigned'),
+                ('cost_estimated','Cost Estimated'),
+                ('quoted','Quoted'),
+                ('waiting','Waiting Approval'),
+                ('done','Done'),
+                ('refused','Refused'),
+                ('cancel','Cancelled'),
+            ], 
+            'Status', required=True, track_visibility='onchange',
+            help = "Draft: Created\n"
+                   "Assigned: Line taken in charge by Logistic Officer\n"
+                   "Quoted: Quotation made for the line\n"
+                   "Waiting Approval: Wait on the requestor to approve the quote\n"
+                   "Done: The line has been processed and quote was accepted\n"
+                   "Refused: The line has been processed and quote was refused\n"
+                   "Cancelled: The request has been cancelled"
+        ),
+        'status': fields.function(lambda self,*args,**kwargs:self._get_state(*args,**kwargs), string='Status', type="Selection", selection=[('draft','Draft'),
+                ('assigned','Assigned'),
+                ('cost_estimated','Cost Estimated'),
+                ('quoted','Quoted'),
+                ('waiting','Waiting Approval'),
+                ('refused','Refused'),
+                ('done','Done'),
+            ],),
+    }
+
+    _defaults = {
+        'state': 'draft',
+        #####################################################################################################
+        # Todo : See if we do need company ID on lines...
+        # 'company_id': lambda self, cr, uid, c: self.pool.get('res.company')._company_default_get(cr, uid, 'logistic.request.line', context=c),
+        #####################################################################################################
+    }
 
     # TODO: We could use the messageload method overriding to display in the LR line
     # some message that would have been sent on his parent LR:
@@ -388,6 +499,24 @@ class LogisticRequestLine(osv.osv):
     #         if (ascent): msg_ids = self._message_add_ancestor_ids(cr, uid, ids, msg_ids, root_ids, context=context)
     #         return msg_obj.read(cr, uid, msg_ids, context=context)
     #     
+
+    def _do_confirm(self, cr, uid, ids, context=None):
+        self.write(cr, uid, ids, {'state':'in_progress'} ,context=context)
+    def _do_cancel(self, cr, uid, ids, context=None):
+        #TODO : cancel related documents if possible
+        # purchase_order_obj = self.pool.get('purchase.order')
+        # for purchase in self.browse(cr, uid, ids, context=context):
+        #     for purchase_id in purchase.purchase_ids:
+        #         if str(purchase_id.state) in('draft','wait'):
+        #             purchase_order_obj.action_cancel(cr,uid,[purchase_id.id])
+        self.write(cr, uid, ids, {'state':'cancel'} ,context=context)
+    def _do_draft(self, cr, uid, ids, context=None):
+        self.write(cr, uid, ids, {'state':'draft'} ,context=context)
+    def _do_assign(self, cr, uid, ids, context=None):
+        self.write(cr, uid, ids, {'state':'assigned'} ,context=context)
+
+    def _store__get_requests(self, cr, uid, ids, context=None):
+        return [x['request_id'] for x in self.read(cr,uid,ids,['request_id'],context=context,load='_classic_write')]
 
     def _prepare_po_requisition(self, cr, uid, ids, context=None):
         # TODO : Make the prepare for the lines
@@ -464,14 +593,48 @@ class LogisticRequestLine(osv.osv):
             'nodestroy': True,
         }
     
-    def _unit_amount_line(self, cr, uid, ids, prop, unknow_none, unknow_dict):
+    def button_make_so_quotation(self, cr, uid, ids, context=None):
+        sale_obj=self.pool.get('sale.order')
+        origin=[]
+        sol=[]
+        partner_ids=set()
+        for line in self.browse(cr,uid,ids,context=context):
+            sol.append({
+                'request_id':line.id,
+                'product_id':line.product_id.id,
+                'name':line.description,
+                'type':line.confirmed_type=='stock' and 'make_to_stock' or 'make_to_order',
+                'product_uom':line.requested_uom_id.id,
+                'product_uom_qty':line.requested_qty,
+            })
+            origin.append(self.name_get(cr,uid,[line.id])[0][1])
+            partner_ids.add(line.request_id.requestor_partner_id.id)
+        assert len(partner_ids)==1, 'All request lines must belong to the same requestor'
+        partner_id=partner_ids.pop()
+        assert partner_id, 'Request must have a requestor partner'
+        order_d={
+            'partner_id':partner_id,
+            'origin':','.join(origin),
+            'order_line':[(0,0,x) for x in sol],
+            }
+        order_d.update(sale_obj.onchange_partner_id(cr,uid,ids,partner_id,context=context).get('value',{}))
+        sale_obj.create(cr,uid,order_d,context=context)
+        self.write(cr,uid,ids,{'state':'quoted'},context=context)
+        #TODO:return view on created quote
+    def button_assign(self, cr, uid, ids, context=None):
+        for line in self.read(cr,uid,ids,['logistic_user_id'],context=context):
+            if not line['logistic_user_id']:
+                raise osv.except_osv(_('Error'),_('Please first define the logistic specialist'))
+        self._do_assign(cr,uid,ids,context=context)
+
+    def _get_unit_amount_line(self, cr, uid, ids, prop, unknow_none, unknow_dict):
         res = {}
         for line in self.browse(cr, uid, ids):
             price = line.budget_tot_price / line.requested_qty
             res[line.id] = price
         return res
 
-    def _estimate_tot_cost(self, cr, uid, ids, prop, unknow_none, unknow_dict):
+    def _get_estimate_tot_cost(self, cr, uid, ids, prop, unknow_none, unknow_dict):
         res = {}
         for line in self.browse(cr, uid, ids):
             price = line.estimated_goods_cost + line.estimated_transportation_cost
@@ -485,108 +648,6 @@ class LogisticRequestLine(osv.osv):
             res[line.id] = state
         return res
 
-    _columns = {
-        'id': fields.integer('ID', required=True, readonly=True),
-        'product_id': fields.many2one('product.product', 'Product'),
-        'description': fields.char('Description', size=256, required=True, track_visibility='always'),
-        'requested_qty': fields.float('Req. Qty', 
-            digits_compute=dp.get_precision('Product UoM'), 
-            track_visibility='always',),
-        'requested_uom_id': fields.many2one('product.uom', 'Product UoM', required=True),
-        'budget_tot_price': fields.float('Budget Total Price', digits_compute=dp.get_precision('Account')),
-        # 'budget_unit_price': fields.float('Budget Unit Price', digits_compute=dp.get_precision('Account')),
-        'budget_unit_price': fields.function(_unit_amount_line, string='Budget Unit Price', type="float",
-            digits_compute= dp.get_precision('Account'), store=True),
-        'request_id' : fields.many2one('logistic.request','Request', ondelete='cascade'),
-        'requested_date': fields.related('request_id','date_end', string='Requested Date', 
-            type='date', select=True, store = True, track_visibility='always'),
-        'requested_type': fields.related('request_id','type', string='Requested Type', 
-            type='selection', store=True,
-            selection=[
-                ('procurement','Procurement'),
-                ('cost_estimate','Cost Estimate Only'),
-                ('wh_dispatch','Warehouse Dispatch')]
-            ),
-        'logistic_user_id': fields.many2one(
-            'res.users', 'Logistic Specialist',
-            help = "Logistic Specialist in charge of the Logistic Request Line",
-            track_visibility='onchange',
-        ),
-        'procurement_user_id': fields.many2one(
-            'res.users', 'Procurement Officer',
-            help = "Assigned Procurement Officer in charge of the Logistic Request Line",
-            track_visibility='onchange',
-        ),
-        'transport_order_id': fields.many2one(
-            'transport.order', 'Transport Order', 
-            states={
-                    'in_progress':[('readonly',True)],
-                    'sent':[('readonly',True)],
-                    'done':[('readonly',True)]
-            },
-        ),
-        'po_requisition_id': fields.many2one(
-            'purchase.requisition', 'Purchase Requisition', 
-            states={
-                    'in_progress':[('readonly',True)],
-                    'sent':[('readonly',True)],
-                    'done':[('readonly',True)]
-            },
-        ),
-        'confirmed_qty': fields.float('Prop. Qty', digits_compute=dp.get_precision('Product UoM')),
-        # 'confirmed_uom_id': fields.many2one('product.uom', 'Product UoM', required=True),
-        'confirmed_type': fields.selection([
-            ('procurement','Procurement'),
-            ('cost_estimate','Cost Estimate Only'),
-            ('wh_dispatch','Warehouse Dispatch')],
-            'Confirmed Type',
-        ),
-        'procure_supplier_id': fields.many2one('res.partner', 'Procured From'),
-        'dispatch_wh_id': fields.many2one('stock.warehouse', 'Dispatch from Warehouse'),
-        'etd_date': fields.date('ETD', help="Estimated Date of Delivery"),
-        'estimated_goods_cost': fields.float('Goods Tot. Cost', digits_compute=dp.get_precision('Account')),
-        'estimated_transportation_cost': fields.related('transport_order_id','transport_tot_cost',
-            string='Transportation Cost', store=True, readonly=True),
-        'estimated_tot_cost': fields.function(_estimate_tot_cost, string='Estimated Total Cost', type="float",
-            digits_compute= dp.get_precision('Account'), store=True),
-        
-        # Do not remind what was this for...
-        # 'company_id': fields.related('request_id','company_id',
-        # type='many2one',relation='res.company',string='Company', store=True, readonly=True),
-        'state': fields.selection([('draft','Draft'),
-                ('assigned','Assigned'),
-                ('cost_estimated','Cost Estimated'),
-                ('quoted','Quoted'),
-                ('waiting','Waiting Approval'),
-                ('refused','Refused'),
-                ('done','Done'),
-            ], 
-            'Status', required=True, track_visibility='onchange',
-            help = "Draft: Created\n"
-                   "Assigned: Line taken in charge by Logistic Officer\n"
-                   "Quoted: Quotation made for the line\n"
-                   "Waiting Approval: Wait on the requestor to approve the quote\n"
-                   "Done: The line has been processed and quote was accepted\n"
-                   "Refused: The line has been processed and quote was refused"
-        ),
-        'status': fields.function(_get_state, string='Status', type="Selection", selection=[('draft','Draft'),
-                ('assigned','Assigned'),
-                ('cost_estimated','Cost Estimated'),
-                ('quoted','Quoted'),
-                ('waiting','Waiting Approval'),
-                ('refused','Refused'),
-                ('done','Done'),
-            ],),
-        
-    }
-
-    _defaults = {
-        'state': 'draft',
-        #####################################################################################################
-        # Todo : See if we do need company ID on lines...
-        # 'company_id': lambda self, cr, uid, c: self.pool.get('res.company')._company_default_get(cr, uid, 'logistic.request.line', context=c),
-        #####################################################################################################
-    }
     
     # TODO : transport_order_id Must belong to same detsination and company !!!!
     # Make a _contraints [] !!!
