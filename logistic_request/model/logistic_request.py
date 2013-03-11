@@ -452,13 +452,15 @@ class LogisticRequestLine(osv.osv):
                    "Cancelled: The request has been cancelled"
         ),
         'status': fields.function(lambda self,*args,**kwargs:self._get_state(*args,**kwargs), string='Status', type="Selection", selection=[('draft','Draft'),
-                ('assigned','Assigned'),
-                ('cost_estimated','Cost Estimated'),
-                ('quoted','Quoted'),
-                ('waiting','Waiting Approval'),
-                ('refused','Refused'),
-                ('done','Done'),
-            ],),
+        ('in_progress','Need Confirmed'),
+        ('assigned','Assigned'),
+        ('cost_estimated','Cost Estimated'),
+        ('quoted','Quoted'),
+        ('waiting','Waiting Approval'),
+        ('done','Done'),
+        ('refused','Refused'),
+        ('cancel','Cancelled'),
+                    ],),
     }
 
     _defaults = {
@@ -577,6 +579,20 @@ class LogisticRequestLine(osv.osv):
         for line in self.browse(cr, uid, ids, context=context):
             self.write(cr, uid, [line.id], {'po_requisition_id': rfq_id}, context=context)
         return rfq_id
+    
+    def _get_shop_from_location(self, cr, uid, location_id, context=None):
+        """Take the shop that represent the location, or the Company one if not 
+        found. In that case we are making a PO and we still need to handle that case."""
+        warehouse_obj = self.pool.get('stock.warehouse')
+        shop_obj = self.pool.get('sale.shop')
+        shop_id = False
+        if not location_id:
+            return 1
+        wareh_id = warehouse_obj.search(cr, uid, [('lot_stock_id','=',location_id)])
+        if wareh_id:
+            shop_id = shop_obj.search(cr, uid, [('warehouse_id','=',wareh_id)])
+            assert shop_id, "No Shop found with the given location"
+        return shop_id[0]
         
     def action_create_po_requisition(self, cr, uid, ids, context=None):
         if context is None:
@@ -594,33 +610,45 @@ class LogisticRequestLine(osv.osv):
         }
     
     def button_make_so_quotation(self, cr, uid, ids, context=None):
-        sale_obj=self.pool.get('sale.order')
-        origin=[]
-        sol=[]
-        partner_ids=set()
-        for line in self.browse(cr,uid,ids,context=context):
+        if context is None:
+            context = {}
+        sale_obj = self.pool.get('sale.order')
+        origin = []
+        sol = []
+        partner_ids = set()
+        location_ids = set()
+        for line in self.browse(cr, uid, ids, context=context):
             sol.append({
-                'request_id':line.id,
-                'product_id':line.product_id.id,
-                'name':line.description,
-                'type':line.confirmed_type=='stock' and 'make_to_stock' or 'make_to_order',
-                'product_uom':line.requested_uom_id.id,
-                'product_uom_qty':line.requested_qty,
+                'request_id': line.id,
+                'product_id': line.product_id.id,
+                'name': line.description,
+                'type': line.confirmed_type=='stock' and 'make_to_stock' or 'make_to_order',
+                'product_uom': line.requested_uom_id.id,
+                'product_uom_qty': line.requested_qty,
             })
-            origin.append(self.name_get(cr,uid,[line.id])[0][1])
+            origin.append(self.name_get(cr, uid, [line.id])[0][1])
             partner_ids.add(line.request_id.requestor_partner_id.id)
+            if line.dispatch_location_id:
+                location_ids.add(line.dispatch_location_id.id)
         assert len(partner_ids)==1, 'All request lines must belong to the same requestor'
+        assert len(location_ids)==1, 'All request lines must come from the same location'
         partner_id=partner_ids.pop()
+        location_id=location_ids.pop()
         assert partner_id, 'Request must have a requestor partner'
+        found_shop_id = self._get_shop_from_location(cr, uid, location_id, context=context)
         order_d={
-            'partner_id':partner_id,
-            'origin':','.join(origin),
-            'order_line':[(0,0,x) for x in sol],
+            'partner_id': partner_id,
+            'origin': ','.join(origin),
+            'order_line': [(0,0,x) for x in sol],
+            'shop_id': found_shop_id,
             }
-        order_d.update(sale_obj.onchange_partner_id(cr,uid,ids,partner_id,context=context).get('value',{}))
-        sale_obj.create(cr,uid,order_d,context=context)
-        self.write(cr,uid,ids,{'state':'quoted'},context=context)
+        order_d.update(
+            sale_obj.onchange_partner_id(cr, uid, ids, partner_id, context=context).get('value', {})
+        )
+        sale_obj.create(cr, uid, order_d, context=context)
+        self.write(cr, uid, ids, {'state':'quoted'}, context=context)
         #TODO:return view on created quote
+        
     def button_assign(self, cr, uid, ids, context=None):
         for line in self.read(cr,uid,ids,['logistic_user_id'],context=context):
             if not line['logistic_user_id']:

@@ -220,8 +220,8 @@
                 <header>
                     <button name="button_make_so_quotation" string="Make Sales Quotation" type="object" />
                     <button name="line_assigned" states="draft" string="Assigned" type="object" />
-                    <button name="line_estimated" states="assigned" string="Estimated" type="object" />
-                    <button name="line_quoted" states="cost_estimated" string="Quoted" type="object" />
+                    <button name="line_estimated" states="in_progress,assigned" string="Estimated" type="object" />
+                    <button name="line_quoted" states="in_progress,cost_estimated" string="Quoted" type="object" />
                     <button name="line_waiting" states="quoted" string="Waiting" type="object" />
                     <button name="line_done" states="quoted,waiting" string="Done" type="object" />
                     <button name="line_refused" states="draft,assigned,cost_estimated,quoted,waiting" string="Refused" type="object" />
