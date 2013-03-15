@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
-        <record id="view_logistic_request_split_line_wizard" model="ir.ui.view">
+        <!-- <record id="view_logistic_request_split_line_wizard" model="ir.ui.view">
             <field name="name">Split Request Line</field>
             <field name="model">logistic.request.split.line</field>
             <field name="arch" type="xml">
@@ -17,14 +17,16 @@
                 </footer>
             </form>
             </field>
+        </record> -->
+        
+        <record model="ir.actions.act_window" id="act_stock_by_location">
+            <field name="name">Stock by Location</field>
+            <field name="res_model">stock.location</field>
+            <field name="src_model">product.product</field>
+            <field name="view_mode">tree</field>
+            <field name="target">current</field>
+            <field name="context">{'product_id':context['active_id']}</field>
         </record>
-        <record id="action_request_split_into" model="ir.actions.act_window">
-            <field name="name">Split Request Line</field>
-            <field name="type">ir.actions.act_window</field>
-            <field name="res_model">logistic.request.split.line</field>
-            <field name="view_type">form</field>
-            <field name="view_mode">form</field>
-            <field name="target">new</field>
-        </record>
+
     </data>
 </openerp>

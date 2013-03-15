@@ -160,6 +160,15 @@
             </field>
         </record>
 
+    <!-- <record model="ir.actions.act_window" id="act_stock_by_location">
+        <field name="name">Stock by Location</field>
+        <field name="res_model">stock.location</field>
+        <field name="src_model">product.product</field>
+        <field name="view_mode">tree</field>
+        <field name="target">current</field>
+        <field name="context">{'product_id':context['active_id']}</field>
+    </record>
+ -->
 
     <record model="ir.actions.act_window" id="action_logistic_request">
         <field name="name">Requests</field>
@@ -246,14 +255,6 @@
         </field>
     </record>
 
-    <record model="ir.actions.act_window" id="act_stock_by_location">
-        <field name="name">Stock by Location</field>
-        <field name="res_model">stock.location</field>
-        <field name="src_model">product.product</field>
-        <field name="view_mode">tree</field>
-        <field name="target">current</field>
-        <field name="context">{'product_id':context['active_id']}</field>
-    </record>
 
     <record model="ir.ui.view" id="view_logistic_request_line_form">
         <field name="name">logistic.request.line.form</field>
@@ -282,7 +283,7 @@
                         </h1>
                     </div>
                     <div class="oe_right oe_button_box" name="buttons">
-                        <button string="View Stock" name="%(act_stock_by_location)d" type="action"/>
+                        <button string="View Stock" name="view_stock_by_location" type="object"/>
                     </div>
                     <group>
                         <group>

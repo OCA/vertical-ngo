@@ -611,6 +611,26 @@ class LogisticRequestLine(osv.osv):
             'nodestroy': True,
         }
     
+    def view_stock_by_location(self, cr, uid, ids, context=None):
+        if context is None:
+            context = {}
+        product_id = set()
+        for line in self.browse(cr, uid, ids, context=context):
+            if line.product_id:
+                product_id.add(line.product_id.id)
+            print product_id
+        assert len(product_id) == 1, "You can only have stock by location for one product"
+        return {
+            'name': _('Stock by Location'),
+            'view_mode': 'tree',
+            'res_model': 'stock.location',
+            'target': 'current',
+            'view_id': False,
+            'context': {'product_id': product_id.pop()},
+            'domain': [('usage','in',['view','internal'])],
+            'type': 'ir.actions.act_window',
+        }
+    
     def button_make_so_quotation(self, cr, uid, ids, context=None):
         if context is None:
             context = {}
