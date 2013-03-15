@@ -754,7 +754,6 @@ class LogisticRequestLine(osv.osv):
             #         cr, uid, ids,
             #         user_ids=[vals['procurement_user_id']],
             #         context=context)
-        import pdb;pdb.set_trace()
         return super(LogisticRequestLine, self).write(cr, uid, ids, vals, context=context)
 
     def onchange_product_id(self, cr, uid, ids, product_id, requested_uom_id, context=None):
