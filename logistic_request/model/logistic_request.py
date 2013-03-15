@@ -386,7 +386,7 @@ class LogisticRequestLine(osv.osv):
         'requested_date': fields.related('request_id','date_end', string='Requested Date', 
             type='date', select=True, store = True),
         'country_id': fields.related('request_id','country_id', string='Country', 
-            type='many2one',relation='res.c', select=True, store = True, track_visibility='always'),
+            type='many2one',relation='res.country', select=True, store = True),
         'requested_type': fields.related('request_id','type', string='Requested Type', 
             type='selection', store=True,
             selection=[
@@ -719,16 +719,18 @@ class LogisticRequestLine(osv.osv):
         # We need to find a way to propagate this properly.
         self.message_post(cr, uid, [req_line.id], body=details, subject=subject, context=context)
         
-    def _manage_logistic_user_change(self, cr, uid, req_line ,context=None):
-        """Set the state of the line as 'assigned' if actual state is draftand post
-        a message to let the logistic user about the new request line to be trated.
+    def _manage_logistic_user_change(self, cr, uid, req_line, vals, context=None):
+        """Set the state of the line as 'assigned' if actual state is draft or in_progress 
+        and post    a message to let the logistic user about the new request line to be trated.
         
         :param object req_line: browse record of the request.line to process
+        :param vals, dict of vals to give to write like: {'state':'assigned'}
+        :return vals: dict of vals to give to write method like {'state':'assigned'}
         """
         self._send_note_to_logistic_user(cr, uid, req_line, context=context)
-        if req_line.state == 'draft':
-            self.write(cr, uid, [req_line.id], {'state':'assigned'}, context=context)
-        return True
+        if req_line.state == 'draft' or req_line.state == 'in_progress':
+            vals['state'] = 'assigned'
+        return vals
 
     def write(self, cr, uid, ids, vals, context=None):
         """ Call the _assign_logistic_user whenb changing it. This will also
@@ -741,7 +743,7 @@ class LogisticRequestLine(osv.osv):
                 #         cr, uid, ids, 
                 #         user_ids=[request_line.logistic_user_id.id],
                 #         context=context)
-                self._manage_logistic_user_change(cr, uid, request_line, context=context)
+                self._manage_logistic_user_change(cr, uid, request_line, vals, context=context)
             # elif 'procurement_user_id' in vals:
             #     if request_line.procurement_user_id:
             #         self.message_unsubscribe_users(
@@ -752,6 +754,7 @@ class LogisticRequestLine(osv.osv):
             #         cr, uid, ids,
             #         user_ids=[vals['procurement_user_id']],
             #         context=context)
+        import pdb;pdb.set_trace()
         return super(LogisticRequestLine, self).write(cr, uid, ids, vals, context=context)
 
     def onchange_product_id(self, cr, uid, ids, product_id, requested_uom_id, context=None):
