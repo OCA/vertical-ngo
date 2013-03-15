@@ -201,6 +201,50 @@
            </tree>
         </field>
     </record>
+    
+    <record model="ir.ui.view" id="view_logistic_request_line_calendar">
+        <field name="name">logistic.request.line.tree</field>
+        <field name="model">logistic.request.line</field>
+        <field name="arch" type="xml">
+            <calendar string="Logistic Request Line"
+                date_start="requested_date" color="country_id">
+                <field name="id"/>
+                <field name="request_id"/>
+                <field name="description"/>
+            </calendar>
+        </field>
+    </record>
+    
+    <record model="ir.ui.view" id="view_logistic_request_line_kanban">
+        <field name="name">logistic.request.line.kanban</field>
+        <field name="model">logistic.request.line</field>
+        <field name="arch" type="xml">
+            <kanban>
+                <field name="description"/>
+                <field name="requested_qty"/>
+                <field name="requested_date"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_vignette oe_semantic_html_override">
+                            <div class="oe_kanban_details">
+                                <h4>
+                                    <a type="open">
+                                         [<field name="request_id"/>] <field name="description"/>
+                                    </a>
+                                </h4>
+                                <div name="tags"/>
+                                <ul>
+                                    <li>Req. Qty: <field name="requested_qty"></field></li>
+                                    <li>Req. Date: <field name="requested_date"></field></li>
+                                    <li>Country: <field name="country_id"></field></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
 
     <record model="ir.actions.act_window" id="act_stock_by_location">
         <field name="name">Stock by Location</field>
@@ -345,7 +389,7 @@
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">logistic.request.line</field>
         <field name="view_type">form</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">tree,form,calendar,kanban</field>
         <field name="context">{}</field>
         <!-- Example to open in a blink the right filtred list -->
         <!-- <field name="context">{"search_default_logistic_user_id":uid,}</field> -->

@@ -384,7 +384,9 @@ class LogisticRequestLine(osv.osv):
         'budget_unit_price': fields.function(lambda self,*args,**kwargs:self._get_unit_amount_line(*args,**kwargs), string='Budget Unit Price', type="float",
             digits_compute=dp.get_precision('Account'), store=True),
         'requested_date': fields.related('request_id','date_end', string='Requested Date', 
-            type='date', select=True, store = True, track_visibility='always'),
+            type='date', select=True, store = True),
+        'country_id': fields.related('request_id','country_id', string='Country', 
+            type='many2one',relation='res.c', select=True, store = True, track_visibility='always'),
         'requested_type': fields.related('request_id','type', string='Requested Type', 
             type='selection', store=True,
             selection=[
