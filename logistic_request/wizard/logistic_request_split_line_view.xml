@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
-        <!-- <record id="view_logistic_request_split_line_wizard" model="ir.ui.view">
+        <record id="view_logistic_request_split_line_wizard" model="ir.ui.view">
             <field name="name">Split Request Line</field>
             <field name="model">logistic.request.split.line</field>
             <field name="arch" type="xml">
@@ -17,7 +17,7 @@
                 </footer>
             </form>
             </field>
-        </record> -->
+        </record>
         
         <record model="ir.actions.act_window" id="act_stock_by_location">
             <field name="name">Stock by Location</field>
