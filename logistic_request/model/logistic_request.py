@@ -627,7 +627,7 @@ class LogisticRequestLine(osv.osv):
             'target': 'current',
             'view_id': False,
             'context': {'product_id': product_id.pop()},
-            'domain': [('usage','in',['view','internal'])],
+            'domain': [('usage','in',['internal'])],
             'type': 'ir.actions.act_window',
         }
     
@@ -635,27 +635,43 @@ class LogisticRequestLine(osv.osv):
         if context is None:
             context = {}
         sale_obj = self.pool.get('sale.order')
+        sale_line_obj = self.pool.get('sale.order.line')
         origin = []
         sol = []
         partner_ids = set()
         location_ids = set()
         for line in self.browse(cr, uid, ids, context=context):
-            sol.append({
+            line_vals = {
                 'request_id': line.id,
                 'product_id': line.product_id.id,
                 'name': line.description,
                 'type': line.confirmed_type=='stock' and 'make_to_stock' or 'make_to_order',
-                'product_uom': line.requested_uom_id.id,
-                'product_uom_qty': line.requested_qty,
-            })
+            }
             origin.append(self.name_get(cr, uid, [line.id])[0][1])
             partner_ids.add(line.request_id.requestor_partner_id.id)
             if line.dispatch_location_id:
                 location_ids.add(line.dispatch_location_id.id)
+            line_vals.update(
+                sale_line_obj.product_id_change(
+                        cr, 
+                        uid, 
+                        [], 
+                        line.request_id.requestor_partner_id.property_product_pricelist.id, 
+                        line.product_id.id,
+                        partner_id=line.request_id.requestor_partner_id.id,
+                        qty=line.requested_qty,
+                        uom=line.requested_uom_id.id,
+                ).get('value', {}),
+            )
+            
+            sol.append(line_vals)
         assert len(partner_ids)==1, 'All request lines must belong to the same requestor'
-        assert len(location_ids)==1, 'All request lines must come from the same location'
+        assert len(location_ids)<=1, 'All request lines must come from the same location or from purchase'
         partner_id=partner_ids.pop()
-        location_id=location_ids.pop()
+        if location_ids:
+            location_id=location_ids.pop()
+        else:
+            location_id = None
         assert partner_id, 'Request must have a requestor partner'
         found_shop_id = self._get_shop_from_location(cr, uid, location_id, context=context)
         order_d={
@@ -667,9 +683,18 @@ class LogisticRequestLine(osv.osv):
         order_d.update(
             sale_obj.onchange_partner_id(cr, uid, ids, partner_id, context=context).get('value', {})
         )
-        sale_obj.create(cr, uid, order_d, context=context)
+        sale_id = sale_obj.create(cr, uid, order_d, context=context)
         self.write(cr, uid, ids, {'state':'quoted'}, context=context)
-        #TODO:return view on created quote
+        return {
+            'name': _('Quotation'),
+            'view_mode': 'form',
+            'res_model': 'sale.order',
+            'target': 'current',
+            'view_id': False,
+            'context': {},
+            'domain': [('id','=',sale_id)],
+            'type': 'ir.actions.act_window',
+        }
         
     def button_assign(self, cr, uid, ids, context=None):
         for line in self.read(cr,uid,ids,['logistic_user_id'],context=context):
