@@ -618,7 +618,6 @@ class LogisticRequestLine(osv.osv):
         for line in self.browse(cr, uid, ids, context=context):
             if line.product_id:
                 product_id.add(line.product_id.id)
-            print product_id
         assert len(product_id) == 1, "You can only have stock by location for one product"
         return {
             'name': _('Stock by Location'),
@@ -628,6 +627,37 @@ class LogisticRequestLine(osv.osv):
             'view_id': False,
             'context': {'product_id': product_id.pop()},
             'domain': [('usage','in',['internal'])],
+            'type': 'ir.actions.act_window',
+        }
+
+    def view_price_by_location(self, cr, uid, ids, context=None):
+        price_obj = self.pool.get('product.pricelist')
+        if context is None:
+            context = {}
+        product_id = set()
+        for line in self.browse(cr, uid, ids, context=context):
+            if line.product_id:
+                product_id.add(line.product_id.id)
+        assert len(product_id) == 1, "You can only have price by location for one product"
+        # import pdb;pdb.set_trace()
+        ctx = {
+            "search_default_name": line.product_id.name,
+            }
+        pricelist = line.dispatch_location_id and line.dispatch_location_id.name
+        if pricelist:
+            price_l_id = price_obj.search(cr, uid, [('name','like', pricelist)])
+            # ctx['search_default_pricelist_id'] = price_l_id
+            ctx['pricelist'] = price_l_id
+            # ctx['default_pricelist_id'] = price_l_id
+            
+        return {
+            'name': _('Prices for location'),
+            'view_mode': 'tree',
+            'res_model': 'product.product',
+            'target': 'current',
+            'view_id': False,
+            'context': ctx,
+            'domain': [('id','in',[line.product_id.id])],
             'type': 'ir.actions.act_window',
         }
     
@@ -689,10 +719,10 @@ class LogisticRequestLine(osv.osv):
             'name': _('Quotation'),
             'view_mode': 'form',
             'res_model': 'sale.order',
+            'res_id': sale_id,
             'target': 'current',
             'view_id': False,
             'context': {},
-            'domain': [('id','=',sale_id)],
             'type': 'ir.actions.act_window',
         }
         

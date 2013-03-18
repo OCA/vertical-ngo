@@ -206,6 +206,7 @@
              <field name="procurement_user_id"/>
              <field name="budget_tot_price" sum="Total Budget"/>
              <field name="state"/>
+             <field name="country_id" invisible="1"/>
              <button name="%(action_request_split_into)d" icon="gtk-justify-fill" string="Split the line" type="action" states="draft,assigned" />
            </tree>
         </field>
@@ -284,6 +285,7 @@
                     </div>
                     <div class="oe_right oe_button_box" name="buttons">
                         <button string="View Stock" name="view_stock_by_location" type="object"/>
+                        <button string="View Prices" name="view_price_by_location" type="object"/>
                     </div>
                     <group>
                         <group>
@@ -380,6 +382,7 @@
                     <separator orientation="vertical"/>
                     <filter string="State" domain="[]" context="{'group_by':'state'}"/>
                     <filter string="Product" domain="[]" context="{'group_by':'product_id'}"/>
+                    <filter string="Country" domain="[]" context="{'group_by':'country_id'}"/>
                 </group>
               </search>
             </field>
