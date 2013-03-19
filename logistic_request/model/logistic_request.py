@@ -126,7 +126,7 @@ class LogisticRequest(osv.Model):
             }
         ),
         'requestor_partner_id': fields.many2one(
-            'res.partner', 'Requestor', required=True,
+            'res.partner', 'Requested For', required=True,
             states={
                 'in_progress':[('readonly',True)],
                 'sent':[('readonly',True)],
@@ -439,7 +439,6 @@ class LogisticRequestLine(osv.osv):
                 ('assigned','Assigned'),
                 ('cost_estimated','Cost Estimated'),
                 ('quoted','Quoted'),
-                ('waiting','Waiting Approval'),
                 ('done','Done'),
                 ('refused','Refused'),
                 ('cancel','Cancelled'),
@@ -872,6 +871,25 @@ class LogisticRequestLine(osv.osv):
         self.write(cr, uid, ids, {'state':'refused'}, context=context)
         return True        
 
+# TODO : Move it to another file "stock.py"
+#        + Do it throug context !
+class StockLocation(osv.osv):
+    _inherit = "stock.location"
+
+    def name_get(self, cr, uid, ids, context=None):
+        # always return the full hierarchical name
+        res = self._complete_name(cr, uid, ids, 'complete_name', None, context=context)
+        return res.items()
+
+    def _complete_name(self, cr, uid, ids, name, args, context=None):
+        """ Forms complete name of location from parent location to child location.
+        @return: Dictionary of values
+        """
+        res = {}
+        for m in self.browse(cr, uid, ids, context=context):
+            res[m.id] = m.name
+        return res
+        
     #####################################################################################################
     # TODO : Originally made on logisitc request not line. See if we can re-use part of it
     #

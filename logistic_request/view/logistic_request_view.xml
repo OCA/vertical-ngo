@@ -11,7 +11,7 @@
         <field name="arch" type="xml">
             <form string="Logistic Request" version="7.0">
                 <header>
-                    <button name="button_view_lines"   string="View Lines"     states="in_progress,sent,cancel,done" type="object" />
+                    <button name="button_view_lines"   string="View Lines"     states="in_progress,sent,cancel,done" type="object" class="oe_highlight"/>
                     <button name="button_confirm"      string="Confirm"        states="draft" class="oe_highlight" type="object" />
                     <button name="button_reset"        string="Reset to Draft" states="cancel" type="object" />
                     <button name="request_done"        string="Done"           states="sent" type="object" />
@@ -29,9 +29,9 @@
                     </div>
                     <group>
                         <group>
+                            <field name="requestor_id"/>
                             <field name="requestor_partner_id"/>
                             <field name="country_id"/>
-                            <field name="requestor_id"/>
                             <field name="type"/>
                             <field name="date_start"/>
                             <field name="date_end"/>
@@ -264,15 +264,15 @@
         <field name="arch" type="xml">
             <form string="Logistic Request Line" version="7.0">
                 <header>
-                    <button name="button_make_so_quotation" string="Make Sales Quotation" type="object" />
-                    <button name="line_assigned" states="draft" string="Assigned" type="object" />
-                    <button name="line_estimated" states="in_progress,assigned" string="Estimated" type="object" />
-                    <button name="line_quoted" states="in_progress,cost_estimated" string="Quoted" type="object" />
-                    <button name="line_waiting" states="quoted" string="Waiting" type="object" />
-                    <button name="line_done" states="quoted,waiting" string="Done" type="object" />
-                    <button name="line_refused" states="draft,assigned,cost_estimated,quoted,waiting" string="Refused" type="object" />
+                    <button name="button_make_so_quotation" states="draft,assigned,in_progress,waiting" string="Make Sales Quotation" type="object" class="oe_highlight"/>
+                    <!-- <button name="line_assigned" states="draft" string="Assigned" type="object" class="oe_highlight" /> -->
+                    <!-- <button name="line_estimated" states="in_progress,assigned" string="Estimated" type="object" class="oe_highlight"/> -->
+                    <!-- <button name="line_quoted" states="in_progress,cost_estimated" string="Quoted" type="object" /> -->
+                    <!-- <button name="line_waiting" states="quoted" string="Waiting" type="object" /> -->
+                    <button name="line_done" states="quoted" string="Done" type="object" class="oe_highlight"/>
+                    <button name="line_refused" states="draft,assigned,quoted,waiting,in_progress" string="Refused" type="object" />
                     <!-- <field name="state" widget="statusbar" /> -->
-                    <field name="status" widget="statusbar" />
+                    <field name="status" widget="statusbar" statusbar_visible="draft,in_progress,assigned,quoted,done"/>
                 </header>
                 <sheet>
                     <div class="oe_title">
