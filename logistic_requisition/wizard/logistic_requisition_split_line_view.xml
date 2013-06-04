@@ -2,10 +2,10 @@
 <openerp>
     <data>
         <record id="view_logistic_requisition_split_line_wizard" model="ir.ui.view">
-            <field name="name">Split Request Line</field>
+            <field name="name">Split Requisition Line</field>
             <field name="model">logistic.requisition.split.line</field>
             <field name="arch" type="xml">
-            <form string="Split Request Line" version="7.0">
+            <form string="Split Requisition Line" version="7.0">
                 <separator string="How much do you want to Leave in the Line ?"/>
                 <group>
                     <field name="quantity"/>
@@ -19,8 +19,8 @@
             </field>
         </record>
         
-       <record id="action_request_split_into" model="ir.actions.act_window">
-             <field name="name">Split Request Line</field>
+       <record id="action_requisition_split_into" model="ir.actions.act_window">
+             <field name="name">Split Requisition Line</field>
              <field name="type">ir.actions.act_window</field>
              <field name="res_model">logistic.requisition.split.line</field>
              <field name="view_type">form</field>

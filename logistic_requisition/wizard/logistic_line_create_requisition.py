@@ -26,7 +26,7 @@ import openerp.addons.decimal_precision as dp
 
 class LogisticRequisitionLineCreateRequisition(TransientModel):
     _name = "logistic.requisition.line.create.requisition"
-    _description = "Create Purchase Requisition From Request Line"
+    _description = "Create Purchase Requisition From Requisition Line"
 
     def create_po_requisition(self, cr, uid, ids, context=None):
         line_obj = self.pool.get('logistic.requisition.line')

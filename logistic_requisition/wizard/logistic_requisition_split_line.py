@@ -26,7 +26,7 @@ import openerp.addons.decimal_precision as dp
 
 class LogisticRequisitionSplitLine(TransientModel):
     _name = "logistic.requisition.split.line"
-    _description = "Split Request Line"
+    _description = "Split Requisition Line"
     _columns = {
         'quantity': fields.float('Quantity',digits_compute=dp.get_precision('Product Unit of Measure')),
     }

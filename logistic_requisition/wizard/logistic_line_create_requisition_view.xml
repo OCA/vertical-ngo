@@ -2,7 +2,7 @@
 <openerp>
     <data>
         <record id="view_create_requisition_from_line" model="ir.ui.view">
-            <field name="name">Create Purchase Requisition From Request Line</field>
+            <field name="name">Create Purchase Requisition From Requisition Line</field>
             <field name="model">logistic.requisition.line.create.requisition</field>
             <field name="arch" type="xml">
                <form string="Create Requisition" version="7.0">

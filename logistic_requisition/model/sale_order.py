@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from osv import fields, osv
-from tools.translate import _
-from openerp import SUPERUSER_ID
+from openerp.osv import fields, orm
 
-class sale_order_line(osv.osv):
+
+class sale_order_line(orm.Model):
     _inherit = "sale.order.line"
     _columns = {
-        'request_id':fields.many2one('logistic.requisition.line', 'Request Line', ondelete='restrict'),
+        'requisition_id': fields.many2one('logistic.requisition.line',
+                                          'Request Line',
+                                          ondelete='restrict'),
     }

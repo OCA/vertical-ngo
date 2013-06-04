@@ -19,19 +19,19 @@
 #
 ##############################################################################
 
+import logging
+import time
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
-import time
-import netsvc
-import logging
-from openerp.osv import fields, osv
+from openerp import netsvc
+from openerp.osv import fields, osv, orm
 from openerp.tools.translate import _
 import openerp.addons.decimal_precision as dp
 
 _logger = logging.getLogger(__name__)
 
 #####################################################################################################
-# TODO : See if this is still useful !? Link PO to Logistic Request. I think it's more 
+# TODO : See if this is still useful !? Link PO to Logistic Requisition. I think it's more 
 # linked to a line...
 #####################################################################################################
 # class purchase_order(osv.osv):
@@ -39,7 +39,7 @@ _logger = logging.getLogger(__name__)
 #     # _name = "Cost Estimate"
 #     _columns = {
 #         'reject': fields.text('Rejection Reason', states={'cancel':[('readonly',True)]}),
-#         'request_id' : fields.many2one('logistic.requisition','Logistic Request'),
+#         'requisition_id': fields.many2one('logistic.requisition','Logistic Requisition'),
 #         'date_valid':fields.date('Validity Date', states={'confirmed':[('readonly',True)], 'approved':[('readonly',True)]}, select=True),
 #         'partner_invoice_id': fields.many2one('res.partner.address', 'Invoice Address', help="Invoice address for current request if different."),
 #     }
@@ -47,21 +47,21 @@ _logger = logging.getLogger(__name__)
 #         res = super(purchase_order, self).wkf_confirm_order(cr, uid, ids, context=context)
 #         proc_obj = self.pool.get('procurement.order')
 #         for po in self.browse(cr, uid, ids, context=context):
-#             if po.request_id and (po.request_id.exclusive=='exclusive'):
-#                 for order in po.request_id.purchase_ids:
+#             if po.requisition_id and (po.requisition_id.exclusive=='exclusive'):
+#                 for order in po.requisition_id.purchase_ids:
 #                     if order.id<>po.id:
 #                         proc_ids = proc_obj.search(cr, uid, [('purchase_id', '=', order.id)])
 #                         if proc_ids and po.state=='confirmed':
 #                             proc_obj.write(cr, uid, proc_ids, {'purchase_id': po.id})
 #                         wf_service = netsvc.LocalService("workflow")
 #                         wf_service.trg_validate(uid, 'purchase.order', order.id, 'purchase_cancel', cr)
-#                     po.request_id.request_done(context=context)
+#                     po.requisition_id.requisition_done(context=context)
 #         return res
 # 
 #     def wkf_approve_order(self, cr, uid, ids, context=None):
 #         for po in self.browse(cr, uid, ids, context=context):
 #             if po.date_valid and datetime.today() >= datetime.strptime(po.date_valid, '%Y-%m-%d'):
-#                 raise osv.except_osv(_('Error'), _('You cannot confirm this cost request after the validity date !'))
+#                 raise osv.except_osv(_('Error'), _('You cannot confirm this cost requisition after the validity date !'))
 #         res = super(purchase_order,self).wkf_approve_order(cr, uid, ids)
 #         return res
 # 
@@ -69,9 +69,9 @@ _logger = logging.getLogger(__name__)
 #####################################################################################################
 
 
-class LogisticRequisition(osv.Model):
+class LogisticRequisition(orm.Model):
     _name = "logistic.requisition"
-    _description="Logistic Request"
+    _description="Logistic Requisition"
     _columns = {
         'name': fields.char(
             'Reference', size=32,required=True,
@@ -115,7 +115,7 @@ class LogisticRequisition(osv.Model):
                 'sent':[('readonly',True)],
                 'done':[('readonly',True)]
                 },
-            help = "Mobilization Officer or Logistic Coordinator in charge of the Logistic Request"
+            help = "Mobilization Officer or Logistic Coordinator in charge of the Logistic Requisition"
         ),
         'requestor_id': fields.many2one(
             'res.users', 'Requestor', required=True,
@@ -175,7 +175,7 @@ class LogisticRequisition(osv.Model):
                 ('procurement','Procurement'),
                 ('cost_estimate','Cost Estimate Only'),
                 ('wh_dispatch','Warehouse Dispatch')],
-            'Type of Request', 
+            'Type of Requisition', 
             states={
                 'in_progress':[('readonly',True)],
                 'sent':[('readonly',True)],
@@ -197,7 +197,7 @@ class LogisticRequisition(osv.Model):
         'description': fields.text('Remarks/Description'),
         'line_ids' : fields.one2many(
             'logistic.requisition.line',
-            'request_id',
+            'requisition_id',
             'Products to Purchase',
             states={'done': [('readonly', True)]}
         ),
@@ -213,12 +213,12 @@ class LogisticRequisition(osv.Model):
         'amount_total': fields.function(lambda self, *args, **kwargs:self._get_amount_all(*args,**kwargs), digits_compute=dp.get_precision('Account'), string='Total Budget',
             store={
                 'logistic.requisition': (lambda self, cr, uid, ids, c=None: ids, ['line_ids'], 20),
-                'logistic.requisition.line': (lambda self,*args,**kwargs:self._store__get_requests(*args,**kwargs), ['requested_qty','budget_unit_price','budget_tot_price','request_id'], 20),
+                'logistic.requisition.line': (lambda self,*args,**kwargs:self._store__get_requisitions(*args,**kwargs), ['requested_qty','budget_unit_price','budget_tot_price','requisition_id'], 20),
             },
             multi='all'),
         #####################################################################################################
         # Todo : May be make a function field to show all lines related Offers
-        # 'purchase_ids' : fields.one2many('purchase.order','request_id','Purchase Orders',states={'done': [('readonly', True)]}),
+        # 'purchase_ids' : fields.one2many('purchase.order','requisition_id','Purchase Orders',states={'done': [('readonly', True)]}),
         #####################################################################################################
     }
     _defaults = {
@@ -229,17 +229,17 @@ class LogisticRequisition(osv.Model):
         'name': '/',
     }
     _sql_constraints = [
-        ('name_uniq', 'unique(name)', 'Logistic Request Reference must be unique !'),
+        ('name_uniq', 'unique(name)', 'Logistic Requisition Reference must be unique !'),
     ]
 
     def _get_amount_all(self, cr, uid, ids, name, args, context=None):
         res = {}
-        for request in self.browse(cr, uid, ids, context=context):
-            res[request.id] = {
+        for requisition in self.browse(cr, uid, ids, context=context):
+            res[requisition.id] = {
                 'amount_total': 0.0
             }
-            for line in request.line_ids:
-                res[request.id]['amount_total'] += line.budget_tot_price
+            for line in requisition.line_ids:
+                res[requisition.id]['amount_total'] += line.budget_tot_price
         return res
 
     def _do_cancel(self, cr, uid, ids, context=None):
@@ -297,14 +297,14 @@ class LogisticRequisition(osv.Model):
 
 
 
-    def request_done(self, cr, uid, ids, context=None):
+    def requisition_done(self, cr, uid, ids, context=None):
         self.write(cr, uid, ids, {'state':'done', 'date_end':time.strftime('%Y-%m-%d %H:%M:%S')}, context=context)
         line_obj = self.pool.get('logistic.requisition.line')
         for line in self.browse(cr,uid,ids):
             line_obj.write(cr,uid,[line.id],{'state':'done'})
         return True
 
-    def request_sent(self, cr, uid, ids, context=None):
+    def requisition_sent(self, cr, uid, ids, context=None):
         self.write(cr, uid, ids, {'state':'sent'}, context=context)
         return True
 
@@ -341,35 +341,35 @@ class LogisticRequisition(osv.Model):
     #     seller_price = pricelist.price_get(cr, uid, [supplier_pricelist.id], product.id, qty, False, {'uom': default_uom_po_id})[supplier_pricelist.id]
     #     if seller_qty:
     #         qty = max(qty,seller_qty)
-    #     date_planned = self._planned_date(request_line.request_id, seller_delay)
+    #     date_planned = self._planned_date(request_line.requisition_id, seller_delay)
     #     return seller_price, qty, default_uom_po_id, date_planned
     #####################################################################################################
 
 
-class LogisticRequisitionLine(osv.osv):
+class LogisticRequisitionLine(orm.Model):
 
     _name = "logistic.requisition.line"
-    _description = "Logistic Request Line"
+    _description = "Logistic Requisition Line"
     _rec_name = "id"
-    _order = "request_id asc"
+    _order = "requisition_id asc"
     _inherit = ['mail.thread']
     _track =  {
         'state': {
-            'logistic_requisition.mt_request_line_assigned': lambda self, cr, uid, obj, ctx=None: obj['state'] == 'assigned',
-            'logistic_requisition.mt_request_line_quoted': lambda self, cr, uid, obj, ctx=None: obj['state'] == 'quoted',
+            'logistic_requisition.mt_requisition_line_assigned': lambda self, cr, uid, obj, ctx=None: obj['state'] == 'assigned',
+            'logistic_requisition.mt_requisition_line_quoted': lambda self, cr, uid, obj, ctx=None: obj['state'] == 'quoted',
         },
     }
     _columns = {
         'id': fields.integer('ID', required=True, readonly=True),
-        'request_id' : fields.many2one('logistic.requisition','Request', ondelete='cascade'),
+        'requisition_id' : fields.many2one('logistic.requisition','Requisition', ondelete='cascade'),
         'logistic_user_id': fields.many2one(
             'res.users', 'Logistic Specialist',
-            help = "Logistic Specialist in charge of the Logistic Request Line",
+            help = "Logistic Specialist in charge of the Logistic Requisition Line",
             track_visibility='onchange',
         ),
         'procurement_user_id': fields.many2one(
             'res.users', 'Procurement Officer',
-            help = "Assigned Procurement Officer in charge of the Logistic Request Line",
+            help = "Assigned Procurement Officer in charge of the Logistic Requisition Line",
             track_visibility='onchange',
         ),
         #DEMAND
@@ -383,17 +383,21 @@ class LogisticRequisitionLine(osv.osv):
         # 'budget_unit_price': fields.float('Budget Unit Price', digits_compute=dp.get_precision('Account')),
         'budget_unit_price': fields.function(lambda self,*args,**kwargs:self._get_unit_amount_line(*args,**kwargs), string='Budget Unit Price', type="float",
             digits_compute=dp.get_precision('Account'), store=True),
-        'requested_date': fields.related('request_id','date_end', string='Requested Date', 
-            type='date', select=True, store = True),
-        'country_id': fields.related('request_id','country_id', string='Country', 
+        'requested_date': fields.related('requisition_id', 'date_end',
+                                         string='Requested Date',
+                                         type='date',
+                                         select=True,
+                                         store=True),
+        'country_id': fields.related('requisition_id','country_id', string='Country', 
             type='many2one',relation='res.country', select=True, store = True),
-        'requested_type': fields.related('request_id','type', string='Requested Type', 
-            type='selection', store=True,
-            selection=[
-                ('procurement','Procurement'),
-                ('cost_estimate','Cost Estimate Only'),
-                ('wh_dispatch','Warehouse Dispatch')]
-            ),
+        'requested_type': fields.related('requisition_id', 'type',
+                                         string='Requested Type',
+                                         type='selection', store=True,
+                                         selection=
+                                         [('procurement', 'Procurement'),
+                                          ('cost_estimate', 'Cost Estimate Only'),
+                                          ('wh_dispatch', 'Warehouse Dispatch')
+                                          ]),
         'transport_order_id': fields.many2one(
             'transport.order', 'Transport Order', 
             states={
@@ -424,14 +428,14 @@ class LogisticRequisitionLine(osv.osv):
         'dispatch_location_id': fields.many2one('stock.location', 'Dispatch From'),
         'purchase_id': fields.many2one('purchase.order', 'Purchase Order'),
         'etd_date': fields.date('ETD', help="Estimated Date of Departure"), #NOTE: date that should be used for the stock move reservation
-        'offer_ids': fields.one2many('sale.order.line','request_id','Sales Quotation Lines'),
+        'offer_ids': fields.one2many('sale.order.line','requisition_id','Sales Quotation Lines'),
         'estimated_goods_cost': fields.float('Goods Tot. Cost', digits_compute=dp.get_precision('Account')),
         'estimated_transportation_cost': fields.related('transport_order_id','transport_tot_cost',
             string='Transportation Cost', store=True, readonly=True),
         'estimated_tot_cost': fields.function(lambda self,*args,**kwargs:self._get_estimate_tot_cost(*args,**kwargs), string='Estimated Total Cost', type="float",
             digits_compute= dp.get_precision('Account'), store=True),
         # Do not remind what was this for...
-        # 'company_id': fields.related('request_id','company_id',
+        # 'company_id': fields.related('requisition_id','company_id',
         # type='many2one',relation='res.company',string='Company', store=True, readonly=True),
         'state': fields.selection([
                 ('draft','Draft'),
@@ -450,7 +454,7 @@ class LogisticRequisitionLine(osv.osv):
                    "Waiting Approval: Wait on the requestor to approve the quote\n"
                    "Done: The line has been processed and quote was accepted\n"
                    "Refused: The line has been processed and quote was refused\n"
-                   "Cancelled: The request has been cancelled"
+                   "Cancelled: The requisition has been cancelled"
         ),
         'status': fields.function(lambda self,*args,**kwargs:self._get_state(*args,**kwargs), string='Status', type="Selection", selection=[('draft','Draft'),
         ('in_progress','Need Confirmed'),
@@ -518,8 +522,8 @@ class LogisticRequisitionLine(osv.osv):
     def _do_assign(self, cr, uid, ids, context=None):
         self.write(cr, uid, ids, {'state':'assigned'} ,context=context)
 
-    def _store__get_requests(self, cr, uid, ids, context=None):
-        return [x['request_id'] for x in self.read(cr,uid,ids,['request_id'],context=context,load='_classic_write')]
+    def _store__get_requisitions(self, cr, uid, ids, context=None):
+        return [x['requisition_id'] for x in self.read(cr,uid,ids,['requisition_id'],context=context,load='_classic_write')]
 
     def _prepare_po_requisition(self, cr, uid, ids, context=None):
         # TODO : Make the prepare for the lines
@@ -536,25 +540,25 @@ class LogisticRequisitionLine(osv.osv):
         for line in self.browse(cr, uid, ids, context=context):
             # TODO: origin is only 32 Char long !!! We override it for every line => we must
             # find a way to deal with that !
-            origin = line.request_id.name + '/' + str(line.id)
+            origin = line.requisition_id.name + '/' + str(line.id)
             user_id = line.procurement_user_id and line.procurement_user_id.id
             if line.po_requisition_id:
                 raise osv.except_osv(
                     _('Existing !'),
-                    _('Your logistic request line is already linked to a Purchase Requisition.'))
+                    _('Your logistic requisition line is already linked to a Purchase Requisition.'))
             if not line.product_id:
                 raise osv.except_osv(
                     _('Missing infos!'),
-                    _('Your logistic request line do not have any product set, please choose one.'))
+                    _('Your logistic requisition line do not have any product set, please choose one.'))
             if not company_id:
-                company_id = line.request_id.company_id.id
+                company_id = line.requisition_id.company_id.id
             else:
-                assert company_id == line.request_id.company_id.id, \
+                assert company_id == line.requisition_id.company_id.id, \
                     'You can only create a purchase requisition from line that belong to the same company.'
             if not warehouse_id:
-                warehouse_id = line.request_id.warehouse_id.id
+                warehouse_id = line.requisition_id.warehouse_id.id
             else:
-                assert warehouse_id == line.request_id.warehouse_id.id, \
+                assert warehouse_id == line.requisition_id.warehouse_id.id, \
                     'You can only create a purchase requisition from line that will be shipped to same warehouse.'
             # TODO: Make this more "factorized" by using _prepare method hook !!!
             lines.append({
@@ -671,13 +675,13 @@ class LogisticRequisitionLine(osv.osv):
         location_ids = set()
         for line in self.browse(cr, uid, ids, context=context):
             line_vals = {
-                'request_id': line.id,
+                'requisition_id': line.id,
                 'product_id': line.product_id.id,
                 'name': line.description,
                 'type': line.confirmed_type=='stock' and 'make_to_stock' or 'make_to_order',
             }
             origin.append(self.name_get(cr, uid, [line.id])[0][1])
-            partner_ids.add(line.request_id.requestor_partner_id.id)
+            partner_ids.add(line.requisition_id.requestor_partner_id.id)
             if line.dispatch_location_id:
                 location_ids.add(line.dispatch_location_id.id)
             line_vals.update(
@@ -685,23 +689,23 @@ class LogisticRequisitionLine(osv.osv):
                         cr, 
                         uid, 
                         [], 
-                        line.request_id.requestor_partner_id.property_product_pricelist.id, 
+                        line.requisition_id.requestor_partner_id.property_product_pricelist.id, 
                         line.product_id.id,
-                        partner_id=line.request_id.requestor_partner_id.id,
+                        partner_id=line.requisition_id.requestor_partner_id.id,
                         qty=line.requested_qty,
                         uom=line.requested_uom_id.id,
                 ).get('value', {}),
             )
             
             sol.append(line_vals)
-        assert len(partner_ids)==1, 'All request lines must belong to the same requestor'
-        assert len(location_ids)<=1, 'All request lines must come from the same location or from purchase'
+        assert len(partner_ids)==1, 'All requisition lines must belong to the same requestor'
+        assert len(location_ids)<=1, 'All requisition lines must come from the same location or from purchase'
         partner_id=partner_ids.pop()
         if location_ids:
             location_id=location_ids.pop()
         else:
             location_id = None
-        assert partner_id, 'Request must have a requestor partner'
+        assert partner_id, 'Requisitions must have a requestor partner'
         found_shop_id = self._get_shop_from_location(cr, uid, location_id, context=context)
         order_d={
             'partner_id': partner_id,
@@ -787,17 +791,17 @@ class LogisticRequisitionLine(osv.osv):
 
     def _send_note_to_logistic_user(self, cr, uid, req_line, context=None):
         """Post a message to warn the logistic specialist that a new line has been associated."""
-        subject = "Logistic Request Line %s Assigned" %(req_line.request_id.name+'/'+str(req_line.id))
-        details = "This new request concerns %s and is due for %s" %(req_line.description,req_line.requested_date)
+        subject = "Logistic Requisition Line %s Assigned" %(req_line.requisition_id.name+'/'+str(req_line.id))
+        details = "This new requisition concerns %s and is due for %s" %(req_line.description,req_line.requested_date)
         # TODO: Posting the message here do not send it to the just added foloowers...
         # We need to find a way to propagate this properly.
         self.message_post(cr, uid, [req_line.id], body=details, subject=subject, context=context)
         
     def _manage_logistic_user_change(self, cr, uid, req_line, vals, context=None):
         """Set the state of the line as 'assigned' if actual state is draft or in_progress 
-        and post    a message to let the logistic user about the new request line to be trated.
+        and post    a message to let the logistic user about the new requisition line to be trated.
         
-        :param object req_line: browse record of the request.line to process
+        :param object req_line: browse record of the requisition.line to process
         :param vals, dict of vals to give to write like: {'state':'assigned'}
         :return vals: dict of vals to give to write method like {'state':'assigned'}
         """
@@ -810,19 +814,22 @@ class LogisticRequisitionLine(osv.osv):
         """ Call the _assign_logistic_user whenb changing it. This will also
         pass the state to 'assigned' if stil in draft.
         """
-        for request_line in self.browse(cr, uid, ids, context):
+        for requisition_line in self.browse(cr, uid, ids, context):
             if 'logistic_user_id' in vals:
-                # if request_line.logistic_user_id:
+                # if requisition_line.logistic_user_id:
                 #     self.message_unsubscribe_users(
                 #         cr, uid, ids, 
-                #         user_ids=[request_line.logistic_user_id.id],
+                #         user_ids=[requisition_line.logistic_user_id.id],
                 #         context=context)
-                self._manage_logistic_user_change(cr, uid, request_line, vals, context=context)
+                self._manage_logistic_user_change(cr, uid,
+                                                  requisition_line,
+                                                  vals,
+                                                  context=context)
             # elif 'procurement_user_id' in vals:
-            #     if request_line.procurement_user_id:
+            #     if requisition_line.procurement_user_id:
             #         self.message_unsubscribe_users(
             #             cr, uid, ids, 
-            #             user_ids=[request_line.procurement_user_id.id],
+            #             user_ids=[requisition_line.procurement_user_id.id],
             #             context=context)
             #     self.message_subscribe_users(
             #         cr, uid, ids,
@@ -873,7 +880,7 @@ class LogisticRequisitionLine(osv.osv):
 
 # TODO : Move it to another file "stock.py"
 #        + Do it throug context !
-class StockLocation(osv.osv):
+class StockLocation(orm.Model):
     _inherit = "stock.location"
 
     def name_get(self, cr, uid, ids, context=None):
@@ -921,7 +928,7 @@ class StockLocation(osv.osv):
     #                     'location_id': location_id,
     #                     'company_id': request.company_id.id,
     #                     'fiscal_position': supplier.property_account_position and supplier.property_account_position.id or False,
-    #                     'request_id':request.id,
+    #                     'requisition_id':request.id,
     #                     'notes':request.description,
     #                     'warehouse_id':request.warehouse_id.id ,
     #         })
@@ -972,16 +979,16 @@ class StockLocation(osv.osv):
 # 
 #     _inherit = 'procurement.order'
 #     _columns = {
-#         'request_id' : fields.many2one('logistic.requisition','Latest Request')
+#         'requisition_id' : fields.many2one('logistic.requisition','Latest Request')
 #     }
 #     def make_po(self, cr, uid, ids, context=None):
 #         sequence_obj = self.pool.get('ir.sequence')
 #         res = super(procurement_order, self).make_po(cr, uid, ids, context=context)
 #         for proc_id, po_id in res.items():
 #             procurement = self.browse(cr, uid, proc_id, context=context)
-#             request_id=False
+#             requisition_id=False
 #             if procurement.product_id.logistic_requisition:
-#                 request_id=self.pool.get('logistic.requisition').create(cr, uid, {
+#                 requisition_id=self.pool.get('logistic.requisition').create(cr, uid, {
 #                     'name': sequence_obj.get(cr, uid, 'purchase.order.request'),
 #                     'origin': procurement.origin,
 #                     'date_end': procurement.date_planned,
@@ -995,7 +1002,7 @@ class StockLocation(osv.osv):
 #                     })],
 #                     'purchase_ids': [(6,0,[po_id])]
 #                 })
-#             self.write(cr,uid,proc_id,{'request_id':request_id})
+#             self.write(cr,uid,proc_id,{'requisition_id':requisition_id})
 #         return res
 # 
 # procurement_order()

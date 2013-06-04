@@ -20,7 +20,7 @@
 ##############################################################################
 
 {
-    "name" : "Logisitc Request",
+    "name" : "Logistic Requisition",
     "version" : "0.1",
     "author" : "OpenERP SA",
     "category" : "Purchase Management",
@@ -28,10 +28,10 @@
     "images" : [],
     "website" : "http://www.openerp.com",
     "description": """
-This module allows you to manage your Logistic Request.
-=======================================================
+This module allows you to manage your Logistic Requisitions.
+============================================================
 
-A Logistic request express a need that is requested somewhere.
+A Logistic requisition express a need that is requested somewhere.
 
 """,
     "depends" : [
@@ -55,7 +55,7 @@ A Logistic request express a need that is requested somewhere.
             "logistic_workflow.xml",
     ],
     "auto_install": False,
-    "test":[],
+    "test": [],
     "installable": True,
     "certificate" : "",
 }

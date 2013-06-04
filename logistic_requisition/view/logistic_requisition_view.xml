@@ -2,28 +2,28 @@
 <openerp>
     <data>
 
-        <menuitem id="menu_logistic_requisition_base" name="Logistic Request" parent="transport_order.menu_logistic" sequence="1"/>
+        <menuitem id="menu_logistic_requisition_base" name="Logistic Requisition" parent="transport_order.menu_logistic" sequence="1"/>
 
     <record model="ir.ui.view" id="view_logistic_requisition_form">
         <field name="name">logistic.requisition.form</field>
         <field name="type">form</field>
         <field name="model">logistic.requisition</field>
         <field name="arch" type="xml">
-            <form string="Logistic Request" version="7.0">
+            <form string="Logistic Requisition" version="7.0">
                 <header>
                     <button name="button_view_lines"   string="View Lines"     states="in_progress,sent,cancel,done" type="object" class="oe_highlight"/>
                     <button name="button_confirm"      string="Confirm"        states="draft" class="oe_highlight" type="object" />
                     <button name="button_reset"        string="Reset to Draft" states="cancel" type="object" />
-                    <button name="request_done"        string="Done"           states="sent" type="object" />
-                    <button name="request_sent"        string="Quote Sent"     states="in_progress"  type="object" />
+                    <button name="requisition_done"    string="Done"           states="sent" type="object" />
+                    <button name="requisition_sent"    string="Quote Sent"     states="in_progress"  type="object" />
                     <button name="button_cancel"       string="Cancel"         states="draft,sent,in_progress" type="object" />
 
                     <field name="state" select="1" readonly ="1" widget="statusbar" statusbar_visible="draft,in_progress,sent,done" statusbar_colors='{"in_progress":"blue"}'/>
                 </header>
-                <sheet string="Logistic Request">
+                <sheet string="Logistic Requisition">
                     <div class="oe_title">
                         <h1>
-                            <label string="Logistic Request" />
+                            <label string="Logistic Requisition" />
                             <field name="name" class="oe_inline" attrs="{'invisible': [('state', '=', 'draft')]}"/>
                         </h1>
                     </div>
@@ -45,9 +45,9 @@
                         </group>
                     </group>
                 <notebook>
-                    <page string="Request Lines">
+                    <page string="Requisition Lines">
                         <field name="line_ids" colspan="4" nolabel="1">
-                            <tree string="Request Lines" editable="bottom">
+                            <tree string="Requisition Lines" editable="bottom">
                                 <field name="product_id" on_change="onchange_product_id(product_id,requested_uom_id)"/>
                                 <field name="description"/>
                                 <field name="requested_qty"/>
@@ -63,7 +63,7 @@
                                 <button name="action_cancel" string="Cancel" type="object" states="draft" icon="terp-dialog-close"/>
                                 -->
                             </tree>
-                            <form string="Request Lines">
+                            <form string="Requisition Lines">
                                 <field name="product_id" on_change="onchange_product_id(product_id,requested_uom_id)"/>
                                 <field name="description"/>
                                 <field name="requested_qty"/>
@@ -109,7 +109,7 @@
         <field name="type">tree</field>
         <field name="model">logistic.requisition</field>
         <field name="arch" type="xml">
-            <tree colors="grey:state == 'done';red:date_end&lt;current_date and state not in ('done','cancel');black:date_end&gt;=current_date;" string="Logistic Request">
+            <tree colors="grey:state == 'done';red:date_end&lt;current_date and state not in ('done','cancel');black:date_end&gt;=current_date;" string="Logistic Requisition">
                 <field name="name"/>
                 <field name="requestor_id"/>
                 <field name="user_id"/>
@@ -129,14 +129,14 @@
             <field name="model">logistic.requisition</field>
             <field name="type">search</field>
             <field name="arch" type="xml">
-                <search string="Search Logistic Request">
+                <search string="Search Logistic Requisition">
                  <group>
-                    <filter name="draft" string="New" domain="[('state','=','draft')]" help="New Logistic Request"/>
-                    <filter name="in_progress" string="Needs Validated" domain="[('state','=','in_progress')]" help="Logistic Request in treatment"/>
+                    <filter name="draft" string="New" domain="[('state','=','draft')]" help="New Logistic Requisition"/>
+                    <filter name="in_progress" string="Needs Validated" domain="[('state','=','in_progress')]" help="Logistic Requisition in treatment"/>
                     <filter name="sent" string="Quote Sent" domain="[('state','=','sent')]" help="Quote Send to the Requestor"/>
                     <filter name="in_progress" string="Done" domain="[('state','=','done')]"/>
                     <separator orientation="vertical"/>
-                    <filter string="Unassigned"  domain="[('user_id','=', False)]" help="Unassigned  Request"/>
+                    <filter string="Unassigned"  domain="[('user_id','=', False)]" help="Unassigned Requisition"/>
                     <separator orientation="vertical"/>
                     <field name="name"/>
                     <field name="user_id" />
@@ -145,7 +145,7 @@
                 </group>
                 <newline/>
                   <group expand="0" string="Group By..." groups="base.group_extended">
-                    <filter string="Request Responsible" domain="[]" context="{'group_by':'user_id'}"/>
+                    <filter string="Requisition Responsible" domain="[]" context="{'group_by':'user_id'}"/>
                     <filter string="Requestor" domain="[]" context="{'group_by':'requestor_id'}"/>
                     <filter string="Country" domain="[]" context="{'group_by':'country_id'}"/>
                     <filter string="Project" domain="[]" context="{'group_by':'analytic_id'}"/>
@@ -153,7 +153,7 @@
                     <filter string="Origin" domain="[]" context="{'group_by':'origin'}"/>
                     <filter string="State" domain="[]" context="{'group_by':'state'}"/>
                     <separator orientation="vertical"/>
-                    <filter string="Request Date" domain="[]" context="{'group_by':'date_start'}"/>
+                    <filter string="Requisition Date" domain="[]" context="{'group_by':'date_start'}"/>
                     <filter string="Delivery Date" domain="[]" context="{'group_by':'date_end'}"/>
                 </group>
               </search>
@@ -171,7 +171,7 @@
  -->
 
     <record model="ir.actions.act_window" id="action_logistic_requisition">
-        <field name="name">Requests</field>
+        <field name="name">Requisitions</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">logistic.requisition</field>
         <field name="view_type">form</field>
@@ -194,8 +194,8 @@
         <field name="type">tree</field>
         <field name="model">logistic.requisition.line</field>
         <field name="arch" type="xml">
-           <tree string="Logistic Request Line">
-             <field name="request_id"/>
+           <tree string="Logistic Requisition Line">
+             <field name="requisition_id"/>
              <field name="requested_date"/>
              <field name="requested_qty"/>
              <field name="requested_uom_id"/>
@@ -207,7 +207,7 @@
              <field name="budget_tot_price" sum="Total Budget"/>
              <field name="state"/>
              <field name="country_id" invisible="1"/>
-             <button name="%(action_request_split_into)d" icon="gtk-justify-fill" string="Split the line" type="action" states="draft,assigned" />
+             <button name="%(action_requisition_split_into)d" icon="gtk-justify-fill" string="Split the line" type="action" states="draft,assigned" />
            </tree>
         </field>
     </record>
@@ -216,10 +216,10 @@
         <field name="name">logistic.requisition.line.tree</field>
         <field name="model">logistic.requisition.line</field>
         <field name="arch" type="xml">
-            <calendar string="Logistic Request Line"
+            <calendar string="Logistic Requisition Line"
                 date_start="requested_date" color="country_id">
                 <field name="id"/>
-                <field name="request_id"/>
+                <field name="requisition_id"/>
                 <field name="description"/>
             </calendar>
         </field>
@@ -239,7 +239,7 @@
                             <div class="oe_kanban_details">
                                 <h4>
                                     <a type="open">
-                                         [<field name="request_id"/>] <field name="description"/>
+                                         [<field name="requisition_id"/>] <field name="description"/>
                                     </a>
                                 </h4>
                                 <div name="tags"/>
@@ -262,7 +262,7 @@
         <field name="type">form</field>
         <field name="model">logistic.requisition.line</field>
         <field name="arch" type="xml">
-            <form string="Logistic Request Line" version="7.0">
+            <form string="Logistic Requisition Line" version="7.0">
                 <header>
                     <button name="button_make_so_quotation" states="draft,assigned,in_progress,waiting" string="Make Sales Quotation" type="object" class="oe_highlight"/>
                     <!-- <button name="line_assigned" states="draft" string="Assigned" type="object" class="oe_highlight" /> -->
@@ -277,8 +277,8 @@
                 <sheet>
                     <div class="oe_title">
                         <h1>
-                            <label string="Request"/>
-                            <field name="request_id" class="oe_inline" readonly="1"/> / 
+                            <label string="Requisition"/>
+                            <field name="requisition_id" class="oe_inline" readonly="1"/> / 
                             <label string="Line N° "/>
                             <field name="id" class="oe_inline" readonly="1"/>
                         </h1>
@@ -300,7 +300,7 @@
                         </group>
                     </group>
                     <notebook>
-                      <page string="Request">
+                      <page string="Requisition">
                         <group>
                             <group name="requested_grp" string="Demand">
                                  <field name="requested_type"/>
@@ -308,7 +308,7 @@
                                  <div>
                                      <field name="requested_qty" class="oe_inline"/>
                                      <field name="requested_uom_id" class="oe_inline"/>
-                                     <button name="%(action_request_split_into)d" string="Split it" type="action" states="draft,assigned" />
+                                     <button name="%(action_requisition_split_into)d" string="Split it" type="action" states="draft,assigned" />
                                  </div>
                                  <field name="requested_date"/>
                                  <field name="budget_unit_price" widget="monetary"/>
@@ -360,17 +360,17 @@
             <field name="model">logistic.requisition.line</field>
             <field name="type">search</field>
             <field name="arch" type="xml">
-                <search string="Search Logistic Request Line">
+                <search string="Search Logistic Requisition Line">
                  <group>
-                    <filter name="draft" string="New" domain="[('state','=','draft')]" help="New Logistic Request Line"/>
-                    <filter name="assigned" string="Assigned" domain="[('state','=','assigned')]" help="Assigned Logistic Request Line"/>
-                    <filter name="cost_estimated" string="Cost Estimated" domain="[('state','=','cost_estimated')]" help="Cost Estimated Request Lines"/>
+                    <filter name="draft" string="New" domain="[('state','=','draft')]" help="New Logistic Requisition Line"/>
+                    <filter name="assigned" string="Assigned" domain="[('state','=','assigned')]" help="Assigned Logistic Requisition Line"/>
+                    <filter name="cost_estimated" string="Cost Estimated" domain="[('state','=','cost_estimated')]" help="Cost Estimated Requisition Lines"/>
                     <filter name="quoted" string="Quoted" domain="[('state','=','quoted')]"/>
                     <separator orientation="vertical"/>
-                    <filter string="Unassigned"  domain="[('logistic_user_id','=', False)]" help="Unassigned Request"/>
+                    <filter string="Unassigned"  domain="[('logistic_user_id','=', False)]" help="Unassigned Requisition"/>
                     <separator orientation="vertical"/>
                     <field name="description" />
-                    <field name="request_id" />
+                    <field name="requisition_id" />
                     <field name="logistic_user_id" />
                     <field name="procurement_user_id" />
                 </group>
@@ -378,7 +378,7 @@
                   <group expand="0" string="Group By..." groups="base.group_extended">
                     <filter string="Assigned Specialist" domain="[]" context="{'group_by':'logistic_user_id'}"/>
                     <filter string="Procurement Officer" domain="[]" context="{'group_by':'procurement_user_id'}"/>
-                    <filter string="Logistic Request" domain="[]" context="{'group_by':'request_id'}"/>
+                    <filter string="Logistic Requisition" domain="[]" context="{'group_by':'requisition_id'}"/>
                     <separator orientation="vertical"/>
                     <filter string="State" domain="[]" context="{'group_by':'state'}"/>
                     <filter string="Product" domain="[]" context="{'group_by':'product_id'}"/>
@@ -389,7 +389,7 @@
         </record>
 
     <record model="ir.actions.act_window" id="action_logistic_requisition_line">
-        <field name="name">Requests Lines</field>
+        <field name="name">Requisitions Lines</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">logistic.requisition.line</field>
         <field name="view_type">form</field>
@@ -428,13 +428,13 @@
         <field name="inherit_id" ref="procurement.procurement_form_view"/>
         <field name="arch" type="xml">
              <xpath expr="/form/notebook/page/field[@name='close_move']" position="after">
-                <field name="request_id"/>
+                <field name="requisition_id"/>
             </xpath>
         </field>
     </record>
     <act_window
-            domain="[('request_id', '=', active_id)]"
-            context="{'default_request_id': active_id}"
+            domain="[('requisition_id', '=', active_id)]"
+            context="{'default_requisition_id': active_id}"
             id="act_res_partner_2_purchase_order"
             name="Cost Estimate"
             res_model="purchase.order"
@@ -452,7 +452,7 @@
     </record>
     
     <record id="logistic_requisition" model="ir.actions.act_window">
-        <field name="name">Logistic Request</field>
+        <field name="name">Logistic Requisition</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">logistic.requisition</field>
         <field name="view_type">form</field>
@@ -468,7 +468,7 @@
             <form string="Purchase Dashboard">
                 <board style="2-1">
                     <column>
-                        <action name="%(logistic_requisition)d" string="Logistic Request" creatable="true"/>
+                        <action name="%(logistic_requisition)d" string="Logistic Requisition" creatable="true"/>
                         <action name="%(purchase.purchase_draft)d" string="Request for Quotations" creatable="true"/>
                         <action name="%(purchase.purchase_waiting)d" string="Cost Estimate Waiting Approval" creatable="true"/>
                     </column>
