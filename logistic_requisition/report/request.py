@@ -18,8 +18,20 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-import logistic_request_split_line
-import logistic_line_create_requisition
+
+import time
+from report import report_sxw
+from osv import osv
+import pooler
+
+class request(report_sxw.rml_parse):
+    def __init__(self, cr, uid, name, context):
+        super(request, self).__init__(cr, uid, name, context=context)
+        self.localcontext.update({
+            'time': time,
+        })
+   
+report_sxw.report_sxw('report.logistic.requisition','logistic.requisition','addons/logistic_requisition/report/logistic_requisition.rml',parser=request)
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
 

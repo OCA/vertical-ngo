@@ -7,5 +7,5 @@ from openerp import SUPERUSER_ID
 class sale_order_line(osv.osv):
     _inherit = "sale.order.line"
     _columns = {
-        'request_id':fields.many2one('logistic.request.line', 'Request Line', ondelete='restrict'),
+        'request_id':fields.many2one('logistic.requisition.line', 'Request Line', ondelete='restrict'),
     }

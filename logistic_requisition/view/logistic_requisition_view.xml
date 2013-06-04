@@ -2,12 +2,12 @@
 <openerp>
     <data>
 
-        <menuitem id="menu_logistic_request_base" name="Logistic Request" parent="transport_order.menu_logistic" sequence="1"/>
+        <menuitem id="menu_logistic_requisition_base" name="Logistic Request" parent="transport_order.menu_logistic" sequence="1"/>
 
-    <record model="ir.ui.view" id="view_logistic_request_form">
-        <field name="name">logistic.request.form</field>
+    <record model="ir.ui.view" id="view_logistic_requisition_form">
+        <field name="name">logistic.requisition.form</field>
         <field name="type">form</field>
-        <field name="model">logistic.request</field>
+        <field name="model">logistic.requisition</field>
         <field name="arch" type="xml">
             <form string="Logistic Request" version="7.0">
                 <header>
@@ -104,10 +104,10 @@
         </field>
     </record>
 
-    <record model="ir.ui.view" id="view_logistic_request_tree">
-        <field name="name">logistic.request.tree</field>
+    <record model="ir.ui.view" id="view_logistic_requisition_tree">
+        <field name="name">logistic.requisition.tree</field>
         <field name="type">tree</field>
-        <field name="model">logistic.request</field>
+        <field name="model">logistic.requisition</field>
         <field name="arch" type="xml">
             <tree colors="grey:state == 'done';red:date_end&lt;current_date and state not in ('done','cancel');black:date_end&gt;=current_date;" string="Logistic Request">
                 <field name="name"/>
@@ -124,9 +124,9 @@
         </field>
     </record>
 
-    <record id="view_logistic_request_filter" model="ir.ui.view">
-            <field name="name">logistic.request.list.select</field>
-            <field name="model">logistic.request</field>
+    <record id="view_logistic_requisition_filter" model="ir.ui.view">
+            <field name="name">logistic.requisition.list.select</field>
+            <field name="model">logistic.requisition</field>
             <field name="type">search</field>
             <field name="arch" type="xml">
                 <search string="Search Logistic Request">
@@ -170,29 +170,29 @@
     </record>
  -->
 
-    <record model="ir.actions.act_window" id="action_logistic_request">
+    <record model="ir.actions.act_window" id="action_logistic_requisition">
         <field name="name">Requests</field>
         <field name="type">ir.actions.act_window</field>
-        <field name="res_model">logistic.request</field>
+        <field name="res_model">logistic.requisition</field>
         <field name="view_type">form</field>
         <field name="view_mode">tree,form</field>
         <field name="context">{}</field>
         <!-- Example to open in a blink the right filtred list -->
         <!-- <field name="context">{"search_default_user_id":uid,}</field> -->
-        <field name="search_view_id" ref="view_logistic_request_filter"/>
+        <field name="search_view_id" ref="view_logistic_requisition_filter"/>
         <field name="help"></field>
     </record>
 
     <menuitem
-        id="menu_logistic_request"
+        id="menu_logistic_requisition"
         sequence="0"
-        parent="menu_logistic_request_base"
-        action="action_logistic_request"/>
+        parent="menu_logistic_requisition_base"
+        action="action_logistic_requisition"/>
 
-    <record model="ir.ui.view" id="view_logistic_request_line_tree">
-        <field name="name">logistic.request.line.tree</field>
+    <record model="ir.ui.view" id="view_logistic_requisition_line_tree">
+        <field name="name">logistic.requisition.line.tree</field>
         <field name="type">tree</field>
-        <field name="model">logistic.request.line</field>
+        <field name="model">logistic.requisition.line</field>
         <field name="arch" type="xml">
            <tree string="Logistic Request Line">
              <field name="request_id"/>
@@ -212,9 +212,9 @@
         </field>
     </record>
     
-    <record model="ir.ui.view" id="view_logistic_request_line_calendar">
-        <field name="name">logistic.request.line.tree</field>
-        <field name="model">logistic.request.line</field>
+    <record model="ir.ui.view" id="view_logistic_requisition_line_calendar">
+        <field name="name">logistic.requisition.line.tree</field>
+        <field name="model">logistic.requisition.line</field>
         <field name="arch" type="xml">
             <calendar string="Logistic Request Line"
                 date_start="requested_date" color="country_id">
@@ -225,9 +225,9 @@
         </field>
     </record>
     
-    <record model="ir.ui.view" id="view_logistic_request_line_kanban">
-        <field name="name">logistic.request.line.kanban</field>
-        <field name="model">logistic.request.line</field>
+    <record model="ir.ui.view" id="view_logistic_requisition_line_kanban">
+        <field name="name">logistic.requisition.line.kanban</field>
+        <field name="model">logistic.requisition.line</field>
         <field name="arch" type="xml">
             <kanban>
                 <field name="description"/>
@@ -257,10 +257,10 @@
     </record>
 
 
-    <record model="ir.ui.view" id="view_logistic_request_line_form">
-        <field name="name">logistic.request.line.form</field>
+    <record model="ir.ui.view" id="view_logistic_requisition_line_form">
+        <field name="name">logistic.requisition.line.form</field>
         <field name="type">form</field>
-        <field name="model">logistic.request.line</field>
+        <field name="model">logistic.requisition.line</field>
         <field name="arch" type="xml">
             <form string="Logistic Request Line" version="7.0">
                 <header>
@@ -355,9 +355,9 @@
     </record>
 
 
-    <record id="view_logistic_request_line_filter" model="ir.ui.view">
-            <field name="name">logistic.request.line.list.select</field>
-            <field name="model">logistic.request.line</field>
+    <record id="view_logistic_requisition_line_filter" model="ir.ui.view">
+            <field name="name">logistic.requisition.line.list.select</field>
+            <field name="model">logistic.requisition.line</field>
             <field name="type">search</field>
             <field name="arch" type="xml">
                 <search string="Search Logistic Request Line">
@@ -388,24 +388,24 @@
             </field>
         </record>
 
-    <record model="ir.actions.act_window" id="action_logistic_request_line">
+    <record model="ir.actions.act_window" id="action_logistic_requisition_line">
         <field name="name">Requests Lines</field>
         <field name="type">ir.actions.act_window</field>
-        <field name="res_model">logistic.request.line</field>
+        <field name="res_model">logistic.requisition.line</field>
         <field name="view_type">form</field>
         <field name="view_mode">tree,form,calendar,kanban</field>
         <field name="context">{}</field>
         <!-- Example to open in a blink the right filtred list -->
         <!-- <field name="context">{"search_default_logistic_user_id":uid,}</field> -->
-        <field name="search_view_id" ref="view_logistic_request_line_filter"/>
+        <field name="search_view_id" ref="view_logistic_requisition_line_filter"/>
         <field name="help"></field>
     </record>
 
     <menuitem
-        id="menu_logistic_request_line"
+        id="menu_logistic_requisition_line"
         sequence="10"
-        parent="menu_logistic_request_base"
-        action="action_logistic_request_line"/>
+        parent="menu_logistic_requisition_base"
+        action="action_logistic_requisition_line"/>
 
 <!--     <record model="ir.ui.view" id="product_normal_form_view_inherit">
         <field name="name">product.form.inherit</field>
@@ -415,7 +415,7 @@
         <field name="arch" type="xml">
             <field name="supply_method" position="after">
                 <group colspan="2" col="2" attrs="{'invisible': [('supply_method','&lt;&gt;','buy')]}">
-                <field name="logistic_request"/>
+                <field name="logistic_requisition"/>
                 </group>
             </field>
         </field>
@@ -438,7 +438,7 @@
             id="act_res_partner_2_purchase_order"
             name="Cost Estimate"
             res_model="purchase.order"
-            src_model="logistic.request"/> -->
+            src_model="logistic.requisition"/> -->
 
 
     
@@ -451,10 +451,10 @@
         <field name="domain">[('date_order','&gt;',time.strftime('%Y-01-01 00:00:00')),('date_order','&lt;',time.strftime('%Y-12-31 23:59:59')), ('state','in',('wait','confirmed'))]</field>
     </record>
     
-    <record id="logistic_request" model="ir.actions.act_window">
+    <record id="logistic_requisition" model="ir.actions.act_window">
         <field name="name">Logistic Request</field>
         <field name="type">ir.actions.act_window</field>
-        <field name="res_model">logistic.request</field>
+        <field name="res_model">logistic.requisition</field>
         <field name="view_type">form</field>
         <field name="view_mode">tree,form</field>
         <field name="domain">[]</field>
@@ -468,7 +468,7 @@
             <form string="Purchase Dashboard">
                 <board style="2-1">
                     <column>
-                        <action name="%(logistic_request)d" string="Logistic Request" creatable="true"/>
+                        <action name="%(logistic_requisition)d" string="Logistic Request" creatable="true"/>
                         <action name="%(purchase.purchase_draft)d" string="Request for Quotations" creatable="true"/>
                         <action name="%(purchase.purchase_waiting)d" string="Cost Estimate Waiting Approval" creatable="true"/>
                     </column>

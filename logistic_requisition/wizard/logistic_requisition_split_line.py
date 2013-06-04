@@ -24,8 +24,8 @@ from openerp.osv import fields, osv
 from openerp.tools.translate import _
 import openerp.addons.decimal_precision as dp
 
-class LogisticRequestSplitLine(TransientModel):
-    _name = "logistic.request.split.line"
+class LogisticRequisitionSplitLine(TransientModel):
+    _name = "logistic.requisition.split.line"
     _description = "Split Request Line"
     _columns = {
         'quantity': fields.float('Quantity',digits_compute=dp.get_precision('Product Unit of Measure')),
@@ -38,7 +38,7 @@ class LogisticRequestSplitLine(TransientModel):
         if context is None:
             context = {}
         rec_id = context and context.get('active_ids', False)
-        line_obj = self.pool.get('logistic.request.line')
+        line_obj = self.pool.get('logistic.requisition.line')
         quantity = self.browse(cr, uid, data[0], context=context).quantity or 0.0
         for line in line_obj.browse(cr, uid, rec_id, context=context):
             quantity_rest = line.requested_qty - quantity

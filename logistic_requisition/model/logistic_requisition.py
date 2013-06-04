@@ -39,7 +39,7 @@ _logger = logging.getLogger(__name__)
 #     # _name = "Cost Estimate"
 #     _columns = {
 #         'reject': fields.text('Rejection Reason', states={'cancel':[('readonly',True)]}),
-#         'request_id' : fields.many2one('logistic.request','Logistic Request'),
+#         'request_id' : fields.many2one('logistic.requisition','Logistic Request'),
 #         'date_valid':fields.date('Validity Date', states={'confirmed':[('readonly',True)], 'approved':[('readonly',True)]}, select=True),
 #         'partner_invoice_id': fields.many2one('res.partner.address', 'Invoice Address', help="Invoice address for current request if different."),
 #     }
@@ -69,8 +69,8 @@ _logger = logging.getLogger(__name__)
 #####################################################################################################
 
 
-class LogisticRequest(osv.Model):
-    _name = "logistic.request"
+class LogisticRequisition(osv.Model):
+    _name = "logistic.requisition"
     _description="Logistic Request"
     _columns = {
         'name': fields.char(
@@ -196,7 +196,7 @@ class LogisticRequest(osv.Model):
         ),
         'description': fields.text('Remarks/Description'),
         'line_ids' : fields.one2many(
-            'logistic.request.line',
+            'logistic.requisition.line',
             'request_id',
             'Products to Purchase',
             states={'done': [('readonly', True)]}
@@ -212,8 +212,8 @@ class LogisticRequest(osv.Model):
         ),
         'amount_total': fields.function(lambda self, *args, **kwargs:self._get_amount_all(*args,**kwargs), digits_compute=dp.get_precision('Account'), string='Total Budget',
             store={
-                'logistic.request': (lambda self, cr, uid, ids, c=None: ids, ['line_ids'], 20),
-                'logistic.request.line': (lambda self,*args,**kwargs:self._store__get_requests(*args,**kwargs), ['requested_qty','budget_unit_price','budget_tot_price','request_id'], 20),
+                'logistic.requisition': (lambda self, cr, uid, ids, c=None: ids, ['line_ids'], 20),
+                'logistic.requisition.line': (lambda self,*args,**kwargs:self._store__get_requests(*args,**kwargs), ['requested_qty','budget_unit_price','budget_tot_price','request_id'], 20),
             },
             multi='all'),
         #####################################################################################################
@@ -224,7 +224,7 @@ class LogisticRequest(osv.Model):
     _defaults = {
         'date_start': time.strftime('%Y-%m-%d %H:%M:%S'),#FIX: TZ
         'state': 'draft',
-        # 'company_id': lambda self, cr, uid, c: self.pool.get('res.company')._company_default_get(cr, uid, 'logistic.request', context=c),
+        # 'company_id': lambda self, cr, uid, c: self.pool.get('res.company')._company_default_get(cr, uid, 'logistic.requisition', context=c),
         'user_id': lambda self, cr, uid, c: self.pool.get('res.users').browse(cr, uid, uid, c).id ,
         'name': '/',
     }
@@ -244,29 +244,29 @@ class LogisticRequest(osv.Model):
 
     def _do_cancel(self, cr, uid, ids, context=None):
         line_ids=reduce(lambda x,y:x+y,[x['line_ids'] for x in self.read(cr,uid,ids,['line_ids'],context=context,load='_classic_write')],[])
-        line_ids and self.pool.get('logistic.request.line')._do_cancel(cr,uid,line_ids,context=context)
+        line_ids and self.pool.get('logistic.requisition.line')._do_cancel(cr,uid,line_ids,context=context)
         self.write(cr, uid, ids, {'state': 'cancel'})
     def _do_confirm(self, cr, uid, ids, context=None):
         line_ids=reduce(lambda x,y:x+y,[x['line_ids'] for x in self.read(cr,uid,ids,['line_ids'],context=context,load='_classic_write')],[])
-        line_ids and self.pool.get('logistic.request.line')._do_confirm(cr,uid,line_ids,context=context)
+        line_ids and self.pool.get('logistic.requisition.line')._do_confirm(cr,uid,line_ids,context=context)
         self.write(cr, uid, ids, {'state':'in_progress'} ,context=context)
     def _do_draft(self, cr, uid, ids, context=None):
         line_ids=reduce(lambda x,y:x+y,[x['line_ids'] for x in self.read(cr,uid,ids,['line_ids'],context=context,load='_classic_write')],[])
-        line_ids and self.pool.get('logistic.request.line')._do_draft(cr,uid,line_ids,context=context)
+        line_ids and self.pool.get('logistic.requisition.line')._do_draft(cr,uid,line_ids,context=context)
         self.write(cr, uid, ids, {'state': 'draft'})
 
     def create(self, cr, uid, vals, context=None):
         if vals.get('name','/')=='/':
-            vals['name'] = self.pool.get('ir.sequence').get(cr, uid, 'logistic.request') or '/'
-        return super(LogisticRequest, self).create(cr, uid, vals, context=context)
+            vals['name'] = self.pool.get('ir.sequence').get(cr, uid, 'logistic.requisition') or '/'
+        return super(LogisticRequisition, self).create(cr, uid, vals, context=context)
     def copy(self, cr, uid, id, default=None, context=None):
         if not default:
             default = {}
         default.update({
             'state':'draft',
-            'name': self.pool.get('ir.sequence').get(cr, uid, 'logistic.request'),
+            'name': self.pool.get('ir.sequence').get(cr, uid, 'logistic.requisition'),
         })
-        return super(LogisticRequest, self).copy(cr, uid, id, default=default, context=context)
+        return super(LogisticRequisition, self).copy(cr, uid, id, default=default, context=context)
 
     def button_cancel(self, cr, uid, ids, context=None):
         #TODO: ask confirmation
@@ -284,7 +284,7 @@ class LogisticRequest(osv.Model):
         """
         mod_obj = self.pool.get('ir.model.data')
         act_obj = self.pool.get('ir.actions.act_window')
-        result = mod_obj.get_object_reference(cr, uid, 'logistic_request', 'action_logistic_request_line')
+        result = mod_obj.get_object_reference(cr, uid, 'logistic_requisition', 'action_logistic_requisition_line')
         id = result and result[1] or False
         result = act_obj.read(cr, uid, [id], context=context)[0]
         #compute the number of invoices to display
@@ -299,7 +299,7 @@ class LogisticRequest(osv.Model):
 
     def request_done(self, cr, uid, ids, context=None):
         self.write(cr, uid, ids, {'state':'done', 'date_end':time.strftime('%Y-%m-%d %H:%M:%S')}, context=context)
-        line_obj = self.pool.get('logistic.request.line')
+        line_obj = self.pool.get('logistic.requisition.line')
         for line in self.browse(cr,uid,ids):
             line_obj.write(cr,uid,[line.id],{'state':'done'})
         return True
@@ -346,22 +346,22 @@ class LogisticRequest(osv.Model):
     #####################################################################################################
 
 
-class LogisticRequestLine(osv.osv):
+class LogisticRequisitionLine(osv.osv):
 
-    _name = "logistic.request.line"
+    _name = "logistic.requisition.line"
     _description = "Logistic Request Line"
     _rec_name = "id"
     _order = "request_id asc"
     _inherit = ['mail.thread']
     _track =  {
         'state': {
-            'logistic_request.mt_request_line_assigned': lambda self, cr, uid, obj, ctx=None: obj['state'] == 'assigned',
-            'logistic_request.mt_request_line_quoted': lambda self, cr, uid, obj, ctx=None: obj['state'] == 'quoted',
+            'logistic_requisition.mt_request_line_assigned': lambda self, cr, uid, obj, ctx=None: obj['state'] == 'assigned',
+            'logistic_requisition.mt_request_line_quoted': lambda self, cr, uid, obj, ctx=None: obj['state'] == 'quoted',
         },
     }
     _columns = {
         'id': fields.integer('ID', required=True, readonly=True),
-        'request_id' : fields.many2one('logistic.request','Request', ondelete='cascade'),
+        'request_id' : fields.many2one('logistic.requisition','Request', ondelete='cascade'),
         'logistic_user_id': fields.many2one(
             'res.users', 'Logistic Specialist',
             help = "Logistic Specialist in charge of the Logistic Request Line",
@@ -468,7 +468,7 @@ class LogisticRequestLine(osv.osv):
         'state': 'draft',
         #####################################################################################################
         # Todo : See if we do need company ID on lines...
-        # 'company_id': lambda self, cr, uid, c: self.pool.get('res.company')._company_default_get(cr, uid, 'logistic.request.line', context=c),
+        # 'company_id': lambda self, cr, uid, c: self.pool.get('res.company')._company_default_get(cr, uid, 'logistic.requisition.line', context=c),
         #####################################################################################################
     }
 
@@ -768,7 +768,7 @@ class LogisticRequestLine(osv.osv):
                     # 'message_follower_ids' : [],
         }
         std_default.update(default)
-        return super(LogisticRequestLine, self).copy_data(cr, uid, id, default=std_default, context=context)
+        return super(LogisticRequisitionLine, self).copy_data(cr, uid, id, default=std_default, context=context)
 
     def _message_get_auto_subscribe_fields(self, cr, uid, updated_fields, auto_follow_fields=['user_id'], context=None):
         """ Returns the list of relational fields linking to res.users that should
@@ -780,7 +780,7 @@ class LogisticRequestLine(osv.osv):
         """
         fields_to_follow = ['logistic_user_id','procurement_user_id']
         fields_to_follow.extend(auto_follow_fields)
-        res = super(LogisticRequestLine, self)._message_get_auto_subscribe_fields(cr, uid, updated_fields, 
+        res = super(LogisticRequisitionLine, self)._message_get_auto_subscribe_fields(cr, uid, updated_fields, 
             auto_follow_fields = fields_to_follow,
             context=context)
         return res
@@ -828,7 +828,7 @@ class LogisticRequestLine(osv.osv):
             #         cr, uid, ids,
             #         user_ids=[vals['procurement_user_id']],
             #         context=context)
-        return super(LogisticRequestLine, self).write(cr, uid, ids, vals, context=context)
+        return super(LogisticRequisitionLine, self).write(cr, uid, ids, vals, context=context)
 
     def onchange_product_id(self, cr, uid, ids, product_id, requested_uom_id, context=None):
         """ Changes UoM and name if product_id changes.
@@ -959,10 +959,10 @@ class StockLocation(osv.osv):
 #     _inherit = 'product.product'
 # 
 #     _columns = {
-#         'logistic_request': fields.boolean('Logistic Request', help="Check this box so that requests generates purchase requests instead of directly requests for quotations."),
+#         'logistic_requisition': fields.boolean('Logistic Request', help="Check this box so that requests generates purchase requests instead of directly requests for quotations."),
 #     }
 #     _defaults = {
-#         'logistic_request': False
+#         'logistic_requisition': False
 #     }
 # 
 # product_product()
@@ -972,7 +972,7 @@ class StockLocation(osv.osv):
 # 
 #     _inherit = 'procurement.order'
 #     _columns = {
-#         'request_id' : fields.many2one('logistic.request','Latest Request')
+#         'request_id' : fields.many2one('logistic.requisition','Latest Request')
 #     }
 #     def make_po(self, cr, uid, ids, context=None):
 #         sequence_obj = self.pool.get('ir.sequence')
@@ -980,8 +980,8 @@ class StockLocation(osv.osv):
 #         for proc_id, po_id in res.items():
 #             procurement = self.browse(cr, uid, proc_id, context=context)
 #             request_id=False
-#             if procurement.product_id.logistic_request:
-#                 request_id=self.pool.get('logistic.request').create(cr, uid, {
+#             if procurement.product_id.logistic_requisition:
+#                 request_id=self.pool.get('logistic.requisition').create(cr, uid, {
 #                     'name': sequence_obj.get(cr, uid, 'purchase.order.request'),
 #                     'origin': procurement.origin,
 #                     'date_end': procurement.date_planned,

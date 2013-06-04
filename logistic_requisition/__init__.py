@@ -19,19 +19,8 @@
 #
 ##############################################################################
 
-import time
-from report import report_sxw
-from osv import osv
-import pooler
-
-class request(report_sxw.rml_parse):
-    def __init__(self, cr, uid, name, context):
-        super(request, self).__init__(cr, uid, name, context=context)
-        self.localcontext.update({
-            'time': time,
-        })
-   
-report_sxw.report_sxw('report.logistic.request','logistic.request','addons/logistic_request/report/logistic_request.rml',parser=request)
-
+from model import logistic_requisition
+import wizard
+import report
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
 
