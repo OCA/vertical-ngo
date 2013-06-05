@@ -68,102 +68,62 @@ _logger = logging.getLogger(__name__)
 # purchase_order()
 #####################################################################################################
 
+REQ_STATES = {'in_progress': [('readonly', True)],
+              'sent': [('readonly', True)],
+              'done': [('readonly', True)]
+              }
+
 
 class LogisticRequisition(orm.Model):
     _name = "logistic.requisition"
     _description="Logistic Requisition"
     _columns = {
         'name': fields.char(
-            'Reference', size=32,required=True,
+            'Reference', size=32, required=True,
             readonly=True,
-            states={
-                'in_progress':[('readonly',True)], 
-                'sent':[('readonly',True)], 
-                'done':[('readonly',True)]
-                }
-        ),
+            states=REQ_STATES),
         'origin': fields.char(
-            'Origin', size=32, 
-            states={
-                'in_progress':[('readonly',True)], 
-                'sent':[('readonly',True)],
-                'done':[('readonly',True)]
-            }
-        ),
+            'Origin', size=32,
+            states=REQ_STATES),
         'date_start': fields.date(
-            'Request Date', 
-            states={
-                'in_progress':[('readonly',True)], 
-                'sent':[('readonly',True)],
-                'done':[('readonly',True)]
-                },
+            'Request Date',
+            states=REQ_STATES,
             required=True
         ),
         'date_end': fields.date(
-            'Desired Delivery Date', 
-            states={
-                'in_progress':[('readonly',True)],
-                'sent':[('readonly',True)],
-                'done':[('readonly',True)]
-                },
+            'Desired Delivery Date',
+            states=REQ_STATES,
             required=True
         ),
         'user_id': fields.many2one(
-            'res.users', 'Request Responsible', required=True, 
-            states={
-                'in_progress':[('readonly',True)],
-                'sent':[('readonly',True)],
-                'done':[('readonly',True)]
-                },
-            help = "Mobilization Officer or Logistic Coordinator in charge of the Logistic Requisition"
+            'res.users', 'Request Responsible', required=True,
+            states=REQ_STATES,
+            help="Mobilization Officer or Logistic Coordinator "
+                 "in charge of the Logistic Requisition"
         ),
         'requester_id': fields.many2one(
             'res.users', 'Requester', required=True,
-            states={
-                'in_progress':[('readonly',True)],
-                'sent':[('readonly',True)],
-                'done':[('readonly',True)]
-            }
+            states=REQ_STATES
         ),
         'consignee_id': fields.many2one(
             'res.partner', 'Consignee', required=True,
-            states={
-                'in_progress':[('readonly',True)],
-                'sent':[('readonly',True)],
-                'done':[('readonly',True)]
-            }
+            states=REQ_STATES
         ),
         'country_id': fields.many2one('res.country', 'Country',
-            states={
-                'in_progress':[('readonly',True)],
-                'sent':[('readonly',True)],
-                'done':[('readonly',True)]
-            }
+            states=REQ_STATES
         ),
         'company_id': fields.many2one(
             'res.company', 'Account N° / Company', required=True, 
-            states={
-                'in_progress':[('readonly',True)],
-                'sent':[('readonly',True)],
-                'done':[('readonly',True)]
-            }
+            states=REQ_STATES
         ),
         'analytic_id':  fields.many2one('account.analytic.account', 'Project'),
         'activity_code': fields.char(
             'Activity Code', size=32,
-            states={
-                'in_progress':[('readonly',True)], 
-                'sent':[('readonly',True)], 
-                'done':[('readonly',True)]
-                }
+            states=REQ_STATES
         ),
         'warehouse_id': fields.many2one(
-            'stock.warehouse', 'Warehouse', 
-            states={
-                'in_progress':[('readonly',True)],
-                'sent':[('readonly',True)],
-                'done':[('readonly',True)]
-            },
+            'stock.warehouse', 'Warehouse',
+            states=REQ_STATES,
             required=True
         ),
         'address_id': fields.related('warehouse_id','partner_id', 
@@ -175,24 +135,16 @@ class LogisticRequisition(orm.Model):
                 ('procurement','Procurement'),
                 ('cost_estimate','Cost Estimate Only'),
                 ('wh_dispatch','Warehouse Dispatch')],
-            'Type of Requisition', 
-            states={
-                'in_progress':[('readonly',True)],
-                'sent':[('readonly',True)],
-                'done':[('readonly',True)]
-            }
+            'Type of Requisition',
+            states=REQ_STATES
         ),
         'prefered_transport' : fields.selection(
             [
                 ('land','Land'),
                 ('sea','Sea'),
                 ('air','Air')],
-            'Prefered Transport', 
-            states={
-                'in_progress':[('readonly',True)],
-                'sent':[('readonly',True)],
-                'done':[('readonly',True)]
-            }
+            'Prefered Transport',
+            states=REQ_STATES
         ),
         'description': fields.text('Remarks/Description'),
         'line_ids' : fields.one2many(
