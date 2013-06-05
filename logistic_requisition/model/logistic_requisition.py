@@ -19,6 +19,7 @@
 #
 ##############################################################################
 
+from __future__ import division
 import logging
 import time
 from openerp.osv import fields, osv, orm
@@ -145,7 +146,7 @@ class logistic_requisition(orm.Model):
             required=True
         ),
         'amount_total': fields.function(
-            lambda self, *args, **kwargs: self._get_amount_all(*args, **kwargs),
+            lambda self, *args, **kwargs: self._get_amount(*args, **kwargs),
             digits_compute=dp.get_precision('Account'),
             string='Total Budget',
             store={
@@ -157,12 +158,14 @@ class logistic_requisition(orm.Model):
                                                'budget_tot_price',
                                                'requisition_id'],
                                               20),
-            },
-            multi='all'),
+            }),
+        'sourced': fields.function(
+            lambda self, *args, **kwargs: self._get_sourced(*args, **kwargs),
+            string='Sourced',
+            type='float'
+            ),
         'm_code': fields.char('M-Code', size=32),
         'allowed_budget': fields.boolean('Allowed Budget'),
-        # TODO
-        'sourced': fields.dummy('Sourced'),
         'currency_id': fields.related('company_id',
                                       'currency_id',
                                       type='many2one',
@@ -197,12 +200,25 @@ class logistic_requisition(orm.Model):
          'Logistic Requisition Reference must be unique!'),
     ]
 
-    def _get_amount_all(self, cr, uid, ids, name, args, context=None):
+    def _get_amount(self, cr, uid, ids, name, args, context=None):
         res = {}
         for requisition in self.browse(cr, uid, ids, context=context):
-            amount = sum(line.budget_tot_price for line
-                         in requisition.line_ids)
-            res[requisition.id] = {'amount_total': amount}
+            res[requisition.id] = sum(line.budget_tot_price for line
+                                      in requisition.line_ids)
+        return res
+
+    def _get_sourced(self, cr, uid, ids, name, args, context=None):
+        res = {}
+        for requisition in self.browse(cr, uid, ids, context=context):
+            lines_len = sum(1 for req in requisition.line_ids
+                            if req.state != 'cancel')
+            sourced_len = sum(1 for req in requisition.line_ids
+                              if req.state in ('quoted', 'done'))
+            if lines_len == 0:
+                percentage = 100.
+            else:
+                percentage = round(sourced_len / lines_len * 100, 2)
+            res[requisition.id] = percentage
         return res
 
     def _do_cancel(self, cr, uid, ids, context=None):

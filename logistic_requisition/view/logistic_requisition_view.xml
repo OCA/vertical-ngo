@@ -30,9 +30,9 @@
                         type="object" />
 
                     <field name="state" select="1" readonly="1"
-                      widget="statusbar"
-                      statusbar_visible="draft,confirm,done"
-                      statusbar_colors='{"cancel":"grey"}'/>
+                        widget="statusbar"
+                        statusbar_visible="draft,confirm,done"
+                        statusbar_colors='{"cancel":"grey"}'/>
                 </header>
                 <sheet string="Logistic Requisition">
                     <div class="oe_title">
@@ -46,8 +46,8 @@
                             <field name="requester_id"/>
                             <field name="consignee_id" on_change="onchange_consignee_id(consignee_id)"/>
                             <field name="consignee_shipping_id"
-                                    domain="['|', ('parent_id', '=', consignee_id), ('id', '=', consignee_id)]"
-                                    context="{'default_type':'delivery'}"/>
+                                domain="['|', ('parent_id', '=', consignee_id), ('id', '=', consignee_id)]"
+                                context="{'default_type':'delivery'}"/>
                             <field name="analytic_id"/>
                             <field name="m_code"/>
                         </group>
@@ -62,21 +62,24 @@
                             <field name="donor_affiliate_id"/>
                         </group>
                     </group>
-                <notebook>
-                    <page string="Requisition Lines">
-                        <field name="line_ids" colspan="4" nolabel="1">
-                            <tree string="Requisition Lines" editable="bottom">
-                                <field name="product_id" on_change="onchange_product_id(product_id,requested_uom_id)"/>
-                                <field name="description"/>
-                                <field name="requested_qty"/>
-                                <field name="requested_uom_id"/>
-                                <!-- <field name="confirmed_uom_id" invisible="True"/> -->
-                                <field name="budget_unit_price"/>
-                                <field name="budget_tot_price"/>
-                                <field name="state"/>
-                                <field name="logistic_user_id" attrs="{'invisible':[('state','=','draft')]}"/>
-                                <button name="button_assign" string="Assign" type="object" states="draft" icon="gtk-go-forward"/>
-                                <!--
+                    <notebook>
+                        <page string="Requisition Lines">
+                            <group colspan="4">
+                                <field name="sourced" widget="progressbar"/>
+                            </group>
+                            <field name="line_ids" colspan="4" nolabel="1">
+                                <tree string="Requisition Lines" editable="bottom">
+                                    <field name="product_id" on_change="onchange_product_id(product_id,requested_uom_id)"/>
+                                    <field name="description"/>
+                                    <field name="requested_qty"/>
+                                    <field name="requested_uom_id"/>
+                                    <!-- <field name="confirmed_uom_id" invisible="True"/> -->
+                                    <field name="budget_unit_price"/>
+                                    <field name="budget_tot_price"/>
+                                    <field name="state"/>
+                                    <field name="logistic_user_id" attrs="{'invisible':[('state','=','draft')]}"/>
+                                    <button name="button_assign" string="Assign" type="object" states="draft" icon="gtk-go-forward"/>
+                                    <!--
                                 <button name="action_proc" string="Procure" type="object" states="draft" icon="gtk-go-forward"/>
                                 <button name="action_cancel" string="Cancel" type="object" states="draft" icon="terp-dialog-close"/>
                                 -->
@@ -131,15 +134,15 @@
                             <div>
                                 <label for="description"/>
                             </div>
-                          <field name="description" colspan="4"
-                            nolabel="1"
-                            class="oe_inline"
-                            placeholder="Additional notes..."/>
+                            <field name="description" colspan="4"
+                                nolabel="1"
+                                class="oe_inline"
+                                placeholder="Additional notes..."/>
                         </group>
                     </page>
                 </notebook>
-                </sheet>
-            </form>
+            </sheet>
+        </form>
         </field>
     </record>
 
