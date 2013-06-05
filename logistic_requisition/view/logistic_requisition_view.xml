@@ -51,7 +51,6 @@
                         </group>
                         <group string="quarantine">
                             <field name="company_id"/>
-                            <field name="origin"/>
                             <field name="warehouse_id" class="oe_inline"/>
                             <field name="address_id" class="oe_inline"/>
                         </group>
@@ -159,7 +158,6 @@
                     <filter string="Country" domain="[]" context="{'group_by':'country_id'}"/>
                     <filter string="Project" domain="[]" context="{'group_by':'analytic_id'}"/>
                     <separator orientation="vertical"/>
-                    <filter string="Origin" domain="[]" context="{'group_by':'origin'}"/>
                     <filter string="State" domain="[]" context="{'group_by':'state'}"/>
                     <separator orientation="vertical"/>
                     <filter string="Requisition Date" domain="[]" context="{'group_by':'date'}"/>

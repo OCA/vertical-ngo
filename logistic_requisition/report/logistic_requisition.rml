@@ -136,7 +136,7 @@
     <para style="terp_default_8">
       <font color="white"> </font>
     </para>
-    <blockTable colWidths="159.0,159.0,106.0,106.0" style="Table2">
+    <blockTable colWidths="159.0,159.0,106.0" style="Table2">
       <tr>
         <td>
           <para style="terp_tblheader_General_Centre">Requisition Reference</para>
@@ -146,9 +146,6 @@
         </td>
         <td>
           <para style="terp_tblheader_General_Centre">Type</para>
-        </td>
-        <td>
-          <para style="terp_tblheader_General_Centre">Origin</para>
         </td>
       </tr>
     </blockTable>
@@ -162,9 +159,6 @@
         </td>
         <td>
           <para style="terp_default_Centre_8">[[ requisition.exclusive=='multiple' and 'Multiple Requisitions' or requisition.exclusive=='exclusive' and 'Logistic Requests (exclusive)' ]]</para>
-        </td>
-        <td>
-          <para style="terp_default_Centre_8">[[ requisition.origin ]]</para>
         </td>
       </tr>
     </blockTable>

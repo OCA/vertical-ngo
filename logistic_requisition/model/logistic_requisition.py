@@ -54,7 +54,6 @@ class logistic_requisition(orm.Model):
         'consignee_reference': fields.char(
             'Consignee Reference',
             states=REQ_STATES),
-        'origin': fields.char('Origin', states=REQ_STATES),
         'date': fields.date(
             'Requisition Date',
             states=REQ_STATES,
@@ -160,6 +159,13 @@ class logistic_requisition(orm.Model):
         'allowed_budget': fields.boolean('Allowed Budget'),
         # TODO
         'sourced': fields.dummy('Sourced'),
+        'currency_id': fields.related('company_id',
+                                      'currency_id',
+                                      type='many2one',
+                                      relation='res.currency',
+                                      string='Currency',
+                                      readonly=True,
+                                      required=True),
     }
 
     _defaults = {
@@ -428,7 +434,6 @@ class logistic_requisition_line(orm.Model):
         company_id = False
         warehouse_id = False
         for line in self.browse(cr, uid, ids, context=context):
-            origin = line.requisition_id.name + '/' + str(line.id)
             user_id = line.procurement_user_id and line.procurement_user_id.id
             if line.po_requisition_id:
                 raise osv.except_osv(
@@ -456,7 +461,6 @@ class logistic_requisition_line(orm.Model):
             })
         # TODO : make this looking like : vals = _prepare_po_requisition()
         rfq_id = rfq_obj.create(cr, uid, {
-                        'origin': origin,
                         'user_id': user_id,
                         'company_id': company_id,
                         'warehouse_id': warehouse_id,
@@ -556,7 +560,6 @@ class logistic_requisition_line(orm.Model):
             context = {}
         sale_obj = self.pool.get('sale.order')
         sale_line_obj = self.pool.get('sale.order.line')
-        origin = []
         sol = []
         partner_ids = set()
         location_ids = set()
@@ -567,7 +570,6 @@ class logistic_requisition_line(orm.Model):
                 'name': line.description,
                 'type': line.confirmed_type=='stock' and 'make_to_stock' or 'make_to_order',
             }
-            origin.append(self.name_get(cr, uid, [line.id])[0][1])
             partner_ids.add(line.requisition_id.consignee_id.id)
             if line.dispatch_location_id:
                 location_ids.add(line.dispatch_location_id.id)
@@ -596,7 +598,6 @@ class logistic_requisition_line(orm.Model):
         found_shop_id = self._get_shop_from_location(cr, uid, location_id, context=context)
         order_d={
             'partner_id': partner_id,
-            'origin': ','.join(origin),
             'order_line': [(0,0,x) for x in sol],
             'shop_id': found_shop_id,
             }
