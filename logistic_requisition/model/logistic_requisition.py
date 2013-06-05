@@ -39,11 +39,12 @@ class logistic_requisition(orm.Model):
     _description="Logistic Requisition"
     _columns = {
         'name': fields.char(
-            'Reference', size=32, required=True,
+            'Reference',
+            required=True,
             readonly=True,
             states=REQ_STATES),
         'origin': fields.char(
-            'Origin', size=32,
+            'Origin',
             states=REQ_STATES),
         'date_start': fields.date(
             'Request Date',
@@ -82,7 +83,7 @@ class logistic_requisition(orm.Model):
         ),
         'analytic_id':  fields.many2one('account.analytic.account', 'Project'),
         'activity_code': fields.char(
-            'Activity Code', size=32,
+            'Activity Code',
             states=REQ_STATES
         ),
         'warehouse_id': fields.many2one(
@@ -267,7 +268,7 @@ class logistic_requisition_line(orm.Model):
         ),
         #DEMAND
         'product_id': fields.many2one('product.product', 'Product'),
-        'description': fields.char('Description', size=256, required=True, track_visibility='always'),
+        'description': fields.char('Description', required=True, track_visibility='always'),
         'requested_qty': fields.float('Req. Qty', 
             digits_compute=dp.get_precision('Product UoM'), 
             track_visibility='always',),
@@ -390,8 +391,6 @@ class logistic_requisition_line(orm.Model):
         company_id = False
         warehouse_id = False
         for line in self.browse(cr, uid, ids, context=context):
-            # TODO: origin is only 32 Char long !!! We override it for every line => we must
-            # find a way to deal with that !
             origin = line.requisition_id.name + '/' + str(line.id)
             user_id = line.procurement_user_id and line.procurement_user_id.id
             if line.po_requisition_id:
