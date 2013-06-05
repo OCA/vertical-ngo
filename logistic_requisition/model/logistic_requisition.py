@@ -27,43 +27,6 @@ import openerp.addons.decimal_precision as dp
 
 _logger = logging.getLogger(__name__)
 
-#####################################################################################################
-# TODO : See if this is still useful !? Link PO to Logistic Requisition. I think it's more 
-# linked to a line...
-#####################################################################################################
-# class purchase_order(osv.osv):
-#     _inherit = "purchase.order"
-#     # _name = "Cost Estimate"
-#     _columns = {
-#         'reject': fields.text('Rejection Reason', states={'cancel':[('readonly',True)]}),
-#         'requisition_id': fields.many2one('logistic.requisition','Logistic Requisition'),
-#         'date_valid':fields.date('Validity Date', states={'confirmed':[('readonly',True)], 'approved':[('readonly',True)]}, select=True),
-#         'partner_invoice_id': fields.many2one('res.partner.address', 'Invoice Address', help="Invoice address for current request if different."),
-#     }
-#     def wkf_confirm_order(self, cr, uid, ids, context=None):
-#         res = super(purchase_order, self).wkf_confirm_order(cr, uid, ids, context=context)
-#         proc_obj = self.pool.get('procurement.order')
-#         for po in self.browse(cr, uid, ids, context=context):
-#             if po.requisition_id and (po.requisition_id.exclusive=='exclusive'):
-#                 for order in po.requisition_id.purchase_ids:
-#                     if order.id<>po.id:
-#                         proc_ids = proc_obj.search(cr, uid, [('purchase_id', '=', order.id)])
-#                         if proc_ids and po.state=='confirmed':
-#                             proc_obj.write(cr, uid, proc_ids, {'purchase_id': po.id})
-#                         wf_service = netsvc.LocalService("workflow")
-#                         wf_service.trg_validate(uid, 'purchase.order', order.id, 'purchase_cancel', cr)
-#                     po.requisition_id.requisition_done(context=context)
-#         return res
-# 
-#     def wkf_approve_order(self, cr, uid, ids, context=None):
-#         for po in self.browse(cr, uid, ids, context=context):
-#             if po.date_valid and datetime.today() >= datetime.strptime(po.date_valid, '%Y-%m-%d'):
-#                 raise osv.except_osv(_('Error'), _('You cannot confirm this cost requisition after the validity date !'))
-#         res = super(purchase_order,self).wkf_approve_order(cr, uid, ids)
-#         return res
-# 
-# purchase_order()
-#####################################################################################################
 
 REQ_STATES = {'in_progress': [('readonly', True)],
               'sent': [('readonly', True)],
@@ -169,16 +132,11 @@ class logistic_requisition(orm.Model):
                 'logistic.requisition.line': (lambda self,*args,**kwargs:self._store__get_requisitions(*args,**kwargs), ['requested_qty','budget_unit_price','budget_tot_price','requisition_id'], 20),
             },
             multi='all'),
-        #####################################################################################################
-        # Todo : May be make a function field to show all lines related Offers
-        # 'purchase_ids' : fields.one2many('purchase.order','requisition_id','Purchase Orders',states={'done': [('readonly', True)]}),
-        #####################################################################################################
     }
 
     _defaults = {
         'date_start': fields.date.context_today,
         'state': 'draft',
-        # 'company_id': lambda self, cr, uid, c: self.pool.get('res.company')._company_default_get(cr, uid, 'logistic.requisition', context=c),
         'user_id': lambda self, cr, uid, c: uid,
         'name': '/',
     }
@@ -280,43 +238,6 @@ class logistic_requisition(orm.Model):
         self.write(cr, uid, ids, {'state':'sent'}, context=context)
         return True
 
-    
-    #####################################################################################################
-    # TODO : Check if still necessary, depending on the way we'll create the quote to requestor...
-    # 
-    # def _planned_date(self, request, delay=0.0):
-    #     company = request.company_id
-    #     date_planned = False
-    #     if request.date_start:
-    #         date_planned = datetime.strptime(request.date_start, '%Y-%m-%d %H:%M:%S') - relativedelta(days=company.po_lead)
-    #     else:
-    #         date_planned = datetime.today() - relativedelta(days=company.po_lead)
-    #     if delay:
-    #         date_planned -= relativedelta(days=delay)
-    #     return date_planned and date_planned.strftime('%Y-%m-%d %H:%M:%S') or False
-    # 
-    # def _seller_description(self, cr, uid, request_line, supplier, context=None):
-    #     product_uom = self.pool.get('product.uom')
-    #     pricelist = self.pool.get('product.pricelist')
-    #     supplier_info = self.pool.get("product.supplierinfo")
-    #     product = request_line.product_id
-    #     default_uom_po_id = product.uom_po_id.id
-    #     qty = product_uom._compute_qty(cr, uid, request_line.requested_uom_id.id, request_line.requested_qty, default_uom_po_id)
-    #     seller_delay = 0.0
-    #     seller_price = False
-    #     seller_qty = False
-    #     for product_supplier in product.seller_ids:
-    #         if supplier.id ==  product_supplier.name.id and qty <= product_supplier.qty:
-    #             seller_delay = product_supplier.delay
-    #             seller_qty = product_supplier.qty
-    #     supplier_pricelist = supplier.property_product_pricelist_purchase or False
-    #     seller_price = pricelist.price_get(cr, uid, [supplier_pricelist.id], product.id, qty, False, {'uom': default_uom_po_id})[supplier_pricelist.id]
-    #     if seller_qty:
-    #         qty = max(qty,seller_qty)
-    #     date_planned = self._planned_date(request_line.requisition_id, seller_delay)
-    #     return seller_price, qty, default_uom_po_id, date_planned
-    #####################################################################################################
-
 
 class logistic_requisition_line(orm.Model):
 
@@ -406,9 +327,6 @@ class logistic_requisition_line(orm.Model):
             string='Transportation Cost', store=True, readonly=True),
         'estimated_tot_cost': fields.function(lambda self,*args,**kwargs:self._get_estimate_tot_cost(*args,**kwargs), string='Estimated Total Cost', type="float",
             digits_compute= dp.get_precision('Account'), store=True),
-        # Do not remind what was this for...
-        # 'company_id': fields.related('requisition_id','company_id',
-        # type='many2one',relation='res.company',string='Company', store=True, readonly=True),
         'state': fields.selection([
                 ('draft','Draft'),
                 ('in_progress','Need Confirmed'),
@@ -442,55 +360,17 @@ class logistic_requisition_line(orm.Model):
 
     _defaults = {
         'state': 'draft',
-        #####################################################################################################
-        # Todo : See if we do need company ID on lines...
-        # 'company_id': lambda self, cr, uid, c: self.pool.get('res.company')._company_default_get(cr, uid, 'logistic.requisition.line', context=c),
-        #####################################################################################################
     }
-
-    # TODO: We could use the messageload method overriding to display in the LR line
-    # some message that would have been sent on his parent LR:
-    # Messages display management
-    #     ++++++++++++++++++++++++++++
-    # 
-    #     By default, the mail_thread widget shows all messages related to the current document beside the document, 
-    #     in the History and comments section. However, you may want to display other messages in the widget. 
-    #     For example, the OpenChatter on res.users model shows
-    # 
-    #      - messages related to the user, as usual (messages with ``model = res.users, res_id = current_document_id``)
-    #      - messages directly pushed to this user (containing @login)
-    # 
-    #     The best way to direct the messages that will be displayed in the OpenChatter widget is to override the ``message_load`` method. For example, the following method fetches messages as usual, but also fetches messages linked to the task project that contain the task name. Please refer to the API for more details about the arguments.
-    # 
-    #     ::
-    # 
-    #       def message_load(self, cr, uid, ids, limit=100, offset=0, domain=[], ascent=False, root_ids=[False], context=None):
-    #         msg_obj = self.pool.get('mail.message')
-    #         for my_task in self.browse(cr, uid, ids, context=context):
-    #           # search as usual messages related to the current document
-    #           msg_ids += msg_obj.search(cr, uid, ['|', '&', ('res_id', '=', my_task.id), ('model', '=', self._name),
-    #             # add: search in the current task project messages
-    #             '&', '&', ('res_id', '=', my_task.project_id.id), ('model', '=', 'project.project'),
-    #             # ... containing the task name
-    #             '|', ('body', 'like', '%s' % (my_task.name)), ('body_html', 'like', '%s' % (my_task.name))
-    #             ] + domain, limit=limit, offset=offset, context=context)
-    #         # if asked: add ancestor ids to have complete threads
-    #         if (ascent): msg_ids = self._message_add_ancestor_ids(cr, uid, ids, msg_ids, root_ids, context=context)
-    #         return msg_obj.read(cr, uid, msg_ids, context=context)
-    #     
 
     def _do_confirm(self, cr, uid, ids, context=None):
         self.write(cr, uid, ids, {'state':'in_progress'} ,context=context)
+
     def _do_cancel(self, cr, uid, ids, context=None):
-        #TODO : cancel related documents if possible
-        # purchase_order_obj = self.pool.get('purchase.order')
-        # for purchase in self.browse(cr, uid, ids, context=context):
-        #     for purchase_id in purchase.purchase_ids:
-        #         if str(purchase_id.state) in('draft','wait'):
-        #             purchase_order_obj.action_cancel(cr,uid,[purchase_id.id])
         self.write(cr, uid, ids, {'state':'cancel'} ,context=context)
+
     def _do_draft(self, cr, uid, ids, context=None):
         self.write(cr, uid, ids, {'state':'draft'} ,context=context)
+
     def _do_assign(self, cr, uid, ids, context=None):
         self.write(cr, uid, ids, {'state':'assigned'} ,context=context)
 
@@ -556,7 +436,7 @@ class logistic_requisition_line(orm.Model):
         for line in self.browse(cr, uid, ids, context=context):
             self.write(cr, uid, [line.id], {'po_requisition_id': rfq_id}, context=context)
         return rfq_id
-    
+
     def _get_shop_from_location(self, cr, uid, location_id, context=None):
         """Take the shop that represent the location, or the Company one if not 
         found. In that case we are making a PO and we still need to handle that case."""
@@ -570,7 +450,7 @@ class logistic_requisition_line(orm.Model):
             shop_id = shop_obj.search(cr, uid, [('warehouse_id','=',wareh_id)])
             assert shop_id, "No Shop found with the given location"
         return shop_id[0]
-        
+
     def action_create_po_requisition(self, cr, uid, ids, context=None):
         if context is None:
             context = {}
@@ -585,7 +465,7 @@ class logistic_requisition_line(orm.Model):
             'target': 'current',
             'nodestroy': True,
         }
-    
+
     def view_stock_by_location(self, cr, uid, ids, context=None):
         if context is None:
             context = {}
@@ -614,7 +494,6 @@ class logistic_requisition_line(orm.Model):
             if line.product_id:
                 product_id.add(line.product_id.id)
         assert len(product_id) == 1, "You can only have price by location for one product"
-        # import pdb;pdb.set_trace()
         ctx = {
             "search_default_name": line.product_id.name,
             }
@@ -624,7 +503,7 @@ class logistic_requisition_line(orm.Model):
             # ctx['search_default_pricelist_id'] = price_l_id
             ctx['pricelist'] = price_l_id
             # ctx['default_pricelist_id'] = price_l_id
-            
+
         return {
             'name': _('Prices for location'),
             'view_mode': 'tree',
@@ -635,7 +514,7 @@ class logistic_requisition_line(orm.Model):
             'domain': [('id','in',[line.product_id.id])],
             'type': 'ir.actions.act_window',
         }
-    
+
     def button_make_so_quotation(self, cr, uid, ids, context=None):
         if context is None:
             context = {}
@@ -728,7 +607,6 @@ class logistic_requisition_line(orm.Model):
             res[line.id] = state
         return res
 
-    
     # TODO : transport_order_id Must belong to same detsination and company !!!!
     # Make a _contraints [] !!!
     
@@ -788,25 +666,10 @@ class logistic_requisition_line(orm.Model):
         """
         for requisition_line in self.browse(cr, uid, ids, context):
             if 'logistic_user_id' in vals:
-                # if requisition_line.logistic_user_id:
-                #     self.message_unsubscribe_users(
-                #         cr, uid, ids, 
-                #         user_ids=[requisition_line.logistic_user_id.id],
-                #         context=context)
                 self._manage_logistic_user_change(cr, uid,
                                                   requisition_line,
                                                   vals,
                                                   context=context)
-            # elif 'procurement_user_id' in vals:
-            #     if requisition_line.procurement_user_id:
-            #         self.message_unsubscribe_users(
-            #             cr, uid, ids, 
-            #             user_ids=[requisition_line.procurement_user_id.id],
-            #             context=context)
-            #     self.message_subscribe_users(
-            #         cr, uid, ids,
-            #         user_ids=[vals['procurement_user_id']],
-            #         context=context)
         return super(logistic_requisition_line, self).write(cr, uid, ids, vals, context=context)
 
     def onchange_product_id(self, cr, uid, ids, product_id, requested_uom_id, context=None):
@@ -869,117 +732,3 @@ class stock_location(orm.Model):
         for m in self.browse(cr, uid, ids, context=context):
             res[m.id] = m.name
         return res
-        
-    #####################################################################################################
-    # TODO : Originally made on logisitc request not line. See if we can re-use part of it
-    #
-    # def make_purchase_order(self, cr, uid, ids, partner_id, all_or_partial, context=None):
-    #     """
-    #     Create New RFQ for Supplier
-    #     """
-    #     if context is None:
-    #         context = {}
-    #     assert partner_id, 'Supplier should be specified'
-    #     purchase_order = self.pool.get('purchase.order')
-    #     purchase_order_line = self.pool.get('purchase.order.line')
-    #     res_partner = self.pool.get('res.partner')
-    #     fiscal_position = self.pool.get('account.fiscal.position')
-    #     supplier = res_partner.browse(cr, uid, partner_id, context=context)
-    #     delivery_address_id = res_partner.address_get(cr, uid, [supplier.id], ['delivery'])['delivery']
-    #     supplier_pricelist = supplier.property_product_pricelist_purchase or False
-    #     res = {}
-    #     for request in self.browse(cr, uid, ids, context=context):
-    #         if supplier.id in filter(lambda x: x, [rfq.state <> 'cancel' and rfq.partner_id.id or None for rfq in request.purchase_ids]):
-    #              raise osv.except_osv(_('Warning'), _('You have already one %s purchase order for this partner, you must cancel this purchase order to create a new quotation.') % rfq.state)
-    #         location_id = request.warehouse_id.lot_input_id.id
-    #         purchase_id = purchase_order.create(cr, uid, {
-    #                     'origin': request.name,
-    #                     'partner_id': supplier.id,
-    #                     'partner_address_id': delivery_address_id,
-    #                     'partner_invoice_id': request.partner_invoice_id.id,
-    #                     'pricelist_id': supplier_pricelist.id,
-    #                     'location_id': location_id,
-    #                     'company_id': request.company_id.id,
-    #                     'fiscal_position': supplier.property_account_position and supplier.property_account_position.id or False,
-    #                     'requisition_id':request.id,
-    #                     'notes':request.description,
-    #                     'warehouse_id':request.warehouse_id.id ,
-    #         })
-    #         res[request.id] = purchase_id
-    #         for line in request.line_ids:
-    #             product = line.product_id
-    #             seller_price, qty, default_uom_po_id, date_planned = self._seller_description(cr, uid, line, supplier, context=context)
-    #             if all_or_partial == 'difference':
-    #                 # qty=self._count_remaining_product(product,request)
-    #                 qty=round(qty/2,0)
-    #             taxes_ids = product.supplier_taxes_id
-    #             taxes = fiscal_position.map_tax(cr, uid, supplier.property_account_position, taxes_ids)
-    #             purchase_order_line.create(cr, uid, {
-    #                 'order_id': purchase_id,
-    #                 'name': product.partner_ref,
-    #                 'requested_qty': qty,
-    #                 'product_id': product.id,
-    #                 'product_uom': default_uom_po_id,
-    #                 'price_unit': seller_price,
-    #                 'date_planned': line.date_planned or date_planned,
-    #                 'notes': product.description_purchase,
-    #                 'taxes_id': [(6, 0, taxes)],
-    #             }, context=context)
-    #             
-    #     return res
-    #####################################################################################################
-    
-
-###################################################################################
-#TODO : See if this is still useful !? Allow to create logistic request instead of "normal" PO when
-# Order point are trigged
-#####################################################################################################
-
-# class product_product(osv.osv):
-#     _inherit = 'product.product'
-# 
-#     _columns = {
-#         'logistic_requisition': fields.boolean('Logistic Request', help="Check this box so that requests generates purchase requests instead of directly requests for quotations."),
-#     }
-#     _defaults = {
-#         'logistic_requisition': False
-#     }
-# 
-# product_product()
-
- 
-# class procurement_order(osv.osv):
-# 
-#     _inherit = 'procurement.order'
-#     _columns = {
-#         'requisition_id' : fields.many2one('logistic.requisition','Latest Request')
-#     }
-#     def make_po(self, cr, uid, ids, context=None):
-#         sequence_obj = self.pool.get('ir.sequence')
-#         res = super(procurement_order, self).make_po(cr, uid, ids, context=context)
-#         for proc_id, po_id in res.items():
-#             procurement = self.browse(cr, uid, proc_id, context=context)
-#             requisition_id=False
-#             if procurement.product_id.logistic_requisition:
-#                 requisition_id=self.pool.get('logistic.requisition').create(cr, uid, {
-#                     'name': sequence_obj.get(cr, uid, 'purchase.order.request'),
-#                     'origin': procurement.origin,
-#                     'date_end': procurement.date_planned,
-#                     'warehouse_id':procurement.purchase_id and procurement.purchase_id.warehouse_id.id,
-#                     'company_id':procurement.company_id.id,
-#                     'line_ids': [(0,0,{
-#                         'product_id': procurement.product_id.id,
-#                         'requested_uom_id': procurement.product_uom.id,
-#                         'requested_qty': procurement.requested_qty
-# 
-#                     })],
-#                     'purchase_ids': [(6,0,[po_id])]
-#                 })
-#             self.write(cr,uid,proc_id,{'requisition_id':requisition_id})
-#         return res
-# 
-# procurement_order()
-#####################################################################################################
-
-
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
