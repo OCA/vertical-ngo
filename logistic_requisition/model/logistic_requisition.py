@@ -125,8 +125,8 @@ class LogisticRequisition(orm.Model):
                 'done':[('readonly',True)]
             }
         ),
-        'requestor_partner_id': fields.many2one(
-            'res.partner', 'Requested For', required=True,
+        'consignee_id': fields.many2one(
+            'res.partner', 'Consignee', required=True,
             states={
                 'in_progress':[('readonly',True)],
                 'sent':[('readonly',True)],
@@ -681,7 +681,7 @@ class LogisticRequisitionLine(orm.Model):
                 'type': line.confirmed_type=='stock' and 'make_to_stock' or 'make_to_order',
             }
             origin.append(self.name_get(cr, uid, [line.id])[0][1])
-            partner_ids.add(line.requisition_id.requestor_partner_id.id)
+            partner_ids.add(line.requisition_id.consignee_id.id)
             if line.dispatch_location_id:
                 location_ids.add(line.dispatch_location_id.id)
             line_vals.update(
@@ -689,9 +689,9 @@ class LogisticRequisitionLine(orm.Model):
                         cr, 
                         uid, 
                         [], 
-                        line.requisition_id.requestor_partner_id.property_product_pricelist.id, 
+                        line.requisition_id.consignee_id.property_product_pricelist.id, 
                         line.product_id.id,
-                        partner_id=line.requisition_id.requestor_partner_id.id,
+                        partner_id=line.requisition_id.consignee_id.id,
                         qty=line.requested_qty,
                         uom=line.requested_uom_id.id,
                 ).get('value', {}),
