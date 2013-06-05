@@ -37,6 +37,7 @@
                                     domain="['|', ('parent_id', '=', consignee_id), ('id', '=', consignee_id)]"
                                     context="{'default_type':'delivery'}"/>
                             <field name="analytic_id"/>
+                            <field name="m_code"/>
                         </group>
                         <group>
                             <field name="preferred_sourcing"/>
@@ -46,13 +47,7 @@
                             <field name="preferred_transport"/>
                             <field name="consignee_reference"/>
                             <field name="user_id"/>
-                            <field name="m_code"/>
                             <field name="donor_affiliate_id"/>
-                        </group>
-                        <group string="quarantine">
-                            <field name="company_id"/>
-                            <field name="warehouse_id" class="oe_inline"/>
-                            <field name="address_id" class="oe_inline"/>
                         </group>
                     </group>
                 <notebook>
@@ -91,7 +86,11 @@
 
                         </field>
                         <group class="oe_subtotal_footer oe_right">
-                            <field name="amount_total" class="oe_subtotal_footer_separator" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="amount_total"
+                                class="oe_subtotal_footer_separator"
+                                widget="monetary"
+                                options="{'currency_field': 'currency_id'}"/>
                         </group>
                         <div class="oe_clear"/>
                     </page>
@@ -127,6 +126,7 @@
                 <field name="company_id"/>
                 <field name="analytic_id"/>
                 <field name="amount_total" sum="Total Budget"/>
+                <field name="currency_id"/>
                 <field name="state"/>
             </tree>
         </field>

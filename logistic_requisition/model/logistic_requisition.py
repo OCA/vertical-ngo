@@ -106,19 +106,11 @@ class logistic_requisition(orm.Model):
                 'res.partner': (_get_from_partner, ['country_id'], 10),
             }),
         'company_id': fields.many2one(
-            'res.company', 'Account N° / Company', required=True,
-            states=REQ_STATES
+            'res.company',
+            'Company',
+            readonly=True,
         ),
         'analytic_id':  fields.many2one('account.analytic.account', 'Project'),
-        'warehouse_id': fields.many2one(
-            'stock.warehouse', 'Warehouse',
-            states=REQ_STATES,
-            required=True
-        ),
-        'address_id': fields.related('warehouse_id','partner_id', 
-            type='many2one', readonly=True, relation='res.partner', 
-            store=True, string='Address'
-        ),
         'type': fields.selection(
             [('cost_estimate', 'Cost Estimate Only'),
              ('donation', 'Donation')],
@@ -149,10 +141,19 @@ class logistic_requisition(orm.Model):
             string='State',
             required=True
         ),
-        'amount_total': fields.function(lambda self, *args, **kwargs:self._get_amount_all(*args,**kwargs), digits_compute=dp.get_precision('Account'), string='Total Budget',
+        'amount_total': fields.function(
+            lambda self, *args, **kwargs: self._get_amount_all(*args, **kwargs),
+            digits_compute=dp.get_precision('Account'),
+            string='Total Budget',
             store={
-                'logistic.requisition': (lambda self, cr, uid, ids, c=None: ids, ['line_ids'], 20),
-                'logistic.requisition.line': (lambda self,*args,**kwargs:self._store__get_requisitions(*args,**kwargs), ['requested_qty','budget_unit_price','budget_tot_price','requisition_id'], 20),
+                'logistic.requisition': (lambda self, cr, uid, ids, c=None: ids,
+                                         ['line_ids'], 20),
+                'logistic.requisition.line': (lambda self, *args, **kwargs: self._store__get_requisitions(*args, **kwargs),
+                                              ['requested_qty',
+                                               'budget_unit_price',
+                                               'budget_tot_price',
+                                               'requisition_id'],
+                                              20),
             },
             multi='all'),
         'm_code': fields.char('M-Code', size=32),
@@ -164,8 +165,7 @@ class logistic_requisition(orm.Model):
                                       type='many2one',
                                       relation='res.currency',
                                       string='Currency',
-                                      readonly=True,
-                                      required=True),
+                                      readonly=True),
     }
 
     _defaults = {
@@ -173,6 +173,7 @@ class logistic_requisition(orm.Model):
         'state': 'draft',
         'user_id': lambda self, cr, uid, c: uid,
         'name': '/',
+        'company_id': lambda self, cr, uid, c: self.pool.get('res.company')._company_default_get(cr, uid, 'logistic.request', context=c),
     }
 
     _sql_constraints = [
@@ -448,11 +449,6 @@ class logistic_requisition_line(orm.Model):
             else:
                 assert company_id == line.requisition_id.company_id.id, \
                     'You can only create a purchase requisition from line that belong to the same company.'
-            if not warehouse_id:
-                warehouse_id = line.requisition_id.warehouse_id.id
-            else:
-                assert warehouse_id == line.requisition_id.warehouse_id.id, \
-                    'You can only create a purchase requisition from line that will be shipped to same warehouse.'
             # TODO: Make this more "factorized" by using _prepare method hook !!!
             lines.append({
                 'product_id': line.product_id.id,
