@@ -71,7 +71,7 @@ REQ_STATES = {'in_progress': [('readonly', True)],
               }
 
 
-class LogisticRequisition(orm.Model):
+class logistic_requisition(orm.Model):
     _name = "logistic.requisition"
     _description="Logistic Requisition"
     _columns = {
@@ -215,7 +215,7 @@ class LogisticRequisition(orm.Model):
     def create(self, cr, uid, vals, context=None):
         if vals.get('name','/')=='/':
             vals['name'] = self.pool.get('ir.sequence').get(cr, uid, 'logistic.requisition') or '/'
-        return super(LogisticRequisition, self).create(cr, uid, vals, context=context)
+        return super(logistic_requisition, self).create(cr, uid, vals, context=context)
 
     def copy(self, cr, uid, id, default=None, context=None):
         if not default:
@@ -224,7 +224,7 @@ class LogisticRequisition(orm.Model):
             'state':'draft',
             'name': self.pool.get('ir.sequence').get(cr, uid, 'logistic.requisition'),
         })
-        return super(LogisticRequisition, self).copy(cr, uid, id, default=default, context=context)
+        return super(logistic_requisition, self).copy(cr, uid, id, default=default, context=context)
 
     def onchange_consignee_id(self, cr, uid, ids, consignee_id, context=None):
         values = {'consignee_shipping_id': False}
@@ -318,7 +318,7 @@ class LogisticRequisition(orm.Model):
     #####################################################################################################
 
 
-class LogisticRequisitionLine(orm.Model):
+class logistic_requisition_line(orm.Model):
 
     _name = "logistic.requisition.line"
     _description = "Logistic Requisition Line"
@@ -744,7 +744,7 @@ class LogisticRequisitionLine(orm.Model):
                     # 'message_follower_ids' : [],
         }
         std_default.update(default)
-        return super(LogisticRequisitionLine, self).copy_data(cr, uid, id, default=std_default, context=context)
+        return super(logistic_requisitionLine, self).copy_data(cr, uid, id, default=std_default, context=context)
 
     def _message_get_auto_subscribe_fields(self, cr, uid, updated_fields, auto_follow_fields=['user_id'], context=None):
         """ Returns the list of relational fields linking to res.users that should
@@ -756,7 +756,7 @@ class LogisticRequisitionLine(orm.Model):
         """
         fields_to_follow = ['logistic_user_id','procurement_user_id']
         fields_to_follow.extend(auto_follow_fields)
-        res = super(LogisticRequisitionLine, self)._message_get_auto_subscribe_fields(cr, uid, updated_fields, 
+        res = super(logistic_requisition_line, self)._message_get_auto_subscribe_fields(cr, uid, updated_fields, 
             auto_follow_fields = fields_to_follow,
             context=context)
         return res
@@ -807,7 +807,7 @@ class LogisticRequisitionLine(orm.Model):
             #         cr, uid, ids,
             #         user_ids=[vals['procurement_user_id']],
             #         context=context)
-        return super(LogisticRequisitionLine, self).write(cr, uid, ids, vals, context=context)
+        return super(logistic_requisition_line, self).write(cr, uid, ids, vals, context=context)
 
     def onchange_product_id(self, cr, uid, ids, product_id, requested_uom_id, context=None):
         """ Changes UoM and name if product_id changes.
@@ -850,9 +850,10 @@ class LogisticRequisitionLine(orm.Model):
         self.write(cr, uid, ids, {'state':'refused'}, context=context)
         return True        
 
+
 # TODO : Move it to another file "stock.py"
 #        + Do it throug context !
-class StockLocation(orm.Model):
+class stock_location(orm.Model):
     _inherit = "stock.location"
 
     def name_get(self, cr, uid, ids, context=None):
