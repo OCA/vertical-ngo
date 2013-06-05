@@ -23,10 +23,15 @@ import logging
 import time
 from openerp.osv import fields, osv, orm
 from openerp.tools.translate import _
-from openerp.tools import DEFAULT_SERVER_DATE_FORMAT
+from openerp.tools import (DEFAULT_SERVER_DATE_FORMAT,
+                           DEFAULT_SERVER_DATETIME_FORMAT)
 import openerp.addons.decimal_precision as dp
 
 _logger = logging.getLogger(__name__)
+
+# shortcuts
+DATE_FORMAT = DEFAULT_SERVER_DATE_FORMAT
+DATETIME_FORMAT = DEFAULT_SERVER_DATETIME_FORMAT
 
 
 class logistic_requisition(orm.Model):
@@ -166,6 +171,18 @@ class logistic_requisition(orm.Model):
                                       relation='res.currency',
                                       string='Currency',
                                       readonly=True),
+        'budget_holder_id': fields.many2one(
+            'res.users',
+            string='Budget Holder'),
+        'date_budget_holder': fields.datetime(
+            'Budget Holder Validation Date',
+            readonly=True),
+        'finance_officer_id': fields.many2one(
+            'res.users',
+            string='Finance Officer'),
+        'date_finance_officer': fields.datetime(
+            'Finance Officer Validation Date',
+            readonly=True),
     }
 
     _defaults = {
@@ -207,10 +224,27 @@ class logistic_requisition(orm.Model):
         line_ids and self.pool.get('logistic.requisition.line')._do_draft(cr,uid,line_ids,context=context)
         self.write(cr, uid, ids, {'state': 'draft'})
 
+    @staticmethod
+    def _validation_dates(vals):
+        res = {}
+        if vals.get('budget_holder_id'):
+            res['date_budget_holder'] = time.strftime(DATETIME_FORMAT)
+        if vals.get('finance_officer_id'):
+            res['date_finance_officer'] = time.strftime(DATETIME_FORMAT)
+        return res
+
     def create(self, cr, uid, vals, context=None):
-        if vals.get('name','/')=='/':
-            vals['name'] = self.pool.get('ir.sequence').get(cr, uid, 'logistic.requisition') or '/'
-        return super(logistic_requisition, self).create(cr, uid, vals, context=context)
+        if vals.get('name', '/') == '/':
+            seq_obj = self.pool.get('ir.sequence')
+            vals['name'] = seq_obj.get(cr, uid, 'logistic.requisition') or '/'
+        vals.update(self._validation_dates(vals))
+        return super(logistic_requisition, self).create(cr, uid, vals,
+                                                        context=context)
+
+    def write(self, cr, uid, ids, vals, context=None):
+        vals.update(self._validation_dates(vals))
+        return super(logistic_requisition, self).write(cr, uid, ids, vals,
+                                                       context=context)
 
     def copy(self, cr, uid, id, default=None, context=None):
         if not default:
@@ -267,7 +301,7 @@ class logistic_requisition(orm.Model):
     def requisition_done(self, cr, uid, ids, context=None):
         self.write(cr, uid, ids,
                    {'state': 'done',
-                    'date_delivery': time.strftime(DEFAULT_SERVER_DATE_FORMAT)},
+                    'date_delivery': time.strftime(DATE_FORMAT)},
                    context=context)
         line_obj = self.pool.get('logistic.requisition.line')
         for line in self.browse(cr, uid, ids, context=context):

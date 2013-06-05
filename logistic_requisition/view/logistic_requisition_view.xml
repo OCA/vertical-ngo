@@ -93,6 +93,26 @@
                                 options="{'currency_field': 'currency_id'}"/>
                         </group>
                         <div class="oe_clear"/>
+                        <group string="Validation">
+                            <div colspan="4">
+                                <label for="budget_holder_id"/>
+                                <field name="budget_holder_id"
+                                    class="oe_inline"/>
+                                <label string=" validated on "
+                                    attrs="{'invisible': [('date_budget_holder', '=', False)]}"/>
+                                <field name="date_budget_holder"
+                                    class="oe_inline"/>
+                            </div>
+                            <div colspan="4">
+                                <label for="finance_officer_id"/>
+                                <field name="finance_officer_id"
+                                    class="oe_inline"/>
+                                <label string=" validated on "
+                                    attrs="{'invisible': [('date_finance_officer', '=', False)]}"/>
+                                <field name="date_finance_officer"
+                                    class="oe_inline"/>
+                            </div>
+                        </group>
                     </page>
                     <page string="Notes">
                         <group>
