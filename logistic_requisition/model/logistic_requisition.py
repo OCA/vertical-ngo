@@ -21,9 +21,6 @@
 
 import logging
 import time
-from datetime import datetime
-from dateutil.relativedelta import relativedelta
-from openerp import netsvc
 from openerp.osv import fields, osv, orm
 from openerp.tools.translate import _
 import openerp.addons.decimal_precision as dp
