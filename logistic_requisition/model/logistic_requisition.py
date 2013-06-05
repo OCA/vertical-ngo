@@ -38,8 +38,7 @@ class logistic_requisition(orm.Model):
     _name = "logistic.requisition"
     _description = "Logistic Requisition"
 
-    REQ_STATES = {'in_progress': [('readonly', True)],
-                  'sent': [('readonly', True)],
+    REQ_STATES = {'confirm': [('readonly', True)],
                   'done': [('readonly', True)]
                   }
 
@@ -138,8 +137,7 @@ class logistic_requisition(orm.Model):
         ),
         'state': fields.selection(
             [('draft', 'Draft'),
-             ('in_progress', 'Needs Confirmed'),
-             ('sent', 'Quote Sent'),
+             ('confirm', 'Confirmed'),
              ('done', 'Done'),
              ('cancel', 'Cancelled'),
              ],
@@ -202,27 +200,34 @@ class logistic_requisition(orm.Model):
     def _get_amount_all(self, cr, uid, ids, name, args, context=None):
         res = {}
         for requisition in self.browse(cr, uid, ids, context=context):
-            res[requisition.id] = {
-                'amount_total': 0.0
-            }
-            for line in requisition.line_ids:
-                res[requisition.id]['amount_total'] += line.budget_tot_price
+            amount = sum(line.budget_tot_price for line
+                         in requisition.line_ids)
+            res[requisition.id] = {'amount_total': amount}
         return res
 
     def _do_cancel(self, cr, uid, ids, context=None):
-        line_ids=reduce(lambda x,y:x+y,[x['line_ids'] for x in self.read(cr,uid,ids,['line_ids'],context=context,load='_classic_write')],[])
-        line_ids and self.pool.get('logistic.requisition.line')._do_cancel(cr,uid,line_ids,context=context)
-        self.write(cr, uid, ids, {'state': 'cancel'})
+        reqs = self.read(cr, uid, ids, ['line_ids'], context=context)
+        line_ids = [lids for req in reqs for lids in req['line_ids']]
+        if line_ids:
+            line_obj = self.pool.get('logistic.requisition.line')
+            line_obj._do_cancel(cr, uid, line_ids, context=context)
+        self.write(cr, uid, ids, {'state': 'cancel'}, context=context)
 
     def _do_confirm(self, cr, uid, ids, context=None):
-        line_ids=reduce(lambda x,y:x+y,[x['line_ids'] for x in self.read(cr,uid,ids,['line_ids'],context=context,load='_classic_write')],[])
-        line_ids and self.pool.get('logistic.requisition.line')._do_confirm(cr,uid,line_ids,context=context)
-        self.write(cr, uid, ids, {'state':'in_progress'} ,context=context)
+        reqs = self.read(cr, uid, ids, ['line_ids'], context=context)
+        line_ids = [lids for req in reqs for lids in req['line_ids']]
+        if line_ids:
+            line_obj = self.pool.get('logistic.requisition.line')
+            line_obj._do_confirm(cr, uid, line_ids, context=context)
+        self.write(cr, uid, ids, {'state': 'confirm'}, context=context)
 
     def _do_draft(self, cr, uid, ids, context=None):
-        line_ids=reduce(lambda x,y:x+y,[x['line_ids'] for x in self.read(cr,uid,ids,['line_ids'],context=context,load='_classic_write')],[])
-        line_ids and self.pool.get('logistic.requisition.line')._do_draft(cr,uid,line_ids,context=context)
-        self.write(cr, uid, ids, {'state': 'draft'})
+        reqs = self.read(cr, uid, ids, ['line_ids'], context=context)
+        line_ids = [lids for req in reqs for lids in req['line_ids']]
+        if line_ids:
+            line_obj = self.pool.get('logistic.requisition.line')
+            line_obj._do_draft(cr, uid, line_ids, context=context)
+        self.write(cr, uid, ids, {'state': 'draft'}, context=context)
 
     @staticmethod
     def _validation_dates(vals):
@@ -250,8 +255,12 @@ class logistic_requisition(orm.Model):
         if not default:
             default = {}
         default.update({
-            'state':'draft',
-            'name': self.pool.get('ir.sequence').get(cr, uid, 'logistic.requisition'),
+            'state': 'draft',
+            'name': '/',
+            'budget_holder_id': False,
+            'date_budget_holder': False,
+            'finance_officer_id': False,
+            'date_finance_officer': False,
         })
         return super(logistic_requisition, self).copy(cr, uid, id, default=default, context=context)
 
@@ -270,15 +279,15 @@ class logistic_requisition(orm.Model):
 
     def button_cancel(self, cr, uid, ids, context=None):
         #TODO: ask confirmation
-        self._do_cancel(cr,uid,ids,context=context)
+        self._do_cancel(cr, uid, ids, context=context)
         return True
 
     def button_confirm(self, cr, uid, ids, context=None):
-        self._do_confirm(cr,uid,ids,context=context)
+        self._do_confirm(cr, uid, ids, context=context)
         return True
 
     def button_reset(self, cr, uid, ids, context=None):
-        self._do_draft(cr,uid,ids,context=context)
+        self._do_draft(cr, uid, ids, context=context)
         return True
 
     def button_view_lines(self, cr, uid, ids, context=None):
@@ -287,32 +296,15 @@ class logistic_requisition(orm.Model):
         """
         mod_obj = self.pool.get('ir.model.data')
         act_obj = self.pool.get('ir.actions.act_window')
-        result = mod_obj.get_object_reference(cr, uid, 'logistic_requisition', 'action_logistic_requisition_line')
-        id = result and result[1] or False
-        result = act_obj.read(cr, uid, [id], context=context)[0]
-        #compute the number of invoices to display
-        inv_ids = []
+        ref = mod_obj.get_object_reference(cr, uid, 'logistic_requisition',
+                                           'action_logistic_requisition_line')
+        action_id = ref[1] if ref else False
+        action = act_obj.read(cr, uid, [action_id], context=context)[0]
+        line_ids = []
         for lr in self.browse(cr, uid, ids, context=context):
-            inv_ids += [line.id for line in lr.line_ids]
-        if len(inv_ids)>1:
-            result['domain'] = "[('id','in',["+','.join(map(str, inv_ids))+"])]"
-        return result
-
-    def requisition_done(self, cr, uid, ids, context=None):
-        self.write(cr, uid, ids,
-                   {'state': 'done',
-                    'date_delivery': time.strftime(DATE_FORMAT)},
-                   context=context)
-        line_obj = self.pool.get('logistic.requisition.line')
-        for line in self.browse(cr, uid, ids, context=context):
-            line_obj.write(cr, uid, [line.id],
-                           {'state': 'done'},
-                           context=context)
-        return True
-
-    def requisition_sent(self, cr, uid, ids, context=None):
-        self.write(cr, uid, ids, {'state':'sent'}, context=context)
-        return True
+            line_ids += [line.id for line in lr.line_ids]
+        action['domain'] = str([('id', 'in', line_ids)])
+        return action
 
 
 class logistic_requisition_line(orm.Model):
@@ -434,7 +426,7 @@ class logistic_requisition_line(orm.Model):
         ('done','Done'),
         ('refused','Refused'),
         ('cancel','Cancelled'),
-                    ],),
+        ],),
     }
 
     _defaults = {
@@ -442,7 +434,7 @@ class logistic_requisition_line(orm.Model):
     }
 
     def _do_confirm(self, cr, uid, ids, context=None):
-        self.write(cr, uid, ids, {'state':'in_progress'} ,context=context)
+        self.write(cr, uid, ids, {'state': 'in_progress'} ,context=context)
 
     def _do_cancel(self, cr, uid, ids, context=None):
         self.write(cr, uid, ids, {'state':'cancel'} ,context=context)
@@ -689,7 +681,7 @@ class logistic_requisition_line(orm.Model):
                     # 'message_follower_ids' : [],
         }
         std_default.update(default)
-        return super(logistic_requisitionLine, self).copy_data(cr, uid, id, default=std_default, context=context)
+        return super(logistic_requisition_line, self).copy_data(cr, uid, id, default=std_default, context=context)
 
     def _message_get_auto_subscribe_fields(self, cr, uid, updated_fields, auto_follow_fields=['user_id'], context=None):
         """ Returns the list of relational fields linking to res.users that should

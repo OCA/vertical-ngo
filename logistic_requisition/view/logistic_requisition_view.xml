@@ -6,21 +6,33 @@
 
     <record model="ir.ui.view" id="view_logistic_requisition_form">
         <field name="name">logistic.requisition.form</field>
-        <field name="type">form</field>
         <field name="model">logistic.requisition</field>
         <field name="arch" type="xml">
             <form string="Logistic Requisition" version="7.0">
                 <header>
-                    <button name="button_view_lines"   string="View Lines"     states="in_progress,sent,cancel,done" type="object" class="oe_highlight"/>
-                    <button name="button_confirm"      string="Confirm"        states="draft" class="oe_highlight" type="object" />
-                    <button name="button_reset"        string="Reset to Draft" states="cancel" type="object" />
-                    <button name="requisition_done"    string="Done"           states="sent" type="object" />
-                    <button name="requisition_sent"    string="Quote Sent"     states="in_progress"  type="object" />
-                    <button name="button_cancel"       string="Cancel"         states="draft,sent,in_progress" type="object" />
+                    <button name="button_view_lines"
+                        string="View Lines"
+                        states="confirm,done,cancel"
+                        type="object"
+                        class="oe_highlight"/>
+                    <button name="button_confirm"
+                        string="Confirm"
+                        states="draft"
+                        class="oe_highlight"
+                        type="object" />
+                    <button name="button_reset"
+                        string="Reset to Draft"
+                        states="cancel"
+                        type="object" />
+                    <button name="button_cancel"
+                        string="Cancel"
+                        states="draft,confirm"
+                        type="object" />
 
                     <field name="state" select="1" readonly="1"
-                      widget="statusbar" statusbar_visible="draft,in_progress,sent,done"
-                      statusbar_colors='{"in_progress":"blue"}'/>
+                      widget="statusbar"
+                      statusbar_visible="draft,confirm,done"
+                      statusbar_colors='{"cancel":"grey"}'/>
                 </header>
                 <sheet string="Logistic Requisition">
                     <div class="oe_title">
@@ -133,7 +145,6 @@
 
     <record model="ir.ui.view" id="view_logistic_requisition_tree">
         <field name="name">logistic.requisition.tree</field>
-        <field name="type">tree</field>
         <field name="model">logistic.requisition</field>
         <field name="arch" type="xml">
             <tree colors="grey:state == 'done';red:date_delivery&lt;current_date and state not in ('done','cancel');black:date_delivery&gt;=current_date;" string="Logistic Requisition">
@@ -155,7 +166,6 @@
     <record id="view_logistic_requisition_filter" model="ir.ui.view">
             <field name="name">logistic.requisition.list.select</field>
             <field name="model">logistic.requisition</field>
-            <field name="type">search</field>
             <field name="arch" type="xml">
                 <search string="Search Logistic Requisition">
                  <group>
@@ -218,7 +228,6 @@
 
     <record model="ir.ui.view" id="view_logistic_requisition_line_tree">
         <field name="name">logistic.requisition.line.tree</field>
-        <field name="type">tree</field>
         <field name="model">logistic.requisition.line</field>
         <field name="arch" type="xml">
            <tree string="Logistic Requisition Line">
@@ -286,7 +295,6 @@
 
     <record model="ir.ui.view" id="view_logistic_requisition_line_form">
         <field name="name">logistic.requisition.line.form</field>
-        <field name="type">form</field>
         <field name="model">logistic.requisition.line</field>
         <field name="arch" type="xml">
             <form string="Logistic Requisition Line" version="7.0">
@@ -385,7 +393,6 @@
     <record id="view_logistic_requisition_line_filter" model="ir.ui.view">
             <field name="name">logistic.requisition.line.list.select</field>
             <field name="model">logistic.requisition.line</field>
-            <field name="type">search</field>
             <field name="arch" type="xml">
                 <search string="Search Logistic Requisition Line">
                  <group>
@@ -490,7 +497,6 @@
     <record id="purchase.board_purchase_form" model="ir.ui.view">
         <field name="name">board.purchase.form</field>
         <field name="model">board.board</field>
-        <field name="type">form</field>
         <field name="arch" type="xml">
             <form string="Purchase Dashboard">
                 <board style="2-1">
