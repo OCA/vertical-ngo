@@ -23,35 +23,44 @@ import logging
 import time
 from openerp.osv import fields, osv, orm
 from openerp.tools.translate import _
+from openerp.tools import DEFAULT_SERVER_DATE_FORMAT
 import openerp.addons.decimal_precision as dp
 
 _logger = logging.getLogger(__name__)
 
 
-REQ_STATES = {'in_progress': [('readonly', True)],
-              'sent': [('readonly', True)],
-              'done': [('readonly', True)]
-              }
-
-
 class logistic_requisition(orm.Model):
     _name = "logistic.requisition"
-    _description="Logistic Requisition"
+    _description = "Logistic Requisition"
+
+    REQ_STATES = {'in_progress': [('readonly', True)],
+                  'sent': [('readonly', True)],
+                  'done': [('readonly', True)]
+                  }
+
+    def _get_from_partner(self, cr, uid, ids, context=None):
+        req_obj = self.pool.get('logistic.requisition')
+        req_ids = req_obj.search(cr, uid,
+                                 [('consignee_shipping_id', 'in', ids)],
+                                context=context)
+        return req_ids
+
     _columns = {
         'name': fields.char(
             'Reference',
             required=True,
             readonly=True,
             states=REQ_STATES),
-        'origin': fields.char(
-            'Origin',
+        'consignee_reference': fields.char(
+            'Consignee Reference',
             states=REQ_STATES),
-        'date_start': fields.date(
-            'Request Date',
+        'origin': fields.char('Origin', states=REQ_STATES),
+        'date': fields.date(
+            'Requisition Date',
             states=REQ_STATES,
             required=True
         ),
-        'date_end': fields.date(
+        'date_delivery': fields.date(
             'Desired Delivery Date',
             states=REQ_STATES,
             required=True
@@ -74,18 +83,34 @@ class logistic_requisition(orm.Model):
             'res.partner', 'Delivery Address', required=True,
             states=REQ_STATES
         ),
-        'country_id': fields.many2one('res.country', 'Country',
+        'donor_affiliate_id': fields.many2one(
+            'res.partner', 'Donor Affiliate',
             states=REQ_STATES
         ),
+        'preferred_sourcing': fields.selection(
+            [('procurement', 'Procurement'),
+             ('wh_dispatch', 'Warehouse Dispatch')],
+            string='Preferred Sourcing'
+        ),
+        'country_id': fields.related(
+            'consignee_shipping_id',
+            'country_id',
+            string='Country',
+            type='many2one',
+            relation='res.country',
+            select=True,
+            readonly=True,
+            store={
+                'logistic.requisition': (lambda self, cr, uid, ids, c=None: ids,
+                                         ['consignee_shipping_id'],
+                                         10),
+                'res.partner': (_get_from_partner, ['country_id'], 10),
+            }),
         'company_id': fields.many2one(
-            'res.company', 'Account N° / Company', required=True, 
+            'res.company', 'Account N° / Company', required=True,
             states=REQ_STATES
         ),
         'analytic_id':  fields.many2one('account.analytic.account', 'Project'),
-        'activity_code': fields.char(
-            'Activity Code',
-            states=REQ_STATES
-        ),
         'warehouse_id': fields.many2one(
             'stock.warehouse', 'Warehouse',
             states=REQ_STATES,
@@ -95,37 +120,35 @@ class logistic_requisition(orm.Model):
             type='many2one', readonly=True, relation='res.partner', 
             store=True, string='Address'
         ),
-        'type' : fields.selection(
-            [
-                ('procurement','Procurement'),
-                ('cost_estimate','Cost Estimate Only'),
-                ('wh_dispatch','Warehouse Dispatch')],
-            'Type of Requisition',
+        'type': fields.selection(
+            [('cost_estimate', 'Cost Estimate Only'),
+             ('donation', 'Donation')],
+            string='Type of Requisition',
             states=REQ_STATES
         ),
-        'prefered_transport' : fields.selection(
-            [
-                ('land','Land'),
-                ('sea','Sea'),
-                ('air','Air')],
-            'Prefered Transport',
+        'preferred_transport': fields.selection(
+            [('land', 'Land'),
+             ('sea', 'Sea'),
+             ('air', 'Air')],
+            string='Preferred Transport',
             states=REQ_STATES
         ),
         'description': fields.text('Remarks/Description'),
-        'line_ids' : fields.one2many(
+        'line_ids': fields.one2many(
             'logistic.requisition.line',
             'requisition_id',
             'Products to Purchase',
             states={'done': [('readonly', True)]}
         ),
-        'state': fields.selection([
-                ('draft','Draft'),
-                ('in_progress','Needs Confirmed'),
-                ('sent','Quote Sent'),
-                ('done','Done'),
-                ('cancel','Cancelled'),
-                ],
-            'State', required=True
+        'state': fields.selection(
+            [('draft', 'Draft'),
+             ('in_progress', 'Needs Confirmed'),
+             ('sent', 'Quote Sent'),
+             ('done', 'Done'),
+             ('cancel', 'Cancelled'),
+             ],
+            string='State',
+            required=True
         ),
         'amount_total': fields.function(lambda self, *args, **kwargs:self._get_amount_all(*args,**kwargs), digits_compute=dp.get_precision('Account'), string='Total Budget',
             store={
@@ -133,17 +156,23 @@ class logistic_requisition(orm.Model):
                 'logistic.requisition.line': (lambda self,*args,**kwargs:self._store__get_requisitions(*args,**kwargs), ['requested_qty','budget_unit_price','budget_tot_price','requisition_id'], 20),
             },
             multi='all'),
+        'm_code': fields.char('M-Code', size=32),
+        'allowed_budget': fields.boolean('Allowed Budget'),
+        # TODO
+        'sourced': fields.dummy('Sourced'),
     }
 
     _defaults = {
-        'date_start': fields.date.context_today,
+        'date': fields.date.context_today,
         'state': 'draft',
         'user_id': lambda self, cr, uid, c: uid,
         'name': '/',
     }
 
     _sql_constraints = [
-        ('name_uniq', 'unique(name)', 'Logistic Requisition Reference must be unique !'),
+        ('name_uniq',
+         'unique(name)',
+         'Logistic Requisition Reference must be unique!'),
     ]
 
     def _get_amount_all(self, cr, uid, ids, name, args, context=None):
@@ -229,10 +258,15 @@ class logistic_requisition(orm.Model):
         return result
 
     def requisition_done(self, cr, uid, ids, context=None):
-        self.write(cr, uid, ids, {'state':'done', 'date_end':time.strftime('%Y-%m-%d %H:%M:%S')}, context=context)
+        self.write(cr, uid, ids,
+                   {'state': 'done',
+                    'date_delivery': time.strftime(DEFAULT_SERVER_DATE_FORMAT)},
+                   context=context)
         line_obj = self.pool.get('logistic.requisition.line')
-        for line in self.browse(cr,uid,ids):
-            line_obj.write(cr,uid,[line.id],{'state':'done'})
+        for line in self.browse(cr, uid, ids, context=context):
+            line_obj.write(cr, uid, [line.id],
+                           {'state': 'done'},
+                           context=context)
         return True
 
     def requisition_sent(self, cr, uid, ids, context=None):
@@ -277,13 +311,16 @@ class logistic_requisition_line(orm.Model):
         # 'budget_unit_price': fields.float('Budget Unit Price', digits_compute=dp.get_precision('Account')),
         'budget_unit_price': fields.function(lambda self,*args,**kwargs:self._get_unit_amount_line(*args,**kwargs), string='Budget Unit Price', type="float",
             digits_compute=dp.get_precision('Account'), store=True),
-        'requested_date': fields.related('requisition_id', 'date_end',
+        'requested_date': fields.related('requisition_id', 'date_delivery',
                                          string='Requested Date',
                                          type='date',
-                                         select=True,
-                                         store=True),
-        'country_id': fields.related('requisition_id','country_id', string='Country', 
-            type='many2one',relation='res.country', select=True, store = True),
+                                         select=True),
+        'country_id': fields.related(
+            'requisition_id',
+            'country_id',
+            string='Country',
+            type='many2one',
+            relation='res.country'),
         'requested_type': fields.related('requisition_id', 'type',
                                          string='Requested Type',
                                          type='selection', store=True,
@@ -293,7 +330,7 @@ class logistic_requisition_line(orm.Model):
                                           ('wh_dispatch', 'Warehouse Dispatch')
                                           ]),
         'transport_order_id': fields.many2one(
-            'transport.order', 'Transport Order', 
+            'transport.order', 'Transport Order',
             states={
                     'in_progress':[('readonly',True)],
                     'sent':[('readonly',True)],

@@ -18,7 +18,9 @@
                     <button name="requisition_sent"    string="Quote Sent"     states="in_progress"  type="object" />
                     <button name="button_cancel"       string="Cancel"         states="draft,sent,in_progress" type="object" />
 
-                    <field name="state" select="1" readonly ="1" widget="statusbar" statusbar_visible="draft,in_progress,sent,done" statusbar_colors='{"in_progress":"blue"}'/>
+                    <field name="state" select="1" readonly="1"
+                      widget="statusbar" statusbar_visible="draft,in_progress,sent,done"
+                      statusbar_colors='{"in_progress":"blue"}'/>
                 </header>
                 <sheet string="Logistic Requisition">
                     <div class="oe_title">
@@ -32,19 +34,26 @@
                             <field name="requester_id"/>
                             <field name="consignee_id" on_change="onchange_consignee_id(consignee_id)"/>
                             <field name="consignee_shipping_id"
-                                 domain="['|', ('parent_id', '=', consignee_id), ('id', '=', consignee_id)]"
-                                 context="{'default_type':'delivery'}"/>
-                            <field name="country_id"/>
-                            <field name="type"/>
-                            <field name="date_start"/>
-                            <field name="date_end"/>
+                                    domain="['|', ('parent_id', '=', consignee_id), ('id', '=', consignee_id)]"
+                                    context="{'default_type':'delivery'}"/>
+                            <field name="analytic_id"/>
                         </group>
                         <group>
+                            <field name="preferred_sourcing"/>
+                            <field name="type"/>
+                            <field name="date"/>
+                            <field name="date_delivery"/>
+                            <field name="preferred_transport"/>
+                            <field name="consignee_reference"/>
                             <field name="user_id"/>
+                            <field name="m_code"/>
+                            <field name="donor_affiliate_id"/>
+                        </group>
+                        <group string="quarantine">
                             <field name="company_id"/>
-                            <field name="analytic_id"/>
-                            <field name="activity_code"/>
                             <field name="origin"/>
+                            <field name="warehouse_id" class="oe_inline"/>
+                            <field name="address_id" class="oe_inline"/>
                         </group>
                     </group>
                 <notebook>
@@ -85,24 +94,21 @@
                         <group class="oe_subtotal_footer oe_right">
                             <field name="amount_total" class="oe_subtotal_footer_separator" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                         </group>
+                        <div class="oe_clear"/>
+                    </page>
+                    <page string="Notes">
                         <group>
-                            <field name="warehouse_id" class="oe_inline"/>
-                            <field name="address_id" class="oe_inline"/>
-                            <field name="prefered_transport" class="oe_inline"/>
+                            <div>
+                                <label for="description"/>
+                            </div>
+                          <field name="description" colspan="4"
+                            nolabel="1"
+                            class="oe_inline"
+                            placeholder="Additional notes..."/>
                         </group>
-                        <div class="oe_clear">
-                            <label for="description"/>
-                        </div>
-                        <field name="description" colspan="4" class="oe_inline" placeholder="Additional notes..."/>
                     </page>
                 </notebook>
                 </sheet>
-                <!-- 
-                May be useful...
-                <div class="oe_chatter">
-                    <field name="message_follower_ids" widget="mail_followers"/>
-                    <field name="message_ids" widget="mail_thread"/>
-                </div> -->
             </form>
         </field>
     </record>
@@ -112,12 +118,12 @@
         <field name="type">tree</field>
         <field name="model">logistic.requisition</field>
         <field name="arch" type="xml">
-            <tree colors="grey:state == 'done';red:date_end&lt;current_date and state not in ('done','cancel');black:date_end&gt;=current_date;" string="Logistic Requisition">
+            <tree colors="grey:state == 'done';red:date_delivery&lt;current_date and state not in ('done','cancel');black:date_delivery&gt;=current_date;" string="Logistic Requisition">
                 <field name="name"/>
                 <field name="requester_id"/>
                 <field name="user_id"/>
-                <field name="date_start"/>
-                <field name="date_end"/>
+                <field name="date"/>
+                <field name="date_delivery"/>
                 <field name="country_id"/>
                 <field name="company_id"/>
                 <field name="analytic_id"/>
@@ -156,8 +162,8 @@
                     <filter string="Origin" domain="[]" context="{'group_by':'origin'}"/>
                     <filter string="State" domain="[]" context="{'group_by':'state'}"/>
                     <separator orientation="vertical"/>
-                    <filter string="Requisition Date" domain="[]" context="{'group_by':'date_start'}"/>
-                    <filter string="Delivery Date" domain="[]" context="{'group_by':'date_end'}"/>
+                    <filter string="Requisition Date" domain="[]" context="{'group_by':'date'}"/>
+                    <filter string="Delivery Date" domain="[]" context="{'group_by':'date_delivery'}"/>
                 </group>
               </search>
             </field>
