@@ -106,6 +106,10 @@ class LogisticRequisition(orm.Model):
             'res.partner', 'Consignee', required=True,
             states=REQ_STATES
         ),
+        'consignee_shipping_id': fields.many2one(
+            'res.partner', 'Delivery Address', required=True,
+            states=REQ_STATES
+        ),
         'country_id': fields.many2one('res.country', 'Country',
             states=REQ_STATES
         ),
@@ -170,6 +174,7 @@ class LogisticRequisition(orm.Model):
         # 'purchase_ids' : fields.one2many('purchase.order','requisition_id','Purchase Orders',states={'done': [('readonly', True)]}),
         #####################################################################################################
     }
+
     _defaults = {
         'date_start': fields.date.context_today,
         'state': 'draft',
@@ -177,6 +182,7 @@ class LogisticRequisition(orm.Model):
         'user_id': lambda self, cr, uid, c: uid,
         'name': '/',
     }
+
     _sql_constraints = [
         ('name_uniq', 'unique(name)', 'Logistic Requisition Reference must be unique !'),
     ]
@@ -195,10 +201,12 @@ class LogisticRequisition(orm.Model):
         line_ids=reduce(lambda x,y:x+y,[x['line_ids'] for x in self.read(cr,uid,ids,['line_ids'],context=context,load='_classic_write')],[])
         line_ids and self.pool.get('logistic.requisition.line')._do_cancel(cr,uid,line_ids,context=context)
         self.write(cr, uid, ids, {'state': 'cancel'})
+
     def _do_confirm(self, cr, uid, ids, context=None):
         line_ids=reduce(lambda x,y:x+y,[x['line_ids'] for x in self.read(cr,uid,ids,['line_ids'],context=context,load='_classic_write')],[])
         line_ids and self.pool.get('logistic.requisition.line')._do_confirm(cr,uid,line_ids,context=context)
         self.write(cr, uid, ids, {'state':'in_progress'} ,context=context)
+
     def _do_draft(self, cr, uid, ids, context=None):
         line_ids=reduce(lambda x,y:x+y,[x['line_ids'] for x in self.read(cr,uid,ids,['line_ids'],context=context,load='_classic_write')],[])
         line_ids and self.pool.get('logistic.requisition.line')._do_draft(cr,uid,line_ids,context=context)
@@ -208,6 +216,7 @@ class LogisticRequisition(orm.Model):
         if vals.get('name','/')=='/':
             vals['name'] = self.pool.get('ir.sequence').get(cr, uid, 'logistic.requisition') or '/'
         return super(LogisticRequisition, self).create(cr, uid, vals, context=context)
+
     def copy(self, cr, uid, id, default=None, context=None):
         if not default:
             default = {}
@@ -217,16 +226,32 @@ class LogisticRequisition(orm.Model):
         })
         return super(LogisticRequisition, self).copy(cr, uid, id, default=default, context=context)
 
+    def onchange_consignee_id(self, cr, uid, ids, consignee_id, context=None):
+        values = {'consignee_shipping_id': False}
+        if not consignee_id:
+            return {'value': values}
+
+        partner_obj = self.pool.get('res.partner')
+        partner = partner_obj.browse(cr, uid, consignee_id, context=context)
+        addr = partner_obj.address_get(cr, uid,
+                                       [partner.id], ['delivery'],
+                                       context=context)
+        values['consignee_shipping_id'] = addr['delivery']
+        return {'value': values}
+
     def button_cancel(self, cr, uid, ids, context=None):
         #TODO: ask confirmation
         self._do_cancel(cr,uid,ids,context=context)
         return True
+
     def button_confirm(self, cr, uid, ids, context=None):
         self._do_confirm(cr,uid,ids,context=context)
         return True
+
     def button_reset(self, cr, uid, ids, context=None):
         self._do_draft(cr,uid,ids,context=context)
         return True
+
     def button_view_lines(self, cr, uid, ids, context=None):
         """
         This function returns an action that display related lines.
@@ -243,8 +268,6 @@ class LogisticRequisition(orm.Model):
         if len(inv_ids)>1:
             result['domain'] = "[('id','in',["+','.join(map(str, inv_ids))+"])]"
         return result
-
-
 
     def requisition_done(self, cr, uid, ids, context=None):
         self.write(cr, uid, ids, {'state':'done', 'date_end':time.strftime('%Y-%m-%d %H:%M:%S')}, context=context)

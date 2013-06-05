@@ -30,7 +30,10 @@
                     <group>
                         <group>
                             <field name="requester_id"/>
-                            <field name="consignee_id"/>
+                            <field name="consignee_id" on_change="onchange_consignee_id(consignee_id)"/>
+                            <field name="consignee_shipping_id"
+                                 domain="['|', ('parent_id', '=', consignee_id), ('id', '=', consignee_id)]"
+                                 context="{'default_type':'delivery'}"/>
                             <field name="country_id"/>
                             <field name="type"/>
                             <field name="date_start"/>
@@ -120,7 +123,6 @@
                 <field name="analytic_id"/>
                 <field name="amount_total" sum="Total Budget"/>
                 <field name="state"/>
-                <field name="create_uid" invisible="1"/>
             </tree>
         </field>
     </record>
@@ -147,7 +149,6 @@
                 <newline/>
                   <group expand="0" string="Group By..." groups="base.group_extended">
                     <filter string="Requisition Responsible" domain="[]" context="{'group_by':'user_id'}"/>
-                    <filter string="Requestor" domain="[]" context="{'group_by':'create_uid'}"/>
                     <filter string="Requester" domain="[]" context="{'group_by':'requester_id'}"/>
                     <filter string="Country" domain="[]" context="{'group_by':'country_id'}"/>
                     <filter string="Project" domain="[]" context="{'group_by':'analytic_id'}"/>
