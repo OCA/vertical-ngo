@@ -117,8 +117,8 @@ class LogisticRequisition(orm.Model):
                 },
             help = "Mobilization Officer or Logistic Coordinator in charge of the Logistic Requisition"
         ),
-        'requestor_id': fields.many2one(
-            'res.users', 'Requestor', required=True,
+        'requester_id': fields.many2one(
+            'res.users', 'Requester', required=True,
             states={
                 'in_progress':[('readonly',True)],
                 'sent':[('readonly',True)],
@@ -222,10 +222,10 @@ class LogisticRequisition(orm.Model):
         #####################################################################################################
     }
     _defaults = {
-        'date_start': time.strftime('%Y-%m-%d %H:%M:%S'),#FIX: TZ
+        'date_start': fields.date.context_today,
         'state': 'draft',
         # 'company_id': lambda self, cr, uid, c: self.pool.get('res.company')._company_default_get(cr, uid, 'logistic.requisition', context=c),
-        'user_id': lambda self, cr, uid, c: self.pool.get('res.users').browse(cr, uid, uid, c).id ,
+        'user_id': lambda self, cr, uid, c: uid,
         'name': '/',
     }
     _sql_constraints = [

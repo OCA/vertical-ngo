@@ -29,7 +29,7 @@
                     </div>
                     <group>
                         <group>
-                            <field name="requestor_id"/>
+                            <field name="requester_id"/>
                             <field name="requestor_partner_id"/>
                             <field name="country_id"/>
                             <field name="type"/>
@@ -111,7 +111,7 @@
         <field name="arch" type="xml">
             <tree colors="grey:state == 'done';red:date_end&lt;current_date and state not in ('done','cancel');black:date_end&gt;=current_date;" string="Logistic Requisition">
                 <field name="name"/>
-                <field name="requestor_id"/>
+                <field name="requester_id"/>
                 <field name="user_id"/>
                 <field name="date_start"/>
                 <field name="date_end"/>
@@ -120,6 +120,7 @@
                 <field name="analytic_id"/>
                 <field name="amount_total" sum="Total Budget"/>
                 <field name="state"/>
+                <field name="create_uid" invisible="1"/>
             </tree>
         </field>
     </record>
@@ -140,13 +141,14 @@
                     <separator orientation="vertical"/>
                     <field name="name"/>
                     <field name="user_id" />
-                    <field name="requestor_id" />
+                    <field name="requester_id" />
                     <field name="analytic_id" />
                 </group>
                 <newline/>
                   <group expand="0" string="Group By..." groups="base.group_extended">
                     <filter string="Requisition Responsible" domain="[]" context="{'group_by':'user_id'}"/>
-                    <filter string="Requestor" domain="[]" context="{'group_by':'requestor_id'}"/>
+                    <filter string="Requestor" domain="[]" context="{'group_by':'create_uid'}"/>
+                    <filter string="Requester" domain="[]" context="{'group_by':'requester_id'}"/>
                     <filter string="Country" domain="[]" context="{'group_by':'country_id'}"/>
                     <filter string="Project" domain="[]" context="{'group_by':'analytic_id'}"/>
                     <separator orientation="vertical"/>
