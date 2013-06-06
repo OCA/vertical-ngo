@@ -2,7 +2,7 @@
 <openerp>
     <data>
 
-        <menuitem id="menu_logistic_requisition_base" name="Logistic Requisition" parent="transport_order.menu_logistic" sequence="1"/>
+    <menuitem id="menu_logistic_requisition_base" name="Logistic Requisition" parent="transport_order.menu_logistic" sequence="1"/>
 
     <record model="ir.ui.view" id="view_logistic_requisition_form">
         <field name="name">logistic.requisition.form</field>
@@ -200,16 +200,6 @@
             </field>
         </record>
 
-    <!-- <record model="ir.actions.act_window" id="act_stock_by_location">
-        <field name="name">Stock by Location</field>
-        <field name="res_model">stock.location</field>
-        <field name="src_model">product.product</field>
-        <field name="view_mode">tree</field>
-        <field name="target">current</field>
-        <field name="context">{'product_id':context['active_id']}</field>
-    </record>
- -->
-
     <record model="ir.actions.act_window" id="action_logistic_requisition">
         <field name="name">Requisitions</field>
         <field name="type">ir.actions.act_window</field>
@@ -217,8 +207,6 @@
         <field name="view_type">form</field>
         <field name="view_mode">tree,form</field>
         <field name="context">{}</field>
-        <!-- Example to open in a blink the right filtred list -->
-        <!-- <field name="context">{"search_default_user_id":uid,}</field> -->
         <field name="search_view_id" ref="view_logistic_requisition_filter"/>
         <field name="help"></field>
     </record>
@@ -250,7 +238,7 @@
            </tree>
         </field>
     </record>
-    
+
     <record model="ir.ui.view" id="view_logistic_requisition_line_calendar">
         <field name="name">logistic.requisition.line.tree</field>
         <field name="model">logistic.requisition.line</field>
@@ -263,7 +251,7 @@
             </calendar>
         </field>
     </record>
-    
+
     <record model="ir.ui.view" id="view_logistic_requisition_line_kanban">
         <field name="name">logistic.requisition.line.kanban</field>
         <field name="model">logistic.requisition.line</field>
@@ -303,13 +291,8 @@
             <form string="Logistic Requisition Line" version="7.0">
                 <header>
                     <button name="button_make_so_quotation" states="draft,assigned,in_progress,waiting" string="Make Sales Quotation" type="object" class="oe_highlight"/>
-                    <!-- <button name="line_assigned" states="draft" string="Assigned" type="object" class="oe_highlight" /> -->
-                    <!-- <button name="line_estimated" states="in_progress,assigned" string="Estimated" type="object" class="oe_highlight"/> -->
-                    <!-- <button name="line_quoted" states="in_progress,cost_estimated" string="Quoted" type="object" /> -->
-                    <!-- <button name="line_waiting" states="quoted" string="Waiting" type="object" /> -->
                     <button name="line_done" states="quoted" string="Done" type="object" class="oe_highlight"/>
                     <button name="line_refused" states="draft,assigned,quoted,waiting,in_progress" string="Refused" type="object" />
-                    <!-- <field name="state" widget="statusbar" /> -->
                     <field name="status" widget="statusbar" statusbar_visible="draft,in_progress,assigned,quoted,done"/>
                 </header>
                 <sheet>
@@ -327,9 +310,7 @@
                     </div>
                     <group>
                         <group>
-                            <!-- <label string="Product: " attrs="{'invisible': [('product_id', '=', False)]}"/> -->
                             <field name="product_id" on_change="onchange_product_id(product_id,requested_uom_id)"/>
-                            <!-- <label string="Description: " attrs="{'invisible': [('product_id', '!=', False)]}"/> -->
                             <field name="description"/>
                         </group>
                         <group>
@@ -357,7 +338,6 @@
                                 <label for="confirmed_qty"/>
                                 <div>
                                     <field name="confirmed_qty" class="oe_inline"/>
-                                    <!-- <field name="confirmed_uom_id" class="oe_inline"/> -->
                                 </div>
                                 <field name="etd_date"/>
                                 <field name="dispatch_location_id" attrs="{'invisible':[('confirmed_type','!=','stock')]}"/>
@@ -391,7 +371,6 @@
             </form>
         </field>
     </record>
-
 
     <record id="view_logistic_requisition_line_filter" model="ir.ui.view">
             <field name="name">logistic.requisition.line.list.select</field>
@@ -432,8 +411,6 @@
         <field name="view_type">form</field>
         <field name="view_mode">tree,form,calendar,kanban</field>
         <field name="context">{}</field>
-        <!-- Example to open in a blink the right filtred list -->
-        <!-- <field name="context">{"search_default_logistic_user_id":uid,}</field> -->
         <field name="search_view_id" ref="view_logistic_requisition_line_filter"/>
         <field name="help"></field>
     </record>
@@ -444,41 +421,6 @@
         parent="menu_logistic_requisition_base"
         action="action_logistic_requisition_line"/>
 
-<!--     <record model="ir.ui.view" id="product_normal_form_view_inherit">
-        <field name="name">product.form.inherit</field>
-        <field name="type">form</field>
-        <field name="model">product.product</field>
-        <field name="inherit_id" ref="product.product_normal_form_view"/>
-        <field name="arch" type="xml">
-            <field name="supply_method" position="after">
-                <group colspan="2" col="2" attrs="{'invisible': [('supply_method','&lt;&gt;','buy')]}">
-                <field name="logistic_requisition"/>
-                </group>
-            </field>
-        </field>
-    </record>
-
-    <record model="ir.ui.view" id="procurement_normal_form_view_inherit">
-        <field name="name">procurement.form.inherit</field>
-        <field name="type">form</field>
-        <field name="model">procurement.order</field>
-        <field name="inherit_id" ref="procurement.procurement_form_view"/>
-        <field name="arch" type="xml">
-             <xpath expr="/form/notebook/page/field[@name='close_move']" position="after">
-                <field name="requisition_id"/>
-            </xpath>
-        </field>
-    </record>
-    <act_window
-            domain="[('requisition_id', '=', active_id)]"
-            context="{'default_requisition_id': active_id}"
-            id="act_res_partner_2_purchase_order"
-            name="Cost Estimate"
-            res_model="purchase.order"
-            src_model="logistic.requisition"/> -->
-
-
-    
     <record id="purchase.purchase_waiting" model="ir.actions.act_window">
         <field name="name">Cost Estimate Waiting Approval</field>
         <field name="type">ir.actions.act_window</field>
@@ -487,7 +429,7 @@
         <field name="view_mode">tree,form</field>
         <field name="domain">[('date_order','&gt;',time.strftime('%Y-01-01 00:00:00')),('date_order','&lt;',time.strftime('%Y-12-31 23:59:59')), ('state','in',('wait','confirmed'))]</field>
     </record>
-    
+
     <record id="logistic_requisition" model="ir.actions.act_window">
         <field name="name">Logistic Requisition</field>
         <field name="type">ir.actions.act_window</field>
@@ -496,7 +438,7 @@
         <field name="view_mode">tree,form</field>
         <field name="domain">[]</field>
     </record>
-    
+
     <record id="purchase.board_purchase_form" model="ir.ui.view">
         <field name="name">board.purchase.form</field>
         <field name="model">board.board</field>
@@ -515,7 +457,6 @@
             </form>
         </field>
     </record>
-    
-    
-        </data>
+
+    </data>
 </openerp>
