@@ -162,43 +162,47 @@
                 <field name="currency_id"/>
                 <field name="state"/>
                 <field name="sourced" widget="progressbar"/>
+                <field name="requester_id" invisible="1"/>
             </tree>
         </field>
     </record>
 
     <record id="view_logistic_requisition_filter" model="ir.ui.view">
-            <field name="name">logistic.requisition.list.select</field>
-            <field name="model">logistic.requisition</field>
-            <field name="arch" type="xml">
-                <search string="Search Logistic Requisition">
-                 <group>
-                    <filter name="draft" string="New" domain="[('state','=','draft')]" help="New Logistic Requisition"/>
-                    <filter name="in_progress" string="Needs Validated" domain="[('state','=','in_progress')]" help="Logistic Requisition in treatment"/>
-                    <filter name="sent" string="Quote Sent" domain="[('state','=','sent')]" help="Quote Send to the Requestor"/>
-                    <filter name="in_progress" string="Done" domain="[('state','=','done')]"/>
-                    <separator orientation="vertical"/>
-                    <filter string="Unassigned"  domain="[('user_id','=', False)]" help="Unassigned Requisition"/>
-                    <separator orientation="vertical"/>
-                    <field name="name"/>
-                    <field name="user_id" />
-                    <field name="requester_id" />
-                    <field name="analytic_id" />
-                </group>
-                <newline/>
-                  <group expand="0" string="Group By..." groups="base.group_extended">
+        <field name="name">logistic.requisition.list.select</field>
+        <field name="model">logistic.requisition</field>
+        <field name="arch" type="xml">
+            <search string="Search Logistic Requisition">
+                <filter name="draft" string="New"
+                    domain="[('state','=','draft')]"
+                    help="New Logistic Requisition"/>
+                <filter name="confirmed"
+                    string="Confirmed"
+                    domain="[('state', '=', 'confirmed')]"
+                    help="Logistic Requisition in treatment"/>
+                <filter name="done"
+                    string="Done"
+                    domain="[('state', '=', 'done')]"/>
+                <separator/>
+                <filter string="Unassigned"  domain="[('user_id','=', False)]" help="Unassigned Requisition"/>
+                <separator/>
+                <field name="name"/>
+                <field name="user_id" />
+                <field name="requester_id" />
+                <field name="analytic_id" />
+                <group expand="0" string="Group By...">
                     <filter string="Requisition Responsible" domain="[]" context="{'group_by':'user_id'}"/>
                     <filter string="Requester" domain="[]" context="{'group_by':'requester_id'}"/>
                     <filter string="Country" domain="[]" context="{'group_by':'country_id'}"/>
                     <filter string="Project" domain="[]" context="{'group_by':'analytic_id'}"/>
-                    <separator orientation="vertical"/>
+                    <separator/>
                     <filter string="State" domain="[]" context="{'group_by':'state'}"/>
-                    <separator orientation="vertical"/>
+                    <separator/>
                     <filter string="Requisition Date" domain="[]" context="{'group_by':'date'}"/>
                     <filter string="Delivery Date" domain="[]" context="{'group_by':'date_delivery'}"/>
                 </group>
-              </search>
-            </field>
-        </record>
+            </search>
+        </field>
+    </record>
 
     <record model="ir.actions.act_window" id="action_logistic_requisition">
         <field name="name">Requisitions</field>
@@ -233,6 +237,7 @@
              <field name="budget_tot_price" sum="Total Budget"/>
              <field name="state"/>
              <button name="%(action_requisition_split_into)d" icon="gtk-justify-fill" string="Split the line" type="action" states="draft,assigned" />
+             <field name="country_id" invisible="1"/>
            </tree>
         </field>
     </record>
@@ -308,7 +313,7 @@
                         string="Cancel"
                         type="object"/>
                     <button name="button_reset"
-                        string="Reset to Draft"
+                        string="Reset to Confirmed"
                         states="cancel"
                         type="object"
                         class="oe_highlight" />
@@ -393,36 +398,43 @@
     </record>
 
     <record id="view_logistic_requisition_line_filter" model="ir.ui.view">
-            <field name="name">logistic.requisition.line.list.select</field>
-            <field name="model">logistic.requisition.line</field>
-            <field name="arch" type="xml">
-                <search string="Search Logistic Requisition Line">
-                 <group>
-                    <filter name="draft" string="New" domain="[('state','=','draft')]" help="New Logistic Requisition Line"/>
-                    <filter name="assigned" string="Assigned" domain="[('state','=','assigned')]" help="Assigned Logistic Requisition Line"/>
-                    <filter name="cost_estimated" string="Cost Estimated" domain="[('state','=','cost_estimated')]" help="Cost Estimated Requisition Lines"/>
-                    <filter name="quoted" string="Quoted" domain="[('state','=','quoted')]"/>
-                    <separator orientation="vertical"/>
-                    <filter string="Unassigned"  domain="[('logistic_user_id','=', False)]" help="Unassigned Requisition"/>
-                    <separator orientation="vertical"/>
-                    <field name="description" />
-                    <field name="requisition_id" />
-                    <field name="logistic_user_id" />
-                    <field name="procurement_user_id" />
-                </group>
-                <newline/>
-                  <group expand="0" string="Group By..." groups="base.group_extended">
+        <field name="name">logistic.requisition.line.list.select</field>
+        <field name="model">logistic.requisition.line</field>
+        <field name="arch" type="xml">
+            <search string="Search Logistic Requisition Line">
+                <filter name="draft" string="New"
+                    domain="[('state','=','draft')]"
+                    help="New Logistic Requisition Line"/>
+                <filter name="confirmed"
+                    string="Confirmed"
+                    domain="[('state', '=', 'confirmed')]"
+                    help="Requisition has been confirmed"/>
+                <filter name="assigned" string="Assigned"
+                    domain="[('state','=','assigned')]"
+                    help="Assigned Logistic Requisition Line"/>
+                <filter name="quoted" string="Quoted"
+                    domain="[('state','=','quoted')]"/>
+                <separator/>
+                <filter string="Unassigned"
+                    domain="[('logistic_user_id','=', False)]"
+                    help="Unassigned Requisition"/>
+                <separator/>
+                <field name="description" />
+                <field name="requisition_id" />
+                <field name="logistic_user_id" />
+                <field name="procurement_user_id" />
+                <group expand="0" string="Group By...">
                     <filter string="Assigned Specialist" domain="[]" context="{'group_by':'logistic_user_id'}"/>
                     <filter string="Procurement Officer" domain="[]" context="{'group_by':'procurement_user_id'}"/>
                     <filter string="Logistic Requisition" domain="[]" context="{'group_by':'requisition_id'}"/>
-                    <separator orientation="vertical"/>
+                    <separator/>
                     <filter string="State" domain="[]" context="{'group_by':'state'}"/>
                     <filter string="Product" domain="[]" context="{'group_by':'product_id'}"/>
                     <filter string="Country" domain="[]" context="{'group_by':'country_id'}"/>
                 </group>
-              </search>
-            </field>
-        </record>
+            </search>
+        </field>
+    </record>
 
     <record model="ir.actions.act_window" id="action_logistic_requisition_line">
         <field name="name">Requisitions Lines</field>

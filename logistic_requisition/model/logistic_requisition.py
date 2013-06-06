@@ -340,6 +340,22 @@ class logistic_requisition_line(orm.Model):
         },
     }
 
+    def _get_from_partner(self, cr, uid, ids, context=None):
+        req_obj = self.pool.get('logistic.requisition')
+        req_line_obj = self.pool.get('logistic.requisition.line')
+        req_ids = req_obj.search(cr, uid,
+                                 [('consignee_shipping_id', 'in', ids)],
+                                context=context)
+        return req_line_obj._get_from_requisition(cr, uid, req_ids,
+                                                  context=context)
+
+    def _get_from_requisition(self, cr, uid, ids, context=None):
+        req_line_obj = self.pool.get('logistic.requisition.line')
+        line_ids = req_line_obj.search(cr, uid,
+                                       [('requisition_id', 'in', ids)],
+                                       context=context)
+        return line_ids
+
     _columns = {
         'requisition_id': fields.many2one(
             'logistic.requisition',
@@ -387,7 +403,16 @@ class logistic_requisition_line(orm.Model):
             'country_id',
             string='Country',
             type='many2one',
-            relation='res.country'),
+            relation='res.country',
+            store={
+                'logistic.requisition.line': (lambda self, cr, uid, ids, c=None: ids,
+                                         ['requisition_id'],
+                                         10),
+                'logistic.requisition': (_get_from_requisition,
+                                         ['consignee_shipping_id'],
+                                         10),
+                'res.partner': (_get_from_partner, ['country_id'], 10),
+            }),
         'requested_type': fields.related(
             'requisition_id', 'type',
             string='Requested Type',
