@@ -12,7 +12,7 @@
                 <header>
                     <button name="button_view_lines"
                         string="View Lines"
-                        states="confirm,done,cancel"
+                        states="confirmed,done,cancel"
                         type="object"
                         class="oe_highlight"/>
                     <button name="button_confirm"
@@ -26,13 +26,12 @@
                         type="object" />
                     <button name="button_cancel"
                         string="Cancel"
-                        states="draft,confirm"
+                        states="draft,confirmed"
                         type="object" />
 
                     <field name="state" select="1" readonly="1"
                         widget="statusbar"
-                        statusbar_visible="draft,confirm,done"
-                        statusbar_colors='{"cancel":"grey"}'/>
+                        statusbar_visible="draft,confirmed,done" />
                 </header>
                 <sheet string="Logistic Requisition">
                     <div class="oe_title">
@@ -290,10 +289,32 @@
         <field name="arch" type="xml">
             <form string="Logistic Requisition Line" version="7.0">
                 <header>
-                    <button name="button_make_so_quotation" states="draft,assigned,in_progress,waiting" string="Make Sales Quotation" type="object" class="oe_highlight"/>
-                    <button name="line_done" states="quoted" string="Done" type="object" class="oe_highlight"/>
-                    <button name="line_refused" states="draft,assigned,quoted,waiting,in_progress" string="Refused" type="object" />
-                    <field name="status" widget="statusbar" statusbar_visible="draft,in_progress,assigned,quoted,done"/>
+                    <button name="button_assign"
+                        states="confirmed"
+                        string="Assign"
+                        type="object"
+                        class="oe_highlight"/>
+                    <button name="button_create_cost_estimate"
+                        states="assigned"
+                        string="Create Cost Estimate"
+                        type="object"
+                        class="oe_highlight"/>
+                    <button name="button_open_cost_estimate"
+                        states="quoted"
+                        string="Open Cost Estimate"
+                        type="object"
+                        class="oe_highlight"/>
+                    <button name="button_cancel"
+                        states="confirmed,assigned"
+                        string="Cancel"
+                        type="object"/>
+                    <button name="button_reset"
+                        string="Reset to Draft"
+                        states="cancel"
+                        type="object" />
+                    <field name="state" select="1" readonly="1"
+                        widget="statusbar"
+                        statusbar_visible="draft,confirmed,assigned,quoted"/>
                 </header>
                 <sheet>
                     <div class="oe_title">
@@ -346,7 +367,6 @@
                                 <field name="transport_order_id" class="oe_inline"/>
                                 <field name="estimated_transportation_cost" widget="monetary"/>
                                 <field name="estimated_tot_cost" widget="monetary"/>
-                                <field name="state" invisible="1"/>
                             </group>
                             <group name="rfq_grp" string="Purchase Requisition">
                                 <label for="po_requisition_id"/>

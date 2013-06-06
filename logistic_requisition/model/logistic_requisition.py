@@ -39,7 +39,7 @@ class logistic_requisition(orm.Model):
     _name = "logistic.requisition"
     _description = "Logistic Requisition"
 
-    REQ_STATES = {'confirm': [('readonly', True)],
+    REQ_STATES = {'confirmed': [('readonly', True)],
                   'done': [('readonly', True)]
                   }
 
@@ -138,7 +138,7 @@ class logistic_requisition(orm.Model):
         ),
         'state': fields.selection(
             [('draft', 'Draft'),
-             ('confirm', 'Confirmed'),
+             ('confirmed', 'Confirmed'),
              ('done', 'Done'),
              ('cancel', 'Cancelled'),
              ],
@@ -235,7 +235,7 @@ class logistic_requisition(orm.Model):
         if line_ids:
             line_obj = self.pool.get('logistic.requisition.line')
             line_obj._do_confirm(cr, uid, line_ids, context=context)
-        self.write(cr, uid, ids, {'state': 'confirm'}, context=context)
+        self.write(cr, uid, ids, {'state': 'confirmed'}, context=context)
 
     def _do_draft(self, cr, uid, ids, context=None):
         reqs = self.read(cr, uid, ids, ['line_ids'], context=context)
@@ -439,37 +439,19 @@ class logistic_requisition_line(orm.Model):
             store=True),
         'state': fields.selection(
             [('draft', 'Draft'),
-             ('in_progress', 'Need Confirmed'),
+             ('confirmed', 'Confirmed'),
              ('assigned', 'Assigned'),
-             ('cost_estimated', 'Cost Estimated'),
              ('quoted', 'Quoted'),
-             ('done', 'Done'),
-             ('refused', 'Refused'),
              ('cancel', 'Cancelled')],
-            string='Status',
+            string='State',
             required=True,
             track_visibility='onchange',
             help="Draft: Created\n"
-                 "Assigned: Line taken in charge by Logistic Officer\n"
+                 "Confirmed: Requisition has been confirmed\n"
+                 "Assigned: Waiting the creation of a quote\n"
                  "Quoted: Quotation made for the line\n"
-                 "Waiting Approval: Wait on the requestor to approve the quote\n"
-                 "Done: The line has been processed and quote was accepted\n"
-                 "Refused: The line has been processed and quote was refused\n"
                  "Cancelled: The requisition has been cancelled"
-        ),
-        'status': fields.function(
-            lambda self, *args, **kwargs: self._get_state(*args, **kwargs),
-            string='Status',
-            type="Selection",
-            selection=[('draft', 'Draft'),
-                       ('in_progress', 'Need Confirmed'),
-                       ('assigned', 'Assigned'),
-                       ('cost_estimated', 'Cost Estimated'),
-                       ('quoted', 'Quoted'),
-                       ('waiting', 'Waiting Approval'),
-                       ('done', 'Done'),
-                       ('refused', 'Refused'),
-                       ('cancel', 'Cancelled')]),
+        )
     }
 
     _defaults = {
@@ -477,7 +459,7 @@ class logistic_requisition_line(orm.Model):
     }
 
     def _do_confirm(self, cr, uid, ids, context=None):
-        self.write(cr, uid, ids, {'state': 'in_progress'}, context=context)
+        self.write(cr, uid, ids, {'state': 'confirmed'}, context=context)
 
     def _do_cancel(self, cr, uid, ids, context=None):
         self.write(cr, uid, ids, {'state': 'cancel'}, context=context)
@@ -487,6 +469,9 @@ class logistic_requisition_line(orm.Model):
 
     def _do_assign(self, cr, uid, ids, context=None):
         self.write(cr, uid, ids, {'state': 'assigned'}, context=context)
+
+    def _do_quoted(self, cr, uid, ids, context=None):
+        self.write(cr, uid, ids, {'state': 'quoted'}, context=context)
 
     def _store__get_requisitions(self, cr, uid, ids, context=None):
         # _classic_write returns only the m2o id and not the name_get's tuple
@@ -627,7 +612,7 @@ class logistic_requisition_line(orm.Model):
             'type': 'ir.actions.act_window',
         }
 
-    def button_make_so_quotation(self, cr, uid, ids, context=None):
+    def button_create_cost_estimate(self, cr, uid, ids, context=None):
         if context is None:
             context = {}
         sale_obj = self.pool.get('sale.order')
@@ -692,25 +677,16 @@ class logistic_requisition_line(orm.Model):
             'type': 'ir.actions.act_window',
         }
 
-    def button_assign(self, cr, uid, ids, context=None):
-        lines = self.read(cr, uid, ids, ['logistic_user_id'], context=context)
-        for line in lines:
-            if not line['logistic_user_id']:
-                raise osv.except_osv(
-                    _('Error'),
-                    _('Please first define the logistic specialist.'))
-        self._do_assign(cr, uid, ids, context=context)
-
-    def _get_unit_amount_line(self, cr, uid, ids, prop, unknow_none, unknow_dict):
+    def _get_unit_amount_line(self, cr, uid, ids, prop, unknow_none, unknow_dict, context=None):
         res = {}
-        for line in self.browse(cr, uid, ids):
+        for line in self.browse(cr, uid, ids, context=context):
             price = line.budget_tot_price / line.requested_qty
             res[line.id] = price
         return res
 
-    def _get_estimate_tot_cost(self, cr, uid, ids, prop, unknow_none, unknow_dict):
+    def _get_estimate_tot_cost(self, cr, uid, ids, prop, unknow_none, unknow_dict, context=None):
         res = {}
-        for line in self.browse(cr, uid, ids):
+        for line in self.browse(cr, uid, ids, context=context):
             price = (line.estimated_goods_cost +
                      line.estimated_transportation_cost)
             res[line.id] = price
@@ -780,13 +756,13 @@ class logistic_requisition_line(orm.Model):
         :return: dict of vals to give to write method like {'state':'assigned'}
         """
         self._send_note_to_logistic_user(cr, uid, req_line, context=context)
-        if req_line.state == 'draft' or req_line.state == 'in_progress':
+        if req_line.state == 'draft':
             vals['state'] = 'assigned'
         return vals
 
     def write(self, cr, uid, ids, vals, context=None):
-        """ Call the _assign_logistic_user whenb changing it. This will also
-        pass the state to 'assigned' if stil in draft.
+        """ Call the _assign_logistic_user when changing it. This will also
+        pass the state to 'assigned' if still in draft.
         """
         for requisition_line in self.browse(cr, uid, ids, context=context):
             if 'logistic_user_id' in vals:
@@ -815,26 +791,35 @@ class logistic_requisition_line(orm.Model):
             }
         return {'value': value}
 
-    def line_assigned(self, cr, uid, ids, context=None):
-        self.write(cr, uid, ids, {'state': 'assigned'}, context=context)
+    def button_assign(self, cr, uid, ids, context=None):
+        # TODO: open a popup asking who to assign
+        lines = self.read(cr, uid, ids, ['logistic_user_id'], context=context)
+        for line in lines:
+            if not line['logistic_user_id']:
+                raise osv.except_osv(
+                    _('Error'),
+                    _('Please first define the logistic specialist.'))
+        self._do_assign(cr, uid, ids, context=context)
         return True
 
-    def line_estimated(self, cr, uid, ids, context=None):
-        self.write(cr, uid, ids, {'state': 'cost_estimated'}, context=context)
+    def button_create_cost_estimate(self, cr, uid, ids, context=None):
+        # TODO create cost estimate
+        self._do_quoted(cr, uid, ids, context=context)
         return True
 
-    def line_quoted(self, cr, uid, ids, context=None):
-        self.write(cr, uid, ids, {'state': 'quoted'}, context=context)
+    def button_open_cost_estimate(self, cr, uid, ids, context=None):
+        # TODO
         return True
 
-    def line_waiting(self, cr, uid, ids, context=None):
-        self.write(cr, uid, ids, {'state': 'waiting'}, context=context)
+    def button_cancel(self, cr, uid, ids, context=None):
+        self._do_cancel(cr, uid, ids, context=context)
         return True
 
-    def line_done(self, cr, uid, ids, context=None):
-        self.write(cr, uid, ids, {'state': 'done'}, context=context)
-        return True
-
-    def line_refused(self, cr, uid, ids, context=None):
-        self.write(cr, uid, ids, {'state': 'refused'}, context=context)
+    def button_reset(self, cr, uid, ids, context=None):
+        for line in self.browse(cr, uid, ids, context=context):
+            state = line.requisition_id.state
+            if state == 'draft':
+                self._do_draft(cr, uid, [line.id], context=None)
+            else:
+                self._do_confirm(cr, uid, [line.id], context=None)
         return True
