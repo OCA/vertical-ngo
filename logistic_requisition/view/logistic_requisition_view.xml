@@ -392,7 +392,7 @@
                                         <label string="To add here: selected bid" colspan="4"/>
                                     </group>
                                     <group string="Warehouse Dispatch" colspan="4"
-                                        attrs="{'invisible':[('confirmed_type','==','wh_dispatch')]}">
+                                        attrs="{'invisible': [('confirmed_type','=','wh_dispatch')]}">
                                         <field name="dispatch_location_id" />
                                         <label string="To add here: stock type" colspan="4"/>
                                         <label string="To add here: stock owner" colspan="4"/>
