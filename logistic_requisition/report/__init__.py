@@ -19,8 +19,7 @@
 #
 ##############################################################################
 
-from model import logistic_request
-import wizard
-import report
+import requisition
+
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
 

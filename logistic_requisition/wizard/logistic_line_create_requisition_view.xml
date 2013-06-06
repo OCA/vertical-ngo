@@ -2,8 +2,8 @@
 <openerp>
     <data>
         <record id="view_create_requisition_from_line" model="ir.ui.view">
-            <field name="name">Create Purchase Requisition From Request Line</field>
-            <field name="model">logistic.request.line.create.requisition</field>
+            <field name="name">Create Purchase Requisition From Requisition Line</field>
+            <field name="model">logistic.requisition.line.create.requisition</field>
             <field name="arch" type="xml">
                <form string="Create Requisition" version="7.0">
                     <group>
@@ -28,8 +28,8 @@ Requisition will only be created if: &#10;
 
         <act_window name="Create Purchase Requisition"
             context="{'search_default_draft': 1,}"
-            res_model="logistic.request.line.create.requisition"
-            src_model="logistic.request.line"
+            res_model="logistic.requisition.line.create.requisition"
+            src_model="logistic.requisition.line"
             view_mode="form"
             target="new"
             multi="True"

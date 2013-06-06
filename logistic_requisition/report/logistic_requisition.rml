@@ -117,7 +117,7 @@
     <blockTable colWidths="375.0,71.0,84.0" style="Table4">
       <tr>
         <td>
-          <para style="terp_tblheader_Details">Description [[ request.line_ids==[] and removeParentNode('blockTable') ]]</para>
+          <para style="terp_tblheader_Details">Description [[ requisition.line_ids==[] and removeParentNode('blockTable') ]]</para>
         </td>
         <td>
           <para style="terp_tblheader_Details_Centre">Qty</para>
@@ -128,21 +128,21 @@
       </tr>
     </blockTable>
   </pto_header>
-    <para style="terp_default_8">[[ repeatIn(objects,'request') ]]</para>
+    <para style="terp_default_8">[[ repeatIn(objects,'requisition') ]]</para>
     <para style="terp_default_8">
       <font color="white"> </font>
     </para>
-    <para style="terp_header">Purchase for Requisitions [[ request.name ]]</para>
+    <para style="terp_header">Purchase for Requisitions [[ requisition.name ]]</para>
     <para style="terp_default_8">
       <font color="white"> </font>
     </para>
     <blockTable colWidths="159.0,159.0,106.0,106.0" style="Table2">
       <tr>
         <td>
-          <para style="terp_tblheader_General_Centre">Request Reference</para>
+          <para style="terp_tblheader_General_Centre">Requisition Reference</para>
         </td>
         <td>
-          <para style="terp_tblheader_General_Centre">Request Date</para>
+          <para style="terp_tblheader_General_Centre">Requisition Date</para>
         </td>
         <td>
           <para style="terp_tblheader_General_Centre">Type</para>
@@ -155,27 +155,27 @@
     <blockTable colWidths="159.0,159.0,106.0,106.0" style="Table1">
       <tr>
         <td>
-          <para style="terp_default_Centre_8">[[ request.name ]]</para>
+          <para style="terp_default_Centre_8">[[ requisition.name ]]</para>
         </td>
         <td>
-          <para style="terp_default_Centre_8">[[ formatLang(request.date_start,date_time='True') ]]</para>
+          <para style="terp_default_Centre_8">[[ formatLang(requisition.date_start,date_time='True') ]]</para>
         </td>
         <td>
-          <para style="terp_default_Centre_8">[[ request.exclusive=='multiple' and 'Multiple Requisitions' or request.exclusive=='exclusive' and 'Logistic Requests (exclusive)' ]]</para>
+          <para style="terp_default_Centre_8">[[ requisition.exclusive=='multiple' and 'Multiple Requisitions' or requisition.exclusive=='exclusive' and 'Logistic Requests (exclusive)' ]]</para>
         </td>
         <td>
-          <para style="terp_default_Centre_8">[[ request.origin ]]</para>
+          <para style="terp_default_Centre_8">[[ requisition.origin ]]</para>
         </td>
       </tr>
     </blockTable>
     <para style="terp_default_8">
       <font color="white"> </font>
     </para>
-    <para style="terp_tblheader_Details">Product Detail [[ request.line_ids==[] and removeParentNode('para') ]]</para>
+    <para style="terp_tblheader_Details">Product Detail [[ requisition.line_ids==[] and removeParentNode('para') ]]</para>
     <blockTable colWidths="375.0,71.0,84.0" style="Table4">
       <tr>
         <td>
-          <para style="terp_tblheader_Details">Description [[ request.line_ids==[] and removeParentNode('blockTable') ]]</para>
+          <para style="terp_tblheader_Details">Description [[ requisition.line_ids==[] and removeParentNode('blockTable') ]]</para>
         </td>
         <td>
           <para style="terp_tblheader_Details_Centre">Qty</para>
@@ -186,7 +186,7 @@
       </tr>
     </blockTable>
     <section>
-      <para style="terp_default_2">[[ request.line_ids==[] and removeParentNode('section') ]] [[ repeatIn(request.line_ids,'line_ids') ]]</para>
+      <para style="terp_default_2">[[ requisition.line_ids==[] and removeParentNode('section') ]] [[ repeatIn(requisition.line_ids,'line_ids') ]]</para>
       <blockTable colWidths="375.0,71.0,84.0" style="Table5">
         <tr>
           <td>
@@ -204,11 +204,11 @@
     <para style="terp_default_8">
       <font color="white"> </font>
     </para>
-    <para style="terp_tblheader_Details">Quotation Detail [[ request.purchase_ids ==[] and removeParentNode('para') ]]</para>
+    <para style="terp_tblheader_Details">Quotation Detail [[ requisition.purchase_ids ==[] and removeParentNode('para') ]]</para>
     <blockTable colWidths="337.0,96.0,97.0" style="Table6">
       <tr>
         <td>
-          <para style="terp_tblheader_Details">Supplier [[ request.purchase_ids ==[] and removeParentNode('blockTable') ]]</para>
+          <para style="terp_tblheader_Details">Supplier [[ requisition.purchase_ids ==[] and removeParentNode('blockTable') ]]</para>
         </td>
         <td>
           <para style="terp_tblheader_Details_Centre">Date Ordered</para>
@@ -219,7 +219,7 @@
       </tr>
     </blockTable>
     <section>
-      <para style="terp_default_2">[[ request.purchase_ids ==[] and removeParentNode('section') ]] [[ repeatIn(request.purchase_ids,'purchase_ids') ]]</para>
+      <para style="terp_default_2">[[ requisition.purchase_ids ==[] and removeParentNode('section') ]] [[ repeatIn(requisition.purchase_ids,'purchase_ids') ]]</para>
       <blockTable colWidths="338.0,96.0,96.0" style="Table7">
         <tr>
           <td>

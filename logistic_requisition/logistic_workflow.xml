@@ -7,7 +7,7 @@
             <field name="act_to" ref="purchase.act_router"/>
             <field name="signal">purchase_approve</field>
         </record>
-        
+
         <record id="purchase.trans_router_picking" model="workflow.transition">
             <field name="act_from" ref="purchase.act_router"/>
             <field name="act_to" ref="purchase.act_picking_done"/>
