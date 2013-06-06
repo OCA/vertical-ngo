@@ -363,7 +363,7 @@
                         <page string="Sourcing">
                             <group>
                                 <group>
-                                    <field name="confirmed_type"/>
+                                    <field name="procurement_method"/>
                                     <field name="product_id"
                                         on_change="onchange_product_id(product_id,requested_uom_id)"/>
                                     <label for="proposed_qty"/>
@@ -391,11 +391,12 @@
                                         </div>
                                         <label string="To add here: selected bid" colspan="4"/>
                                     </group>
-                                    <group string="Warehouse Dispatch" colspan="4"
-                                        attrs="{'invisible': [('confirmed_type','=','wh_dispatch')]}">
+                                    <group string="Warehouse Dispatch" 
+                                        colspan="4"
+                                        attrs="{'invisible': [('procurement_method', '!=', 'wh_dispatch')]}">
                                         <field name="dispatch_location_id" />
-                                        <label string="To add here: stock type" colspan="4"/>
-                                        <label string="To add here: stock owner" colspan="4"/>
+                                        <field name="stock_type" />
+                                        <field name="stock_owner" />
                                     </group>
                                     <group string="Transport Plan" colspan="4">
                                         <field name="date_etd"/>

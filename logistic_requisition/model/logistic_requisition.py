@@ -443,14 +443,31 @@ class logistic_requisition_line(orm.Model):
                                           type='many2one',
                                           relation='product.uom',
                                           readonly=True),
+        # TODO remove
         'confirmed_type': fields.selection(
             [('stock', 'Dispatch from Warehouse'),
              ('order', 'Purchase')],
             'Procurement Method',
         ),
+        'procurement_method': fields.selection(
+            [('procurement', 'Procurement'),
+             ('wh_dispatch', 'Warehouse Dispatch'),
+             ('fw_agreement', 'Framework Agreement'),
+             ],
+            string='Procurement Method',
+        ),
         'dispatch_location_id': fields.many2one(
             'stock.location',
             string='Dispatch From'),
+        'stock_type': fields.selection(
+            [('ifrc', 'IFRC'),
+             ('vci', 'VCI'),
+             ('pns', 'PNS'),
+             ('program', 'Program')],
+            string='Stock Type'),
+        'stock_owner': fields.many2one(
+            'res.partner',
+            string='Stock Owner'),
         'purchase_id': fields.many2one('purchase.order', 'Purchase Order'),
         # NOTE: date that should be used for the stock move reservation
         'date_etd': fields.date('ETD', help="Estimated Date of Departure"),
