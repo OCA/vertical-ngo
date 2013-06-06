@@ -75,6 +75,7 @@
                                     <field name="requested_uom_id"/>
                                     <field name="budget_unit_price"/>
                                     <field name="budget_tot_price"/>
+                                    <field name="account_id"/>
                                     <field name="activity_code"/>
                                     <field name="state"/>
                                     <field name="logistic_user_id" attrs="{'invisible':[('state','=','draft')]}"/>
