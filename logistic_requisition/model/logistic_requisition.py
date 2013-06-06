@@ -816,10 +816,5 @@ class logistic_requisition_line(orm.Model):
         return True
 
     def button_reset(self, cr, uid, ids, context=None):
-        for line in self.browse(cr, uid, ids, context=context):
-            state = line.requisition_id.state
-            if state == 'draft':
-                self._do_draft(cr, uid, [line.id], context=None)
-            else:
-                self._do_confirm(cr, uid, [line.id], context=None)
+        self._do_confirm(cr, uid, ids, context=None)
         return True

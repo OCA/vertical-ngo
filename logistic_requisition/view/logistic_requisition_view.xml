@@ -23,7 +23,8 @@
                     <button name="button_reset"
                         string="Reset to Draft"
                         states="cancel"
-                        type="object" />
+                        type="object"
+                        class="oe_highlight" />
                     <button name="button_cancel"
                         string="Cancel"
                         states="draft,confirmed"
@@ -309,7 +310,8 @@
                     <button name="button_reset"
                         string="Reset to Draft"
                         states="cancel"
-                        type="object" />
+                        type="object"
+                        class="oe_highlight" />
                     <field name="state" select="1" readonly="1"
                         widget="statusbar"
                         statusbar_visible="draft,confirmed,assigned,quoted"/>
