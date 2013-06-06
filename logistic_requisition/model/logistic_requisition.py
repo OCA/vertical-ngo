@@ -129,7 +129,7 @@ class logistic_requisition(orm.Model):
             string='Preferred Transport',
             states=REQ_STATES
         ),
-        'description': fields.text('Remarks/Description'),
+        'note': fields.text('Remarks/Description'),
         'line_ids': fields.one2many(
             'logistic.requisition.line',
             'requisition_id',
@@ -430,12 +430,18 @@ class logistic_requisition_line(orm.Model):
                     'sent': [('readonly', True)],
                     'done': [('readonly', True)]}),
         #PROPOSAL
-        'confirmed_qty': fields.float(
-            'Prop. Qty',
+        'proposed_qty': fields.float(
+            'Proposed Qty',
             digits_compute=dp.get_precision('Product UoM')),
+        # to be able to display the UOM 2 times
+        'proposed_uom_id': fields.related('requested_uom_id',
+                                          string='Proposed UoM',
+                                          type='many2one',
+                                          relation='product.uom',
+                                          readonly=True),
         'confirmed_type': fields.selection(
-            [('stock','Dispatch from Warehouse'),
-             ('order','Purchase')],
+            [('stock', 'Dispatch from Warehouse'),
+             ('order', 'Purchase')],
             'Procurement Method',
         ),
         'dispatch_location_id': fields.many2one(
@@ -443,23 +449,36 @@ class logistic_requisition_line(orm.Model):
             string='Dispatch From'),
         'purchase_id': fields.many2one('purchase.order', 'Purchase Order'),
         # NOTE: date that should be used for the stock move reservation
-        'etd_date': fields.date('ETD', help="Estimated Date of Departure"),
+        'date_etd': fields.date('ETD', help="Estimated Date of Departure"),
+        'date_eta': fields.date('ETA', help="Estimated Date of Arrival"),
         'offer_ids': fields.one2many('sale.order.line',
                                      'requisition_id',
                                      'Sales Quotation Lines'),
+        # TODO remove
         'estimated_goods_cost': fields.float(
             'Goods Tot. Cost',
             digits_compute=dp.get_precision('Account')),
+        # TODO remove
         'estimated_transportation_cost': fields.related(
             'transport_order_id',
             'transport_tot_cost',
             string='Transportation Cost',
-            store=True,  # FIXME invalidation when transport order id change
+            store=True,
             readonly=True),
+        # TODO remove
         'estimated_tot_cost': fields.function(
             lambda self, *args, **kwargs: self._get_estimate_tot_cost(*args,**kwargs),
             string='Estimated Total Cost',
             type="float",
+            digits_compute=dp.get_precision('Account'),
+            store=True),
+        'unit_cost': fields.float(
+            'Unit Cost',
+            digits_compute=dp.get_precision('Account')),
+        'total_cost': fields.function(
+            lambda self, *args, **kwargs: self._get_total_cost(*args,**kwargs),
+            string='Total Cost',
+            type='float',
             digits_compute=dp.get_precision('Account'),
             store=True),
         'state': fields.selection(
@@ -476,7 +495,14 @@ class logistic_requisition_line(orm.Model):
                  "Assigned: Waiting the creation of a quote\n"
                  "Quoted: Quotation made for the line\n"
                  "Cancelled: The requisition has been cancelled"
-        )
+        ),
+        'currency_id': fields.related('requisition_id',
+                                      'currency_id',
+                                      type='many2one',
+                                      relation='res.currency',
+                                      string='Currency',
+                                      readonly=True),
+        'note': fields.text('Notes'),
     }
 
     _defaults = {
@@ -715,6 +741,12 @@ class logistic_requisition_line(orm.Model):
             price = (line.estimated_goods_cost +
                      line.estimated_transportation_cost)
             res[line.id] = price
+        return res
+
+    def _get_total_cost(self, cr, uid, ids, prop, unknow_none, unknow_dict, context=None):
+        res = {}
+        for line in self.browse(cr, uid, ids, context=context):
+            res[line.id] = line.unit_cost * line.proposed_qty
         return res
 
     def _get_state(self, cr, uid, ids, prop, unknow_none, unknow_dict):

@@ -132,9 +132,9 @@
                     <page string="Notes">
                         <group>
                             <div>
-                                <label for="description"/>
+                                <label for="note"/>
                             </div>
-                            <field name="description" colspan="4"
+                            <field name="note" colspan="4"
                                 nolabel="1"
                                 class="oe_inline"
                                 placeholder="Additional notes..."/>
@@ -236,7 +236,9 @@
              <field name="procurement_user_id"/>
              <field name="budget_tot_price" sum="Total Budget"/>
              <field name="state"/>
-             <button name="%(action_requisition_split_into)d" icon="gtk-justify-fill" string="Split the line" type="action" states="draft,assigned" />
+             <button name="%(action_requisition_split_into)d" icon="gtk-justify-fill" 
+                 string="Split the line" type="action"
+                 states="draft,assigned,confirmed" />
              <field name="country_id" invisible="1"/>
            </tree>
         </field>
@@ -336,58 +338,85 @@
                     </div>
                     <group>
                         <group>
-                            <field name="product_id" on_change="onchange_product_id(product_id,requested_uom_id)"/>
                             <field name="description"/>
+                            <label for="requested_qty"/>
+                            <div>
+                                <field name="requested_qty" class="oe_inline"/>
+                                <field name="requested_uom_id" class="oe_inline"/>
+                            </div>
+                            <field name="requested_date"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="budget_unit_price" widget="monetary"
+                                options="{'currency_field': 'currency_id'}"/>
+                            <field name="budget_tot_price" widget="monetary"
+                                options="{'currency_field': 'currency_id'}"/>
                         </group>
                         <group>
+                            <field name="requested_type"/>
                             <field name="logistic_user_id"/>
                             <field name="procurement_user_id"/>
+                            <label string="To add here: account code" colspan="4"/>
+                            <label string="To add here: activity code" colspan="4"/>
                         </group>
                     </group>
                     <notebook>
-                      <page string="Requisition">
-                        <group>
-                            <group name="requested_grp" string="Demand">
-                                 <field name="requested_type"/>
-                                 <label for="requested_qty"/>
-                                 <div>
-                                     <field name="requested_qty" class="oe_inline"/>
-                                     <field name="requested_uom_id" class="oe_inline"/>
-                                     <button name="%(action_requisition_split_into)d" string="Split it" type="action" states="draft,assigned" />
-                                 </div>
-                                 <field name="requested_date"/>
-                                 <field name="budget_unit_price" widget="monetary"/>
-                                 <field name="budget_tot_price" widget="monetary"/>
+                        <page string="Sourcing">
+                            <group>
+                                <group>
+                                    <field name="confirmed_type"/>
+                                    <field name="product_id"
+                                        on_change="onchange_product_id(product_id,requested_uom_id)"/>
+                                    <label for="proposed_qty"/>
+                                    <div>
+                                        <field name="proposed_qty" class="oe_inline"/>
+                                        <field name="proposed_uom_id" class="oe_inline"/>
+                                        <button name="%(action_requisition_split_into)d"
+                                            string="Split"
+                                            type="action"
+                                            states="draft,assigned,confirmed" />
+                                    </div>
+                                    <field name="unit_cost" widget="monetary"
+                                        options="{'currency_field': 'currency_id'}"/>
+                                    <field name="total_cost" widget="monetary"
+                                        options="{'currency_field': 'currency_id'}"/>
+                                </group>
+                                <group>
+                                    <group string="Purchase Requisition" colspan="4">
+                                        <label for="po_requisition_id"/>
+                                        <div>
+                                            <field name="po_requisition_id" class="oe_inline"/>
+                                            <button name="action_create_po_requisition"
+                                                string="Make Purchase Requisition" type="object"
+                                                states="draft,assigned" />
+                                        </div>
+                                        <label string="To add here: selected bid" colspan="4"/>
+                                    </group>
+                                    <group string="Warehouse Dispatch" colspan="4"
+                                        attrs="{'invisible':[('confirmed_type','==','wh_dispatch')]}">
+                                        <field name="dispatch_location_id" />
+                                        <label string="To add here: stock type" colspan="4"/>
+                                        <label string="To add here: stock owner" colspan="4"/>
+                                    </group>
+                                    <group string="Transport Plan" colspan="4">
+                                        <field name="date_etd"/>
+                                        <field name="date_eta"/>
+                                    </group>
+                                </group>
                             </group>
-                            <group name="sourced_grp" string="Proposal">
-                                <field name="confirmed_type"/>
-                                <label for="confirmed_qty"/>
-                                <div>
-                                    <field name="confirmed_qty" class="oe_inline"/>
-                                </div>
-                                <field name="etd_date"/>
-                                <field name="dispatch_location_id" attrs="{'invisible':[('confirmed_type','!=','stock')]}"/>
-                                <field name="purchase_id" attrs="{'invisible':[('confirmed_type','!=','order')]}"/>
-                                <field name="estimated_goods_cost" widget="monetary"/>
-                                <field name="transport_order_id" class="oe_inline"/>
-                                <field name="estimated_transportation_cost" widget="monetary"/>
-                                <field name="estimated_tot_cost" widget="monetary"/>
-                            </group>
-                            <group name="rfq_grp" string="Purchase Requisition">
-                                <label for="po_requisition_id"/>
-                                <div>
-                                    <field name="po_requisition_id" class="oe_inline"/>
-                                    <button name="action_create_po_requisition" string="Make RFQ" type="object" states="draft,assigned" />
-                                 </div>
-                            </group>
-                        </group>
-                      </page>
-                      <page string="Offers">
-                        <field name="offer_ids"/>
-                      </page>
-                      <page string="Remarks">
-                      </page>
+                        </page>
+                        <page string="Offers">
+                            <field name="offer_ids"/>
+                        </page>
                     </notebook>
+                    <group>
+                        <div>
+                            <label for="note"/>
+                        </div>
+                        <field name="note" colspan="4"
+                            nolabel="1"
+                            class="oe_inline"
+                            placeholder="Additional notes..."/>
+                    </group>
                 </sheet>
                 <div class="oe_chatter">
                     <field name="message_follower_ids" widget="mail_followers"/>
