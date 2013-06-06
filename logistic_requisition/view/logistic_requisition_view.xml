@@ -152,16 +152,16 @@
         <field name="arch" type="xml">
             <tree colors="grey:state == 'done';red:date_delivery&lt;current_date and state not in ('done','cancel');black:date_delivery&gt;=current_date;" string="Logistic Requisition">
                 <field name="name"/>
-                <field name="requester_id"/>
+                <field name="consignee_id"/>
                 <field name="user_id"/>
                 <field name="date"/>
                 <field name="date_delivery"/>
                 <field name="country_id"/>
-                <field name="company_id"/>
                 <field name="analytic_id"/>
                 <field name="amount_total" sum="Total Budget"/>
                 <field name="currency_id"/>
                 <field name="state"/>
+                <field name="sourced" widget="progressbar"/>
             </tree>
         </field>
     </record>

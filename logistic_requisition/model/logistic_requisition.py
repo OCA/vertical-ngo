@@ -70,7 +70,7 @@ class logistic_requisition(orm.Model):
             required=True
         ),
         'user_id': fields.many2one(
-            'res.users', 'Request Responsible', required=True,
+            'res.users', 'Responsible', required=True,
             states=REQ_STATES,
             help="Mobilization Officer or Logistic Coordinator "
                  "in charge of the Logistic Requisition"
@@ -215,7 +215,7 @@ class logistic_requisition(orm.Model):
             sourced_len = sum(1 for req in requisition.line_ids
                               if req.state in ('quoted', 'done'))
             if lines_len == 0:
-                percentage = 100.
+                percentage = 0.
             else:
                 percentage = round(sourced_len / lines_len * 100, 2)
             res[requisition.id] = percentage
@@ -324,12 +324,13 @@ class logistic_requisition(orm.Model):
 
 
 class logistic_requisition_line(orm.Model):
-
     _name = "logistic.requisition.line"
     _description = "Logistic Requisition Line"
+    _inherit = ['mail.thread']
+
     _rec_name = "id"
     _order = "requisition_id asc"
-    _inherit = ['mail.thread']
+
     _track =  {
         'state': {
             'logistic_requisition.mt_requisition_line_assigned': lambda self, cr, uid, obj, ctx=None: obj['state'] == 'assigned',
@@ -338,7 +339,10 @@ class logistic_requisition_line(orm.Model):
     }
     _columns = {
         'id': fields.integer('ID', required=True, readonly=True),
-        'requisition_id' : fields.many2one('logistic.requisition','Requisition', ondelete='cascade'),
+        'requisition_id': fields.many2one(
+            'logistic.requisition',
+            'Requisition',
+            ondelete='cascade'),
         'logistic_user_id': fields.many2one(
             'res.users', 'Logistic Specialist',
             help = "Logistic Specialist in charge of the Logistic Requisition Line",
