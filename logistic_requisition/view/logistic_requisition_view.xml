@@ -389,7 +389,9 @@
                                                 string="Make Purchase Requisition" type="object"
                                                 states="draft,assigned" />
                                         </div>
-                                        <label string="To add here: selected bid" colspan="4"/>
+                                        <label string="To add here: selected bid"
+                                            attrs="{'invisible': [('procurement_method', '!=', 'procurement')]}"
+                                            colspan="4"/>
                                     </group>
                                     <group string="Warehouse Dispatch" 
                                         colspan="4"
