@@ -349,7 +349,7 @@
                             <field name="requested_type"/>
                             <field name="logistic_user_id"/>
                             <field name="procurement_user_id"/>
-                            <label string="To add here: account code" colspan="4"/>
+                            <field name="account_id"/>
                             <field name="activity_code"/>
                         </group>
                     </group>

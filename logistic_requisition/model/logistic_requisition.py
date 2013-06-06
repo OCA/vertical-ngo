@@ -519,6 +519,12 @@ class logistic_requisition_line(orm.Model):
                                       readonly=True),
         'note': fields.text('Notes'),
         'activity_code': fields.char('Activity Code', size=32),
+        'account_id': fields.related(
+            'product_id', 'property_account_income',
+            string='Account Code',
+            type='many2one',
+            relation='account.account',
+            readonly=True),
     }
 
     _defaults = {
