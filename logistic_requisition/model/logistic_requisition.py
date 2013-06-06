@@ -443,12 +443,6 @@ class logistic_requisition_line(orm.Model):
                                           type='many2one',
                                           relation='product.uom',
                                           readonly=True),
-        # TODO remove
-        'confirmed_type': fields.selection(
-            [('stock', 'Dispatch from Warehouse'),
-             ('order', 'Purchase')],
-            'Procurement Method',
-        ),
         'procurement_method': fields.selection(
             [('procurement', 'Procurement'),
              ('wh_dispatch', 'Warehouse Dispatch'),
@@ -693,12 +687,14 @@ class logistic_requisition_line(orm.Model):
         partner_ids = set()
         location_ids = set()
         for line in self.browse(cr, uid, ids, context=context):
+            make_type = 'make_to_order'
+            if line.procurement_method == 'wh_dispatch':
+                make_type = 'make_to_stock'
             line_vals = {
                 'requisition_id': line.id,
                 'product_id': line.product_id.id,
                 'name': line.description,
-                'type': 'make_to_stock' if line.confirmed_type == 'stock'
-                        else 'make_to_order'
+                'type': make_type,
             }
             partner_ids.add(line.requisition_id.consignee_id.id)
             if line.dispatch_location_id:
