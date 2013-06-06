@@ -145,6 +145,7 @@ class logistic_requisition(orm.Model):
              ('cancel', 'Cancelled'),
              ],
             string='State',
+            readonly=True,
             required=True
         ),
         'amount_total': fields.function(
@@ -481,6 +482,7 @@ class logistic_requisition_line(orm.Model):
              ('cancel', 'Cancelled')],
             string='State',
             required=True,
+            readonly=True,
             track_visibility='onchange',
             help="Draft: Created\n"
                  "Confirmed: Requisition has been confirmed\n"
@@ -658,7 +660,7 @@ class logistic_requisition_line(orm.Model):
             'target': 'current',
             'view_id': False,
             'context': ctx,
-            'domain': [('id', 'in', [line.product_id.id])],
+            'domain': [('id', '=', line.product_id.id)],
             'type': 'ir.actions.act_window',
         }
 
