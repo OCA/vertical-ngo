@@ -518,6 +518,7 @@ class logistic_requisition_line(orm.Model):
                                       string='Currency',
                                       readonly=True),
         'note': fields.text('Notes'),
+        'activity_code': fields.char('Activity Code', size=32),
     }
 
     _defaults = {

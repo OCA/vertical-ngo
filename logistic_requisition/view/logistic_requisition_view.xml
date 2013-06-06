@@ -73,23 +73,17 @@
                                     <field name="description"/>
                                     <field name="requested_qty"/>
                                     <field name="requested_uom_id"/>
-                                    <!-- <field name="confirmed_uom_id" invisible="True"/> -->
                                     <field name="budget_unit_price"/>
                                     <field name="budget_tot_price"/>
+                                    <field name="activity_code"/>
                                     <field name="state"/>
                                     <field name="logistic_user_id" attrs="{'invisible':[('state','=','draft')]}"/>
-                                    <button name="button_assign" string="Assign" type="object" states="draft" icon="gtk-go-forward"/>
-                                    <!--
-                                <button name="action_proc" string="Procure" type="object" states="draft" icon="gtk-go-forward"/>
-                                <button name="action_cancel" string="Cancel" type="object" states="draft" icon="terp-dialog-close"/>
-                                -->
                             </tree>
                             <form string="Requisition Lines">
                                 <field name="product_id" on_change="onchange_product_id(product_id,requested_uom_id)"/>
                                 <field name="description"/>
                                 <field name="requested_qty"/>
                                 <field name="requested_uom_id"/>
-                                <!-- <field name="confirmed_uom_id" invisible="True"/> -->
                                 <field name="logistic_user_id"/>
                                 <field name="procurement_user_id"/>
                                 <field name="state" invisible="1"/>
@@ -356,7 +350,7 @@
                             <field name="logistic_user_id"/>
                             <field name="procurement_user_id"/>
                             <label string="To add here: account code" colspan="4"/>
-                            <label string="To add here: activity code" colspan="4"/>
+                            <field name="activity_code"/>
                         </group>
                     </group>
                     <notebook>
