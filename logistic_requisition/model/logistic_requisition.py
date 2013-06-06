@@ -408,8 +408,8 @@ class logistic_requisition_line(orm.Model):
             relation='res.country',
             store={
                 'logistic.requisition.line': (lambda self, cr, uid, ids, c=None: ids,
-                                         ['requisition_id'],
-                                         10),
+                                              ['requisition_id'],
+                                              10),
                 'logistic.requisition': (_get_from_requisition,
                                          ['consignee_shipping_id'],
                                          10),
@@ -422,11 +422,6 @@ class logistic_requisition_line(orm.Model):
             selection=logistic_requisition.SELECTION_TYPE,
             readonly=True,
             store=True),
-        'transport_order_id': fields.many2one(
-            'transport.order', 'Transport Order',
-            states={'in_progress': [('readonly', True)],
-                    'sent': [('readonly', True)],
-                    'done': [('readonly', True)]}),
         #PURCHASE REQUISITION
         'po_requisition_id': fields.many2one(
             'purchase.requisition', 'Purchase Requisition',
@@ -469,24 +464,6 @@ class logistic_requisition_line(orm.Model):
         'offer_ids': fields.one2many('sale.order.line',
                                      'requisition_id',
                                      'Sales Quotation Lines'),
-        # TODO remove
-        'estimated_goods_cost': fields.float(
-            'Goods Tot. Cost',
-            digits_compute=dp.get_precision('Account')),
-        # TODO remove
-        'estimated_transportation_cost': fields.related(
-            'transport_order_id',
-            'transport_tot_cost',
-            string='Transportation Cost',
-            store=True,
-            readonly=True),
-        # TODO remove
-        'estimated_tot_cost': fields.function(
-            lambda self, *args, **kwargs: self._get_estimate_tot_cost(*args,**kwargs),
-            string='Estimated Total Cost',
-            type="float",
-            digits_compute=dp.get_precision('Account'),
-            store=True),
         'unit_cost': fields.float(
             'Unit Cost',
             digits_compute=dp.get_precision('Account')),
@@ -759,29 +736,11 @@ class logistic_requisition_line(orm.Model):
             res[line.id] = price
         return res
 
-    def _get_estimate_tot_cost(self, cr, uid, ids, prop, unknow_none, unknow_dict, context=None):
-        res = {}
-        for line in self.browse(cr, uid, ids, context=context):
-            price = (line.estimated_goods_cost +
-                     line.estimated_transportation_cost)
-            res[line.id] = price
-        return res
-
     def _get_total_cost(self, cr, uid, ids, prop, unknow_none, unknow_dict, context=None):
         res = {}
         for line in self.browse(cr, uid, ids, context=context):
             res[line.id] = line.unit_cost * line.proposed_qty
         return res
-
-    def _get_state(self, cr, uid, ids, prop, unknow_none, unknow_dict):
-        res = {}
-        for line in self.browse(cr, uid, ids):
-            state = line.state
-            res[line.id] = state
-        return res
-
-    # TODO : transport_order_id Must belong to same detsination and company !!!!
-    # Make a _contraints [] !!!
 
     def copy_data(self, cr, uid, id, default=None, context=None):
         if default is None:
@@ -868,7 +827,7 @@ class logistic_requisition_line(orm.Model):
             value = {
                 'requested_uom_id': prod.uom_id.id,
                 'requested_qty': 1.0,
-                'description' : prod.name
+                'description': prod.name
             }
         return {'value': value}
 
