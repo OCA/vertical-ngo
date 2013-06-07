@@ -132,6 +132,7 @@ class logistic_requisition(orm.Model):
             states=REQ_STATES
         ),
         'note': fields.text('Remarks/Description'),
+        'shipping_note': fields.text('Delivery / Shipping Remarks'),
         'line_ids': fields.one2many(
             'logistic.requisition.line',
             'requisition_id',

@@ -124,6 +124,13 @@
                             </div>
                         </group>
                     </page>
+                    <page string="Transportation and Delivery">
+                        <group>
+                            <label string="To add here: Incoterm" colspan="4"/>
+                            <label string="To add here: Incoterm Place" colspan="4"/>
+                            <field name="shipping_note"/>
+                        </group>
+                    </page>
                     <page string="Notes">
                         <group>
                             <div>
