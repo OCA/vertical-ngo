@@ -290,10 +290,10 @@
         <field name="arch" type="xml">
             <form string="Logistic Requisition Line" version="7.0">
                 <header>
-                    <button name="button_assign"
+                    <button name="%(action_requisition_line_assign)d"
                         states="confirmed"
                         string="Assign"
-                        type="object"
+                        type="action"
                         class="oe_highlight"/>
                     <button name="button_create_cost_estimate"
                         states="assigned"

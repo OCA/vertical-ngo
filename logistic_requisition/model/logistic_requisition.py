@@ -43,8 +43,8 @@ class logistic_requisition(orm.Model):
                   'done': [('readonly', True)]
                   }
 
-    SELECTION_TYPE =[('cost_estimate', 'Cost Estimate Only'),
-                     ('donation', 'Donation')]
+    SELECTION_TYPE = [('cost_estimate', 'Cost Estimate Only'),
+                      ('donation', 'Donation')]
 
     def _get_from_partner(self, cr, uid, ids, context=None):
         req_obj = self.pool.get('logistic.requisition')
@@ -367,6 +367,7 @@ class logistic_requisition_line(orm.Model):
         'logistic_user_id': fields.many2one(
             'res.users',
             'Logistic Specialist',
+            readonly=True,
             help="Logistic Specialist in charge of the "
                  "Logistic Requisition Line",
             track_visibility='onchange',
@@ -524,7 +525,11 @@ class logistic_requisition_line(orm.Model):
         self.write(cr, uid, ids, {'state': 'draft'}, context=context)
 
     def _do_assign(self, cr, uid, ids, context=None):
-        self.write(cr, uid, ids, {'state': 'assigned'}, context=context)
+        for line in self.browse(cr, uid, ids, context=context):
+            if line.state == 'confirmed' and line.logistic_user_id:
+                self.write(cr, uid, ids,
+                           {'state': 'assigned'},
+                           context=context)
 
     def _do_quoted(self, cr, uid, ids, context=None):
         self.write(cr, uid, ids, {'state': 'quoted'}, context=context)
@@ -716,45 +721,33 @@ class logistic_requisition_line(orm.Model):
             auto_follow_fields=fields_to_follow,
             context=context)
 
-    def _send_note_to_logistic_user(self, cr, uid, req_line, context=None):
+    def _send_note_to_logistic_user(self, cr, uid, ids, context=None):
         """Post a message to warn the logistic specialist that a new
         line has been associated."""
-        subject = ("Logistic Requisition Line %s Assigned" %
-                   (req_line.requisition_id.name + '/' + str(req_line.id)))
-        details = ("This new requisition concerns %s and is due for %s" %
-                   (req_line.description, req_line.requested_date))
-        # TODO: Posting the message here do not send it to the just added foloowers...
-        # We need to find a way to propagate this properly.
-        self.message_post(cr, uid, [req_line.id], body=details,
-                          subject=subject, context=context)
-
-    def _manage_logistic_user_change(self, cr, uid, req_line, vals, context=None):
-        """Set the state of the line as 'assigned' if actual state is
-        draft or in_progress and post    a message to let the logistic
-        user about the new requisition line to be trated.
-
-        :param object req_line: browse record of the requisition.line to process
-        :param vals, dict of vals to give to write like: {'state':'assigned'}
-        :return: dict of vals to give to write method like {'state':'assigned'}
-        """
-        self._send_note_to_logistic_user(cr, uid, req_line, context=context)
-        if req_line.state == 'draft':
-            vals['state'] = 'assigned'
-        return vals
+        for line in self.browse(cr, uid, ids, context=context):
+            subject = ("Logistic Requisition Line %s Assigned" %
+                       (line.requisition_id.name + '/' + str(line.id)))
+            details = ("This new requisition concerns %s and is due for %s" %
+                       (line.description, line.requested_date))
+            # TODO: Posting the message here do not send it to the just
+            # added followers...  We need to find a way to propagate
+            # this properly.
+            self.message_post(cr, uid, [line.id], body=details,
+                              subject=subject, context=context)
 
     def write(self, cr, uid, ids, vals, context=None):
-        """ Call the _assign_logistic_user when changing it. This will also
-        pass the state to 'assigned' if still in draft.
+        """ Send a message to the logistic user when it is assigned
+        and move the state's line to assigned.
         """
-        for requisition_line in self.browse(cr, uid, ids, context=context):
-            if 'logistic_user_id' in vals:
-                self._manage_logistic_user_change(cr, uid,
-                                                  requisition_line,
-                                                  vals,
-                                                  context=context)
-        return super(logistic_requisition_line, self).write(cr, uid, ids,
-                                                            vals,
-                                                            context=context)
+        res = super(logistic_requisition_line, self).write(cr, uid, ids,
+                                                           vals,
+                                                           context=context)
+        assignee_changed = vals.get('logistic_user_id')
+        if assignee_changed:
+            self._send_note_to_logistic_user(cr, uid, ids,
+                                             context=context)
+            self._do_assign(cr, uid, ids, context=context)
+        return res
 
     def onchange_product_id(self, cr, uid, ids, product_id, requested_uom_id, context=None):
         """ Changes UoM and name if product_id changes.
@@ -772,17 +765,6 @@ class logistic_requisition_line(orm.Model):
                 'description': prod.name
             }
         return {'value': value}
-
-    def button_assign(self, cr, uid, ids, context=None):
-        # TODO: open a popup asking who to assign
-        lines = self.read(cr, uid, ids, ['logistic_user_id'], context=context)
-        for line in lines:
-            if not line['logistic_user_id']:
-                raise osv.except_osv(
-                    _('Error'),
-                    _('Please first define the logistic specialist.'))
-        self._do_assign(cr, uid, ids, context=context)
-        return True
 
     def _prepare_cost_estimate_line(self, cr, uid, line, context=None):
         sale_line_obj = self.pool.get('sale.order.line')

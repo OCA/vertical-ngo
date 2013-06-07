@@ -149,7 +149,7 @@
         </td>
       </tr>
     </blockTable>
-    <blockTable colWidths="159.0,159.0,106.0,106.0" style="Table1">
+    <blockTable colWidths="159.0,159.0,106.0" style="Table1">
       <tr>
         <td>
           <para style="terp_default_Centre_8">[[ requisition.name ]]</para>
