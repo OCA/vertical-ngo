@@ -46,7 +46,6 @@
                             <field name="requester_id"/>
                             <field name="consignee_id" on_change="onchange_consignee_id(consignee_id)"/>
                             <field name="consignee_shipping_id"
-                                domain="['|', ('parent_id', '=', consignee_id), ('id', '=', consignee_id)]"
                                 context="{'default_type':'delivery'}"/>
                             <field name="analytic_id"/>
                             <field name="m_code"/>
