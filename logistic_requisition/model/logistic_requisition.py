@@ -117,10 +117,8 @@ class logistic_requisition(orm.Model):
             string='Type of Requisition',
             states=REQ_STATES
         ),
-        'preferred_transport': fields.selection(
-            [('land', 'Land'),
-             ('sea', 'Sea'),
-             ('air', 'Air')],
+        'preferred_transport': fields.many2one(
+            'transport.mode',
             string='Preferred Transport',
             states=REQ_STATES
         ),
