@@ -2,7 +2,7 @@
 <openerp>
     <data>
 
-    <menuitem id="menu_logistic_requisition_base" name="Logistic Requisition" parent="transport_plan.menu_logistic" sequence="1"/>
+    <menuitem id="menu_logistic_requisition_base" name="Logistic Requisition" parent="transport_plan.menu_order" sequence="1"/>
 
     <record model="ir.ui.view" id="view_logistic_requisition_form">
         <field name="name">logistic.requisition.form</field>
