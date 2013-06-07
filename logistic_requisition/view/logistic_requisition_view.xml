@@ -239,7 +239,7 @@
              <field name="state"/>
              <button name="%(action_requisition_split_into)d" icon="gtk-justify-fill" 
                  string="Split the line" type="action"
-                 states="draft,assigned,confirmed" />
+                 states="draft,confirmed,assigned" />
              <field name="country_id" invisible="1"/>
            </tree>
         </field>
@@ -344,6 +344,10 @@
                             <div>
                                 <field name="requested_qty" class="oe_inline"/>
                                 <field name="requested_uom_id" class="oe_inline"/>
+                                <button name="%(action_requisition_split_into)d"
+                                    string="Split"
+                                    type="action"
+                                    states="draft,confirmed,assigned" />
                             </div>
                             <field name="requested_date"/>
                             <field name="currency_id" invisible="1"/>
@@ -371,10 +375,6 @@
                                     <div>
                                         <field name="proposed_qty" class="oe_inline"/>
                                         <field name="proposed_uom_id" class="oe_inline"/>
-                                        <button name="%(action_requisition_split_into)d"
-                                            string="Split"
-                                            type="action"
-                                            states="draft,assigned,confirmed" />
                                     </div>
                                     <field name="unit_cost" widget="monetary"
                                         options="{'currency_field': 'currency_id'}"/>
