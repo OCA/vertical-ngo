@@ -59,9 +59,6 @@ class logistic_requisition(orm.Model):
             required=True,
             readonly=True,
             states=REQ_STATES),
-        'consignee_reference': fields.char(
-            'Consignee Reference',
-            states=REQ_STATES),
         'date': fields.date(
             'Requisition Date',
             states=REQ_STATES,
