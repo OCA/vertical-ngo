@@ -332,6 +332,10 @@ class logistic_requisition_line(orm.Model):
 
     _order = "requisition_id asc"
 
+    READONLY_STATES = {'assigned': [('readonly', True)],
+                       'quoted': [('readonly', True)]
+                       }
+
     def _get_from_partner(self, cr, uid, ids, context=None):
         req_obj = self.pool.get('logistic.requisition')
         req_line_obj = self.pool.get('logistic.requisition.line')
@@ -360,6 +364,7 @@ class logistic_requisition_line(orm.Model):
         'requisition_id': fields.many2one(
             'logistic.requisition',
             'Requisition',
+            readonly=True,
             ondelete='cascade'),
         'logistic_user_id': fields.many2one(
             'res.users',
@@ -382,15 +387,19 @@ class logistic_requisition_line(orm.Model):
         #DEMAND
         'product_id': fields.many2one('product.product', 'Product'),
         'description': fields.char('Description',
+                                   states=READONLY_STATES,
                                    required=True),
         'requested_qty': fields.float(
             'Req. Qty',
+            states=READONLY_STATES,
             digits_compute=dp.get_precision('Product UoM')),
         'requested_uom_id': fields.many2one('product.uom',
                                             'Product UoM',
+                                            states=READONLY_STATES,
                                             required=True),
         'budget_tot_price': fields.float(
             'Budget Total Price',
+            states=READONLY_STATES,
             digits_compute=dp.get_precision('Account')),
         'budget_unit_price': fields.function(
             lambda self, *args, **kwargs: self._get_unit_amount_line(*args, **kwargs),
@@ -400,6 +409,7 @@ class logistic_requisition_line(orm.Model):
             store=True),
         'requested_date': fields.related('requisition_id', 'date_delivery',
                                          string='Requested Date',
+                                         readonly=True,
                                          type='date'),
         'country_id': fields.related(
             'requisition_id',
@@ -407,6 +417,7 @@ class logistic_requisition_line(orm.Model):
             string='Country',
             type='many2one',
             relation='res.country',
+            readonly=True,
             store={
                 'logistic.requisition.line': (lambda self, cr, uid, ids, c=None: ids,
                                               ['requisition_id'],
