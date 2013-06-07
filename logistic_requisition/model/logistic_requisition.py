@@ -546,9 +546,9 @@ class logistic_requisition_line(orm.Model):
             'transport.order',
             string='Transport Order',
             states=SOURCED_STATES),
-        # TODO
-        'selected_bid': fields.dummy('Selected BID',
-                                     states=SOURCED_STATES),
+        'selected_bid': fields.many2one('purchase.order',
+                                        string='Selected BID',
+                                        states=SOURCED_STATES),
     }
 
     _defaults = {

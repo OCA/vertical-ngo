@@ -398,8 +398,7 @@
                                                 states="assigned"
                                                 attrs="{'invisible': [('po_requisition_id', '!=', False)]}" />
                                         </div>
-                                        <!-- TODO -->
-                                        <field name="selected_bid" widget="char" />
+                                        <field name="selected_bid"/>
                                     </group>
                                     <group string="Warehouse Dispatch"
                                         colspan="4"
