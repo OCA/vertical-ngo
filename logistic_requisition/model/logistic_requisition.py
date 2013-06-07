@@ -334,15 +334,6 @@ class logistic_requisition_line(orm.Model):
 
     _order = "requisition_id asc"
 
-    _track = {
-        'state': {
-            'logistic_requisition.mt_requisition_line_assigned':
-                lambda self, cr, uid, obj, ctx=None: obj['state'] == 'assigned',
-            'logistic_requisition.mt_requisition_line_quoted':
-                lambda self, cr, uid, obj, ctx=None: obj['state'] == 'quoted',
-        },
-    }
-
     def _get_from_partner(self, cr, uid, ids, context=None):
         req_obj = self.pool.get('logistic.requisition')
         req_line_obj = self.pool.get('logistic.requisition.line')
@@ -377,25 +368,20 @@ class logistic_requisition_line(orm.Model):
             'Logistic Specialist',
             readonly=True,
             help="Logistic Specialist in charge of the "
-                 "Logistic Requisition Line",
-            track_visibility='onchange',
-        ),
+                 "Logistic Requisition Line"),
         'procurement_user_id': fields.many2one(
             'res.users',
             'Procurement Officer',
             help="Assigned Procurement Officer in charge of "
                  "the Logistic Requisition Line",
-            track_visibility='onchange',
         ),
         #DEMAND
         'product_id': fields.many2one('product.product', 'Product'),
         'description': fields.char('Description',
-                                   required=True,
-                                   track_visibility='always'),
+                                   required=True),
         'requested_qty': fields.float(
             'Req. Qty',
-            digits_compute=dp.get_precision('Product UoM'),
-            track_visibility='always'),
+            digits_compute=dp.get_precision('Product UoM')),
         'requested_uom_id': fields.many2one('product.uom',
                                             'Product UoM',
                                             required=True),
@@ -493,7 +479,6 @@ class logistic_requisition_line(orm.Model):
             string='State',
             required=True,
             readonly=True,
-            track_visibility='onchange',
             help="Draft: Created\n"
                  "Confirmed: Requisition has been confirmed\n"
                  "Assigned: Waiting the creation of a quote\n"
@@ -736,7 +721,7 @@ class logistic_requisition_line(orm.Model):
             We override it here to add logistic_user_id and procurement_user_id to the list
         """
         fields_to_follow = ['logistic_user_id', 'procurement_user_id']
-        fields_to_follow.extend(auto_follow_fields)
+        fields_to_follow += auto_follow_fields
         return super(logistic_requisition_line, self)._message_get_auto_subscribe_fields(
             cr, uid, updated_fields,
             auto_follow_fields=fields_to_follow,
@@ -746,9 +731,10 @@ class logistic_requisition_line(orm.Model):
         """Post a message to warn the logistic specialist that a new
         line has been associated."""
         for line in self.browse(cr, uid, ids, context=context):
-            subject = ("Logistic Requisition Line %s Assigned" %
+            subject = (_("Logistic Requisition Line %s Assigned") %
                        (line.requisition_id.name + '/' + str(line.id)))
-            details = ("This new requisition concerns %s and is due for %s" %
+            details = (_("This new requisition concerns %s "
+                         "and is due for %s.") %
                        (line.description, line.requested_date))
             # TODO: Posting the message here do not send it to the just
             # added followers...  We need to find a way to propagate
