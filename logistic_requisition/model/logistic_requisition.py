@@ -367,11 +367,17 @@ class logistic_requisition_line(orm.Model):
             'res.users',
             'Logistic Specialist',
             readonly=True,
+            # workaround for the following bug, preventing to
+            # automatically subscribe the user to the line
+            # https://bugs.launchpad.net/openobject-addons/+bug/1188538
+            track_visibility='never',
             help="Logistic Specialist in charge of the "
                  "Logistic Requisition Line"),
         'procurement_user_id': fields.many2one(
             'res.users',
             'Procurement Officer',
+            # same workaround as for the logistic_user_id field above
+            track_visibility='never',
             help="Assigned Procurement Officer in charge of "
                  "the Logistic Requisition Line",
         ),
