@@ -408,7 +408,8 @@
                                         <field name="stock_owner" />
                                     </group>
                                     <group string="Transport Plan" colspan="4">
-                                        <field name="transport_order_id"/>
+                                        <field name="transport_order_id"
+                                            on_change="onchange_transport_order_id(transport_order_id)"/>
                                         <field name="date_etd"/>
                                         <field name="date_eta"/>
                                     </group>

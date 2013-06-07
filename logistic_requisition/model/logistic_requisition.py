@@ -22,17 +22,12 @@
 from __future__ import division
 import logging
 import time
-from openerp.osv import fields, osv, orm
+from openerp.osv import fields, orm
 from openerp.tools.translate import _
-from openerp.tools import (DEFAULT_SERVER_DATE_FORMAT,
-                           DEFAULT_SERVER_DATETIME_FORMAT)
+from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DT_FORMAT
 import openerp.addons.decimal_precision as dp
 
 _logger = logging.getLogger(__name__)
-
-# shortcuts
-DATE_FORMAT = DEFAULT_SERVER_DATE_FORMAT
-DATETIME_FORMAT = DEFAULT_SERVER_DATETIME_FORMAT
 
 
 class logistic_requisition(orm.Model):
@@ -264,9 +259,9 @@ class logistic_requisition(orm.Model):
     def _validation_dates(vals):
         res = {}
         if vals.get('budget_holder_id'):
-            res['date_budget_holder'] = time.strftime(DATETIME_FORMAT)
+            res['date_budget_holder'] = time.strftime(DT_FORMAT)
         if vals.get('finance_officer_id'):
-            res['date_finance_officer'] = time.strftime(DATETIME_FORMAT)
+            res['date_finance_officer'] = time.strftime(DT_FORMAT)
         return res
 
     def create(self, cr, uid, vals, context=None):
@@ -598,7 +593,7 @@ class logistic_requisition_line(orm.Model):
             if user_id is None:
                 user_id = line_user_id
             elif user_id != line_user_id:
-                raise osv.except_osv(
+                raise orm.except_orm(
                     _('Error'),
                     _('The lines are not assigned to the same '
                       'Procurement Officer.'))
@@ -606,7 +601,7 @@ class logistic_requisition_line(orm.Model):
             if company_id is None:
                 company_id = line_company_id
             elif company_id != line_company_id:
-                raise osv.except_osv(
+                raise orm.except_orm(
                     _('Error'),
                     _('The lines do not belong to the same company.'))
         return {'user_id': user_id,
@@ -617,12 +612,12 @@ class logistic_requisition_line(orm.Model):
 
     def _prepare_po_requisition_line(self, cr, uid, line, context=None):
         if line.po_requisition_id:
-            raise osv.except_osv(
+            raise orm.except_orm(
                 _('Existing'),
                 _('The logistic requisition line %d is '
                   'already linked to a Purchase Requisition.') % line.id)
         if not line.product_id:
-            raise osv.except_osv(
+            raise orm.except_orm(
                 _('Missing information'),
                 _('The logistic requisition line %d '
                   'does not have any product defined, '
@@ -818,6 +813,17 @@ class logistic_requisition_line(orm.Model):
                 'requested_qty': 1.0,
                 'description': prod.name
             }
+        return {'value': value}
+
+    def onchange_transport_order_id(self, cr, uid, ids, transport_order_id, context=None):
+        value = {'date_eta': False,
+                 'date_etd': False}
+        if transport_order_id:
+            transp_obj = self.pool.get('transport.order')
+            transp = transp_obj.browse(cr, uid, transport_order_id,
+                                       context=context)
+            value['date_eta'] = transp.date_eta
+            value['date_etd'] = transp.date_etd
         return {'value': value}
 
     def _prepare_cost_estimate_line(self, cr, uid, line, context=None):
