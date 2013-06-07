@@ -57,7 +57,6 @@
                             <field name="date_delivery"/>
                             <field name="preferred_transport"/>
                             <field name="user_id"/>
-                            <field name="donor_affiliate_id"/>
                         </group>
                     </group>
                     <notebook>
