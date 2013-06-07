@@ -248,6 +248,13 @@ class logistic_requisition(orm.Model):
             line_obj._do_draft(cr, uid, line_ids, context=context)
         self.write(cr, uid, ids, {'state': 'draft'}, context=context)
 
+    def _do_done(self, cr, uid, ids, context=None):
+        done_ids = []
+        for req in self.browse(cr, uid, ids, context=context):
+            if all(line.state == 'quoted' for line in req.line_ids):
+                done_ids.append(req.id)
+        self.write(cr, uid, done_ids, {'state': 'done'}, context=context)
+
     @staticmethod
     def _validation_dates(vals):
         res = {}
@@ -532,7 +539,13 @@ class logistic_requisition_line(orm.Model):
                            context=context)
 
     def _do_quoted(self, cr, uid, ids, context=None):
+        req_obj = self.pool.get('logistic.requisition')
+        req_ids = list(set(line.requisition_id.id for line
+                           in self.browse(cr, uid, ids, context=context)))
         self.write(cr, uid, ids, {'state': 'quoted'}, context=context)
+        # When all lines of a requisition are 'quoted', it should be
+        # done, so try to change the state
+        req_obj._do_done(cr, uid, req_ids, context=context)
 
     def _store__get_requisitions(self, cr, uid, ids, context=None):
         # _classic_write returns only the m2o id and not the name_get's tuple
