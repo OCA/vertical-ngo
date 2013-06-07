@@ -834,16 +834,38 @@ class logistic_requisition_line(orm.Model):
             line.requisition_id.consignee_id.property_product_pricelist.id,
             line.product_id.id,
             partner_id=line.requisition_id.consignee_id.id,
-            qty=line.requested_qty,
-            uom=line.requested_uom_id.id).get('value', {})
+            qty=line.proposed_qty,
+            uom=line.proposed_uom_id.id).get('value', {})
         vals.update(onchange_vals)
         return vals
 
-    def _prepare_cost_estimate(self, cr, uid, ids, estimate_lines,
-                               partner_id, location_id=None, context=None):
+    def _prepare_cost_estimate(self, cr, uid, lines, estimate_lines, context=None):
         sale_obj = self.pool.get('sale.order')
+        partner_ids = set()
+        location_ids = set()
+        for line in lines:
+            partner_ids.add(line.requisition_id.consignee_id.id)
+            if line.dispatch_location_id:
+                location_ids.add(line.dispatch_location_id.id)
+
+        if len(partner_ids) > 1:
+            raise orm.except_orm(
+                _('Error'),
+                _('All requisition lines must belong to the same requestor.'))
+        if len(location_ids) > 1:
+            raise orm.except_orm(
+                _('Error'),
+                _('All requisition lines must come from the same location '
+                  'or from purchase.'))
+
+        partner_id = partner_ids.pop()
+        try:
+            location_id = location_ids.pop()
+        except KeyError:
+            location_id = None
+
         if location_id is None:
-            shop_id = 1  # fixme
+            shop_id = 1  # FIXME
         else:
             shop_id = self._get_shop_from_location(cr, uid, location_id,
                                                    context=context)
@@ -853,8 +875,9 @@ class logistic_requisition_line(orm.Model):
                 'order_line': [(0, 0, x) for x in estimate_lines],
                 'shop_id': shop_id,
                 }
+
         onchange_vals = sale_obj.onchange_partner_id(
-            cr, uid, ids, partner_id, context=context).get('value', {})
+            cr, uid, [], partner_id, context=context).get('value', {})
         vals.update(onchange_vals)
         return vals
 
@@ -870,49 +893,37 @@ class logistic_requisition_line(orm.Model):
             'type': 'ir.actions.act_window',
         }
 
-    def button_sourced(self, cr, uid, ids, context=None):
-        self._do_sourced(cr, uid, ids, context=context)
-        return True
+    def _filter_cost_estimate_lines(self, cr, uid, lines, context=None):
+        return [line for line in lines
+                if line.state == 'sourced' and
+                not line.cost_estimate_id]
 
     def button_create_cost_estimate(self, cr, uid, ids, context=None):
-        if context is None:
-            context = {}
         sale_obj = self.pool.get('sale.order')
         estimate_lines = []
-        partner_ids = set()
-        location_ids = set()
-        for line in self.browse(cr, uid, ids, context=context):
-            assert not line.cost_estimate_id, (
-                "Already estimated line: %s" % line.id)
-            partner_ids.add(line.requisition_id.consignee_id.id)
-            if line.dispatch_location_id:
-                location_ids.add(line.dispatch_location_id.id)
+        lines = self.browse(cr, uid, ids, context=context)
+        lines = self._filter_cost_estimate_lines(cr, uid, lines,
+                                                 context=context)
+        if not lines:
+            return False
+        for line in lines:
             vals = self._prepare_cost_estimate_line(cr, uid, line,
                                                     context=context)
             estimate_lines.append(vals)
-
-        assert len(partner_ids) == 1, (
-            'All requisition lines must belong to the same requestor')
-        assert len(location_ids) <= 1, (
-            'All requisition lines must come from the same location '
-            'or from purchase')
-        partner_id = partner_ids.pop()
-        try:
-            location_id = location_ids.pop()
-        except KeyError:
-            location_id = None
-        assert partner_id, 'Requisitions must have a requestor partner'
-        order_d = self._prepare_cost_estimate(cr, uid, ids,
+        order_d = self._prepare_cost_estimate(cr, uid,
+                                              lines,
                                               estimate_lines,
-                                              partner_id,
-                                              location_id,
                                               context=context)
         sale_id = sale_obj.create(cr, uid, order_d, context=context)
         self.write(cr, uid, ids,
                    {'cost_estimate_id': sale_id},
                    context=context)
-        self._do_quoted(cr, uid, ids, context=context)
+        self._do_quoted(cr, uid, [line.id for line in lines], context=context)
         return self._open_cost_estimate(cr, uid, sale_id, context=context)
+
+    def button_sourced(self, cr, uid, ids, context=None):
+        self._do_sourced(cr, uid, ids, context=context)
+        return True
 
     def button_open_cost_estimate(self, cr, uid, ids, context=None):
         assert len(ids) == 1, "Only 1 ID accepted"
