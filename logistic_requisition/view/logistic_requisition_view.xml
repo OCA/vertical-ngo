@@ -405,6 +405,7 @@
                                         <field name="stock_owner" />
                                     </group>
                                     <group string="Transport Plan" colspan="4">
+                                        <field name="transport_order_id"/>
                                         <field name="date_etd"/>
                                         <field name="date_eta"/>
                                     </group>

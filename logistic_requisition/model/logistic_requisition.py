@@ -531,6 +531,9 @@ class logistic_requisition_line(orm.Model):
             'sale.order',
             string='Cost Estimate',
             readonly=True),
+        'transport_order_id': fields.many2one(
+            'transport.order',
+            string='Transport Order'),
     }
 
     _defaults = {
