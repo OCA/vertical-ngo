@@ -537,9 +537,9 @@ class logistic_requisition_line(orm.Model):
             'sale.order',
             string='Cost Estimate',
             readonly=True),
-        'transport_order_id': fields.many2one(
-            'transport.order',
-            string='Transport Order',
+        'transport_plan_id': fields.many2one(
+            'transport.plan',
+            string='Transport Plan',
             states=SOURCED_STATES),
         'selected_bid': fields.many2one('purchase.order',
                                         string='Selected BID',
@@ -815,15 +815,14 @@ class logistic_requisition_line(orm.Model):
             }
         return {'value': value}
 
-    def onchange_transport_order_id(self, cr, uid, ids, transport_order_id, context=None):
+    def onchange_transport_plan_id(self, cr, uid, ids, transport_plan_id, context=None):
         value = {'date_eta': False,
                  'date_etd': False}
-        if transport_order_id:
-            transp_obj = self.pool.get('transport.order')
-            transp = transp_obj.browse(cr, uid, transport_order_id,
-                                       context=context)
-            value['date_eta'] = transp.date_eta
-            value['date_etd'] = transp.date_etd
+        if transport_plan_id:
+            plan_obj = self.pool.get('transport.plan')
+            plan = plan_obj.browse(cr, uid, transport_plan_id, context=context)
+            value['date_eta'] = plan.date_eta
+            value['date_etd'] = plan.date_etd
         return {'value': value}
 
     def _prepare_cost_estimate_line(self, cr, uid, line, context=None):

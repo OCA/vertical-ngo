@@ -2,7 +2,7 @@
 <openerp>
     <data>
 
-    <menuitem id="menu_logistic_requisition_base" name="Logistic Requisition" parent="transport_order.menu_logistic" sequence="1"/>
+    <menuitem id="menu_logistic_requisition_base" name="Logistic Requisition" parent="transport_plan.menu_logistic" sequence="1"/>
 
     <record model="ir.ui.view" id="view_logistic_requisition_form">
         <field name="name">logistic.requisition.form</field>
@@ -408,8 +408,8 @@
                                         <field name="stock_owner" />
                                     </group>
                                     <group string="Transport Plan" colspan="4">
-                                        <field name="transport_order_id"
-                                            on_change="onchange_transport_order_id(transport_order_id)"/>
+                                        <field name="transport_plan_id"
+                                            on_change="onchange_transport_plan_id(transport_plan_id)"/>
                                         <field name="date_etd"/>
                                         <field name="date_eta"/>
                                     </group>
