@@ -540,55 +540,65 @@ class logistic_requisition_line(orm.Model):
                          context=context, load='_classic_write')
         return [x['requisition_id'] for x in reqs]
 
-    def _prepare_po_requisition(self, cr, uid, ids, context=None):
-        # TODO : Make the prepare for the lines
-        return
+    def _prepare_po_requisition(self, cr, uid, lines, rfq_lines, context=None):
+        company_id = None
+        user_id = None
+        warehouse_id = False  # TODO: always empty, where does it comes from?
+        for line in lines:
+            line_user_id = line.procurement_user_id.id
+            if user_id is None:
+                user_id = line_user_id
+            elif user_id != line_user_id:
+                raise osv.except_osv(
+                    _('Error'),
+                    _('The lines are not assigned to the same '
+                      'Procurement Officer.'))
+            line_company_id = line.requisition_id.company_id.id
+            if company_id is None:
+                company_id = line_company_id
+            elif company_id != line_company_id:
+                raise osv.except_osv(
+                    _('Error'),
+                    _('The lines do not belong to the same company.'))
+        return {'user_id': user_id,
+                'company_id': company_id,
+                'warehouse_id': warehouse_id,
+                'line_ids': [(0, 0, line) for line in rfq_lines],
+                }
 
-    def _action_create_po_requisition(self, cr, uid, ids, context=None):
-        if context is None:
-            context = {}
-        rfq_obj = self.pool.get('purchase.requisition')
-        rfq_line_obj = self.pool.get('purchase.requisition.line')
-        lines = []
-        company_id = False
-        warehouse_id = False
-        for line in self.browse(cr, uid, ids, context=context):
-            user_id = line.procurement_user_id and line.procurement_user_id.id
-            if line.po_requisition_id:
-                raise osv.except_osv(
-                    _('Existing !'),
-                    _('Your logistic requisition line is already linked to a Purchase Requisition.'))
-            if not line.product_id:
-                raise osv.except_osv(
-                    _('Missing infos!'),
-                    _('Your logistic requisition line do not have any product set, please choose one.'))
-            if not company_id:
-                company_id = line.requisition_id.company_id.id
-            else:
-                assert company_id == line.requisition_id.company_id.id, \
-                    'You can only create a purchase requisition from line that belong to the same company.'
-            # TODO: Make this more "factorized" by using _prepare method hook !!!
-            lines.append({
-                'product_id': line.product_id.id,
+    def _prepare_po_requisition_line(self, cr, uid, line, context=None):
+        if line.po_requisition_id:
+            raise osv.except_osv(
+                _('Existing'),
+                _('The logistic requisition line %d is '
+                  'already linked to a Purchase Requisition.') % line.id)
+        if not line.product_id:
+            raise osv.except_osv(
+                _('Missing information'),
+                _('The logistic requisition line %d '
+                  'does not have any product defined, '
+                  'please choose one.') % line.id)
+        return {'product_id': line.product_id.id,
                 'product_uom_id': line.requested_uom_id.id,
                 'product_qty': line.requested_qty,
-            })
-        # TODO : make this looking like : vals = _prepare_po_requisition()
-        rfq_id = rfq_obj.create(cr, uid, {
-                        'user_id': user_id,
-                        'company_id': company_id,
-                        'warehouse_id': warehouse_id,
-                        }, context=context)
-        # TODO: Make this more "factorized" by using _prepare method hook !!!
-        for rfq_line in lines:
-            rfq_line_obj.create(cr, uid, {
-                'product_id': rfq_line['product_id'],
-                'product_uom_id': rfq_line['product_uom_id'],
-                'product_qty': rfq_line['product_qty'],
-                'requisition_id': rfq_id,
-            }, context=context)
-        for line in self.browse(cr, uid, ids, context=context):
-            self.write(cr, uid, [line.id], {'po_requisition_id': rfq_id}, context=context)
+                }
+
+    def _action_create_po_requisition(self, cr, uid, ids, context=None):
+        rfq_obj = self.pool.get('purchase.requisition')
+        rfq_lines = []
+        lines = self.browse(cr, uid, ids, context=context)
+        for line in lines:
+            vals = self._prepare_po_requisition_line(cr, uid, line,
+                                                     context=context)
+            rfq_lines.append(vals)
+        vals = self._prepare_po_requisition(cr, uid,
+                                            lines,
+                                            rfq_lines,
+                                            context=context)
+        rfq_id = rfq_obj.create(cr, uid, vals, context=context)
+        self.write(cr, uid, ids,
+                   {'po_requisition_id': rfq_id},
+                   context=context)
         return rfq_id
 
     def _get_shop_from_location(self, cr, uid, location_id, context=None):
@@ -695,10 +705,6 @@ class logistic_requisition_line(orm.Model):
         std_default = {
             'logistic_user_id': False,
             'procurement_user_id': False,
-            # TODO: Not sure it's mandatory, but seems to be needed otherwise
-            # Messages are copied... strange...
-            # 'message_ids' : [],
-            # 'message_follower_ids' : [],
         }
         std_default.update(default)
         return super(logistic_requisition_line, self).copy_data(

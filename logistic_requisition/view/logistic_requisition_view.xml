@@ -69,6 +69,7 @@
                             </group>
                             <field name="line_ids" colspan="4" nolabel="1">
                                 <tree string="Requisition Lines" editable="bottom">
+                                    <field name="id" string="Line N°" readonly="1"/>
                                     <field name="product_id" on_change="onchange_product_id(product_id,requested_uom_id)"/>
                                     <field name="description"/>
                                     <field name="requested_qty"/>
@@ -222,6 +223,7 @@
         <field name="arch" type="xml">
            <tree string="Logistic Requisition Line">
              <field name="requisition_id"/>
+             <field name="id" string="Line N°"/>
              <field name="requested_date"/>
              <field name="product_id"/>
              <field name="description"/>
@@ -382,7 +384,8 @@
                                             <field name="po_requisition_id" class="oe_inline"/>
                                             <button name="action_create_po_requisition"
                                                 string="Make Purchase Requisition" type="object"
-                                                states="draft,assigned" />
+                                                states="assigned"
+                                                attrs="{'invisible': [('po_requisition_id', '!=', False)]}" />
                                         </div>
                                         <label string="To add here: selected bid"
                                             attrs="{'invisible': [('procurement_method', '!=', 'procurement')]}"
@@ -446,8 +449,9 @@
                     domain="[('logistic_user_id','=', False)]"
                     help="Unassigned Requisition"/>
                 <separator/>
-                <field name="description" />
                 <field name="requisition_id" />
+                <field name="id" string="Line N°" />
+                <field name="description" />
                 <field name="logistic_user_id" />
                 <field name="procurement_user_id" />
                 <group expand="0" string="Group By...">
