@@ -69,7 +69,7 @@
                             </group>
                             <field name="line_ids" colspan="4" nolabel="1">
                                 <tree string="Requisition Lines" editable="bottom">
-                                    <field name="id" string="Line N°" readonly="1"/>
+                                    <field name="name"/>
                                     <field name="product_id" on_change="onchange_product_id(product_id,requested_uom_id)"/>
                                     <field name="description"/>
                                     <field name="requested_qty"/>
@@ -223,7 +223,7 @@
         <field name="arch" type="xml">
            <tree string="Logistic Requisition Line">
              <field name="requisition_id"/>
-             <field name="id" string="Line N°"/>
+             <field name="name"/>
              <field name="requested_date"/>
              <field name="product_id"/>
              <field name="description"/>
@@ -247,7 +247,7 @@
         <field name="arch" type="xml">
             <calendar string="Logistic Requisition Line"
                 date_start="requested_date" color="country_id">
-                <field name="id"/>
+                <field name="name"/>
                 <field name="requisition_id"/>
                 <field name="description"/>
             </calendar>
@@ -326,7 +326,7 @@
                             <label string="Requisition"/>
                             <field name="requisition_id" class="oe_inline" readonly="1"/> / 
                             <label string="Line N° "/>
-                            <field name="id" class="oe_inline" readonly="1"/>
+                            <field name="name" class="oe_inline"/>
                         </h1>
                     </div>
                     <div class="oe_right oe_button_box" name="buttons">
@@ -450,7 +450,11 @@
                     help="Unassigned Requisition"/>
                 <separator/>
                 <field name="requisition_id" />
-                <field name="id" string="Line N°" />
+                <!-- use 'id' not 'name'
+                     because 'name' is a char so it would match '12'
+                     when searching '2',
+                     while id is int so match exactly 2  -->
+                <field name="id" string="Line N°"/>
                 <field name="description" />
                 <field name="logistic_user_id" />
                 <field name="procurement_user_id" />

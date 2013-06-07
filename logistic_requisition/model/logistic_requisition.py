@@ -338,7 +338,6 @@ class logistic_requisition_line(orm.Model):
     _description = "Logistic Requisition Line"
     _inherit = ['mail.thread']
 
-    _rec_name = "id"
     _order = "requisition_id asc"
 
     _track = {
@@ -366,7 +365,15 @@ class logistic_requisition_line(orm.Model):
                                        context=context)
         return line_ids
 
+    def _get_name(self, cr, uid, ids, field_names, arg=None, context=None):
+        return dict((line_id, line_id) for line_id in ids)
+
     _columns = {
+        'name': fields.function(_get_name,
+                                string='Line N°',
+                                type='char',
+                                readonly=True,
+                                store=True),
         'requisition_id': fields.many2one(
             'logistic.requisition',
             'Requisition',
@@ -402,13 +409,14 @@ class logistic_requisition_line(orm.Model):
             'Budget Total Price',
             digits_compute=dp.get_precision('Account')),
         'budget_unit_price': fields.function(
-            lambda self, *args, **kwargs: self._get_unit_amount_line(*args, **kwargs), string='Budget Unit Price', type="float",
+            lambda self, *args, **kwargs: self._get_unit_amount_line(*args, **kwargs),
+            string='Budget Unit Price',
+            type="float",
             digits_compute=dp.get_precision('Account'),
             store=True),
         'requested_date': fields.related('requisition_id', 'date_delivery',
                                          string='Requested Date',
-                                         type='date',
-                                         select=True),
+                                         type='date'),
         'country_id': fields.related(
             'requisition_id',
             'country_id',
