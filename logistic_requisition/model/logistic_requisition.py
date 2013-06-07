@@ -746,7 +746,8 @@ class logistic_requisition_line(orm.Model):
             # added followers...  We need to find a way to propagate
             # this properly.
             self.message_post(cr, uid, [line.id], body=details,
-                              subject=subject, context=context)
+                              subject=subject, subtype='mail.mt_comment',
+                              context=context)
 
     def write(self, cr, uid, ids, vals, context=None):
         """ Send a message to the logistic user when it is assigned
