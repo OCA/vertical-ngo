@@ -742,9 +742,6 @@ class logistic_requisition_line(orm.Model):
             details = (_("This new requisition concerns %s "
                          "and is due for %s.") %
                        (line.description, line.requested_date))
-            # TODO: Posting the message here do not send it to the just
-            # added followers...  We need to find a way to propagate
-            # this properly.
             self.message_post(cr, uid, [line.id], body=details,
                               subject=subject, subtype='mail.mt_comment',
                               context=context)
