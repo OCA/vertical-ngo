@@ -124,6 +124,19 @@ class logistic_requisition(orm.Model):
         ),
         'note': fields.text('Remarks/Description'),
         'shipping_note': fields.text('Delivery / Shipping Remarks'),
+        'incoterm_id': fields.many2one(
+            'stock.incoterms',
+            'Incoterm',
+            help="International Commercial Terms are a series of "
+                 "predefined commercial terms used in international "
+                 "transactions."),
+        'incoterm_address_id': fields.many2one(
+            'res.partner',
+            'Incoterm Place',
+            help="Incoterm Place of Delivery. "
+                 "International Commercial Terms are a series of "
+                 "predefined commercial terms used in "
+                 "international transactions."),
         'line_ids': fields.one2many(
             'logistic.requisition.line',
             'requisition_id',
