@@ -301,8 +301,13 @@
                         string="Assign"
                         type="action"
                         class="oe_highlight"/>
-                    <button name="button_create_cost_estimate"
+                    <button name="button_sourced"
                         states="assigned"
+                        string="Line Sourced"
+                        type="object"
+                        class="oe_highlight"/>
+                    <button name="button_create_cost_estimate"
+                        states="sourced"
                         string="Create Cost Estimate"
                         type="object"
                         class="oe_highlight"/>
@@ -312,7 +317,7 @@
                         type="object"
                         class="oe_highlight"/>
                     <button name="button_cancel"
-                        states="confirmed,assigned"
+                        states="confirmed,assigned,sourced,quoted"
                         string="Cancel"
                         type="object"/>
                     <button name="button_reset"
@@ -322,7 +327,7 @@
                         class="oe_highlight" />
                     <field name="state" select="1" readonly="1"
                         widget="statusbar"
-                        statusbar_visible="draft,confirmed,assigned,quoted"/>
+                        statusbar_visible="draft,confirmed,assigned,sourced,quoted"/>
                 </header>
                 <sheet>
                     <div class="oe_title">
@@ -393,9 +398,8 @@
                                                 states="assigned"
                                                 attrs="{'invisible': [('po_requisition_id', '!=', False)]}" />
                                         </div>
-                                        <label string="To add here: selected bid"
-                                            attrs="{'invisible': [('procurement_method', '!=', 'procurement')]}"
-                                            colspan="4"/>
+                                        <!-- TODO -->
+                                        <field name="selected_bid" widget="char" />
                                     </group>
                                     <group string="Warehouse Dispatch"
                                         colspan="4"

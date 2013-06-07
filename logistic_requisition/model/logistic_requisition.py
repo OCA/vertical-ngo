@@ -221,7 +221,7 @@ class logistic_requisition(orm.Model):
             lines_len = sum(1 for req in requisition.line_ids
                             if req.state != 'cancel')
             sourced_len = sum(1 for req in requisition.line_ids
-                              if req.state in ('quoted', 'done'))
+                              if req.state in ('sourced', 'quoted'))
             if lines_len == 0:
                 percentage = 0.
             else:
@@ -345,9 +345,14 @@ class logistic_requisition_line(orm.Model):
 
     _order = "requisition_id asc"
 
-    READONLY_STATES = {'assigned': [('readonly', True)],
-                       'quoted': [('readonly', True)]
-                       }
+    REQUEST_STATES = {'assigned': [('readonly', True)],
+                      'sourced': [('readonly', True)],
+                      'quoted': [('readonly', True)],
+                      }
+
+    SOURCED_STATES = {'sourced': [('readonly', True)],
+                      'quoted': [('readonly', True)]
+                      }
 
     def _get_from_partner(self, cr, uid, ids, context=None):
         req_obj = self.pool.get('logistic.requisition')
@@ -397,22 +402,22 @@ class logistic_requisition_line(orm.Model):
             help="Assigned Procurement Officer in charge of "
                  "the Logistic Requisition Line",
         ),
-        #DEMAND
-        'product_id': fields.many2one('product.product', 'Product'),
+        'product_id': fields.many2one('product.product', 'Product',
+                                      states=SOURCED_STATES,),
         'description': fields.char('Description',
-                                   states=READONLY_STATES,
+                                   states=REQUEST_STATES,
                                    required=True),
         'requested_qty': fields.float(
             'Req. Qty',
-            states=READONLY_STATES,
+            states=REQUEST_STATES,
             digits_compute=dp.get_precision('Product UoM')),
         'requested_uom_id': fields.many2one('product.uom',
                                             'Product UoM',
-                                            states=READONLY_STATES,
+                                            states=REQUEST_STATES,
                                             required=True),
         'budget_tot_price': fields.float(
             'Budget Total Price',
-            states=READONLY_STATES,
+            states=REQUEST_STATES,
             digits_compute=dp.get_precision('Account')),
         'budget_unit_price': fields.function(
             lambda self, *args, **kwargs: self._get_unit_amount_line(*args, **kwargs),
@@ -447,15 +452,12 @@ class logistic_requisition_line(orm.Model):
             selection=logistic_requisition.SELECTION_TYPE,
             readonly=True,
             store=True),
-        #PURCHASE REQUISITION
         'po_requisition_id': fields.many2one(
             'purchase.requisition', 'Purchase Requisition',
-            states={'in_progress': [('readonly', True)],
-                    'sent': [('readonly', True)],
-                    'done': [('readonly', True)]}),
-        #PROPOSAL
+            states=SOURCED_STATES),
         'proposed_qty': fields.float(
             'Proposed Qty',
+            states=SOURCED_STATES,
             digits_compute=dp.get_precision('Product UoM')),
         # to be able to display the UOM 2 times
         'proposed_uom_id': fields.related('requested_uom_id',
@@ -469,28 +471,36 @@ class logistic_requisition_line(orm.Model):
              ('fw_agreement', 'Framework Agreement'),
              ],
             string='Procurement Method',
-        ),
+            states=SOURCED_STATES),
         'dispatch_location_id': fields.many2one(
             'stock.location',
-            string='Dispatch From'),
+            string='Dispatch From',
+            states=SOURCED_STATES),
         'stock_type': fields.selection(
             [('ifrc', 'IFRC'),
              ('vci', 'VCI'),
              ('pns', 'PNS'),
              ('program', 'Program')],
-            string='Stock Type'),
+            string='Stock Type',
+            states=SOURCED_STATES),
         'stock_owner': fields.many2one(
             'res.partner',
-            string='Stock Owner'),
+            string='Stock Owner',
+            states=SOURCED_STATES),
         'purchase_id': fields.many2one('purchase.order', 'Purchase Order'),
         # NOTE: date that should be used for the stock move reservation
-        'date_etd': fields.date('ETD', help="Estimated Date of Departure"),
-        'date_eta': fields.date('ETA', help="Estimated Date of Arrival"),
+        'date_etd': fields.date('ETD',
+                                states=SOURCED_STATES,
+                                help="Estimated Date of Departure"),
+        'date_eta': fields.date('ETA',
+                                states=SOURCED_STATES,
+                                help="Estimated Date of Arrival"),
         'offer_ids': fields.one2many('sale.order.line',
                                      'requisition_id',
                                      'Sales Quotation Lines'),
         'unit_cost': fields.float(
             'Unit Cost',
+            states=SOURCED_STATES,
             digits_compute=dp.get_precision('Account')),
         'total_cost': fields.function(
             lambda self, *args, **kwargs: self._get_total_cost(*args,**kwargs),
@@ -502,6 +512,7 @@ class logistic_requisition_line(orm.Model):
             [('draft', 'Draft'),
              ('confirmed', 'Confirmed'),
              ('assigned', 'Assigned'),
+             ('sourced', 'Sourced'),
              ('quoted', 'Quoted'),
              ('cancel', 'Cancelled')],
             string='State',
@@ -533,7 +544,11 @@ class logistic_requisition_line(orm.Model):
             readonly=True),
         'transport_order_id': fields.many2one(
             'transport.order',
-            string='Transport Order'),
+            string='Transport Order',
+            states=SOURCED_STATES),
+        # TODO
+        'selected_bid': fields.dummy('Selected BID',
+                                     states=SOURCED_STATES),
     }
 
     _defaults = {
@@ -545,6 +560,9 @@ class logistic_requisition_line(orm.Model):
 
     def _do_cancel(self, cr, uid, ids, context=None):
         self.write(cr, uid, ids, {'state': 'cancel'}, context=context)
+
+    def _do_sourced(self, cr, uid, ids, context=None):
+        self.write(cr, uid, ids, {'state': 'sourced'}, context=context)
 
     def _do_draft(self, cr, uid, ids, context=None):
         self.write(cr, uid, ids, {'state': 'draft'}, context=context)
@@ -851,6 +869,10 @@ class logistic_requisition_line(orm.Model):
             'context': {},
             'type': 'ir.actions.act_window',
         }
+
+    def button_sourced(self, cr, uid, ids, context=None):
+        self._do_sourced(cr, uid, ids, context=context)
+        return True
 
     def button_create_cost_estimate(self, cr, uid, ids, context=None):
         if context is None:
