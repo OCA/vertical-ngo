@@ -382,7 +382,9 @@
                                         options="{'currency_field': 'currency_id'}"/>
                                 </group>
                                 <group>
-                                    <group string="Purchase Requisition" colspan="4">
+                                    <group string="Purchase Requisition"
+                                        attrs="{'invisible': [('procurement_method', 'not in', ['procurement', 'fw_agreement'])]}"
+                                        colspan="4">
                                         <label for="po_requisition_id"/>
                                         <div>
                                             <field name="po_requisition_id" class="oe_inline"/>
