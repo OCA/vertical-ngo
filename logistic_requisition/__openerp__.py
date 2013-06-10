@@ -38,6 +38,7 @@ A Logistic requisition express a need that is requested somewhere.
              "purchase",
              "purchase_requisition",
              "mail",
+             "logistic_order",
              ],
  "demo": ['data/logistic_requisition_demo.xml'],
  "data": ["wizard/logistic_requisition_split_line_view.xml",
