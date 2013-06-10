@@ -846,43 +846,57 @@ class logistic_requisition_line(orm.Model):
 
     def _prepare_cost_estimate(self, cr, uid, lines, estimate_lines, context=None):
         sale_obj = self.pool.get('sale.order')
-        partner_ids = set()
+        requester_ids = set()
+        consignee_ids = set()
+        shipping_ids = set()
         location_ids = set()
         for line in lines:
-            partner_ids.add(line.requisition_id.consignee_id.id)
+            requester_ids.add(line.requisition_id.requester_id.id)
+            consignee_ids.add(line.requisition_id.consignee_id.id)
             if line.dispatch_location_id:
                 location_ids.add(line.dispatch_location_id.id)
+            shipping_ids.add(line.requisition_id.consignee_shipping_id.id)
 
-        if len(partner_ids) > 1:
+        if len(requester_ids) > 1:
             raise orm.except_orm(
                 _('Error'),
-                _('All requisition lines must belong to the same requestor.'))
+                _('All requisition lines must belong to the same requester.'))
+        if len(consignee_ids) > 1:
+            raise orm.except_orm(
+                _('Error'),
+                _('All requisition lines must belong to the same consignee.'))
+        if len(shipping_ids) > 1:
+            raise orm.except_orm(
+                _('Error'),
+                _('All requisition lines must be delivered in the same place.'))
         if len(location_ids) > 1:
             raise orm.except_orm(
                 _('Error'),
                 _('All requisition lines must come from the same location '
                   'or from purchase.'))
 
-        partner_id = partner_ids.pop()
+        requester_id = requester_ids.pop()
+        consignee_id = consignee_ids.pop()
+        shipping_id = shipping_ids.pop()
         try:
             location_id = location_ids.pop()
         except KeyError:
-            location_id = None
-
-        if location_id is None:
             shop_id = 1  # FIXME
         else:
             shop_id = self._get_shop_from_location(cr, uid, location_id,
                                                    context=context)
             assert shop_id, "No shop found with the given location"
 
-        vals = {'partner_id': partner_id,
+        vals = {'partner_id': requester_id,
+                'partner_invoice_id': requester_id,
+                'partner_shipping_id': shipping_id,
+                'consignee_id': consignee_id,
                 'order_line': [(0, 0, x) for x in estimate_lines],
                 'shop_id': shop_id,
                 }
 
         onchange_vals = sale_obj.onchange_partner_id(
-            cr, uid, [], partner_id, context=context).get('value', {})
+            cr, uid, [], requester_id, context=context).get('value', {})
         vals.update(onchange_vals)
         return vals
 
