@@ -548,6 +548,7 @@ class logistic_requisition_line(orm.Model):
 
     _defaults = {
         'state': 'draft',
+        'requested_qty': 1.0,
     }
 
     def _do_confirm(self, cr, uid, ids, context=None):
@@ -810,7 +811,6 @@ class logistic_requisition_line(orm.Model):
             prod = prod_obj.browse(cr, uid, product_id, context=context)
             value = {
                 'requested_uom_id': prod.uom_id.id,
-                'requested_qty': 1.0,
                 'description': prod.name
             }
         return {'value': value}
