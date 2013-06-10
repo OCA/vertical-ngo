@@ -20,6 +20,5 @@
 ##############################################################################
 import logistic_requisition_split_line
 import logistic_line_create_requisition
-
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
-
+import assign_line
+import cost_estimate_line

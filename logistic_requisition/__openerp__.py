@@ -19,45 +19,42 @@
 #
 ##############################################################################
 
-{
-    "name" : "Logistic Requisition",
-    "version" : "0.1",
-    "author" : "OpenERP SA",
-    "category" : "Purchase Management",
-    'complexity': "normal",
-    "images" : [],
-    "website" : "http://www.openerp.com",
-    "description": """
+{"name": "Logistic Requisition",
+ "version": "0.1",
+ "author": "Camptocamp",
+ "license": "AGPL-3",
+ "category": "Purchase Management",
+ 'complexity': "normal",
+ "images": [],
+ "website": "http://www.camptocamp.com",
+ "description": """
 This module allows you to manage your Logistic Requisitions.
 ============================================================
 
 A Logistic requisition express a need that is requested somewhere.
 
 """,
-    "depends" : [
-        "transport_order",
-        "purchase",
-        "purchase_requisition",
-        # "mrp", # May be not needed
-        "mail",
-        ],
-    "demo" : ['data/logistic_requisition_demo.xml'],
-    "data" : [
-            "wizard/logistic_requisition_split_line_view.xml",
-            "wizard/logistic_line_create_requisition_view.xml",
-            "security/logistic_requisition.xml",
-            "security/ir.model.access.csv",
-            "data/logistic_requisition_data.xml",
-            "data/logistic_requisition_sequence.xml",
-            "view/logistic_requisition_view.xml",
-            "view/sale_order.xml",
-            "logistic_requisition_report.xml",
-            "logistic_workflow.xml",
-    ],
-    "auto_install": False,
-    "test": [],
-    "installable": True,
-    "certificate" : "",
-}
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
-
+ "depends": ["transport_plan",
+             "purchase",
+             "purchase_requisition",
+             "mail",
+             "logistic_order",
+             ],
+ "demo": ['data/logistic_requisition_demo.xml'],
+ "data": ["wizard/logistic_requisition_split_line_view.xml",
+          "wizard/logistic_line_create_requisition_view.xml",
+          "wizard/assign_line_view.xml",
+          "wizard/cost_estimate_line_view.xml",
+          "security/logistic_requisition.xml",
+          "security/ir.model.access.csv",
+          "data/logistic_requisition_data.xml",
+          "data/logistic_requisition_sequence.xml",
+          "view/logistic_requisition_view.xml",
+          "view/sale_order.xml",
+          "logistic_requisition_report.xml",
+          "logistic_workflow.xml",
+          ],
+ "auto_install": False,
+ "test": [],
+ "installable": True,
+ }

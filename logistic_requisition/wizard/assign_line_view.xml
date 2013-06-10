@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data noupdate="0">
+        <record id="view_logistic_requisition_line_assign_wizard" model="ir.ui.view">
+            <field name="name">Assign Requisition Line</field>
+            <field name="model">logistic.requisition.line.assign</field>
+            <field name="arch" type="xml">
+            <form string="Assign Requisition Line" version="7.0">
+                <separator string="Select the assignee"/>
+                <group>
+                    <field name="logistic_user_id"/>
+                </group>
+                <footer>
+                    <button name="assign" string="Assign" type="object" class="oe_highlight" />
+                    or
+                    <button string="Cancel" class="oe_link" special="cancel" />
+                </footer>
+            </form>
+            </field>
+        </record>
+
+       <record id="action_requisition_line_assign" model="ir.actions.act_window">
+             <field name="name">Assign Requisition Line</field>
+             <field name="type">ir.actions.act_window</field>
+             <field name="res_model">logistic.requisition.line.assign</field>
+             <field name="view_type">form</field>
+             <field name="view_mode">form</field>
+             <field name="target">new</field>
+        </record>
+    </data>
+</openerp>

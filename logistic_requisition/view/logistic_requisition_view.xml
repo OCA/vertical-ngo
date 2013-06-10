@@ -2,23 +2,37 @@
 <openerp>
     <data>
 
-        <menuitem id="menu_logistic_requisition_base" name="Logistic Requisition" parent="transport_order.menu_logistic" sequence="1"/>
+    <menuitem id="menu_logistic_requisition_base" name="Logistic Requisition" parent="transport_plan.menu_order" sequence="1"/>
 
     <record model="ir.ui.view" id="view_logistic_requisition_form">
         <field name="name">logistic.requisition.form</field>
-        <field name="type">form</field>
         <field name="model">logistic.requisition</field>
         <field name="arch" type="xml">
             <form string="Logistic Requisition" version="7.0">
                 <header>
-                    <button name="button_view_lines"   string="View Lines"     states="in_progress,sent,cancel,done" type="object" class="oe_highlight"/>
-                    <button name="button_confirm"      string="Confirm"        states="draft" class="oe_highlight" type="object" />
-                    <button name="button_reset"        string="Reset to Draft" states="cancel" type="object" />
-                    <button name="requisition_done"    string="Done"           states="sent" type="object" />
-                    <button name="requisition_sent"    string="Quote Sent"     states="in_progress"  type="object" />
-                    <button name="button_cancel"       string="Cancel"         states="draft,sent,in_progress" type="object" />
+                    <button name="button_view_lines"
+                        string="View Lines"
+                        states="confirmed,done,cancel"
+                        type="object"
+                        class="oe_highlight"/>
+                    <button name="button_confirm"
+                        string="Confirm"
+                        states="draft"
+                        class="oe_highlight"
+                        type="object" />
+                    <button name="button_reset"
+                        string="Reset to Draft"
+                        states="cancel"
+                        type="object"
+                        class="oe_highlight" />
+                    <button name="button_cancel"
+                        string="Cancel"
+                        states="draft,confirmed"
+                        type="object" />
 
-                    <field name="state" select="1" readonly ="1" widget="statusbar" statusbar_visible="draft,in_progress,sent,done" statusbar_colors='{"in_progress":"blue"}'/>
+                    <field name="state" select="1" readonly="1"
+                        widget="statusbar"
+                        statusbar_visible="draft,confirmed,done" />
                 </header>
                 <sheet string="Logistic Requisition">
                     <div class="oe_title">
@@ -29,46 +43,46 @@
                     </div>
                     <group>
                         <group>
-                            <field name="requestor_id"/>
-                            <field name="requestor_partner_id"/>
-                            <field name="country_id"/>
-                            <field name="type"/>
-                            <field name="date_start"/>
-                            <field name="date_end"/>
+                            <field name="requester_id"/>
+                            <field name="consignee_id" on_change="onchange_consignee_id(consignee_id)"/>
+                            <field name="consignee_shipping_id"
+                                context="{'default_type':'delivery'}"/>
+                            <field name="analytic_id"/>
+                            <field name="m_code"/>
                         </group>
                         <group>
+                            <field name="preferred_sourcing"/>
+                            <field name="type"/>
+                            <field name="date"/>
+                            <field name="date_delivery"/>
+                            <field name="preferred_transport"/>
                             <field name="user_id"/>
-                            <field name="company_id"/>
-                            <field name="analytic_id"/>
-                            <field name="activity_code"/>
-                            <field name="origin"/>
                         </group>
                     </group>
-                <notebook>
-                    <page string="Requisition Lines">
-                        <field name="line_ids" colspan="4" nolabel="1">
-                            <tree string="Requisition Lines" editable="bottom">
-                                <field name="product_id" on_change="onchange_product_id(product_id,requested_uom_id)"/>
-                                <field name="description"/>
-                                <field name="requested_qty"/>
-                                <field name="requested_uom_id"/>
-                                <!-- <field name="confirmed_uom_id" invisible="True"/> -->
-                                <field name="budget_unit_price"/>
-                                <field name="budget_tot_price"/>
-                                <field name="state"/>
-                                <field name="logistic_user_id" attrs="{'invisible':[('state','=','draft')]}"/>
-                                <button name="button_assign" string="Assign" type="object" states="draft" icon="gtk-go-forward"/>
-                                <!--
-                                <button name="action_proc" string="Procure" type="object" states="draft" icon="gtk-go-forward"/>
-                                <button name="action_cancel" string="Cancel" type="object" states="draft" icon="terp-dialog-close"/>
-                                -->
+                    <notebook>
+                        <page string="Requisition Lines">
+                            <group colspan="4">
+                                <field name="sourced" widget="progressbar"/>
+                            </group>
+                            <field name="line_ids" colspan="4" nolabel="1">
+                                <tree string="Requisition Lines" editable="bottom">
+                                    <field name="name"/>
+                                    <field name="product_id" on_change="onchange_product_id(product_id,requested_uom_id)"/>
+                                    <field name="description"/>
+                                    <field name="requested_qty"/>
+                                    <field name="requested_uom_id"/>
+                                    <field name="budget_unit_price"/>
+                                    <field name="budget_tot_price"/>
+                                    <field name="account_id"/>
+                                    <field name="activity_code"/>
+                                    <field name="state"/>
+                                    <field name="logistic_user_id" attrs="{'invisible':[('state','=','draft')]}"/>
                             </tree>
                             <form string="Requisition Lines">
                                 <field name="product_id" on_change="onchange_product_id(product_id,requested_uom_id)"/>
                                 <field name="description"/>
                                 <field name="requested_qty"/>
                                 <field name="requested_uom_id"/>
-                                <!-- <field name="confirmed_uom_id" invisible="True"/> -->
                                 <field name="logistic_user_id"/>
                                 <field name="procurement_user_id"/>
                                 <field name="state" invisible="1"/>
@@ -80,95 +94,115 @@
 
                         </field>
                         <group class="oe_subtotal_footer oe_right">
-                            <field name="amount_total" class="oe_subtotal_footer_separator" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="amount_total"
+                                class="oe_subtotal_footer_separator"
+                                widget="monetary"
+                                options="{'currency_field': 'currency_id'}"/>
                         </group>
+                        <div class="oe_clear"/>
+                        <group string="Validation">
+                            <div colspan="4">
+                                <label for="budget_holder_id"/>
+                                <field name="budget_holder_id"
+                                    class="oe_inline"/>
+                                <label string=" validated on "
+                                    attrs="{'invisible': [('date_budget_holder', '=', False)]}"/>
+                                <field name="date_budget_holder"
+                                    class="oe_inline"/>
+                            </div>
+                            <div colspan="4">
+                                <label for="finance_officer_id"/>
+                                <field name="finance_officer_id"
+                                    class="oe_inline"/>
+                                <label string=" validated on "
+                                    attrs="{'invisible': [('date_finance_officer', '=', False)]}"/>
+                                <field name="date_finance_officer"
+                                    class="oe_inline"/>
+                            </div>
+                        </group>
+                    </page>
+                    <page string="Transportation and Delivery">
                         <group>
-                            <field name="warehouse_id" class="oe_inline"/>
-                            <field name="address_id" class="oe_inline"/>
-                            <field name="prefered_transport" class="oe_inline"/>
+                            <field name="incoterm_id"/>
+                            <field name="incoterm_address_id"/>
+                            <field name="shipping_note"/>
                         </group>
-                        <div class="oe_clear">
-                            <label for="description"/>
-                        </div>
-                        <field name="description" colspan="4" class="oe_inline" placeholder="Additional notes..."/>
+                    </page>
+                    <page string="Notes">
+                        <group>
+                            <div>
+                                <label for="note"/>
+                            </div>
+                            <field name="note" colspan="4"
+                                nolabel="1"
+                                class="oe_inline"
+                                placeholder="Additional notes..."/>
+                        </group>
                     </page>
                 </notebook>
-                </sheet>
-                <!-- 
-                May be useful...
-                <div class="oe_chatter">
-                    <field name="message_follower_ids" widget="mail_followers"/>
-                    <field name="message_ids" widget="mail_thread"/>
-                </div> -->
-            </form>
+            </sheet>
+        </form>
         </field>
     </record>
 
     <record model="ir.ui.view" id="view_logistic_requisition_tree">
         <field name="name">logistic.requisition.tree</field>
-        <field name="type">tree</field>
         <field name="model">logistic.requisition</field>
         <field name="arch" type="xml">
-            <tree colors="grey:state == 'done';red:date_end&lt;current_date and state not in ('done','cancel');black:date_end&gt;=current_date;" string="Logistic Requisition">
+            <tree colors="grey:state == 'done';red:date_delivery&lt;current_date and state not in ('done','cancel');black:date_delivery&gt;=current_date;" string="Logistic Requisition">
                 <field name="name"/>
-                <field name="requestor_id"/>
+                <field name="consignee_id"/>
                 <field name="user_id"/>
-                <field name="date_start"/>
-                <field name="date_end"/>
+                <field name="date"/>
+                <field name="date_delivery"/>
                 <field name="country_id"/>
-                <field name="company_id"/>
                 <field name="analytic_id"/>
                 <field name="amount_total" sum="Total Budget"/>
+                <field name="currency_id"/>
                 <field name="state"/>
+                <field name="sourced" widget="progressbar"/>
+                <field name="requester_id" invisible="1"/>
             </tree>
         </field>
     </record>
 
     <record id="view_logistic_requisition_filter" model="ir.ui.view">
-            <field name="name">logistic.requisition.list.select</field>
-            <field name="model">logistic.requisition</field>
-            <field name="type">search</field>
-            <field name="arch" type="xml">
-                <search string="Search Logistic Requisition">
-                 <group>
-                    <filter name="draft" string="New" domain="[('state','=','draft')]" help="New Logistic Requisition"/>
-                    <filter name="in_progress" string="Needs Validated" domain="[('state','=','in_progress')]" help="Logistic Requisition in treatment"/>
-                    <filter name="sent" string="Quote Sent" domain="[('state','=','sent')]" help="Quote Send to the Requestor"/>
-                    <filter name="in_progress" string="Done" domain="[('state','=','done')]"/>
-                    <separator orientation="vertical"/>
-                    <filter string="Unassigned"  domain="[('user_id','=', False)]" help="Unassigned Requisition"/>
-                    <separator orientation="vertical"/>
-                    <field name="name"/>
-                    <field name="user_id" />
-                    <field name="requestor_id" />
-                    <field name="analytic_id" />
-                </group>
-                <newline/>
-                  <group expand="0" string="Group By..." groups="base.group_extended">
+        <field name="name">logistic.requisition.list.select</field>
+        <field name="model">logistic.requisition</field>
+        <field name="arch" type="xml">
+            <search string="Search Logistic Requisition">
+                <filter name="draft" string="New"
+                    domain="[('state','=','draft')]"
+                    help="New Logistic Requisition"/>
+                <filter name="confirmed"
+                    string="Confirmed"
+                    domain="[('state', '=', 'confirmed')]"
+                    help="Logistic Requisition in treatment"/>
+                <filter name="done"
+                    string="Done"
+                    domain="[('state', '=', 'done')]"/>
+                <separator/>
+                <filter string="Unassigned"  domain="[('user_id','=', False)]" help="Unassigned Requisition"/>
+                <separator/>
+                <field name="name"/>
+                <field name="user_id" />
+                <field name="requester_id" />
+                <field name="analytic_id" />
+                <group expand="0" string="Group By...">
                     <filter string="Requisition Responsible" domain="[]" context="{'group_by':'user_id'}"/>
-                    <filter string="Requestor" domain="[]" context="{'group_by':'requestor_id'}"/>
+                    <filter string="Requester" domain="[]" context="{'group_by':'requester_id'}"/>
                     <filter string="Country" domain="[]" context="{'group_by':'country_id'}"/>
                     <filter string="Project" domain="[]" context="{'group_by':'analytic_id'}"/>
-                    <separator orientation="vertical"/>
-                    <filter string="Origin" domain="[]" context="{'group_by':'origin'}"/>
+                    <separator/>
                     <filter string="State" domain="[]" context="{'group_by':'state'}"/>
-                    <separator orientation="vertical"/>
-                    <filter string="Requisition Date" domain="[]" context="{'group_by':'date_start'}"/>
-                    <filter string="Delivery Date" domain="[]" context="{'group_by':'date_end'}"/>
+                    <separator/>
+                    <filter string="Requisition Date" domain="[]" context="{'group_by':'date'}"/>
+                    <filter string="Delivery Date" domain="[]" context="{'group_by':'date_delivery'}"/>
                 </group>
-              </search>
-            </field>
-        </record>
-
-    <!-- <record model="ir.actions.act_window" id="act_stock_by_location">
-        <field name="name">Stock by Location</field>
-        <field name="res_model">stock.location</field>
-        <field name="src_model">product.product</field>
-        <field name="view_mode">tree</field>
-        <field name="target">current</field>
-        <field name="context">{'product_id':context['active_id']}</field>
+            </search>
+        </field>
     </record>
- -->
 
     <record model="ir.actions.act_window" id="action_logistic_requisition">
         <field name="name">Requisitions</field>
@@ -177,8 +211,6 @@
         <field name="view_type">form</field>
         <field name="view_mode">tree,form</field>
         <field name="context">{}</field>
-        <!-- Example to open in a blink the right filtred list -->
-        <!-- <field name="context">{"search_default_user_id":uid,}</field> -->
         <field name="search_view_id" ref="view_logistic_requisition_filter"/>
         <field name="help"></field>
     </record>
@@ -191,40 +223,41 @@
 
     <record model="ir.ui.view" id="view_logistic_requisition_line_tree">
         <field name="name">logistic.requisition.line.tree</field>
-        <field name="type">tree</field>
         <field name="model">logistic.requisition.line</field>
         <field name="arch" type="xml">
            <tree string="Logistic Requisition Line">
              <field name="requisition_id"/>
+             <field name="name"/>
              <field name="requested_date"/>
+             <field name="product_id"/>
+             <field name="description"/>
              <field name="requested_qty"/>
              <field name="requested_uom_id"/>
-             <field name="product_id" on_change="onchange_product_id(product_id,requested_uom_id)"/>
-             <field name="description"/>
-             <field name="transport_order_id"/>
              <field name="logistic_user_id"/>
              <field name="procurement_user_id"/>
              <field name="budget_tot_price" sum="Total Budget"/>
              <field name="state"/>
+             <button name="%(action_requisition_split_into)d" icon="gtk-justify-fill" 
+                 string="Split the line" type="action"
+                 states="draft,confirmed,assigned" />
              <field name="country_id" invisible="1"/>
-             <button name="%(action_requisition_split_into)d" icon="gtk-justify-fill" string="Split the line" type="action" states="draft,assigned" />
            </tree>
         </field>
     </record>
-    
+
     <record model="ir.ui.view" id="view_logistic_requisition_line_calendar">
         <field name="name">logistic.requisition.line.tree</field>
         <field name="model">logistic.requisition.line</field>
         <field name="arch" type="xml">
             <calendar string="Logistic Requisition Line"
                 date_start="requested_date" color="country_id">
-                <field name="id"/>
+                <field name="name"/>
                 <field name="requisition_id"/>
                 <field name="description"/>
             </calendar>
         </field>
     </record>
-    
+
     <record model="ir.ui.view" id="view_logistic_requisition_line_kanban">
         <field name="name">logistic.requisition.line.kanban</field>
         <field name="model">logistic.requisition.line</field>
@@ -259,20 +292,42 @@
 
     <record model="ir.ui.view" id="view_logistic_requisition_line_form">
         <field name="name">logistic.requisition.line.form</field>
-        <field name="type">form</field>
         <field name="model">logistic.requisition.line</field>
         <field name="arch" type="xml">
             <form string="Logistic Requisition Line" version="7.0">
                 <header>
-                    <button name="button_make_so_quotation" states="draft,assigned,in_progress,waiting" string="Make Sales Quotation" type="object" class="oe_highlight"/>
-                    <!-- <button name="line_assigned" states="draft" string="Assigned" type="object" class="oe_highlight" /> -->
-                    <!-- <button name="line_estimated" states="in_progress,assigned" string="Estimated" type="object" class="oe_highlight"/> -->
-                    <!-- <button name="line_quoted" states="in_progress,cost_estimated" string="Quoted" type="object" /> -->
-                    <!-- <button name="line_waiting" states="quoted" string="Waiting" type="object" /> -->
-                    <button name="line_done" states="quoted" string="Done" type="object" class="oe_highlight"/>
-                    <button name="line_refused" states="draft,assigned,quoted,waiting,in_progress" string="Refused" type="object" />
-                    <!-- <field name="state" widget="statusbar" /> -->
-                    <field name="status" widget="statusbar" statusbar_visible="draft,in_progress,assigned,quoted,done"/>
+                    <button name="%(action_requisition_line_assign)d"
+                        states="confirmed"
+                        string="Assign"
+                        type="action"
+                        class="oe_highlight"/>
+                    <button name="button_sourced"
+                        states="assigned"
+                        string="Line Sourced"
+                        type="object"
+                        class="oe_highlight"/>
+                    <button name="button_create_cost_estimate"
+                        states="sourced"
+                        string="Create Cost Estimate"
+                        type="object"
+                        class="oe_highlight"/>
+                    <button name="button_open_cost_estimate"
+                        states="quoted"
+                        string="Open Cost Estimate"
+                        type="object"
+                        class="oe_highlight"/>
+                    <button name="button_cancel"
+                        states="confirmed,assigned,sourced,quoted"
+                        string="Cancel"
+                        type="object"/>
+                    <button name="button_reset"
+                        string="Reset to Confirmed"
+                        states="cancel"
+                        type="object"
+                        class="oe_highlight" />
+                    <field name="state" select="1" readonly="1"
+                        widget="statusbar"
+                        statusbar_visible="draft,confirmed,assigned,sourced,quoted"/>
                 </header>
                 <sheet>
                     <div class="oe_title">
@@ -280,7 +335,7 @@
                             <label string="Requisition"/>
                             <field name="requisition_id" class="oe_inline" readonly="1"/> / 
                             <label string="Line N° "/>
-                            <field name="id" class="oe_inline" readonly="1"/>
+                            <field name="name" class="oe_inline"/>
                         </h1>
                     </div>
                     <div class="oe_right oe_button_box" name="buttons">
@@ -289,62 +344,91 @@
                     </div>
                     <group>
                         <group>
-                            <!-- <label string="Product: " attrs="{'invisible': [('product_id', '=', False)]}"/> -->
-                            <field name="product_id" on_change="onchange_product_id(product_id,requested_uom_id)"/>
-                            <!-- <label string="Description: " attrs="{'invisible': [('product_id', '!=', False)]}"/> -->
                             <field name="description"/>
+                            <label for="requested_qty"/>
+                            <div>
+                                <field name="requested_qty" class="oe_inline"/>
+                                <field name="requested_uom_id" class="oe_inline"/>
+                                <button name="%(action_requisition_split_into)d"
+                                    string="Split"
+                                    type="action"
+                                    states="draft,confirmed,assigned" />
+                            </div>
+                            <field name="requested_date"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="budget_unit_price" widget="monetary"
+                                options="{'currency_field': 'currency_id'}"/>
+                            <field name="budget_tot_price" widget="monetary"
+                                options="{'currency_field': 'currency_id'}"/>
                         </group>
                         <group>
+                            <field name="requested_type"/>
                             <field name="logistic_user_id"/>
                             <field name="procurement_user_id"/>
+                            <field name="account_id"/>
+                            <field name="activity_code"/>
                         </group>
                     </group>
                     <notebook>
-                      <page string="Requisition">
-                        <group>
-                            <group name="requested_grp" string="Demand">
-                                 <field name="requested_type"/>
-                                 <label for="requested_qty"/>
-                                 <div>
-                                     <field name="requested_qty" class="oe_inline"/>
-                                     <field name="requested_uom_id" class="oe_inline"/>
-                                     <button name="%(action_requisition_split_into)d" string="Split it" type="action" states="draft,assigned" />
-                                 </div>
-                                 <field name="requested_date"/>
-                                 <field name="budget_unit_price" widget="monetary"/>
-                                 <field name="budget_tot_price" widget="monetary"/>
+                        <page string="Sourcing">
+                            <group>
+                                <group>
+                                    <field name="procurement_method"/>
+                                    <field name="product_id"
+                                        on_change="onchange_product_id(product_id,requested_uom_id)"/>
+                                    <label for="proposed_qty"/>
+                                    <div>
+                                        <field name="proposed_qty" class="oe_inline"/>
+                                        <field name="proposed_uom_id" class="oe_inline"/>
+                                    </div>
+                                    <field name="unit_cost" widget="monetary"
+                                        options="{'currency_field': 'currency_id'}"/>
+                                    <field name="total_cost" widget="monetary"
+                                        options="{'currency_field': 'currency_id'}"/>
+                                </group>
+                                <group>
+                                    <group string="Purchase Requisition"
+                                        attrs="{'invisible': [('procurement_method', 'not in', ['procurement', 'fw_agreement'])]}"
+                                        colspan="4">
+                                        <label for="po_requisition_id"/>
+                                        <div>
+                                            <field name="po_requisition_id" class="oe_inline"/>
+                                            <button name="action_create_po_requisition"
+                                                string="Make Purchase Requisition" type="object"
+                                                states="assigned"
+                                                attrs="{'invisible': [('po_requisition_id', '!=', False)]}" />
+                                        </div>
+                                        <field name="selected_bid"/>
+                                    </group>
+                                    <group string="Warehouse Dispatch"
+                                        colspan="4"
+                                        attrs="{'invisible': [('procurement_method', '!=', 'wh_dispatch')]}">
+                                        <field name="dispatch_location_id" />
+                                        <field name="stock_type" />
+                                        <field name="stock_owner" />
+                                    </group>
+                                    <group string="Transport Plan" colspan="4">
+                                        <field name="transport_plan_id"
+                                            on_change="onchange_transport_plan_id(transport_plan_id)"/>
+                                        <field name="date_etd"/>
+                                        <field name="date_eta"/>
+                                    </group>
+                                </group>
                             </group>
-                            <group name="sourced_grp" string="Proposal">
-                                <field name="confirmed_type"/>
-                                <label for="confirmed_qty"/>
-                                <div>
-                                    <field name="confirmed_qty" class="oe_inline"/>
-                                    <!-- <field name="confirmed_uom_id" class="oe_inline"/> -->
-                                </div>
-                                <field name="etd_date"/>
-                                <field name="dispatch_location_id" attrs="{'invisible':[('confirmed_type','!=','stock')]}"/>
-                                <field name="purchase_id" attrs="{'invisible':[('confirmed_type','!=','order')]}"/>
-                                <field name="estimated_goods_cost" widget="monetary"/>
-                                <field name="transport_order_id" class="oe_inline"/>
-                                <field name="estimated_transportation_cost" widget="monetary"/>
-                                <field name="estimated_tot_cost" widget="monetary"/>
-                                <field name="state" invisible="1"/>
-                            </group>
-                            <group name="rfq_grp" string="Purchase Requisition">
-                                <label for="po_requisition_id"/>
-                                <div>
-                                    <field name="po_requisition_id" class="oe_inline"/>
-                                    <button name="action_create_po_requisition" string="Make RFQ" type="object" states="draft,assigned" />
-                                 </div>
-                            </group>
-                        </group>
-                      </page>
-                      <page string="Offers">
-                        <field name="offer_ids"/>
-                      </page>
-                      <page string="Remarks">
-                      </page>
+                        </page>
+                        <page string="Offers">
+                            <field name="offer_ids"/>
+                        </page>
                     </notebook>
+                    <group>
+                        <div>
+                            <label for="note"/>
+                        </div>
+                        <field name="note" colspan="4"
+                            nolabel="1"
+                            class="oe_inline"
+                            placeholder="Additional notes..."/>
+                    </group>
                 </sheet>
                 <div class="oe_chatter">
                     <field name="message_follower_ids" widget="mail_followers"/>
@@ -354,39 +438,49 @@
         </field>
     </record>
 
-
     <record id="view_logistic_requisition_line_filter" model="ir.ui.view">
-            <field name="name">logistic.requisition.line.list.select</field>
-            <field name="model">logistic.requisition.line</field>
-            <field name="type">search</field>
-            <field name="arch" type="xml">
-                <search string="Search Logistic Requisition Line">
-                 <group>
-                    <filter name="draft" string="New" domain="[('state','=','draft')]" help="New Logistic Requisition Line"/>
-                    <filter name="assigned" string="Assigned" domain="[('state','=','assigned')]" help="Assigned Logistic Requisition Line"/>
-                    <filter name="cost_estimated" string="Cost Estimated" domain="[('state','=','cost_estimated')]" help="Cost Estimated Requisition Lines"/>
-                    <filter name="quoted" string="Quoted" domain="[('state','=','quoted')]"/>
-                    <separator orientation="vertical"/>
-                    <filter string="Unassigned"  domain="[('logistic_user_id','=', False)]" help="Unassigned Requisition"/>
-                    <separator orientation="vertical"/>
-                    <field name="description" />
-                    <field name="requisition_id" />
-                    <field name="logistic_user_id" />
-                    <field name="procurement_user_id" />
-                </group>
-                <newline/>
-                  <group expand="0" string="Group By..." groups="base.group_extended">
+        <field name="name">logistic.requisition.line.list.select</field>
+        <field name="model">logistic.requisition.line</field>
+        <field name="arch" type="xml">
+            <search string="Search Logistic Requisition Line">
+                <filter name="draft" string="New"
+                    domain="[('state','=','draft')]"
+                    help="New Logistic Requisition Line"/>
+                <filter name="confirmed"
+                    string="Confirmed"
+                    domain="[('state', '=', 'confirmed')]"
+                    help="Requisition has been confirmed"/>
+                <filter name="assigned" string="Assigned"
+                    domain="[('state','=','assigned')]"
+                    help="Assigned Logistic Requisition Line"/>
+                <filter name="quoted" string="Quoted"
+                    domain="[('state','=','quoted')]"/>
+                <separator/>
+                <filter string="Unassigned"
+                    domain="[('logistic_user_id','=', False)]"
+                    help="Unassigned Requisition"/>
+                <separator/>
+                <field name="requisition_id" />
+                <!-- use 'id' not 'name'
+                     because 'name' is a char so it would match '12'
+                     when searching '2',
+                     while id is int so match exactly 2  -->
+                <field name="id" string="Line N°"/>
+                <field name="description" />
+                <field name="logistic_user_id" />
+                <field name="procurement_user_id" />
+                <group expand="0" string="Group By...">
                     <filter string="Assigned Specialist" domain="[]" context="{'group_by':'logistic_user_id'}"/>
                     <filter string="Procurement Officer" domain="[]" context="{'group_by':'procurement_user_id'}"/>
                     <filter string="Logistic Requisition" domain="[]" context="{'group_by':'requisition_id'}"/>
-                    <separator orientation="vertical"/>
+                    <separator/>
                     <filter string="State" domain="[]" context="{'group_by':'state'}"/>
                     <filter string="Product" domain="[]" context="{'group_by':'product_id'}"/>
                     <filter string="Country" domain="[]" context="{'group_by':'country_id'}"/>
                 </group>
-              </search>
-            </field>
-        </record>
+            </search>
+        </field>
+    </record>
 
     <record model="ir.actions.act_window" id="action_logistic_requisition_line">
         <field name="name">Requisitions Lines</field>
@@ -395,8 +489,6 @@
         <field name="view_type">form</field>
         <field name="view_mode">tree,form,calendar,kanban</field>
         <field name="context">{}</field>
-        <!-- Example to open in a blink the right filtred list -->
-        <!-- <field name="context">{"search_default_logistic_user_id":uid,}</field> -->
         <field name="search_view_id" ref="view_logistic_requisition_line_filter"/>
         <field name="help"></field>
     </record>
@@ -407,41 +499,6 @@
         parent="menu_logistic_requisition_base"
         action="action_logistic_requisition_line"/>
 
-<!--     <record model="ir.ui.view" id="product_normal_form_view_inherit">
-        <field name="name">product.form.inherit</field>
-        <field name="type">form</field>
-        <field name="model">product.product</field>
-        <field name="inherit_id" ref="product.product_normal_form_view"/>
-        <field name="arch" type="xml">
-            <field name="supply_method" position="after">
-                <group colspan="2" col="2" attrs="{'invisible': [('supply_method','&lt;&gt;','buy')]}">
-                <field name="logistic_requisition"/>
-                </group>
-            </field>
-        </field>
-    </record>
-
-    <record model="ir.ui.view" id="procurement_normal_form_view_inherit">
-        <field name="name">procurement.form.inherit</field>
-        <field name="type">form</field>
-        <field name="model">procurement.order</field>
-        <field name="inherit_id" ref="procurement.procurement_form_view"/>
-        <field name="arch" type="xml">
-             <xpath expr="/form/notebook/page/field[@name='close_move']" position="after">
-                <field name="requisition_id"/>
-            </xpath>
-        </field>
-    </record>
-    <act_window
-            domain="[('requisition_id', '=', active_id)]"
-            context="{'default_requisition_id': active_id}"
-            id="act_res_partner_2_purchase_order"
-            name="Cost Estimate"
-            res_model="purchase.order"
-            src_model="logistic.requisition"/> -->
-
-
-    
     <record id="purchase.purchase_waiting" model="ir.actions.act_window">
         <field name="name">Cost Estimate Waiting Approval</field>
         <field name="type">ir.actions.act_window</field>
@@ -450,7 +507,7 @@
         <field name="view_mode">tree,form</field>
         <field name="domain">[('date_order','&gt;',time.strftime('%Y-01-01 00:00:00')),('date_order','&lt;',time.strftime('%Y-12-31 23:59:59')), ('state','in',('wait','confirmed'))]</field>
     </record>
-    
+
     <record id="logistic_requisition" model="ir.actions.act_window">
         <field name="name">Logistic Requisition</field>
         <field name="type">ir.actions.act_window</field>
@@ -459,11 +516,10 @@
         <field name="view_mode">tree,form</field>
         <field name="domain">[]</field>
     </record>
-    
+
     <record id="purchase.board_purchase_form" model="ir.ui.view">
         <field name="name">board.purchase.form</field>
         <field name="model">board.board</field>
-        <field name="type">form</field>
         <field name="arch" type="xml">
             <form string="Purchase Dashboard">
                 <board style="2-1">
@@ -479,7 +535,6 @@
             </form>
         </field>
     </record>
-    
-    
-        </data>
+
+    </data>
 </openerp>

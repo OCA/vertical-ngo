@@ -2,13 +2,13 @@
 <openerp>
     <data noupdate="1">
         <record id="seq_type_logistic_requisition" model="ir.sequence.type">
-            <field name="name">Logistic Requisition Order</field>
+            <field name="name">Logistic Requisition</field>
             <field name="code">logistic.requisition</field>
         </record>
         <record id="seq_logistic_requisition" model="ir.sequence">
-            <field name="name">Logistic Requisition Order</field>
+            <field name="name">Logistic Requisition</field>
             <field name="code">logistic.requisition</field>
-            <field name="prefix">LRO</field>
+            <field name="prefix">LR</field>
             <field name="padding">5</field>
         </record>
     </data>

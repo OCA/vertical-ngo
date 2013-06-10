@@ -19,5 +19,6 @@
 #
 ##############################################################################
 
-import sale_order
-import logistic_requisition
+from . import sale_order
+from . import logistic_requisition
+from . import stock
