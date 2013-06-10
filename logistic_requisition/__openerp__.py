@@ -21,12 +21,12 @@
 
 {"name": "Logistic Requisition",
  "version": "0.1",
- "author": "OpenERP SA",
+ "author": "Camptocamp",
  "license": "AGPL-3",
  "category": "Purchase Management",
  'complexity': "normal",
  "images": [],
- "website": "http://www.openerp.com",
+ "website": "http://www.camptocamp.com",
  "description": """
 This module allows you to manage your Logistic Requisitions.
 ============================================================
