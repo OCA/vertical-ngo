@@ -125,9 +125,10 @@ class logistic_requisition(orm.Model):
             help="International Commercial Terms are a series of "
                  "predefined commercial terms used in international "
                  "transactions."),
-        'incoterm_address_id': fields.many2one(
-            'res.partner',
+        'incoterm_address': fields.char(
             'Incoterm Place',
+            readonly=True,
+            states=REQ_STATES
             help="Incoterm Place of Delivery. "
                  "International Commercial Terms are a series of "
                  "predefined commercial terms used in "
