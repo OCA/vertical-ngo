@@ -74,7 +74,6 @@ class LogisticRequisitionSplitLine(orm.TransientModel):
                 'budget_tot_price': line.budget_tot_price - budget_value,
                 'state': line.state,
                 'logistic_user_id': line.logistic_user_id.id,
-                'procurement_user_id': line.procurement_user_id.id,
             }
             # TODO: Think to implement messaging posting on new
             # generated line, we want to explicit that we split the

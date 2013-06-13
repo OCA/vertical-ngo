@@ -389,14 +389,6 @@ class logistic_requisition_line(orm.Model):
             track_visibility='never',
             help="Logistic Specialist in charge of the "
                  "Logistic Requisition Line"),
-        'procurement_user_id': fields.many2one(
-            'res.users',
-            'Procurement Officer',
-            # same workaround as for the logistic_user_id field above
-            track_visibility='never',
-            help="Assigned Procurement Officer in charge of "
-                 "the Logistic Requisition Line",
-        ),
         'product_id': fields.many2one('product.product', 'Product',
                                       states=SOURCED_STATES,),
         'description': fields.char('Description',
@@ -590,14 +582,14 @@ class logistic_requisition_line(orm.Model):
         user_id = None
         warehouse_id = False  # TODO: always empty, where does it comes from?
         for line in lines:
-            line_user_id = line.procurement_user_id.id
+            line_user_id = line.logistic_user_id.id
             if user_id is None:
                 user_id = line_user_id
             elif user_id != line_user_id:
                 raise orm.except_orm(
                     _('Error'),
                     _('The lines are not assigned to the same '
-                      'Procurement Officer.'))
+                      'Logistic Specialist.'))
             line_company_id = line.requisition_id.company_id.id
             if company_id is None:
                 company_id = line_company_id
@@ -749,7 +741,6 @@ class logistic_requisition_line(orm.Model):
             default = {}
         std_default = {
             'logistic_user_id': False,
-            'procurement_user_id': False,
         }
         std_default.update(default)
         return super(logistic_requisition_line, self).copy_data(
@@ -763,9 +754,9 @@ class logistic_requisition_line(orm.Model):
             - called 'user_id'
             - linking to res.users
             - with track_visibility set
-            We override it here to add logistic_user_id and procurement_user_id to the list
+            We override it here to add logistic_user_id to the list
         """
-        fields_to_follow = ['logistic_user_id', 'procurement_user_id']
+        fields_to_follow = ['logistic_user_id']
         fields_to_follow += auto_follow_fields
         return super(logistic_requisition_line, self)._message_get_auto_subscribe_fields(
             cr, uid, updated_fields,
