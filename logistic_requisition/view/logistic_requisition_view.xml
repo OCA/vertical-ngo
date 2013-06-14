@@ -64,9 +64,10 @@
                             <group colspan="4">
                                 <field name="sourced" widget="progressbar"/>
                             </group>
-                            <field name="line_ids" colspan="4" nolabel="1">
+                            <field name="line_ids" colspan="4" nolabel="1" context="{'default_date_delivery':date_delivery}">
                                 <tree string="Requisition Lines" editable="bottom">
                                     <field name="name"/>
+                                    <field name="date_delivery"/>
                                     <field name="product_id" on_change="onchange_product_id(product_id,requested_uom_id)"/>
                                     <field name="description"/>
                                     <field name="requested_qty"/>
@@ -81,6 +82,7 @@
                             <form string="Requisition Lines">
                                 <field name="product_id" on_change="onchange_product_id(product_id,requested_uom_id)"/>
                                 <field name="description"/>
+                                <field name="date_delivery"/>
                                 <field name="requested_qty"/>
                                 <field name="requested_uom_id"/>
                                 <field name="logistic_user_id"/>
@@ -227,7 +229,7 @@
            <tree string="Logistic Requisition Line">
              <field name="requisition_id"/>
              <field name="name"/>
-             <field name="requested_date"/>
+             <field name="date_delivery"/>
              <field name="product_id"/>
              <field name="description"/>
              <field name="requested_qty"/>
@@ -248,7 +250,7 @@
         <field name="model">logistic.requisition.line</field>
         <field name="arch" type="xml">
             <calendar string="Logistic Requisition Line"
-                date_start="requested_date" color="country_id">
+                date_start="date_delivery" color="country_id">
                 <field name="name"/>
                 <field name="requisition_id"/>
                 <field name="description"/>
@@ -263,7 +265,7 @@
             <kanban>
                 <field name="description"/>
                 <field name="requested_qty"/>
-                <field name="requested_date"/>
+                <field name="date_delivery"/>
                 <templates>
                     <t t-name="kanban-box">
                         <div class="oe_kanban_vignette oe_semantic_html_override">
@@ -276,7 +278,7 @@
                                 <div name="tags"/>
                                 <ul>
                                     <li>Req. Qty: <field name="requested_qty"></field></li>
-                                    <li>Req. Date: <field name="requested_date"></field></li>
+                                    <li>Req. Date: <field name="date_delivery"></field></li>
                                     <li>Country: <field name="country_id"></field></li>
                                 </ul>
                             </div>
@@ -352,7 +354,7 @@
                                     type="action"
                                     states="draft,confirmed,assigned" />
                             </div>
-                            <field name="requested_date"/>
+                            <field name="date_delivery"/>
                             <field name="currency_id" invisible="1"/>
                             <field name="budget_unit_price" widget="monetary"
                                 options="{'currency_field': 'currency_id'}"/>

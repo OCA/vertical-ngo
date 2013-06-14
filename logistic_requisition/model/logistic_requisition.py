@@ -420,10 +420,11 @@ class logistic_requisition_line(orm.Model):
             type="float",
             digits_compute=dp.get_precision('Account'),
             store=True),
-        'requested_date': fields.related('requisition_id', 'date_delivery',
-                                         string='Requested Date',
-                                         readonly=True,
-                                         type='date'),
+        'date_delivery': fields.date(
+            'Desired Delivery Date',
+            states=REQUEST_STATES,
+            required=True
+        ),
         'country_id': fields.related(
             'requisition_id',
             'country_id',
