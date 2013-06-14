@@ -33,6 +33,7 @@ This module customizes the Sales Orders to disguise them in Logistic Orders
 
 """,
  "depends": ["sale",
+             "transport_plan",
              ],
  "demo": [],
  "data": ['view/sale_order_view.xml',
