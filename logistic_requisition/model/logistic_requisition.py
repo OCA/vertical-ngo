@@ -832,6 +832,7 @@ class logistic_requisition_line(orm.Model):
                 'product_id': line.product_id.id,
                 'name': line.description,
                 'type': make_type,
+                'price_unit': line.unit_cost,
                 }
         onchange_vals = sale_line_obj.product_id_change(
             cr, uid, [],
@@ -840,6 +841,8 @@ class logistic_requisition_line(orm.Model):
             partner_id=line.requisition_id.consignee_id.id,
             qty=line.proposed_qty,
             uom=line.proposed_uom_id.id).get('value', {})
+        #  price_unit to keep from LR Line unit_cost
+        onchange_vals['price_unit'] = vals['price_unit']
         vals.update(onchange_vals)
         return vals
 
