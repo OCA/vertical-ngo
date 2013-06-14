@@ -135,7 +135,7 @@ class logistic_requisition(orm.Model):
         'incoterm_address': fields.char(
             'Incoterm Place',
             readonly=True,
-            states=REQ_STATES
+            states=REQ_STATES,
             help="Incoterm Place of Delivery. "
                  "International Commercial Terms are a series of "
                  "predefined commercial terms used in "
