@@ -124,7 +124,7 @@
                     <page string="Transportation and Delivery">
                         <group>
                             <field name="incoterm_id"/>
-                            <field name="incoterm_address_id"/>
+                            <field name="incoterm_address"/>
                             <field name="shipping_note"/>
                         </group>
                     </page>
