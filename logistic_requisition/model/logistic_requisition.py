@@ -106,7 +106,14 @@ class logistic_requisition(orm.Model):
             'Company',
             readonly=True,
         ),
-        'analytic_id':  fields.many2one('account.analytic.account', 'Project'),
+        # Currently put all codes in CHAR for release A, will change for further release
+        # So I keep the same name
+        # 'analytic_id':  fields.many2one('account.analytic.account', 'Project'),
+        'analytic_id':  fields.char(
+            'Project',
+            readonly=True,
+            states=REQ_STATES,
+            ),
         'type': fields.selection(
             SELECTION_TYPE,
             string='Type of Requisition',
