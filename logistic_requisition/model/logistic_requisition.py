@@ -172,8 +172,7 @@ class logistic_requisition(orm.Model):
             lambda self, *args, **kwargs: self._get_sourced(*args, **kwargs),
             string='Sourced',
             type='float'
-            ),
-        'm_code': fields.char('M-Code', size=32),
+        ),
         'allowed_budget': fields.boolean('Allowed Budget'),
         'currency_id': fields.related('company_id',
                                       'currency_id',
