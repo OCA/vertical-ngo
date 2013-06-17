@@ -48,7 +48,6 @@
                             <field name="consignee_shipping_id"
                                 context="{'default_type':'delivery'}"/>
                             <field name="analytic_id"/>
-                            <field name="m_code"/>
                         </group>
                         <group>
                             <field name="preferred_sourcing"/>
