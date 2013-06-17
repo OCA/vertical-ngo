@@ -75,7 +75,6 @@
                                     <field name="budget_unit_price"/>
                                     <field name="budget_tot_price"/>
                                     <field name="account_id"/>
-                                    <field name="activity_code"/>
                                     <field name="state"/>
                                     <field name="logistic_user_id" attrs="{'invisible':[('state','=','draft')]}"/>
                             </tree>
@@ -237,7 +236,7 @@
              <field name="logistic_user_id"/>
              <field name="budget_tot_price" sum="Total Budget"/>
              <field name="state"/>
-             <button name="%(action_requisition_split_into)d" icon="gtk-justify-fill" 
+             <button name="%(action_requisition_split_into)d" icon="gtk-justify-fill"
                  string="Split the line" type="action"
                  states="draft,confirmed,assigned" />
              <field name="country_id" invisible="1"/>
@@ -333,7 +332,7 @@
                     <div class="oe_title">
                         <h1>
                             <label string="Requisition"/>
-                            <field name="requisition_id" class="oe_inline" readonly="1"/> / 
+                            <field name="requisition_id" class="oe_inline" readonly="1"/> /
                             <label string="Line N° "/>
                             <field name="name" class="oe_inline"/>
                         </h1>
@@ -365,7 +364,6 @@
                             <field name="requested_type"/>
                             <field name="logistic_user_id"/>
                             <field name="account_id"/>
-                            <field name="activity_code"/>
                         </group>
                     </group>
                     <notebook>

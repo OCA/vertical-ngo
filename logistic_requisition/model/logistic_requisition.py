@@ -45,7 +45,7 @@ class logistic_requisition(orm.Model):
         req_obj = self.pool.get('logistic.requisition')
         req_ids = req_obj.search(cr, uid,
                                  [('consignee_shipping_id', 'in', ids)],
-                                context=context)
+                                 context=context)
         return req_ids
 
     _columns = {
@@ -106,14 +106,12 @@ class logistic_requisition(orm.Model):
             'Company',
             readonly=True,
         ),
-        # Currently put all codes in CHAR for release A, will change for further release
-        # So I keep the same name
-        # 'analytic_id':  fields.many2one('account.analytic.account', 'Project'),
-        'analytic_id':  fields.char(
-            'Project',
-            readonly=True,
-            states=REQ_STATES,
-            ),
+
+        'analytic_id':  fields.many2one('account.analytic.account',
+                                        'Project',
+                                        readonly=True,
+                                        states=REQ_STATES,
+                                        ),
         'type': fields.selection(
             SELECTION_TYPE,
             string='Type of Requisition',
