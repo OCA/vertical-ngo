@@ -843,7 +843,8 @@ class logistic_requisition_line(orm.Model):
             qty=line.proposed_qty,
             uom=line.proposed_uom_id.id).get('value', {})
         #  price_unit to keep from LR Line unit_cost
-        onchange_vals['price_unit'] = vals['price_unit']
+        if 'price_unit' in onchange_vals:
+            del onchange_vals['price_unit']
         vals.update(onchange_vals)
         return vals
 
