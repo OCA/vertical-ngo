@@ -446,7 +446,7 @@ class logistic_requisition_line(orm.Model):
             readonly=True,
             store=True),
         'po_requisition_id': fields.many2one(
-            'purchase.requisition', 'Purchase Requisition',
+            'purchase.requisition', 'Request for Tender',
             states=SOURCED_STATES),
         'proposed_qty': fields.float(
             'Proposed Qty',
@@ -586,8 +586,12 @@ class logistic_requisition_line(orm.Model):
     def _prepare_po_requisition(self, cr, uid, lines, rfq_lines, context=None):
         company_id = None
         user_id = None
+        consignee_id = None
+        dest_address_id = None
         warehouse_id = False  # TODO: always empty, where does it comes from?
+        origin = []
         for line in lines:
+            origin.append(line.name)
             line_user_id = line.logistic_user_id.id
             if user_id is None:
                 user_id = line_user_id
@@ -603,10 +607,27 @@ class logistic_requisition_line(orm.Model):
                 raise orm.except_orm(
                     _('Error'),
                     _('The lines do not belong to the same company.'))
-        return {'user_id': user_id,
+            line_consignee_id = line.requisition_id.consignee_id.id
+            if consignee_id is None:
+                consignee_id = line_consignee_id
+            elif consignee_id != line_consignee_id:
+                raise orm.except_orm(
+                    _('Error'),
+                    _('The lines do not have the same consignee.'))
+            line_dest_address_id = line.requisition_id.consignee_shipping_id.id
+            if dest_address_id is None:
+                dest_address_id = line_dest_address_id
+            elif dest_address_id != line_dest_address_id:
+                raise orm.except_orm(
+                    _('Error'),
+                    _('The lines do not have the same delivery address.'))
+        return {'user_id': user_id or uid,
                 'company_id': company_id,
+                'consignee_id': consignee_id,
+                'dest_address_id': dest_address_id,
                 'warehouse_id': warehouse_id,
                 'line_ids': [(0, 0, line) for line in rfq_lines],
+                'origin': ", ".join(origin),
                 }
 
     def _prepare_po_requisition_line(self, cr, uid, line, context=None):
@@ -614,7 +635,7 @@ class logistic_requisition_line(orm.Model):
             raise orm.except_orm(
                 _('Existing'),
                 _('The logistic requisition line %d is '
-                  'already linked to a Purchase Requisition.') % line.id)
+                  'already linked to a Request for Tender.') % line.id)
         if not line.product_id:
             raise orm.except_orm(
                 _('Missing information'),
@@ -624,6 +645,7 @@ class logistic_requisition_line(orm.Model):
         return {'product_id': line.product_id.id,
                 'product_uom_id': line.requested_uom_id.id,
                 'product_qty': line.requested_qty,
+                'schedule_date': line.date_delivery,
                 }
 
     def _action_create_po_requisition(self, cr, uid, ids, context=None):
@@ -672,7 +694,7 @@ class logistic_requisition_line(orm.Model):
         rfq_id = self._action_create_po_requisition(cr, uid, ids, context=context)
         return {
             'type': 'ir.actions.act_window',
-            'name': _('Purchase Requisition'),
+            'name': _('Request for Tender'),
             'res_model': 'purchase.requisition',
             'res_id': rfq_id,
             'view_type': 'form',
