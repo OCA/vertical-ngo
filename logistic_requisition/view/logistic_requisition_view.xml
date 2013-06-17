@@ -383,14 +383,14 @@
                                         options="{'currency_field': 'currency_id'}"/>
                                 </group>
                                 <group>
-                                    <group string="Purchase Requisition"
+                                    <group string="Request for Tender"
                                         attrs="{'invisible': [('procurement_method', 'not in', ['procurement', 'fw_agreement'])]}"
                                         colspan="4">
                                         <label for="po_requisition_id"/>
                                         <div>
                                             <field name="po_requisition_id" class="oe_inline"/>
                                             <button name="action_create_po_requisition"
-                                                string="Make Purchase Requisition" type="object"
+                                                string="Make Request for Tender" type="object"
                                                 states="assigned"
                                                 attrs="{'invisible': [('po_requisition_id', '!=', False)]}" />
                                         </div>

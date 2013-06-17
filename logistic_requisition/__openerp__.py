@@ -37,6 +37,7 @@ A Logistic requisition express a need that is requested somewhere.
  "depends": ["transport_plan",
              "purchase",
              "purchase_requisition",
+             "ifrc_purchase_requisition", #FIXME: until that module is restructered and moved into ngo-addons
              "mail",
              "logistic_order",
              ],
