@@ -184,14 +184,12 @@ class logistic_requisition(orm.Model):
             'res.users',
             string='Budget Holder'),
         'date_budget_holder': fields.datetime(
-            'Budget Holder Validation Date',
-            readonly=True),
+            'Budget Holder Validation Date'),
         'finance_officer_id': fields.many2one(
             'res.users',
             string='Finance Officer'),
         'date_finance_officer': fields.datetime(
-            'Finance Officer Validation Date',
-            readonly=True),
+            'Finance Officer Validation Date'),
     }
 
     _defaults = {
@@ -266,27 +264,12 @@ class logistic_requisition(orm.Model):
                 done_ids.append(req.id)
         self.write(cr, uid, done_ids, {'state': 'done'}, context=context)
 
-    @staticmethod
-    def _validation_dates(vals):
-        res = {}
-        if vals.get('budget_holder_id'):
-            res['date_budget_holder'] = time.strftime(DT_FORMAT)
-        if vals.get('finance_officer_id'):
-            res['date_finance_officer'] = time.strftime(DT_FORMAT)
-        return res
-
     def create(self, cr, uid, vals, context=None):
         if vals.get('name', '/') == '/':
             seq_obj = self.pool.get('ir.sequence')
             vals['name'] = seq_obj.get(cr, uid, 'logistic.requisition') or '/'
-        vals.update(self._validation_dates(vals))
         return super(logistic_requisition, self).create(cr, uid, vals,
                                                         context=context)
-
-    def write(self, cr, uid, ids, vals, context=None):
-        vals.update(self._validation_dates(vals))
-        return super(logistic_requisition, self).write(cr, uid, ids, vals,
-                                                       context=context)
 
     def copy(self, cr, uid, id, default=None, context=None):
         if not default:
@@ -312,6 +295,13 @@ class logistic_requisition(orm.Model):
                                        [partner.id], ['delivery'],
                                        context=context)
         values['consignee_shipping_id'] = addr['delivery']
+        return {'value': values}
+
+    def onchange_validate(self, cr, uid, ids, validate_id,
+                          date_validate, date_field_name, context=None):
+        values = {}
+        if validate_id and not date_validate:
+            values[date_field_name] = time.strftime(DT_FORMAT)
         return {'value': values}
 
     def button_cancel(self, cr, uid, ids, context=None):
