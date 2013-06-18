@@ -104,19 +104,23 @@
                             <div colspan="4">
                                 <label for="budget_holder_id"/>
                                 <field name="budget_holder_id"
+                                    on_change="onchange_validate(budget_holder_id, date_budget_holder, 'date_budget_holder')"
                                     class="oe_inline"/>
                                 <label string=" validated on "
-                                    attrs="{'invisible': [('date_budget_holder', '=', False)]}"/>
+                                    attrs="{'invisible': [('budget_holder_id', '=', False)]}" />
                                 <field name="date_budget_holder"
+                                    attrs="{'invisible': [('budget_holder_id', '=', False)]}"
                                     class="oe_inline"/>
                             </div>
                             <div colspan="4">
                                 <label for="finance_officer_id"/>
                                 <field name="finance_officer_id"
+                                    on_change="onchange_validate(finance_officer_id, date_finance_officer, 'date_finance_officer')"
                                     class="oe_inline"/>
                                 <label string=" validated on "
-                                    attrs="{'invisible': [('date_finance_officer', '=', False)]}"/>
+                                    attrs="{'invisible': [('finance_officer_id', '=', False)]}"/>
                                 <field name="date_finance_officer"
+                                    attrs="{'invisible': [('finance_officer_id', '=', False)]}"
                                     class="oe_inline"/>
                             </div>
                         </group>
