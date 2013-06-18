@@ -48,7 +48,6 @@
                             <field name="consignee_shipping_id"
                                 context="{'default_type':'delivery'}"/>
                             <field name="analytic_id"/>
-                            <field name="m_code"/>
                         </group>
                         <group>
                             <field name="preferred_sourcing"/>
@@ -64,9 +63,10 @@
                             <group colspan="4">
                                 <field name="sourced" widget="progressbar"/>
                             </group>
-                            <field name="line_ids" colspan="4" nolabel="1">
+                            <field name="line_ids" colspan="4" nolabel="1" context="{'default_date_delivery':date_delivery}">
                                 <tree string="Requisition Lines" editable="bottom">
                                     <field name="name"/>
+                                    <field name="date_delivery"/>
                                     <field name="product_id" on_change="onchange_product_id(product_id,requested_uom_id)"/>
                                     <field name="description"/>
                                     <field name="requested_qty"/>
@@ -74,17 +74,16 @@
                                     <field name="budget_unit_price"/>
                                     <field name="budget_tot_price"/>
                                     <field name="account_id"/>
-                                    <field name="activity_code"/>
                                     <field name="state"/>
                                     <field name="logistic_user_id" attrs="{'invisible':[('state','=','draft')]}"/>
                             </tree>
                             <form string="Requisition Lines">
                                 <field name="product_id" on_change="onchange_product_id(product_id,requested_uom_id)"/>
                                 <field name="description"/>
+                                <field name="date_delivery"/>
                                 <field name="requested_qty"/>
                                 <field name="requested_uom_id"/>
                                 <field name="logistic_user_id"/>
-                                <field name="procurement_user_id"/>
                                 <field name="state" invisible="1"/>
                                 <field name="budget_unit_price"/>
                                 <field name="budget_tot_price"/>
@@ -125,7 +124,7 @@
                     <page string="Transportation and Delivery">
                         <group>
                             <field name="incoterm_id"/>
-                            <field name="incoterm_address_id"/>
+                            <field name="incoterm_address"/>
                             <field name="shipping_note"/>
                         </group>
                     </page>
@@ -228,16 +227,15 @@
            <tree string="Logistic Requisition Line">
              <field name="requisition_id"/>
              <field name="name"/>
-             <field name="requested_date"/>
+             <field name="date_delivery"/>
              <field name="product_id"/>
              <field name="description"/>
              <field name="requested_qty"/>
              <field name="requested_uom_id"/>
              <field name="logistic_user_id"/>
-             <field name="procurement_user_id"/>
              <field name="budget_tot_price" sum="Total Budget"/>
              <field name="state"/>
-             <button name="%(action_requisition_split_into)d" icon="gtk-justify-fill" 
+             <button name="%(action_requisition_split_into)d" icon="gtk-justify-fill"
                  string="Split the line" type="action"
                  states="draft,confirmed,assigned" />
              <field name="country_id" invisible="1"/>
@@ -250,7 +248,7 @@
         <field name="model">logistic.requisition.line</field>
         <field name="arch" type="xml">
             <calendar string="Logistic Requisition Line"
-                date_start="requested_date" color="country_id">
+                date_start="date_delivery" color="country_id">
                 <field name="name"/>
                 <field name="requisition_id"/>
                 <field name="description"/>
@@ -265,7 +263,7 @@
             <kanban>
                 <field name="description"/>
                 <field name="requested_qty"/>
-                <field name="requested_date"/>
+                <field name="date_delivery"/>
                 <templates>
                     <t t-name="kanban-box">
                         <div class="oe_kanban_vignette oe_semantic_html_override">
@@ -278,7 +276,7 @@
                                 <div name="tags"/>
                                 <ul>
                                     <li>Req. Qty: <field name="requested_qty"></field></li>
-                                    <li>Req. Date: <field name="requested_date"></field></li>
+                                    <li>Req. Date: <field name="date_delivery"></field></li>
                                     <li>Country: <field name="country_id"></field></li>
                                 </ul>
                             </div>
@@ -333,7 +331,7 @@
                     <div class="oe_title">
                         <h1>
                             <label string="Requisition"/>
-                            <field name="requisition_id" class="oe_inline" readonly="1"/> / 
+                            <field name="requisition_id" class="oe_inline" readonly="1"/> /
                             <label string="Line N° "/>
                             <field name="name" class="oe_inline"/>
                         </h1>
@@ -354,7 +352,7 @@
                                     type="action"
                                     states="draft,confirmed,assigned" />
                             </div>
-                            <field name="requested_date"/>
+                            <field name="date_delivery"/>
                             <field name="currency_id" invisible="1"/>
                             <field name="budget_unit_price" widget="monetary"
                                 options="{'currency_field': 'currency_id'}"/>
@@ -364,9 +362,7 @@
                         <group>
                             <field name="requested_type"/>
                             <field name="logistic_user_id"/>
-                            <field name="procurement_user_id"/>
                             <field name="account_id"/>
-                            <field name="activity_code"/>
                         </group>
                     </group>
                     <notebook>
@@ -387,14 +383,14 @@
                                         options="{'currency_field': 'currency_id'}"/>
                                 </group>
                                 <group>
-                                    <group string="Purchase Requisition"
+                                    <group string="Request for Tender"
                                         attrs="{'invisible': [('procurement_method', 'not in', ['procurement', 'fw_agreement'])]}"
                                         colspan="4">
                                         <label for="po_requisition_id"/>
                                         <div>
                                             <field name="po_requisition_id" class="oe_inline"/>
                                             <button name="action_create_po_requisition"
-                                                string="Make Purchase Requisition" type="object"
+                                                string="Make Request for Tender" type="object"
                                                 states="assigned"
                                                 attrs="{'invisible': [('po_requisition_id', '!=', False)]}" />
                                         </div>
@@ -468,10 +464,8 @@
                 <field name="id" string="Line N°"/>
                 <field name="description" />
                 <field name="logistic_user_id" />
-                <field name="procurement_user_id" />
                 <group expand="0" string="Group By...">
                     <filter string="Assigned Specialist" domain="[]" context="{'group_by':'logistic_user_id'}"/>
-                    <filter string="Procurement Officer" domain="[]" context="{'group_by':'procurement_user_id'}"/>
                     <filter string="Logistic Requisition" domain="[]" context="{'group_by':'requisition_id'}"/>
                     <separator/>
                     <filter string="State" domain="[]" context="{'group_by':'state'}"/>

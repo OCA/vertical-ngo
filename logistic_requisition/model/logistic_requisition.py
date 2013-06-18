@@ -45,7 +45,7 @@ class logistic_requisition(orm.Model):
         req_obj = self.pool.get('logistic.requisition')
         req_ids = req_obj.search(cr, uid,
                                  [('consignee_shipping_id', 'in', ids)],
-                                context=context)
+                                 context=context)
         return req_ids
 
     _columns = {
@@ -106,7 +106,12 @@ class logistic_requisition(orm.Model):
             'Company',
             readonly=True,
         ),
-        'analytic_id':  fields.many2one('account.analytic.account', 'Project'),
+
+        'analytic_id':  fields.many2one('account.analytic.account',
+                                        'Project',
+                                        readonly=True,
+                                        states=REQ_STATES,
+                                        ),
         'type': fields.selection(
             SELECTION_TYPE,
             string='Type of Requisition',
@@ -125,9 +130,10 @@ class logistic_requisition(orm.Model):
             help="International Commercial Terms are a series of "
                  "predefined commercial terms used in international "
                  "transactions."),
-        'incoterm_address_id': fields.many2one(
-            'res.partner',
+        'incoterm_address': fields.char(
             'Incoterm Place',
+            readonly=True,
+            states=REQ_STATES,
             help="Incoterm Place of Delivery. "
                  "International Commercial Terms are a series of "
                  "predefined commercial terms used in "
@@ -166,8 +172,7 @@ class logistic_requisition(orm.Model):
             lambda self, *args, **kwargs: self._get_sourced(*args, **kwargs),
             string='Sourced',
             type='float'
-            ),
-        'm_code': fields.char('M-Code', size=32),
+        ),
         'allowed_budget': fields.boolean('Allowed Budget'),
         'currency_id': fields.related('company_id',
                                       'currency_id',
@@ -389,14 +394,6 @@ class logistic_requisition_line(orm.Model):
             track_visibility='never',
             help="Logistic Specialist in charge of the "
                  "Logistic Requisition Line"),
-        'procurement_user_id': fields.many2one(
-            'res.users',
-            'Procurement Officer',
-            # same workaround as for the logistic_user_id field above
-            track_visibility='never',
-            help="Assigned Procurement Officer in charge of "
-                 "the Logistic Requisition Line",
-        ),
         'product_id': fields.many2one('product.product', 'Product',
                                       states=SOURCED_STATES,),
         'description': fields.char('Description',
@@ -420,10 +417,11 @@ class logistic_requisition_line(orm.Model):
             type="float",
             digits_compute=dp.get_precision('Account'),
             store=True),
-        'requested_date': fields.related('requisition_id', 'date_delivery',
-                                         string='Requested Date',
-                                         readonly=True,
-                                         type='date'),
+        'date_delivery': fields.date(
+            'Desired Delivery Date',
+            states=REQUEST_STATES,
+            required=True
+        ),
         'country_id': fields.related(
             'requisition_id',
             'country_id',
@@ -448,7 +446,7 @@ class logistic_requisition_line(orm.Model):
             readonly=True,
             store=True),
         'po_requisition_id': fields.many2one(
-            'purchase.requisition', 'Purchase Requisition',
+            'purchase.requisition', 'Request for Tender',
             states=SOURCED_STATES),
         'proposed_qty': fields.float(
             'Proposed Qty',
@@ -588,16 +586,20 @@ class logistic_requisition_line(orm.Model):
     def _prepare_po_requisition(self, cr, uid, lines, rfq_lines, context=None):
         company_id = None
         user_id = None
+        consignee_id = None
+        dest_address_id = None
         warehouse_id = False  # TODO: always empty, where does it comes from?
+        origin = []
         for line in lines:
-            line_user_id = line.procurement_user_id.id
+            origin.append(line.name)
+            line_user_id = line.logistic_user_id.id
             if user_id is None:
                 user_id = line_user_id
             elif user_id != line_user_id:
                 raise orm.except_orm(
                     _('Error'),
                     _('The lines are not assigned to the same '
-                      'Procurement Officer.'))
+                      'Logistic Specialist.'))
             line_company_id = line.requisition_id.company_id.id
             if company_id is None:
                 company_id = line_company_id
@@ -605,10 +607,27 @@ class logistic_requisition_line(orm.Model):
                 raise orm.except_orm(
                     _('Error'),
                     _('The lines do not belong to the same company.'))
-        return {'user_id': user_id,
+            line_consignee_id = line.requisition_id.consignee_id.id
+            if consignee_id is None:
+                consignee_id = line_consignee_id
+            elif consignee_id != line_consignee_id:
+                raise orm.except_orm(
+                    _('Error'),
+                    _('The lines do not have the same consignee.'))
+            line_dest_address_id = line.requisition_id.consignee_shipping_id.id
+            if dest_address_id is None:
+                dest_address_id = line_dest_address_id
+            elif dest_address_id != line_dest_address_id:
+                raise orm.except_orm(
+                    _('Error'),
+                    _('The lines do not have the same delivery address.'))
+        return {'user_id': user_id or uid,
                 'company_id': company_id,
+                'consignee_id': consignee_id,
+                'dest_address_id': dest_address_id,
                 'warehouse_id': warehouse_id,
                 'line_ids': [(0, 0, line) for line in rfq_lines],
+                'origin': ", ".join(origin),
                 }
 
     def _prepare_po_requisition_line(self, cr, uid, line, context=None):
@@ -616,7 +635,7 @@ class logistic_requisition_line(orm.Model):
             raise orm.except_orm(
                 _('Existing'),
                 _('The logistic requisition line %d is '
-                  'already linked to a Purchase Requisition.') % line.id)
+                  'already linked to a Request for Tender.') % line.id)
         if not line.product_id:
             raise orm.except_orm(
                 _('Missing information'),
@@ -626,6 +645,7 @@ class logistic_requisition_line(orm.Model):
         return {'product_id': line.product_id.id,
                 'product_uom_id': line.requested_uom_id.id,
                 'product_qty': line.requested_qty,
+                'schedule_date': line.date_delivery,
                 }
 
     def _action_create_po_requisition(self, cr, uid, ids, context=None):
@@ -674,7 +694,7 @@ class logistic_requisition_line(orm.Model):
         rfq_id = self._action_create_po_requisition(cr, uid, ids, context=context)
         return {
             'type': 'ir.actions.act_window',
-            'name': _('Purchase Requisition'),
+            'name': _('Request for Tender'),
             'res_model': 'purchase.requisition',
             'res_id': rfq_id,
             'view_type': 'form',
@@ -749,7 +769,6 @@ class logistic_requisition_line(orm.Model):
             default = {}
         std_default = {
             'logistic_user_id': False,
-            'procurement_user_id': False,
         }
         std_default.update(default)
         return super(logistic_requisition_line, self).copy_data(
@@ -763,9 +782,9 @@ class logistic_requisition_line(orm.Model):
             - called 'user_id'
             - linking to res.users
             - with track_visibility set
-            We override it here to add logistic_user_id and procurement_user_id to the list
+            We override it here to add logistic_user_id to the list
         """
-        fields_to_follow = ['logistic_user_id', 'procurement_user_id']
+        fields_to_follow = ['logistic_user_id']
         fields_to_follow += auto_follow_fields
         return super(logistic_requisition_line, self)._message_get_auto_subscribe_fields(
             cr, uid, updated_fields,
@@ -780,7 +799,7 @@ class logistic_requisition_line(orm.Model):
                        (line.requisition_id.name + '/' + str(line.id)))
             details = (_("This new requisition concerns %s "
                          "and is due for %s.") %
-                       (line.description, line.requested_date))
+                       (line.description, line.date_delivery))
             self.message_post(cr, uid, [line.id], body=details,
                               subject=subject, subtype='mail.mt_comment',
                               context=context)
@@ -833,6 +852,7 @@ class logistic_requisition_line(orm.Model):
                 'product_id': line.product_id.id,
                 'name': line.description,
                 'type': make_type,
+                'price_unit': line.unit_cost,
                 }
         onchange_vals = sale_line_obj.product_id_change(
             cr, uid, [],
@@ -841,6 +861,9 @@ class logistic_requisition_line(orm.Model):
             partner_id=line.requisition_id.consignee_id.id,
             qty=line.proposed_qty,
             uom=line.proposed_uom_id.id).get('value', {})
+        #  price_unit to keep from LR Line unit_cost
+        if 'price_unit' in onchange_vals:
+            del onchange_vals['price_unit']
         vals.update(onchange_vals)
         return vals
 
