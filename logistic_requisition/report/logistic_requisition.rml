@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<document filename="Purchase for Requisitions.pdf">
-  <template title="Purchase for Requisitions" author="OpenERP S.A.(sales@openerp.com)" allowSplitting="20">
+<document filename="Logistic Requisitions.pdf">
+  <template title="Logistic Requisitions" author="OpenERP S.A.(sales@openerp.com)" allowSplitting="20">
     <pageTemplate id="first">
       <frame id="first" x1="34.0" y1="28.0" width="530" height="786"/>
     </pageTemplate>
@@ -132,7 +132,7 @@
     <para style="terp_default_8">
       <font color="white"> </font>
     </para>
-    <para style="terp_header">Purchase for Requisitions [[ requisition.name ]]</para>
+    <para style="terp_header">Logistic Requisitions [[ requisition.name ]]</para>
     <para style="terp_default_8">
       <font color="white"> </font>
     </para>
@@ -198,36 +198,6 @@
     <para style="terp_default_8">
       <font color="white"> </font>
     </para>
-    <para style="terp_tblheader_Details">Quotation Detail [[ requisition.purchase_ids ==[] and removeParentNode('para') ]]</para>
-    <blockTable colWidths="337.0,96.0,97.0" style="Table6">
-      <tr>
-        <td>
-          <para style="terp_tblheader_Details">Supplier [[ requisition.purchase_ids ==[] and removeParentNode('blockTable') ]]</para>
-        </td>
-        <td>
-          <para style="terp_tblheader_Details_Centre">Date Ordered</para>
-        </td>
-        <td>
-          <para style="terp_tblheader_Details_Centre">Order Reference</para>
-        </td>
-      </tr>
-    </blockTable>
-    <section>
-      <para style="terp_default_2">[[ requisition.purchase_ids ==[] and removeParentNode('section') ]] [[ repeatIn(requisition.purchase_ids,'purchase_ids') ]]</para>
-      <blockTable colWidths="338.0,96.0,96.0" style="Table7">
-        <tr>
-          <td>
-            <para style="terp_default_9">[[ (purchase_ids.partner_address_id and purchase_ids.partner_address_id.partner_id and purchase_ids.partner_address_id.partner_id.name) or '' ]]</para>
-          </td>
-          <td>
-            <para style="terp_default_Centre_9">[[ formatLang(purchase_ids.date_order,date='True') ]]</para>
-          </td>
-          <td>
-            <para style="terp_default_Centre_9">[[ purchase_ids.name ]]</para>
-          </td>
-        </tr>
-      </blockTable>
-    </section>
   </pto>
   </story>
 </document>
