@@ -251,7 +251,13 @@ class logistic_requisition(orm.Model):
         if line_ids:
             line_obj = self.pool.get('logistic.requisition.line')
             line_obj._do_draft(cr, uid, line_ids, context=context)
-        self.write(cr, uid, ids, {'state': 'draft'}, context=context)
+        vals = {'state': 'draft',
+                'budget_holder_id': False,
+                'date_budget_holder': False,
+                'finance_officer_id': False,
+                'date_finance_officer': False,
+                }
+        self.write(cr, uid, ids, vals, context=context)
 
     def _do_done(self, cr, uid, ids, context=None):
         done_ids = []
