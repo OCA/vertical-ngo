@@ -201,7 +201,7 @@
                 <field name="analytic_id" />
                 <group expand="0" string="Group By...">
                     <filter string="Requisition Responsible" domain="[]" context="{'group_by':'user_id'}"/>
-                    <filter string="Requester" domain="[]" context="{'group_by':'requester_id'}"/>
+                    <filter string="Requesting Entity" domain="[]" context="{'group_by':'requester_id'}"/>
                     <filter string="Country" domain="[]" context="{'group_by':'country_id'}"/>
                     <filter string="Project" domain="[]" context="{'group_by':'analytic_id'}"/>
                     <separator/>
