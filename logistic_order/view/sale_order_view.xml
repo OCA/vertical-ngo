@@ -67,7 +67,7 @@
             <field name="partner_shipping_id" position="before">
                 <field name="consignee_id"/>
             </field>
-            <field name="incoterm">
+            <field name="incoterm" position="after">
                 <field name="incoterm_address"/>
             </field>
         </field>
