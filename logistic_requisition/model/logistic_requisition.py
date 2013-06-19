@@ -52,8 +52,7 @@ class logistic_requisition(orm.Model):
         'name': fields.char(
             'Reference',
             required=True,
-            readonly=True,
-            states=REQ_STATES),
+            readonly=True),
         'date': fields.date(
             'Requisition Date',
             states=REQ_STATES,
@@ -132,7 +131,6 @@ class logistic_requisition(orm.Model):
                  "transactions."),
         'incoterm_address': fields.char(
             'Incoterm Place',
-            readonly=True,
             states=REQ_STATES,
             help="Incoterm Place of Delivery. "
                  "International Commercial Terms are a series of "
