@@ -81,24 +81,8 @@
                                     <field name="budget_tot_price"/>
                                     <field name="account_id"/>
                                     <field name="state"/>
-                                    <field name="logistic_user_id"
-                                        string="Assigned To"
-                                        attrs="{'invisible':[('state','=','draft')]}"/>
-                            </tree>
-                            <form string="Requisition Lines">
-                                <field name="product_id" on_change="onchange_product_id(product_id,requested_uom_id)"/>
-                                <field name="description"/>
-                                <field name="date_delivery"/>
-                                <field name="requested_qty"/>
-                                <field name="requested_uom_id"/>
-                                <field name="logistic_user_id"/>
-                                <field name="state" invisible="1"/>
-                                <field name="budget_unit_price"/>
-                                <field name="budget_tot_price"/>
-                                <button name="action_proc" string="Procure" type="object" states="draft" icon="gtk-go-forward"/>
-                                <button name="action_cancel" string="Cancel" type="object" states="draft" icon="terp-dialog-close"/>
-                            </form>
-
+                                    <field name="logistic_user_id" string="Assigned To"/>
+                                </tree>
                         </field>
                         <group class="oe_subtotal_footer oe_right">
                             <field name="currency_id" invisible="1"/>
