@@ -662,27 +662,6 @@ class logistic_requisition_line(orm.Model):
                    context=context)
         return rfq_id
 
-    def _get_shop_from_location(self, cr, uid, location_id, context=None):
-        """ Returns the sale.shop for a location.
-
-        Returns None if no shop exist for a location.
-        """
-        warehouse_obj = self.pool.get('stock.warehouse')
-        shop_obj = self.pool.get('sale.shop')
-        warehouse_ids = warehouse_obj.search(
-            cr, uid,
-            [('lot_stock_id', '=', location_id)],
-            context=context)
-        if not warehouse_ids:
-            return None
-        shop_ids = shop_obj.search(cr, uid,
-                                   [('warehouse_id', 'in', warehouse_ids)],
-                                   context=context)
-        if not shop_ids:
-            return None
-        assert len(shop_ids) == 1, (
-            "Several shops found for location with id %s" % location_id)
-        return shop_ids[0]
 
     def action_create_po_requisition(self, cr, uid, ids, context=None):
         if context is None:
@@ -840,126 +819,16 @@ class logistic_requisition_line(orm.Model):
             value['date_etd'] = plan.date_etd
         return {'value': value}
 
-    def _prepare_cost_estimate_line(self, cr, uid, line, context=None):
-        sale_line_obj = self.pool.get('sale.order.line')
-        make_type = ('make_to_stock' if line.procurement_method == 'wh_dispatch'
-                     else 'make_to_order')
-        vals = {'requisition_id': line.id,
-                'product_id': line.product_id.id,
-                'name': line.description,
-                'type': make_type,
-                'price_unit': line.unit_cost,
-                }
-        onchange_vals = sale_line_obj.product_id_change(
-            cr, uid, [],
-            line.requisition_id.consignee_id.property_product_pricelist.id,
-            line.product_id.id,
-            partner_id=line.requisition_id.consignee_id.id,
-            qty=line.proposed_qty,
-            uom=line.proposed_uom_id.id).get('value', {})
-        #  price_unit to keep from LR Line unit_cost
-        if 'price_unit' in onchange_vals:
-            del onchange_vals['price_unit']
-        vals.update(onchange_vals)
-        return vals
-
-    def _prepare_cost_estimate(self, cr, uid, lines, estimate_lines, context=None):
-        """ Prepare the values for the creation of a cost estimate
-        from a selection of requisition lines.
-        A cost estimate is a sale.order record.
-
-        All lines must belong to the same requisition.
-        """
-        sale_obj = self.pool.get('sale.order')
-        requisition = lines[0].requisition_id
-        requester_id = requisition.requester_id.id
-        consignee_id = requisition.consignee_id.id
-        shipping_id = requisition.consignee_shipping_id.id
-        location_ids = set()
-        for line in lines:
-            if line.dispatch_location_id:
-                location_ids.add(line.dispatch_location_id.id)
-        if len(location_ids) > 1:
-            raise orm.except_orm(
-                _('Error'),
-                _('All requisition lines must come from the same location '
-                  'or from purchase.'))
-
-        try:
-            location_id = location_ids.pop()
-        except KeyError:
-            data_obj = self.pool.get('ir.model.data')
-            __, shop_id = data_obj.get_object_reference(
-                cr, uid, 'sale', 'sale_shop_1')
-        else:
-            shop_id = self._get_shop_from_location(cr, uid, location_id,
-                                                   context=context)
-            if not shop_id:
-                location_obj = self.pool.get('stock.location')
-                location = location_obj.browse(cr, uid, location_id,
-                                               context=context)
-                raise orm.except_orm(
-                    _('Error'),
-                    _('No shop is associated with the location %s') %
-                    location.name)
-
-        vals = {'partner_id': requester_id,
-                'partner_invoice_id': requester_id,
-                'partner_shipping_id': shipping_id,
-                'consignee_id': consignee_id,
-                'order_line': [(0, 0, x) for x in estimate_lines],
-                'shop_id': shop_id,
-                }
-
-        onchange_vals = sale_obj.onchange_partner_id(
-            cr, uid, [], requester_id, context=context).get('value', {})
-        vals.update(onchange_vals)
-        return vals
-
-    def _open_cost_estimate(self, cr, uid, estimate_id, context=None):
-        return {
-            'name': _('Cost Estimate'),
-            'view_mode': 'form',
-            'res_model': 'sale.order',
-            'res_id': estimate_id,
-            'target': 'current',
-            'view_id': False,
-            'context': {},
-            'type': 'ir.actions.act_window',
-        }
-
-    def _filter_cost_estimate_lines(self, cr, uid, lines, context=None):
-        return [line for line in lines
-                if line.state == 'sourced' and
-                not line.cost_estimate_id]
-
     def button_create_cost_estimate(self, cr, uid, ids, context=None):
-        sale_obj = self.pool.get('sale.order')
-        estimate_lines = []
-        lines = self.browse(cr, uid, ids, context=context)
-        lines = self._filter_cost_estimate_lines(cr, uid, lines,
-                                                 context=context)
-        if not lines:
-            return False
-        requisition = lines[0].requisition_id
-        if any(line.requisition_id != requisition for line in lines[1:]):
-            raise orm.except_orm(_('Error'),
-                                 _('The lines do not belong to the same '
-                                   'logistic requisition.'))
-        for line in lines:
-            vals = self._prepare_cost_estimate_line(cr, uid, line,
-                                                    context=context)
-            estimate_lines.append(vals)
-        order_d = self._prepare_cost_estimate(cr, uid,
-                                              lines,
-                                              estimate_lines,
-                                              context=context)
-        sale_id = sale_obj.create(cr, uid, order_d, context=context)
-        self.write(cr, uid, ids,
-                   {'cost_estimate_id': sale_id},
-                   context=context)
-        self._do_quoted(cr, uid, [line.id for line in lines], context=context)
-        return self._open_cost_estimate(cr, uid, sale_id, context=context)
+        data_obj = self.pool.get('ir.model.data')
+        act_obj = self.pool.get('ir.actions.act_window')
+        try:
+            __, action_id = data_obj.get_object_reference(
+                cr, uid, 'logistic_requisition',
+                'action_logistic_requisition_cost_estimate')
+        except ValueError:
+            action_id = False
+        return act_obj.read(cr, uid, action_id, context=context)
 
     def button_sourced(self, cr, uid, ids, context=None):
         self._do_sourced(cr, uid, ids, context=context)
