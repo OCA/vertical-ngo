@@ -45,7 +45,7 @@ A Logistic requisition express a need that is requested somewhere.
  "data": ["wizard/logistic_requisition_split_line_view.xml",
           "wizard/logistic_line_create_requisition_view.xml",
           "wizard/assign_line_view.xml",
-          "wizard/cost_estimate_line_view.xml",
+          "wizard/cost_estimate_view.xml",
           "security/logistic_requisition.xml",
           "security/ir.model.access.csv",
           "data/logistic_requisition_data.xml",
