@@ -313,6 +313,17 @@ class logistic_requisition(orm.Model):
         self._do_confirm(cr, uid, ids, context=context)
         return True
 
+    def button_create_cost_estimate(self, cr, uid, ids, context=None):
+        data_obj = self.pool.get('ir.model.data')
+        act_obj = self.pool.get('ir.actions.act_window')
+        try:
+            __, action_id = data_obj.get_object_reference(
+                cr, uid, 'logistic_requisition',
+                'action_logistic_requisition_cost_estimate')
+        except ValueError:
+            action_id = False
+        return act_obj.read(cr, uid, action_id, context=context)
+
     def button_reset(self, cr, uid, ids, context=None):
         self._do_draft(cr, uid, ids, context=context)
         return True

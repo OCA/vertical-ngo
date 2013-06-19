@@ -63,7 +63,8 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
         if context['active_model'] == 'logistic.requisition':
             # when we create the cost estimate from the requisition,
             # we'll select all the lines
-            req_id = context['active_ids']
+            assert len(context['active_ids']) == 1, "Only 1 ID accepted"
+            req_id = context['active_ids'][0]
             line_ids = req_obj.read(cr, uid, req_id,
                                     ['line_ids'], context=context)['line_ids']
 
