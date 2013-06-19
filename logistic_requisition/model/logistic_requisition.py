@@ -383,7 +383,7 @@ class logistic_requisition_line(orm.Model):
         'logistic_user_id': fields.many2one(
             'res.users',
             'Logistic Specialist',
-            readonly=True,
+            states=REQUEST_STATES,
             # workaround for the following bug, preventing to
             # automatically subscribe the user to the line
             # https://bugs.launchpad.net/openobject-addons/+bug/1188538
@@ -547,7 +547,9 @@ class logistic_requisition_line(orm.Model):
         self.write(cr, uid, ids, {'state': 'confirmed'}, context=context)
 
     def _do_cancel(self, cr, uid, ids, context=None):
-        self.write(cr, uid, ids, {'state': 'cancel'}, context=context)
+        vals = {'state': 'cancel',
+                'logistic_user_id': False}
+        self.write(cr, uid, ids, vals, context=context)
 
     def _do_sourced(self, cr, uid, ids, context=None):
         self.write(cr, uid, ids, {'state': 'sourced'}, context=context)
@@ -785,9 +787,14 @@ class logistic_requisition_line(orm.Model):
                                                            vals,
                                                            context=context)
         assignee_changed = vals.get('logistic_user_id')
+        state_changed = vals.get('state')
         if assignee_changed:
-            self._send_note_to_logistic_user(cr, uid, ids,
-                                             context=context)
+            self._send_note_to_logistic_user(cr, uid, ids, context=context)
+        if assignee_changed or state_changed:
+            # Retry to assign at each change of assignee or state
+            # because we can assign someone when a line is in draft but
+            # the state change only when the state is confirmed AND have
+            # an assignee
             self._do_assign(cr, uid, ids, context=context)
         return res
 
