@@ -8,10 +8,10 @@ class sale_order(orm.Model):
 
     _columns = {
         # override only to change the 'string' argument
-        # from 'Customer' to 'Requester'
+        # from 'Customer' to 'Requesting Entity'
         'partner_id': fields.many2one(
             'res.partner',
-            'Requester',
+            'Requesting Entity',
             readonly=True,
             states={'draft': [('readonly', False)],
                     'sent': [('readonly', False)]},
