@@ -810,7 +810,7 @@ class logistic_requisition_line(orm.Model):
             prod = prod_obj.browse(cr, uid, product_id, context=context)
             value = {
                 'requested_uom_id': prod.uom_id.id,
-                'description': prod.name
+                'description': prod.name_get()[0][1]
             }
         return {'value': value}
 
