@@ -228,7 +228,7 @@
         <field name="name">logistic.requisition.line.tree</field>
         <field name="model">logistic.requisition.line</field>
         <field name="arch" type="xml">
-           <tree string="Logistic Requisition Line">
+           <tree string="Logistic Requisition Line" create="false">
              <field name="requisition_id"/>
              <field name="name"/>
              <field name="date_delivery"/>
@@ -264,7 +264,7 @@
         <field name="name">logistic.requisition.line.kanban</field>
         <field name="model">logistic.requisition.line</field>
         <field name="arch" type="xml">
-            <kanban>
+            <kanban create="false">
                 <field name="description"/>
                 <field name="requested_qty"/>
                 <field name="date_delivery"/>
@@ -296,7 +296,7 @@
         <field name="name">logistic.requisition.line.form</field>
         <field name="model">logistic.requisition.line</field>
         <field name="arch" type="xml">
-            <form string="Logistic Requisition Line" version="7.0">
+            <form string="Logistic Requisition Line" create="false" version="7.0">
                 <header>
                     <button name="%(action_requisition_line_assign)d"
                         states="confirmed"
