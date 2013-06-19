@@ -81,11 +81,6 @@ class logistic_requisition(orm.Model):
             'res.partner', 'Delivery Address', required=True,
             states=REQ_STATES
         ),
-        'preferred_sourcing': fields.selection(
-            [('procurement', 'Procurement'),
-             ('wh_dispatch', 'Warehouse Dispatch')],
-            string='Preferred Sourcing'
-        ),
         'country_id': fields.related(
             'consignee_shipping_id',
             'country_id',
