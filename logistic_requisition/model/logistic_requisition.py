@@ -900,7 +900,9 @@ class logistic_requisition_line(orm.Model):
         try:
             location_id = location_ids.pop()
         except KeyError:
-            shop_id = 1  # FIXME
+            data_obj = self.pool.get('ir.model.data')
+            __, shop_id = data_obj.get_object_reference(
+                cr, uid, 'sale', 'sale_shop_1')
         else:
             shop_id = self._get_shop_from_location(cr, uid, location_id,
                                                    context=context)
