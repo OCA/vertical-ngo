@@ -68,7 +68,9 @@
                             <group colspan="4">
                                 <field name="sourced" widget="progressbar"/>
                             </group>
-                            <field name="line_ids" colspan="4" nolabel="1" context="{'default_date_delivery':date_delivery}">
+                            <field name="line_ids" colspan="4" nolabel="1"
+                                attrs="{'readonly': [('state', '!=' ,'draft')]}"
+                                context="{'default_date_delivery':date_delivery}">
                                 <tree string="Requisition Lines" editable="bottom">
                                     <field name="name"/>
                                     <field name="date_delivery"/>
