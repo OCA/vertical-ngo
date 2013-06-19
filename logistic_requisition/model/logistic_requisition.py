@@ -64,7 +64,7 @@ class logistic_requisition(orm.Model):
             required=True
         ),
         'user_id': fields.many2one(
-            'res.users', 'Responsible', required=True,
+            'res.users', 'Business Unit Officer', required=True,
             states=REQ_STATES,
             help="Mobilization Officer or Logistic Coordinator "
                  "in charge of the Logistic Requisition"
