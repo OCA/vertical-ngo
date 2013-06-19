@@ -23,4 +23,10 @@ class sale_order(orm.Model):
             'res.partner',
             string='Consignee',
             required=True),
+        'incoterm_address': fields.char(
+            'Incoterm Place',
+            help="Incoterm Place of Delivery. "
+                 "International Commercial Terms are a series of "
+                 "predefined commercial terms used in "
+                 "international transactions."),
     }

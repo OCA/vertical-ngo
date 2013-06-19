@@ -117,9 +117,6 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
         """
         sale_obj = self.pool.get('sale.order')
         location_obj = self.pool.get('stock.location')
-        requester_id = requisition.requester_id.id
-        consignee_id = requisition.consignee_id.id
-        shipping_id = requisition.consignee_shipping_id.id
         location_ids = set()
         for line in sourced_lines:
             if line.dispatch_location_id:
@@ -129,7 +126,6 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
                 _('Error'),
                 _('All requisition lines must come from the same location '
                   'or from purchase.'))
-
         try:
             location_id = location_ids.pop()
         except KeyError:
@@ -148,12 +144,15 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
                     _('No shop is associated with the location %s') %
                     location.name)
 
+        requester_id = requisition.requester_id.id
         vals = {'partner_id': requester_id,
                 'partner_invoice_id': requester_id,
-                'partner_shipping_id': shipping_id,
-                'consignee_id': consignee_id,
+                'partner_shipping_id': requisition.consignee_shipping_id.id,
+                'consignee_id': requisition.consignee_id.id,
                 'order_line': [(0, 0, x) for x in estimate_lines],
                 'shop_id': shop_id,
+                'incoterm': requisition.incoterm_id.id,
+                'incoterm_address': requisition.incoterm_address,
                 }
 
         onchange_vals = sale_obj.onchange_partner_id(
