@@ -184,12 +184,11 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
                                               estimate_lines,
                                               context=context)
         sale_id = sale_obj.create(cr, uid, order_d, context=context)
-        line_obj.write(cr, uid, ids,
+        sourced_ids = [line.id for line in sourced_lines]
+        line_obj.write(cr, uid, sourced_ids,
                        {'cost_estimate_id': sale_id},
                        context=context)
-        line_obj._do_quoted(cr, uid,
-                            [line.id for line in sourced_lines],
-                            context=context)
+        line_obj._do_quoted(cr, uid, sourced_ids, context=context)
         return self._open_cost_estimate(cr, uid, sale_id, context=context)
 
     def _open_cost_estimate(self, cr, uid, estimate_id, context=None):
