@@ -864,39 +864,27 @@ class logistic_requisition_line(orm.Model):
         return vals
 
     def _prepare_cost_estimate(self, cr, uid, lines, estimate_lines, context=None):
+        """ Prepare the values for the creation of a cost estimate
+        from a selection of requisition lines.
+        A cost estimate is a sale.order record.
+
+        All lines must belong to the same requisition.
+        """
         sale_obj = self.pool.get('sale.order')
-        requester_ids = set()
-        consignee_ids = set()
-        shipping_ids = set()
+        requisition = lines[0].requisition_id
+        requester_id = requisition.requester_id.id
+        consignee_id = requisition.consignee_id.id
+        shipping_id = requisition.consignee_shipping_id.id
         location_ids = set()
         for line in lines:
-            requester_ids.add(line.requisition_id.requester_id.id)
-            consignee_ids.add(line.requisition_id.consignee_id.id)
             if line.dispatch_location_id:
                 location_ids.add(line.dispatch_location_id.id)
-            shipping_ids.add(line.requisition_id.consignee_shipping_id.id)
-
-        if len(requester_ids) > 1:
-            raise orm.except_orm(
-                _('Error'),
-                _('All requisition lines must belong to the same requester.'))
-        if len(consignee_ids) > 1:
-            raise orm.except_orm(
-                _('Error'),
-                _('All requisition lines must belong to the same consignee.'))
-        if len(shipping_ids) > 1:
-            raise orm.except_orm(
-                _('Error'),
-                _('All requisition lines must be delivered in the same place.'))
         if len(location_ids) > 1:
             raise orm.except_orm(
                 _('Error'),
                 _('All requisition lines must come from the same location '
                   'or from purchase.'))
 
-        requester_id = requester_ids.pop()
-        consignee_id = consignee_ids.pop()
-        shipping_id = shipping_ids.pop()
         try:
             location_id = location_ids.pop()
         except KeyError:
@@ -906,7 +894,14 @@ class logistic_requisition_line(orm.Model):
         else:
             shop_id = self._get_shop_from_location(cr, uid, location_id,
                                                    context=context)
-            assert shop_id, "No shop found with the given location"
+            if not shop_id:
+                location_obj = self.pool.get('stock.location')
+                location = location_obj.browse(cr, uid, location_id,
+                                               context=context)
+                raise orm.except_orm(
+                    _('Error'),
+                    _('No shop is associated with the location %s') %
+                    location.name)
 
         vals = {'partner_id': requester_id,
                 'partner_invoice_id': requester_id,
@@ -946,6 +941,11 @@ class logistic_requisition_line(orm.Model):
                                                  context=context)
         if not lines:
             return False
+        requisition = lines[0].requisition_id
+        if any(line.requisition_id != requisition for line in lines[1:]):
+            raise orm.except_orm(_('Error'),
+                                 _('The lines do not belong to the same '
+                                   'logistic requisition.'))
         for line in lines:
             vals = self._prepare_cost_estimate_line(cr, uid, line,
                                                     context=context)
