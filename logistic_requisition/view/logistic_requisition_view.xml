@@ -55,7 +55,6 @@
                             <field name="analytic_id"/>
                         </group>
                         <group>
-                            <field name="preferred_sourcing"/>
                             <field name="type"/>
                             <field name="date"/>
                             <field name="date_delivery"/>
