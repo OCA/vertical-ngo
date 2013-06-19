@@ -38,9 +38,6 @@ class logistic_requisition(orm.Model):
                   'done': [('readonly', True)]
                   }
 
-    SELECTION_TYPE = [('cost_estimate', 'Cost Estimate Only'),
-                      ('donation', 'Donation')]
-
     def _get_from_partner(self, cr, uid, ids, context=None):
         req_obj = self.pool.get('logistic.requisition')
         req_ids = req_obj.search(cr, uid,
@@ -106,9 +103,8 @@ class logistic_requisition(orm.Model):
                                         readonly=True,
                                         states=REQ_STATES,
                                         ),
-        'type': fields.selection(
-            SELECTION_TYPE,
-            string='Type of Requisition',
+        'cost_estimate_only': fields.boolean(
+            'Cost Estimate Only',
             states=REQ_STATES
         ),
         'preferred_transport': fields.many2one(
@@ -438,13 +434,11 @@ class logistic_requisition_line(orm.Model):
                                          10),
                 'res.partner': (_get_from_partner, ['country_id'], 10),
             }),
-        'requested_type': fields.related(
-            'requisition_id', 'type',
-            string='Requested Type',
-            type='selection',
-            selection=logistic_requisition.SELECTION_TYPE,
-            readonly=True,
-            store=True),
+        'cost_estimate_only': fields.related(
+            'requisition_id', 'cost_estimate_only',
+            string='Cost Estimate Only',
+            type='boolean',
+            readonly=True),
         'po_requisition_id': fields.many2one(
             'purchase.requisition', 'Request for Tender',
             states=SOURCED_STATES),

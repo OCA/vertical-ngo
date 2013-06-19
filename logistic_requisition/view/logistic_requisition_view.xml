@@ -55,9 +55,9 @@
                             <field name="analytic_id"/>
                         </group>
                         <group>
-                            <field name="type"/>
                             <field name="date"/>
                             <field name="date_delivery"/>
+                            <field name="cost_estimate_only"/>
                             <field name="preferred_transport"/>
                             <field name="user_id"/>
                         </group>
@@ -370,7 +370,7 @@
                                 options="{'currency_field': 'currency_id'}"/>
                         </group>
                         <group>
-                            <field name="requested_type"/>
+                            <field name="cost_estimate_only"/>
                             <field name="logistic_user_id"/>
                             <field name="account_id"/>
                         </group>
