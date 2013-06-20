@@ -510,6 +510,7 @@ class logistic_requisition_line(orm.Model):
             help="Draft: Created\n"
                  "Confirmed: Requisition has been confirmed\n"
                  "Assigned: Waiting the creation of a quote\n"
+                 "Sourced: The line has been sourced from procurement or warehouse\n"
                  "Quoted: Quotation made for the line\n"
                  "Cancelled: The requisition has been cancelled"
         ),
