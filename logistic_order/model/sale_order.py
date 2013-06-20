@@ -8,10 +8,10 @@ class sale_order(orm.Model):
 
     _columns = {
         # override only to change the 'string' argument
-        # from 'Customer' to 'Requester'
+        # from 'Customer' to 'Requesting Entity'
         'partner_id': fields.many2one(
             'res.partner',
-            'Requester',
+            'Requesting Entity',
             readonly=True,
             states={'draft': [('readonly', False)],
                     'sent': [('readonly', False)]},
@@ -23,4 +23,11 @@ class sale_order(orm.Model):
             'res.partner',
             string='Consignee',
             required=True),
+        'incoterm_address': fields.char(
+            'Incoterm Place',
+            help="Incoterm Place of Delivery. "
+                 "International Commercial Terms are a series of "
+                 "predefined commercial terms used in "
+                 "international transactions."),
+        'requested_by': fields.text('Requested By'),
     }
