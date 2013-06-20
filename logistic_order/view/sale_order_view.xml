@@ -70,6 +70,9 @@
             <field name="incoterm" position="after">
                 <field name="incoterm_address"/>
             </field>
+            <field name="partner_id" position="after">
+                <field name="requested_by"/>
+            </field>
         </field>
     </record>
 
