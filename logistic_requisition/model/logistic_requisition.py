@@ -442,7 +442,7 @@ class logistic_requisition_line(orm.Model):
             type='boolean',
             readonly=True),
         'po_requisition_id': fields.many2one(
-            'purchase.requisition', 'Request for Tender',
+            'purchase.requisition', 'Call for Bids',
             states=SOURCED_STATES),
         'proposed_qty': fields.float(
             'Proposed Qty',
