@@ -70,6 +70,8 @@ class logistic_requisition(orm.Model):
             'res.partner', 'Requesting Entity', required=True,
             states=REQ_STATES
         ),
+        'requested_by': fields.text('Requested By',
+                                    states=REQ_STATES),
         'consignee_id': fields.many2one(
             'res.partner', 'Consignee', required=True,
             states=REQ_STATES
