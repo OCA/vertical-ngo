@@ -15,6 +15,11 @@
                         states="confirmed,done,cancel"
                         type="object"
                         class="oe_highlight"/>
+                    <button name="button_create_cost_estimate"
+                        string="Create Cost Estimate"
+                        states="confirmed"
+                        class="oe_highlight"
+                        type="object" />
                     <button name="button_confirm"
                         string="Confirm"
                         states="draft"
@@ -44,16 +49,16 @@
                     <group>
                         <group>
                             <field name="requester_id"/>
+                            <field name="requested_by"/>
                             <field name="consignee_id" on_change="onchange_consignee_id(consignee_id)"/>
                             <field name="consignee_shipping_id"
                                 context="{'default_type':'delivery'}"/>
                             <field name="analytic_id"/>
                         </group>
                         <group>
-                            <field name="preferred_sourcing"/>
-                            <field name="type"/>
                             <field name="date"/>
                             <field name="date_delivery"/>
+                            <field name="cost_estimate_only"/>
                             <field name="preferred_transport"/>
                             <field name="user_id"/>
                         </group>
@@ -63,34 +68,22 @@
                             <group colspan="4">
                                 <field name="sourced" widget="progressbar"/>
                             </group>
-                            <field name="line_ids" colspan="4" nolabel="1" context="{'default_date_delivery':date_delivery}">
+                            <field name="line_ids" colspan="4" nolabel="1"
+                                attrs="{'readonly': [('state', '!=' ,'draft')]}"
+                                context="{'default_date_delivery':date_delivery}">
                                 <tree string="Requisition Lines" editable="bottom">
                                     <field name="name"/>
-                                    <field name="date_delivery"/>
                                     <field name="product_id" on_change="onchange_product_id(product_id,requested_uom_id)"/>
                                     <field name="description"/>
-                                    <field name="requested_qty"/>
+                                    <field name="requested_qty" string="Quantity"/>
                                     <field name="requested_uom_id"/>
+                                    <field name="date_delivery"/>
                                     <field name="budget_unit_price"/>
                                     <field name="budget_tot_price"/>
                                     <field name="account_id"/>
                                     <field name="state"/>
-                                    <field name="logistic_user_id" attrs="{'invisible':[('state','=','draft')]}"/>
-                            </tree>
-                            <form string="Requisition Lines">
-                                <field name="product_id" on_change="onchange_product_id(product_id,requested_uom_id)"/>
-                                <field name="description"/>
-                                <field name="date_delivery"/>
-                                <field name="requested_qty"/>
-                                <field name="requested_uom_id"/>
-                                <field name="logistic_user_id"/>
-                                <field name="state" invisible="1"/>
-                                <field name="budget_unit_price"/>
-                                <field name="budget_tot_price"/>
-                                <button name="action_proc" string="Procure" type="object" states="draft" icon="gtk-go-forward"/>
-                                <button name="action_cancel" string="Cancel" type="object" states="draft" icon="terp-dialog-close"/>
-                            </form>
-
+                                    <field name="logistic_user_id" string="Assigned To"/>
+                                </tree>
                         </field>
                         <group class="oe_subtotal_footer oe_right">
                             <field name="currency_id" invisible="1"/>
@@ -104,19 +97,23 @@
                             <div colspan="4">
                                 <label for="budget_holder_id"/>
                                 <field name="budget_holder_id"
+                                    on_change="onchange_validate(budget_holder_id, date_budget_holder, 'date_budget_holder')"
                                     class="oe_inline"/>
                                 <label string=" validated on "
-                                    attrs="{'invisible': [('date_budget_holder', '=', False)]}"/>
+                                    attrs="{'invisible': [('budget_holder_id', '=', False)]}" />
                                 <field name="date_budget_holder"
+                                    attrs="{'invisible': [('budget_holder_id', '=', False)]}"
                                     class="oe_inline"/>
                             </div>
                             <div colspan="4">
                                 <label for="finance_officer_id"/>
                                 <field name="finance_officer_id"
+                                    on_change="onchange_validate(finance_officer_id, date_finance_officer, 'date_finance_officer')"
                                     class="oe_inline"/>
                                 <label string=" validated on "
-                                    attrs="{'invisible': [('date_finance_officer', '=', False)]}"/>
+                                    attrs="{'invisible': [('finance_officer_id', '=', False)]}"/>
                                 <field name="date_finance_officer"
+                                    attrs="{'invisible': [('finance_officer_id', '=', False)]}"
                                     class="oe_inline"/>
                             </div>
                         </group>
@@ -189,8 +186,8 @@
                 <field name="requester_id" />
                 <field name="analytic_id" />
                 <group expand="0" string="Group By...">
-                    <filter string="Requisition Responsible" domain="[]" context="{'group_by':'user_id'}"/>
-                    <filter string="Requester" domain="[]" context="{'group_by':'requester_id'}"/>
+                    <filter string="Business Unit Officer" domain="[]" context="{'group_by':'user_id'}"/>
+                    <filter string="Requesting Entity" domain="[]" context="{'group_by':'requester_id'}"/>
                     <filter string="Country" domain="[]" context="{'group_by':'country_id'}"/>
                     <filter string="Project" domain="[]" context="{'group_by':'analytic_id'}"/>
                     <separator/>
@@ -224,7 +221,7 @@
         <field name="name">logistic.requisition.line.tree</field>
         <field name="model">logistic.requisition.line</field>
         <field name="arch" type="xml">
-           <tree string="Logistic Requisition Line">
+           <tree string="Logistic Requisition Line" create="false">
              <field name="requisition_id"/>
              <field name="name"/>
              <field name="date_delivery"/>
@@ -260,7 +257,7 @@
         <field name="name">logistic.requisition.line.kanban</field>
         <field name="model">logistic.requisition.line</field>
         <field name="arch" type="xml">
-            <kanban>
+            <kanban create="false">
                 <field name="description"/>
                 <field name="requested_qty"/>
                 <field name="date_delivery"/>
@@ -292,7 +289,7 @@
         <field name="name">logistic.requisition.line.form</field>
         <field name="model">logistic.requisition.line</field>
         <field name="arch" type="xml">
-            <form string="Logistic Requisition Line" version="7.0">
+            <form string="Logistic Requisition Line" create="false" version="7.0">
                 <header>
                     <button name="%(action_requisition_line_assign)d"
                         states="confirmed"
@@ -360,7 +357,7 @@
                                 options="{'currency_field': 'currency_id'}"/>
                         </group>
                         <group>
-                            <field name="requested_type"/>
+                            <field name="cost_estimate_only"/>
                             <field name="logistic_user_id"/>
                             <field name="account_id"/>
                         </group>
@@ -383,14 +380,14 @@
                                         options="{'currency_field': 'currency_id'}"/>
                                 </group>
                                 <group>
-                                    <group string="Request for Tender"
+                                    <group string="Call for Bids"
                                         attrs="{'invisible': [('procurement_method', 'not in', ['procurement', 'fw_agreement'])]}"
                                         colspan="4">
                                         <label for="po_requisition_id"/>
                                         <div>
                                             <field name="po_requisition_id" class="oe_inline"/>
                                             <button name="action_create_po_requisition"
-                                                string="Make Request for Tender" type="object"
+                                                string="Call for Bids" type="object"
                                                 states="assigned"
                                                 attrs="{'invisible': [('po_requisition_id', '!=', False)]}" />
                                         </div>

@@ -32,7 +32,7 @@ This module customizes the Sales Orders to disguise them in Logistic Orders
 ===========================================================================
 
 """,
- "depends": ["sale",
+ "depends": ["sale_stock",
              "transport_plan",
              ],
  "demo": [],
