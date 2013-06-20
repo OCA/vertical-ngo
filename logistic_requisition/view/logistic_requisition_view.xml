@@ -380,14 +380,14 @@
                                         options="{'currency_field': 'currency_id'}"/>
                                 </group>
                                 <group>
-                                    <group string="Request for Tender"
+                                    <group string="Call for Bids"
                                         attrs="{'invisible': [('procurement_method', 'not in', ['procurement', 'fw_agreement'])]}"
                                         colspan="4">
                                         <label for="po_requisition_id"/>
                                         <div>
                                             <field name="po_requisition_id" class="oe_inline"/>
                                             <button name="action_create_po_requisition"
-                                                string="Make Request for Tender" type="object"
+                                                string="Call for Bids" type="object"
                                                 states="assigned"
                                                 attrs="{'invisible': [('po_requisition_id', '!=', False)]}" />
                                         </div>
