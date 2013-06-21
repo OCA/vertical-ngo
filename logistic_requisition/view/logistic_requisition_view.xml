@@ -50,9 +50,13 @@
                         <group>
                             <field name="requester_id"/>
                             <field name="requested_by"/>
-                            <field name="consignee_id" on_change="onchange_consignee_id(consignee_id)"/>
+                            <field name="consignee_id"
+                                   on_change="onchange_consignee_id(consignee_id)"
+                                   attrs="{'required': [('cost_estimate_only', '=', False)]}"/>
+
                             <field name="consignee_shipping_id"
-                                context="{'default_type':'delivery'}"/>
+                                   context="{'default_type':'delivery'}"
+                                   attrs="{'required': [('cost_estimate_only', '=', False)]}"/>
                             <field name="analytic_id"/>
                         </group>
                         <group>

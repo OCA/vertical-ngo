@@ -73,11 +73,11 @@ class logistic_requisition(orm.Model):
         'requested_by': fields.text('Requested By',
                                     states=REQ_STATES),
         'consignee_id': fields.many2one(
-            'res.partner', 'Consignee', required=True,
+            'res.partner', 'Consignee',
             states=REQ_STATES
         ),
         'consignee_shipping_id': fields.many2one(
-            'res.partner', 'Delivery Address', required=True,
+            'res.partner', 'Delivery Address',
             states=REQ_STATES
         ),
         'country_id': fields.related(
