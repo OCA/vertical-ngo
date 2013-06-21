@@ -50,6 +50,13 @@ class logistic_requisition(orm.Model):
             'Reference',
             required=True,
             readonly=True),
+
+        # Not intended to be openerp origin convention
+        # it comes from paper
+        'source_document': fields.char(
+            'Source Document',
+            states=REQ_STATES,
+        ),
         'date': fields.date(
             'Requisition Date',
             states=REQ_STATES,
