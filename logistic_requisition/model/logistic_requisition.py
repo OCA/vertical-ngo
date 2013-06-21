@@ -51,8 +51,8 @@ class logistic_requisition(orm.Model):
             required=True,
             readonly=True),
 
-        # Not intended to be openerp origin convention
-        # it comes from paper
+        # Not intended to match OpenERP origin field convention.
+        # Source comes from paper
         'source_document': fields.char(
             'Source Document',
             states=REQ_STATES,
