@@ -109,7 +109,6 @@ class logistic_requisition(orm.Model):
 
         'analytic_id':  fields.many2one('account.analytic.account',
                                         'Project',
-                                        readonly=True,
                                         states=REQ_STATES,
                                         ),
         'cost_estimate_only': fields.boolean(
