@@ -64,6 +64,7 @@
                             <field name="date_delivery"/>
                             <field name="cost_estimate_only"/>
                             <field name="preferred_transport"/>
+                            <field name="source_document"/>
                             <field name="user_id"/>
                         </group>
                     </group>
