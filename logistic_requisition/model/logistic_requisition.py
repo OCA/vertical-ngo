@@ -401,13 +401,13 @@ class logistic_requisition_line(orm.Model):
             ondelete='cascade'),
         'logistic_user_id': fields.many2one(
             'res.users',
-            'Logistic Specialist',
+            'Assigned To',
             states=REQUEST_STATES,
             # workaround for the following bug, preventing to
             # automatically subscribe the user to the line
             # https://bugs.launchpad.net/openobject-addons/+bug/1188538
             track_visibility='never',
-            help="Logistic Specialist in charge of the "
+            help="User in charge of the "
                  "Logistic Requisition Line"),
         'product_id': fields.many2one('product.product', 'Product',
                                       states=SOURCED_STATES,),
@@ -628,7 +628,7 @@ class logistic_requisition_line(orm.Model):
                 raise orm.except_orm(
                     _('Error'),
                     _('The lines are not assigned to the same '
-                      'Logistic Specialist.'))
+                      'User.'))
             line_company_id = line.requisition_id.company_id.id
             if company_id is None:
                 company_id = line_company_id
@@ -800,7 +800,7 @@ class logistic_requisition_line(orm.Model):
             context=context)
 
     def _send_note_to_logistic_user(self, cr, uid, ids, context=None):
-        """Post a message to warn the logistic specialist that a new
+        """Post a message to warn the user that a new
         line has been associated."""
         for line in self.browse(cr, uid, ids, context=context):
             subject = (_("Logistic Requisition Line %s Assigned") %
@@ -813,7 +813,7 @@ class logistic_requisition_line(orm.Model):
                               context=context)
 
     def write(self, cr, uid, ids, vals, context=None):
-        """ Send a message to the logistic user when it is assigned
+        """ Send a message to the user when it is assigned
         and move the state's line to assigned.
         """
         res = super(logistic_requisition_line, self).write(cr, uid, ids,
