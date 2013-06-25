@@ -496,7 +496,7 @@ class logistic_requisition_line(orm.Model):
                 'logistic.requisition.line': (lambda self, cr, uid, ids, c=None: ids,
                                               ['requisition_id'], 10),
                 'logistic.requisition': (_get_from_requisition,
-                                         ['cost_estimate_only'],
+                                         ['requester_type'],
                                          10),
                 }
             ),
