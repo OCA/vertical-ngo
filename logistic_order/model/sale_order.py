@@ -30,4 +30,16 @@ class sale_order(orm.Model):
                  "predefined commercial terms used in "
                  "international transactions."),
         'requested_by': fields.text('Requested By'),
+         'state': fields.selection([
+            ('draft', 'Draft Cost Estimate'),
+            ('sent', 'Cost Estimate Sent'),
+            ('cancel', 'Cancelled'),
+            ('waiting_date', 'Waiting Schedule'),
+            ('progress', 'Logistic Order'),
+            ('manual', 'Logistic Order to Invoice'),
+            ('invoice_except', 'Invoice Exception'),
+            ('done', 'Done'),
+            ], 'Status', readonly=True, track_visibility='onchange',
+            help="Gives the status of the cost estimate or logistic order. \nThe exception status is automatically set when a cancel operation occurs in the processing of a document linked to the logistic order. \nThe 'Waiting Schedule' status is set when the invoice is confirmed but waiting for the scheduler to run on the order date.", select=True),
+
     }
