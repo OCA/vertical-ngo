@@ -186,6 +186,9 @@
                     string="Done"
                     domain="[('state', '=', 'done')]"/>
                 <separator/>
+                <filter string="My Requisition"
+                    domain="[('user_id','=', uid)]"
+                    help="Your assigned Requisition"/>
                 <filter string="Unassigned"  domain="[('user_id','=', False)]" help="Unassigned Requisition"/>
                 <separator/>
                 <filter string="Cost Estimate Only"  domain="[('cost_estimate_only','=', True)]" help="Show cost estimate only"/>
@@ -463,6 +466,9 @@
                 <filter name="quoted" string="Quoted"
                     domain="[('state','=','quoted')]"/>
                 <separator/>
+                <filter string="My Requisition Line"
+                    domain="[('logistic_user_id','=', uid)]"
+                    help="Your assigned Requisition Line"/>
                 <filter string="Unassigned"
                     domain="[('logistic_user_id','=', False)]"
                     help="Unassigned Requisition"/>
