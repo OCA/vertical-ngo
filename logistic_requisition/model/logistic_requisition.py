@@ -444,7 +444,7 @@ class logistic_requisition_line(orm.Model):
                                    states=REQUEST_STATES,
                                    required=True),
         'requested_qty': fields.float(
-            'Req. Qty',
+            'Quantity',
             states=REQUEST_STATES,
             digits_compute=dp.get_precision('Product UoM')),
         'requested_uom_id': fields.many2one('product.uom',
