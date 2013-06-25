@@ -29,6 +29,11 @@ import openerp.addons.decimal_precision as dp
 
 _logger = logging.getLogger(__name__)
 
+REQUESTER_TYPE = [
+             ('national_society', 'National Society'),
+             ('external', 'External Organization'),
+             ('internal', 'Federation (internal)'),
+        ]
 
 class logistic_requisition(orm.Model):
     _name = "logistic.requisition"
@@ -37,6 +42,7 @@ class logistic_requisition(orm.Model):
     REQ_STATES = {'confirmed': [('readonly', True)],
                   'done': [('readonly', True)]
                   }
+
 
     def _get_from_partner(self, cr, uid, ids, context=None):
         req_obj = self.pool.get('logistic.requisition')
@@ -75,6 +81,11 @@ class logistic_requisition(orm.Model):
         ),
         'requester_id': fields.many2one(
             'res.partner', 'Requesting Entity', required=True,
+            states=REQ_STATES
+        ),
+        'requester_type': fields.selection(
+            REQUESTER_TYPE,
+            string='Type of Requestor',
             states=REQ_STATES
         ),
         'requested_by': fields.text('Requested By',
@@ -377,6 +388,35 @@ class logistic_requisition_line(orm.Model):
     def _get_name(self, cr, uid, ids, field_names, arg=None, context=None):
         return dict((line_id, line_id) for line_id in ids)
 
+    def name_get(self, cr, user, ids, context=None):
+        """
+        Returns a list of tupples containing id, name.
+        result format: {[(id, name), (id, name), ...]}
+
+        @param cr: A database cursor
+        @param user: ID of the user currently logged in
+        @param ids: list of ids for which name should be read
+        @param context: context arguments, like lang, time zone
+
+        @return: Returns a list of tupples containing id, name 
+                 composed by requisition_id.name + name
+        """
+        if not ids:
+            return []
+        if isinstance(ids, (int, long)):
+            ids = [ids]
+        result = self.browse(cr, user, ids, context=context)
+        res = []
+        for rs in result:
+            if rs.requisition_id:
+                lr_name = rs.requisition_id.name + " - "
+            else:
+                lr_name = ""
+            name = "%s%s" % (lr_name, rs.name)
+            res += [(rs.id, name)]
+        return res
+
+
     _columns = {
         'name': fields.function(_get_name,
                                 string='Line N°',
@@ -390,13 +430,13 @@ class logistic_requisition_line(orm.Model):
             ondelete='cascade'),
         'logistic_user_id': fields.many2one(
             'res.users',
-            'Logistic Specialist',
+            'Assigned To',
             states=REQUEST_STATES,
             # workaround for the following bug, preventing to
             # automatically subscribe the user to the line
             # https://bugs.launchpad.net/openobject-addons/+bug/1188538
             track_visibility='never',
-            help="Logistic Specialist in charge of the "
+            help="User in charge of the "
                  "Logistic Requisition Line"),
         'product_id': fields.many2one('product.product', 'Product',
                                       states=SOURCED_STATES,),
@@ -404,7 +444,7 @@ class logistic_requisition_line(orm.Model):
                                    states=REQUEST_STATES,
                                    required=True),
         'requested_qty': fields.float(
-            'Req. Qty',
+            'Quantity',
             states=REQUEST_STATES,
             digits_compute=dp.get_precision('Product UoM')),
         'requested_uom_id': fields.many2one('product.uom',
@@ -432,21 +472,34 @@ class logistic_requisition_line(orm.Model):
             string='Country',
             type='many2one',
             relation='res.country',
-            readonly=True,
-            store={
-                'logistic.requisition.line': (lambda self, cr, uid, ids, c=None: ids,
-                                              ['requisition_id'],
-                                              10),
-                'logistic.requisition': (_get_from_requisition,
-                                         ['consignee_shipping_id'],
-                                         10),
-                'res.partner': (_get_from_partner, ['country_id'], 10),
-            }),
+            readonly=True),
         'cost_estimate_only': fields.related(
             'requisition_id', 'cost_estimate_only',
             string='Cost Estimate Only',
             type='boolean',
-            readonly=True),
+            readonly=True,
+            store={
+                'logistic.requisition.line': (lambda self, cr, uid, ids, c=None: ids,
+                                              ['requisition_id'], 10),
+                'logistic.requisition': (_get_from_requisition,
+                                         ['cost_estimate_only'],
+                                         10),
+                }
+            ),
+        'requester_type': fields.related(
+            'requisition_id', 'requester_type',
+            string='Type of Requestor',
+            type='selection',
+            selection=REQUESTER_TYPE,
+            readonly=True,
+            store={
+                'logistic.requisition.line': (lambda self, cr, uid, ids, c=None: ids,
+                                              ['requisition_id'], 10),
+                'logistic.requisition': (_get_from_requisition,
+                                         ['cost_estimate_only'],
+                                         10),
+                }
+            ),
         'po_requisition_id': fields.many2one(
             'purchase.requisition', 'Call for Bids',
             states=SOURCED_STATES),
@@ -604,7 +657,7 @@ class logistic_requisition_line(orm.Model):
                 raise orm.except_orm(
                     _('Error'),
                     _('The lines are not assigned to the same '
-                      'Logistic Specialist.'))
+                      'User.'))
             line_company_id = line.requisition_id.company_id.id
             if company_id is None:
                 company_id = line_company_id
@@ -776,7 +829,7 @@ class logistic_requisition_line(orm.Model):
             context=context)
 
     def _send_note_to_logistic_user(self, cr, uid, ids, context=None):
-        """Post a message to warn the logistic specialist that a new
+        """Post a message to warn the user that a new
         line has been associated."""
         for line in self.browse(cr, uid, ids, context=context):
             subject = (_("Logistic Requisition Line %s Assigned") %
@@ -789,7 +842,7 @@ class logistic_requisition_line(orm.Model):
                               context=context)
 
     def write(self, cr, uid, ids, vals, context=None):
-        """ Send a message to the logistic user when it is assigned
+        """ Send a message to the user when it is assigned
         and move the state's line to assigned.
         """
         res = super(logistic_requisition_line, self).write(cr, uid, ids,
