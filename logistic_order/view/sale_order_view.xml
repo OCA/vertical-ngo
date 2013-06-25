@@ -64,6 +64,9 @@
             <xpath expr="//label[@string='Quotation ']" position="attributes">
                 <attribute name="string">Cost Estimate </attribute>
             </xpath>
+            <xpath expr="//label[@string='Sales Order ']" position="attributes">
+                <attribute name="string">Logistic Order </attribute>
+            </xpath>
             <field name="partner_shipping_id" position="before">
                 <field name="consignee_id"/>
             </field>
