@@ -30,7 +30,7 @@ import openerp.addons.decimal_precision as dp
 _logger = logging.getLogger(__name__)
 
 REQUESTER_TYPE = [
-             ('national_societe', 'National Societe'),
+             ('national_society', 'National Society'),
              ('external', 'External Organization'),
              ('internal', 'Federation (internal)'),
         ]
