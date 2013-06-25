@@ -29,6 +29,11 @@ import openerp.addons.decimal_precision as dp
 
 _logger = logging.getLogger(__name__)
 
+REQUESTER_TYPE = [
+             ('national_societe', 'National Societe'),
+             ('external', 'External Organization'),
+             ('internal', 'Federation (internal)'),
+        ]
 
 class logistic_requisition(orm.Model):
     _name = "logistic.requisition"
@@ -37,6 +42,7 @@ class logistic_requisition(orm.Model):
     REQ_STATES = {'confirmed': [('readonly', True)],
                   'done': [('readonly', True)]
                   }
+
 
     def _get_from_partner(self, cr, uid, ids, context=None):
         req_obj = self.pool.get('logistic.requisition')
@@ -75,6 +81,11 @@ class logistic_requisition(orm.Model):
         ),
         'requester_id': fields.many2one(
             'res.partner', 'Requesting Entity', required=True,
+            states=REQ_STATES
+        ),
+        'requester_type': fields.selection(
+            REQUESTER_TYPE,
+            string='Type of Requestor',
             states=REQ_STATES
         ),
         'requested_by': fields.text('Requested By',
@@ -432,21 +443,34 @@ class logistic_requisition_line(orm.Model):
             string='Country',
             type='many2one',
             relation='res.country',
-            readonly=True,
-            store={
-                'logistic.requisition.line': (lambda self, cr, uid, ids, c=None: ids,
-                                              ['requisition_id'],
-                                              10),
-                'logistic.requisition': (_get_from_requisition,
-                                         ['consignee_shipping_id'],
-                                         10),
-                'res.partner': (_get_from_partner, ['country_id'], 10),
-            }),
+            readonly=True),
         'cost_estimate_only': fields.related(
             'requisition_id', 'cost_estimate_only',
             string='Cost Estimate Only',
             type='boolean',
-            readonly=True),
+            readonly=True,
+            store={
+                'logistic.requisition.line': (lambda self, cr, uid, ids, c=None: ids,
+                                              ['requisition_id'], 10),
+                'logistic.requisition': (_get_from_requisition,
+                                         ['cost_estimate_only'],
+                                         10),
+                }
+            ),
+        'requester_type': fields.related(
+            'requisition_id', 'requester_type',
+            string='Type of Requestor',
+            type='selection',
+            selection=REQUESTER_TYPE,
+            readonly=True,
+            store={
+                'logistic.requisition.line': (lambda self, cr, uid, ids, c=None: ids,
+                                              ['requisition_id'], 10),
+                'logistic.requisition': (_get_from_requisition,
+                                         ['cost_estimate_only'],
+                                         10),
+                }
+            ),
         'po_requisition_id': fields.many2one(
             'purchase.requisition', 'Call for Bids',
             states=SOURCED_STATES),
