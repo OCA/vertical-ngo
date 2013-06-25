@@ -62,6 +62,7 @@
                         <group>
                             <field name="date"/>
                             <field name="date_delivery"/>
+                            <field name="requester_type"/>
                             <field name="cost_estimate_only"/>
                             <field name="preferred_transport"/>
                             <field name="source_document"/>
@@ -164,6 +165,7 @@
                 <field name="state"/>
                 <field name="sourced" widget="progressbar"/>
                 <field name="requester_id" invisible="1"/>
+                <field name="requester_type" invisible="1"/>
             </tree>
         </field>
     </record>
@@ -186,6 +188,10 @@
                 <separator/>
                 <filter string="Unassigned"  domain="[('user_id','=', False)]" help="Unassigned Requisition"/>
                 <separator/>
+                <filter string="Cost Estimate Only"  domain="[('cost_estimate_only','=', True)]" help="Show cost estimate only"/>
+                <filter string="Internal (Federation)"  domain="[('requester_type','=', 'internal')]" help="Requestor is the Federation"/>
+                <filter string="External (NS, Others)"  domain="[('requester_type','&lt;&gt;', 'internal')]" help="Requestor is External or National Societe"/>
+                <separator/>
                 <field name="name"/>
                 <field name="user_id" />
                 <field name="requester_id" />
@@ -196,6 +202,7 @@
                     <filter string="Country" domain="[]" context="{'group_by':'country_id'}"/>
                     <filter string="Project" domain="[]" context="{'group_by':'analytic_id'}"/>
                     <separator/>
+                    <filter string="Type of Requestor" domain="[]" context="{'group_by':'requester_type'}"/>
                     <filter string="State" domain="[]" context="{'group_by':'state'}"/>
                     <separator/>
                     <filter string="Requisition Date" domain="[]" context="{'group_by':'date'}"/>
@@ -241,6 +248,7 @@
                  string="Split the line" type="action"
                  states="draft,confirmed,assigned" />
              <field name="country_id" invisible="1"/>
+             <field name="requester_type" invisible="1"/>
            </tree>
         </field>
     </record>
@@ -362,6 +370,7 @@
                                 options="{'currency_field': 'currency_id'}"/>
                         </group>
                         <group>
+                            <field name="requester_type"/>
                             <field name="cost_estimate_only"/>
                             <field name="logistic_user_id"/>
                             <field name="account_id"/>
@@ -458,6 +467,10 @@
                     domain="[('logistic_user_id','=', False)]"
                     help="Unassigned Requisition"/>
                 <separator/>
+                <filter string="Cost Estimate Only"  domain="[('cost_estimate_only','=', True)]" help="Show cost estimate only"/>
+                <filter string="Internal (Federation)"  domain="[('requester_type','=', 'internal')]" help="Requestor is the Federation"/>
+                <filter string="External (NS, Others)"  domain="[('requester_type','&lt;&gt;', 'internal')]" help="Requestor is External or National Societe"/>
+                <separator/>
                 <field name="requisition_id" />
                 <!-- use 'id' not 'name'
                      because 'name' is a char so it would match '12'
@@ -466,11 +479,14 @@
                 <field name="id" string="Line N°"/>
                 <field name="description" />
                 <field name="logistic_user_id" />
+                
                 <group expand="0" string="Group By...">
                     <filter string="Assigned Specialist" domain="[]" context="{'group_by':'logistic_user_id'}"/>
                     <filter string="Logistic Requisition" domain="[]" context="{'group_by':'requisition_id'}"/>
                     <separator/>
                     <filter string="State" domain="[]" context="{'group_by':'state'}"/>
+                     <filter string="Type of Requestor" domain="[]" context="{'group_by':'requester_type'}"/>
+                     <separator/>
                     <filter string="Product" domain="[]" context="{'group_by':'product_id'}"/>
                     <filter string="Country" domain="[]" context="{'group_by':'country_id'}"/>
                 </group>
