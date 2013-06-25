@@ -50,6 +50,13 @@ class logistic_requisition(orm.Model):
             'Reference',
             required=True,
             readonly=True),
+
+        # Not intended to match OpenERP origin field convention.
+        # Source comes from paper
+        'source_document': fields.char(
+            'Source Document',
+            states=REQ_STATES,
+        ),
         'date': fields.date(
             'Requisition Date',
             states=REQ_STATES,
@@ -73,11 +80,11 @@ class logistic_requisition(orm.Model):
         'requested_by': fields.text('Requested By',
                                     states=REQ_STATES),
         'consignee_id': fields.many2one(
-            'res.partner', 'Consignee', required=True,
+            'res.partner', 'Consignee',
             states=REQ_STATES
         ),
         'consignee_shipping_id': fields.many2one(
-            'res.partner', 'Delivery Address', required=True,
+            'res.partner', 'Delivery Address',
             states=REQ_STATES
         ),
         'country_id': fields.related(
@@ -102,7 +109,6 @@ class logistic_requisition(orm.Model):
 
         'analytic_id':  fields.many2one('account.analytic.account',
                                         'Project',
-                                        readonly=True,
                                         states=REQ_STATES,
                                         ),
         'cost_estimate_only': fields.boolean(
@@ -186,7 +192,7 @@ class logistic_requisition(orm.Model):
     _defaults = {
         'date': fields.date.context_today,
         'state': 'draft',
-        'user_id': lambda self, cr, uid, c: uid,
+        'cost_estimate_only': True,
         'name': '/',
         'company_id': lambda self, cr, uid, c: self.pool.get('res.company')._company_default_get(cr, uid, 'logistic.request', context=c),
     }
