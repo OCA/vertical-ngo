@@ -36,7 +36,9 @@ This module customizes the Sales Orders to disguise them in Logistic Orders
              "transport_plan",
              ],
  "demo": [],
- "data": ['view/sale_order_view.xml',
+ "data": [
+    'view/sale_order_view.xml',
+    'data/logistic_order_sequence.xml',
           ],
  "auto_install": False,
  "test": [],
