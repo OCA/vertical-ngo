@@ -388,6 +388,35 @@ class logistic_requisition_line(orm.Model):
     def _get_name(self, cr, uid, ids, field_names, arg=None, context=None):
         return dict((line_id, line_id) for line_id in ids)
 
+    def name_get(self, cr, user, ids, context=None):
+        """
+        Returns a list of tupples containing id, name.
+        result format: {[(id, name), (id, name), ...]}
+
+        @param cr: A database cursor
+        @param user: ID of the user currently logged in
+        @param ids: list of ids for which name should be read
+        @param context: context arguments, like lang, time zone
+
+        @return: Returns a list of tupples containing id, name 
+                 composed by requisition_id.name + name
+        """
+        if not ids:
+            return []
+        if isinstance(ids, (int, long)):
+            ids = [ids]
+        result = self.browse(cr, user, ids, context=context)
+        res = []
+        for rs in result:
+            if rs.requisition_id:
+                lr_name = rs.requisition_id.name + " - "
+            else:
+                lr_name = ""
+            name = "%s%s" % (lr_name, rs.name)
+            res += [(rs.id, name)]
+        return res
+
+
     _columns = {
         'name': fields.function(_get_name,
                                 string='Line N°',
