@@ -87,6 +87,7 @@
                                     <field name="budget_unit_price"/>
                                     <field name="budget_tot_price"/>
                                     <field name="account_id"/>
+                                    <field name="account_code"/>
                                     <field name="state"/>
                                     <field name="logistic_user_id" string="Assigned To"/>
                                 </tree>
@@ -377,6 +378,7 @@
                             <field name="cost_estimate_only"/>
                             <field name="logistic_user_id"/>
                             <field name="account_id"/>
+                            <field name="account_code"/>
                         </group>
                     </group>
                     <notebook>

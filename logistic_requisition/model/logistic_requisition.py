@@ -203,7 +203,7 @@ class logistic_requisition(orm.Model):
     _defaults = {
         'date': fields.date.context_today,
         'state': 'draft',
-        'cost_estimate_only': True,
+        'cost_estimate_only': False,
         'name': '/',
         'company_id': lambda self, cr, uid, c: self.pool.get('res.company')._company_default_get(cr, uid, 'logistic.request', context=c),
     }
@@ -581,9 +581,10 @@ class logistic_requisition_line(orm.Model):
                                       readonly=True),
         'note': fields.text('Notes'),
         'activity_code': fields.char('Activity Code', size=32),
+        'account_code': fields.char('Account Code', size=32),
         'account_id': fields.related(
             'product_id', 'property_account_income',
-            string='Account Code',
+            string='Nominal Account',
             type='many2one',
             relation='account.account',
             readonly=True),
