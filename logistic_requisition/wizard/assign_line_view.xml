@@ -19,13 +19,23 @@
             </field>
         </record>
 
-       <record id="action_requisition_line_assign" model="ir.actions.act_window">
-             <field name="name">Assign Requisition Line</field>
-             <field name="type">ir.actions.act_window</field>
-             <field name="res_model">logistic.requisition.line.assign</field>
-             <field name="view_type">form</field>
-             <field name="view_mode">form</field>
-             <field name="target">new</field>
+        <record id="action_requisition_line_assign" model="ir.actions.act_window">
+            <field name="name">Assign Requisition Line</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">logistic.requisition.line.assign</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
         </record>
+
+        <act_window name="Change the assignee"
+            res_model="logistic.requisition.line.assign"
+            src_model="logistic.requisition.line"
+            view_mode="form"
+            view_type="form"
+            target="new"
+            key2="client_action_multi"
+            id="act_window_requisition_line_assign"/>
+
     </data>
 </openerp>

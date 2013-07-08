@@ -358,7 +358,7 @@ class logistic_requisition_line(orm.Model):
     _description = "Logistic Requisition Line"
     _inherit = ['mail.thread']
 
-    _order = "requisition_id asc"
+    _order = "requisition_id asc, id asc"
 
     REQUEST_STATES = {'assigned': [('readonly', True)],
                       'sourced': [('readonly', True)],
