@@ -76,6 +76,9 @@
             <field name="partner_id" position="after">
                 <field name="requested_by"/>
             </field>
+            <button name="action_button_confirm" position="attributes">
+              <attribute name="string">Confirm Cost Estimate</attribute>
+            </button>
         </field>
     </record>
 
