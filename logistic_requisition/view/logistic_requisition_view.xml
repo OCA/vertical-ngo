@@ -48,7 +48,7 @@
                     </div>
                     <group>
                         <group>
-                            <field name="requester_id"/>
+                            <field name="partner_id"/>
                             <field name="requested_by"/>
                             <field name="consignee_id"
                                    on_change="onchange_consignee_id(consignee_id)"
@@ -165,7 +165,7 @@
                 <field name="currency_id"/>
                 <field name="state"/>
                 <field name="sourced" widget="progressbar"/>
-                <field name="requester_id" invisible="1"/>
+                <field name="partner_id" invisible="1"/>
                 <field name="requester_type" invisible="1"/>
             </tree>
         </field>
@@ -198,11 +198,11 @@
                 <separator/>
                 <field name="name"/>
                 <field name="user_id" />
-                <field name="requester_id" />
+                <field name="partner_id" />
                 <field name="analytic_id" />
                 <group expand="0" string="Group By...">
                     <filter string="Business Unit Officer" domain="[]" context="{'group_by':'user_id'}"/>
-                    <filter string="Requesting Entity" domain="[]" context="{'group_by':'requester_id'}"/>
+                    <filter string="Requesting Entity" domain="[]" context="{'group_by':'partner_id'}"/>
                     <filter string="Country" domain="[]" context="{'group_by':'country_id'}"/>
                     <filter string="Project" domain="[]" context="{'group_by':'analytic_id'}"/>
                     <separator/>
