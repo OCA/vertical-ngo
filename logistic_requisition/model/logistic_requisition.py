@@ -79,8 +79,8 @@ class logistic_requisition(orm.Model):
             help="Mobilization Officer or Logistic Coordinator "
                  "in charge of the Logistic Requisition"
         ),
-        'requester_id': fields.many2one(
-            'res.partner', 'Requesting Entity', required=True,
+        'partner_id': fields.many2one(
+            'res.partner', 'Customer', required=True,
             states=REQ_STATES
         ),
         'requester_type': fields.selection(

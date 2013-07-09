@@ -144,9 +144,9 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
                     _('No shop is associated with the location %s') %
                     location.name)
 
-        requester_id = requisition.requester_id.id
-        vals = {'partner_id': requester_id,
-                'partner_invoice_id': requester_id,
+        partner_id = requisition.partner_id.id
+        vals = {'partner_id': partner_id,
+                'partner_invoice_id': partner_id,
                 'partner_shipping_id': requisition.consignee_shipping_id.id,
                 'consignee_id': requisition.consignee_id.id,
                 'order_line': [(0, 0, x) for x in estimate_lines],
@@ -157,7 +157,7 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
                 }
 
         onchange_vals = sale_obj.onchange_partner_id(
-            cr, uid, [], requester_id, context=context).get('value', {})
+            cr, uid, [], partner_id, context=context).get('value', {})
         vals.update(onchange_vals)
         return vals
 
