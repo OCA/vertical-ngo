@@ -590,6 +590,9 @@ class logistic_requisition_line(orm.Model):
             'sale.order',
             string='Cost Estimate',
             readonly=True),
+        'transport_applicable': fields.boolean(
+            'Transport Applicable',
+            states=SOURCED_STATES),
         'transport_plan_id': fields.many2one(
             'transport.plan',
             string='Transport Plan',
@@ -602,7 +605,25 @@ class logistic_requisition_line(orm.Model):
     _defaults = {
         'state': 'draft',
         'requested_qty': 1.0,
+        'transport_applicable': True,
     }
+
+    def _check_transport_plan(self, cr, uid, ids, context=None):
+        lines = self.browse(cr, uid, ids, context=context)
+        states = ('sourced', 'quoted')
+        for line in lines:
+            if (line.transport_applicable and
+                    line.state in states and
+                    not line.transport_plan_id):
+                return False
+        return True
+
+    _constraints = [
+        (_check_transport_plan,
+         'Transport plan is mandatory for sourced requisition lines '
+         'when the transport is applicable.',
+         ['transport_plan_id']),
+    ]
 
     def _do_confirm(self, cr, uid, ids, context=None):
         self.write(cr, uid, ids, {'state': 'confirmed'}, context=context)
