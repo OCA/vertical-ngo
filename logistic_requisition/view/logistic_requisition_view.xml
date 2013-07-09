@@ -396,6 +396,7 @@
                                         options="{'currency_field': 'currency_id'}"/>
                                     <field name="total_cost" widget="monetary"
                                         options="{'currency_field': 'currency_id'}"/>
+                                    <field name="transport_applicable"/>
                                 </group>
                                 <group>
                                     <group string="Call for Bids"
@@ -418,8 +419,11 @@
                                         <field name="stock_type" />
                                         <field name="stock_owner" />
                                     </group>
-                                    <group string="Transport Plan" colspan="4">
+                                    <group string="Transport Plan"
+                                        attrs="{'invisible': [('transport_applicable', '!=', True)]}"
+                                        colspan="4">
                                         <field name="transport_plan_id"
+                                            attrs="{'required': [('transport_applicable', '=', True), ('state', 'in', ['assigned', 'sourced', 'quoted'])]}"
                                             on_change="onchange_transport_plan_id(transport_plan_id)"/>
                                         <field name="date_etd"/>
                                         <field name="date_eta"/>
