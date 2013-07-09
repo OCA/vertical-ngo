@@ -400,6 +400,7 @@
                                         options="{'currency_field': 'currency_id'}"/>
                                     <field name="total_cost" widget="monetary"
                                         options="{'currency_field': 'currency_id'}"/>
+                                    <field name="cost_estimated"/>
                                     <field name="transport_applicable"/>
                                 </group>
                                 <group>
