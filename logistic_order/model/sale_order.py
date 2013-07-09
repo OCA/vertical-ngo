@@ -29,7 +29,6 @@ class sale_order(orm.Model):
                  "International Commercial Terms are a series of "
                  "predefined commercial terms used in "
                  "international transactions."),
-        'requested_by': fields.text('Requested By'),
          'state': fields.selection([
             ('draft', 'Draft Cost Estimate'),
             ('sent', 'Cost Estimate Sent'),
