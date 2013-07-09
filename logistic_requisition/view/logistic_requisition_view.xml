@@ -49,7 +49,6 @@
                     <group>
                         <group>
                             <field name="partner_id"/>
-                            <field name="requested_by"/>
                             <field name="consignee_id"
                                    on_change="onchange_consignee_id(consignee_id)"
                                    attrs="{'required': [('cost_estimate_only', '=', False)]}"/>
