@@ -43,6 +43,10 @@ class logistic_requisition(orm.Model):
                   'done': [('readonly', True)]
                   }
 
+    CANCEL_REASONS = [('only_quotation', 'Just for Quotation'),
+                      ('no_service_needed', 'No service needed anymore'),
+                      ('other_provider', 'Other Service Provider selected'),
+                     ]
 
     def _get_from_partner(self, cr, uid, ids, context=None):
         req_obj = self.pool.get('logistic.requisition')
@@ -196,6 +200,8 @@ class logistic_requisition(orm.Model):
             string='Finance Officer'),
         'date_finance_officer': fields.datetime(
             'Finance Officer Validation Date'),
+        'cancel_reason': fields.selection(CANCEL_REASONS,
+                                          string='Cancellation Reason'),
     }
 
     _defaults = {
@@ -233,13 +239,15 @@ class logistic_requisition(orm.Model):
             res[requisition.id] = percentage
         return res
 
-    def _do_cancel(self, cr, uid, ids, context=None):
+    def _do_cancel(self, cr, uid, ids, reason, context=None):
         reqs = self.read(cr, uid, ids, ['line_ids'], context=context)
         line_ids = [lids for req in reqs for lids in req['line_ids']]
         if line_ids:
             line_obj = self.pool.get('logistic.requisition.line')
             line_obj._do_cancel(cr, uid, line_ids, context=context)
-        self.write(cr, uid, ids, {'state': 'cancel'}, context=context)
+        vals = {'state': 'cancel',
+                'cancel_reason': reason}
+        self.write(cr, uid, ids, vals, context=context)
 
     def _do_confirm(self, cr, uid, ids, context=None):
         reqs = self.read(cr, uid, ids, ['line_ids'], context=context)
@@ -260,6 +268,7 @@ class logistic_requisition(orm.Model):
                 'date_budget_holder': False,
                 'finance_officer_id': False,
                 'date_finance_officer': False,
+                'cancel_reason': False,
                 }
         self.write(cr, uid, ids, vals, context=context)
 
@@ -309,11 +318,6 @@ class logistic_requisition(orm.Model):
         if validate_id and not date_validate:
             values[date_field_name] = time.strftime(DT_FORMAT)
         return {'value': values}
-
-    def button_cancel(self, cr, uid, ids, context=None):
-        #TODO: ask confirmation
-        self._do_cancel(cr, uid, ids, context=context)
-        return True
 
     def button_confirm(self, cr, uid, ids, context=None):
         self._do_confirm(cr, uid, ids, context=context)

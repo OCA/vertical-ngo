@@ -30,10 +30,10 @@
                         states="cancel"
                         type="object"
                         class="oe_highlight" />
-                    <button name="button_cancel"
+                    <button name="%(action_logistic_requisition_cancel)d"
                         string="Cancel"
                         states="draft,confirmed"
-                        type="object" />
+                        type="action" />
 
                     <field name="state" select="1" readonly="1"
                         widget="statusbar"
@@ -45,6 +45,10 @@
                             <label string="Logistic Requisition" />
                             <field name="name" class="oe_inline" attrs="{'invisible': [('state', '=', 'draft')]}"/>
                         </h1>
+                        <h2 attrs="{'invisible': [('state', '!=', 'cancel')]}">
+                            <label for="cancel_reason" string="Cancellation reason:"/>
+                            <field name="cancel_reason" class="oe_inline" />
+                        </h2>
                     </div>
                     <group>
                         <group>
