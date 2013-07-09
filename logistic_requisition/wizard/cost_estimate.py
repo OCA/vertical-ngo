@@ -95,6 +95,7 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
                 'name': line.description,
                 'type': make_type,
                 'price_unit': line.unit_cost,
+                'cost_estimated': line.cost_estimated,
                 }
         onchange_vals = sale_line_obj.product_id_change(
             cr, uid, [],

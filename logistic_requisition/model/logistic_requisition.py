@@ -604,6 +604,10 @@ class logistic_requisition_line(orm.Model):
         'selected_bid': fields.many2one('purchase.order',
                                         string='Selected BID',
                                         states=SOURCED_STATES),
+        'cost_estimated': fields.boolean(
+            'Cost is estimated',
+            help="The unit cost is an estimation, "
+                 "the final price may change.")
     }
 
     _defaults = {
