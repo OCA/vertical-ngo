@@ -607,7 +607,8 @@ class logistic_requisition_line(orm.Model):
         'cost_estimated': fields.boolean(
             'Cost is estimated',
             help="The unit cost is an estimation, "
-                 "the final price may change.")
+                 "the final price may change. I.e. it is not based "
+                 " on a request for quotation.")
     }
 
     _defaults = {
