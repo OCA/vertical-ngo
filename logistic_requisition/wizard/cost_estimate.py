@@ -54,6 +54,8 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
         return sourced, skipped
 
     def default_get(self, cr, uid, fields_list, context=None):
+        if context is None:
+            context = {}
         defaults = super(logistic_requisition_cost_estimate, self).\
             default_get(cr, uid, fields_list, context=context)
         req_obj = self.pool.get('logistic.requisition')
