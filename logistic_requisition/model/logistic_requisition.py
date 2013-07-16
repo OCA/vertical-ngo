@@ -299,6 +299,14 @@ class logistic_requisition(orm.Model):
         })
         return super(logistic_requisition, self).copy(cr, uid, id, default=default, context=context)
 
+    def onchange_requester_id(self, cr, uid, ids, partner_id, context=None):
+        values = {}
+        if partner_id:
+            partner_obj = self.pool.get('res.partner')
+            partner = partner_obj.browse(cr, uid, partner_id, context=context)
+            values['requester_type'] = partner.requester_type
+        return {'value': values}
+
     def onchange_consignee_id(self, cr, uid, ids, consignee_id, context=None):
         values = {'consignee_shipping_id': False}
         if not consignee_id:
