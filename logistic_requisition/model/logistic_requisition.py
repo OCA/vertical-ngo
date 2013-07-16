@@ -427,7 +427,7 @@ class logistic_requisition_line(orm.Model):
 
     _columns = {
         'name': fields.function(_get_name,
-                                string='Line N°',
+                                string=u'Line N°',
                                 type='char',
                                 readonly=True,
                                 store=True),
