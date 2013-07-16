@@ -52,6 +52,7 @@ A Logistic requisition express a need that is requested somewhere.
           "data/logistic_requisition_sequence.xml",
           "view/logistic_requisition_view.xml",
           "view/sale_order.xml",
+          "view/res_partner_view.xml",
           "logistic_requisition_report.xml",
           "logistic_workflow.xml",
           ],
