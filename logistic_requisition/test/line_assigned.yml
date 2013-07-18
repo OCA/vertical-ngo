@@ -1,7 +1,7 @@
 -
   Given I create a logistic requisition
 -
-  !record {model: logistic.requisition, id: logistic_requisition_sourcing_01}:
+  !record {model: logistic.requisition, id: logistic_requisition_assign_01}:
     partner_id: base.res_partner_4
     consignee_id: base.res_partner_3
     date_delivery: !eval "time.strftime('%Y-%m-%d')"
@@ -9,8 +9,8 @@
 -
   And I add a line with an assignee
 -
-  !record {model: logistic.requisition.line, id: logistic_requisition_line_sourcing_01}:
-    requisition_id: logistic_requisition_sourcing_01
+  !record {model: logistic.requisition.line, id: logistic_requisition_line_assign_01}:
+    requisition_id: logistic_requisition_assign_01
     product_id: product.product_product_7
     requested_qty: 100
     date_delivery: !eval "time.strftime('%Y-%m-%d')"
@@ -20,8 +20,8 @@
 -
   And I add a line without assignee
 -
-  !record {model: logistic.requisition.line, id: logistic_requisition_line_sourcing_02}:
-    requisition_id: logistic_requisition_sourcing_01
+  !record {model: logistic.requisition.line, id: logistic_requisition_line_assign_02}:
+    requisition_id: logistic_requisition_assign_01
     product_id: product.product_product_8
     requested_qty: 100
     date_delivery: !eval "time.strftime('%Y-%m-%d')"
@@ -31,15 +31,15 @@
   When I confirm the logistic requisition
 -
   !python {model: logistic.requisition}: |
-    req = self.browse(cr, uid, ref("logistic_requisition_sourcing_01"))
+    req = self.browse(cr, uid, ref("logistic_requisition_assign_01"))
     req.button_confirm()
 -
   Then the state of the line 1 should be assigned
 -
-  !assert {model: logistic.requisition.line, id: logistic_requisition_line_sourcing_01, string: The line should be assigned}:
+  !assert {model: logistic.requisition.line, id: logistic_requisition_line_assign_01, string: The line should be assigned}:
     - state == 'assigned'
 -
   And the state of the line 2 should be 'confirmed'
 -
-  !assert {model: logistic.requisition.line, id: logistic_requisition_line_sourcing_02, string: The line should be confirmed}:
+  !assert {model: logistic.requisition.line, id: logistic_requisition_line_assign_02, string: The line should be confirmed}:
     - state == 'confirmed'
