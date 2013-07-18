@@ -57,6 +57,7 @@ A Logistic requisition express a need that is requested somewhere.
           "logistic_workflow.xml",
           ],
  "auto_install": False,
- "test": [],
+ "test": ['test/logistic_requisition_onchange.yml',
+          ],
  "installable": True,
  }
