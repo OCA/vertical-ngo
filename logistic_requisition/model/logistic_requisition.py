@@ -649,11 +649,14 @@ class logistic_requisition_line(orm.Model):
         self.write(cr, uid, ids, {'state': 'draft'}, context=context)
 
     def _do_assign(self, cr, uid, ids, context=None):
+        assigned_ids = []
         for line in self.browse(cr, uid, ids, context=context):
             if line.state == 'confirmed' and line.logistic_user_id:
-                self.write(cr, uid, ids,
-                           {'state': 'assigned'},
-                           context=context)
+                assigned_ids.append(line.id)
+        if assigned_ids:
+            self.write(cr, uid, assigned_ids,
+                       {'state': 'assigned'},
+                       context=context)
 
     def _do_quoted(self, cr, uid, ids, context=None):
         req_obj = self.pool.get('logistic.requisition')

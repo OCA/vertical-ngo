@@ -56,6 +56,7 @@ A Logistic requisition express a need that is requested somewhere.
           "logistic_requisition_report.xml",
           ],
  "auto_install": False,
- "test": [],
+ "test": ['test/line_assigned.yml',
+          ],
  "installable": True,
  }
