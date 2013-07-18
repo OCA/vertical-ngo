@@ -30,3 +30,8 @@ class res_partner(orm.Model):
         'requester_type': fields.selection(REQUESTER_TYPE,
                                            string='Requester Type'),
     }
+
+    def _commercial_fields(self, cr, uid, context=None):
+        fields = super(res_partner, self)._commercial_fields(cr, uid, context=context)
+        fields.append('requester_type')
+        return fields

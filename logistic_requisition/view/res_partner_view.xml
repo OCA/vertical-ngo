@@ -6,9 +6,11 @@
             <field name="model">res.partner</field>
             <field name="inherit_id" ref="base.view_partner_form" />
             <field name="arch" type="xml">
-                <field name="customer" position="before">
-                    <field name="requester_type"/>
-                </field>
+                <xpath expr="//page[@string='Sales &amp; Purchases']/group[1]/group[4]" position="after">
+                    <group colspan="2" col="2" attrs="{'invisible': [('is_company','=',False),('parent_id','!=',False)]}">
+                        <field name="requester_type"/>
+                    </group>
+                </xpath>
             </field>
         </record>
     </data>
