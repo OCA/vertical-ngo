@@ -31,3 +31,18 @@
 -
   !assert {model: logistic.requisition, id: logistic_requisition_01, string: The requester type should be 'external'}:
     - requester_type == 'external'
+-
+  Given I set the 'internal' requester type the commercial entity of a contact
+-
+  !record {model: res.partner, id: base.res_partner_2}:
+    requester_type: internal
+-
+  When I change the logistic requisition for this contact
+-
+  !record {model: logistic.requisition, id: logistic_requisition_01}:
+    requester_id: base.res_partner_address_4
+-
+  Then the requester type of the logistic requisition should be 'internal'
+-
+  !assert {model: logistic.requisition, id: logistic_requisition_01, string: The requester type should be 'internal'}:
+    - requester_type == 'internal'
