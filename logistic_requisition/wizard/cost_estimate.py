@@ -8,10 +8,6 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
     _name = 'logistic.requisition.cost.estimate'
     _description = 'Create cost estimate of logistic requisition lines'
 
-    def _get_requisition_id(self, cr, uid, context=None):
-        if context is None:
-            context = {}
-
     _columns = {
         'requisition_id': fields.many2one('logistic.requisition',
                                           string='Logistic Requisition',
