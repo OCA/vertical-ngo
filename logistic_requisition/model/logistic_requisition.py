@@ -371,6 +371,10 @@ class logistic_requisition_line(orm.Model):
                       'quoted': [('readonly', True)]
                       }
 
+    PRICE_IS_SELECTION = [('fixed', 'Fixed'),
+                          ('estimated', 'Estimated'),
+                          ]
+
     def _get_from_partner(self, cr, uid, ids, context=None):
         req_obj = self.pool.get('logistic.requisition')
         req_line_obj = self.pool.get('logistic.requisition.line')
@@ -604,17 +608,19 @@ class logistic_requisition_line(orm.Model):
         'selected_bid': fields.many2one('purchase.order',
                                         string='Selected BID',
                                         states=SOURCED_STATES),
-        'cost_estimated': fields.boolean(
-            'Cost is estimated',
-            help="The unit cost is an estimation, "
-                 "the final price may change. I.e. it is not based "
-                 " on a request for quotation.")
+        'price_is': fields.selection(
+            PRICE_IS_SELECTION,
+            string='Price is',
+            required=True,
+            help="When the price is an estimation, the final price may change. "
+                 "I.e. it is not based on a request for quotation.")
     }
 
     _defaults = {
         'state': 'draft',
         'requested_qty': 1.0,
         'transport_applicable': True,
+        'price_is': 'fixed',
     }
 
     def _check_transport_plan(self, cr, uid, ids, context=None):
