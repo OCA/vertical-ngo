@@ -58,6 +58,7 @@ A Logistic requisition express a need that is requested somewhere.
  "auto_install": False,
  "test": ['test/line_assigned.yml',
           'test/requisition_create_cost_estimate.yml',
+          'test/requisition_cancel_reason.yml',
           ],
  "installable": True,
  }
