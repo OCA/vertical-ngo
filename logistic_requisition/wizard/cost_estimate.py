@@ -102,9 +102,11 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
             partner_id=line.requisition_id.consignee_id.id,
             qty=line.proposed_qty,
             uom=line.proposed_uom_id.id).get('value', {})
-        #  price_unit of the requisition line must be kept
+        #  price_unit and type of the requisition line must be kept
         if 'price_unit' in onchange_vals:
             del onchange_vals['price_unit']
+        if 'type' in onchange_vals:
+            del onchange_vals['type']
         vals.update(onchange_vals)
         return vals
 
