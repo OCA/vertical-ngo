@@ -152,6 +152,7 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
                 'shop_id': shop_id,
                 'incoterm': requisition.incoterm_id.id,
                 'incoterm_address': requisition.incoterm_address,
+                'requisition_id': requisition.id,
                 }
 
         onchange_vals = sale_obj.onchange_partner_id(
