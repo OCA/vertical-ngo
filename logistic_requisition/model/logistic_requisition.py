@@ -530,13 +530,6 @@ class logistic_requisition_line(orm.Model):
             'stock.location',
             string='Dispatch From',
             states=SOURCED_STATES),
-        'stock_type': fields.selection(
-            [('ifrc', 'IFRC'),
-             ('vci', 'VCI'),
-             ('pns', 'PNS'),
-             ('program', 'Program')],
-            string='Stock Type',
-            states=SOURCED_STATES),
         'stock_owner': fields.many2one(
             'res.partner',
             string='Stock Owner',

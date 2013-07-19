@@ -422,7 +422,6 @@
                                         colspan="4"
                                         attrs="{'invisible': [('procurement_method', '!=', 'wh_dispatch')]}">
                                         <field name="dispatch_location_id" />
-                                        <field name="stock_type" />
                                         <field name="stock_owner" />
                                     </group>
                                     <group string="Transport Plan"
