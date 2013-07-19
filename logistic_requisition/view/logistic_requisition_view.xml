@@ -388,7 +388,8 @@
                         <page string="Sourcing">
                             <group>
                                 <group>
-                                    <field name="procurement_method"/>
+                                    <field name="procurement_method"
+                                        attrs="{'required': [('state', 'in', ('assigned', 'sourced', 'quoted'))]}" />
                                     <field name="product_id"
                                         on_change="onchange_product_id(product_id,requested_uom_id)"/>
                                     <label for="proposed_qty"/>
