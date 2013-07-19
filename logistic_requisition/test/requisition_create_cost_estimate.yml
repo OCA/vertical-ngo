@@ -19,6 +19,7 @@
     budget_tot_price: 1000
     logistic_user_id: base.user_demo
     transport_applicable: 0
+    price_is: fixed
 -
   And I add a line 2
 -
@@ -30,6 +31,7 @@
     budget_tot_price: 1000
     logistic_user_id: base.user_demo
     transport_applicable: 0
+    price_is: estimated
 -
   When I confirm the logistic requisition
 -
@@ -92,7 +94,7 @@
         assert sale_line.product_id == line.product_id
         assert sale_line.name == line.description
         assert sale_line.price_unit == line.unit_cost
-        assert sale_line.cost_estimated == line.cost_estimated
+        assert sale_line.price_is == line.price_is
 
     line1_id = ref("logistic_requisition_line_cost_estimate_01")
     line2_id = ref("logistic_requisition_line_cost_estimate_02")
