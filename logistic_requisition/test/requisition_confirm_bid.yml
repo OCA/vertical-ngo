@@ -1,0 +1,72 @@
+-
+  Given I create a logistic requisition
+-
+  !record {model: logistic.requisition, id: logistic_requisition_bid_01}:
+    partner_id: base.res_partner_4
+    consignee_id: base.res_partner_3
+    date_delivery: !eval "time.strftime('%Y-%m-%d')"
+    user_id: base.user_demo
+-
+  And I add a line 1
+-
+  !record {model: logistic.requisition.line, id: logistic_requisition_line_bid_01}:
+    requisition_id: logistic_requisition_bid_01
+    product_id: product.product_product_7
+    requested_qty: 100
+    date_delivery: !eval "time.strftime('%Y-%m-%d')"
+    budget_tot_price: 1000
+    logistic_user_id: base.user_demo
+    transport_applicable: 0
+    procurement_method: procurement
+    price_is: estimated
+-
+  And I add a line 2
+-
+  !record {model: logistic.requisition.line, id: logistic_requisition_line_bid_02}:
+    requisition_id: logistic_requisition_bid_01
+    product_id: product.product_product_8
+    requested_qty: 100
+    date_delivery: !eval "time.strftime('%Y-%m-%d')"
+    budget_tot_price: 1000
+    logistic_user_id: base.user_demo
+    transport_applicable: 0
+    procurement_method: procurement
+    price_is: estimated
+-
+  And I confirm the logistic requisition
+-
+  !python {model: logistic.requisition}: |
+    req_id = ref("logistic_requisition_bid_01")
+    self.button_confirm(cr, uid, [req_id])
+-
+  When I create a 'Call for Bids' for the line 1
+-
+  !python {model: logistic.requisition.line}: |
+    line_id = ref("logistic_requisition_line_bid_01")
+    self.action_create_po_requisition(cr, uid, [line_id])
+-
+  And I request for quotations among 2 suppliers
+-
+  !python {model: purchase.requisition}: |
+      ctx = context.copy()
+      req_line_obj = self.pool.get('logistic.requisition.line')
+      line = req_line_obj.browse(cr, uid, ref("logistic_requisition_line_bid_01"))
+      rfq = line.po_requisition_id
+      ctx.update({'active_model': 'purchase.requisition',
+                  'active_ids': [rfq.id],
+                  'active_id': rfq.id})
+      supplier_id = ref('base.res_partner_6')
+      add_rfq_obj = self.pool.get('purchase.requisition.partner')
+      add_rfq_id = add_rfq_obj.create(cr, uid, {'partner_id': supplier_id}, context=ctx)
+      add_rfq_obj.create_order(cr, uid, [add_rfq_id], context=ctx)
+      supplier_id = ref('base.res_partner_16')
+      add_rfq_id = add_rfq_obj.create(cr, uid, {'partner_id': supplier_id}, context=ctx)
+      add_rfq_obj.create_order(cr, uid, [add_rfq_id], context=ctx)
+-
+  Then I should have 2 proposals
+-
+  !python {model: purchase.requisition}: |
+      req_line_obj = self.pool.get('logistic.requisition.line')
+      line = req_line_obj.browse(cr, uid, ref("logistic_requisition_line_bid_01"))
+      rfq = line.po_requisition_id
+      assert len(rfq.purchase_ids) == 2, "Should have 2 proposals, got %d" % len(rfq.purchase_ids)
