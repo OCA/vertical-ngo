@@ -757,8 +757,6 @@ class logistic_requisition_line(orm.Model):
 
 
     def action_create_po_requisition(self, cr, uid, ids, context=None):
-        if context is None:
-            context = {}
         rfq_id = self._action_create_po_requisition(cr, uid, ids, context=context)
         return {
             'type': 'ir.actions.act_window',
