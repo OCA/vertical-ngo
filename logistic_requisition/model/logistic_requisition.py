@@ -606,7 +606,10 @@ class logistic_requisition_line(orm.Model):
             string='Price is',
             required=True,
             help="When the price is an estimation, the final price may change. "
-                 "I.e. it is not based on a request for quotation.")
+                 "I.e. it is not based on a request for quotation."),
+        'purchase_line_id': fields.many2one('purchase.order.line',
+                                            'Purchase Order Line',
+                                            readonly=True),
     }
 
     _defaults = {

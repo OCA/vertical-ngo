@@ -110,3 +110,98 @@
       line = req_line_obj.browse(cr, uid, ref("logistic_requisition_line_bid_02"))
       assert line.price_is == 'estimated', (
           "line.price_is for line 2 should be 'estimated', got: '%s'" % line.price_is)
+-
+  When I create a 'Call for Bids' for the line 2
+-
+  !python {model: logistic.requisition.line}: |
+    line_id = ref("logistic_requisition_line_bid_02")
+    self.action_create_po_requisition(cr, uid, [line_id])
+-
+  And I request for quotations among 2 supplier
+-
+  !python {model: purchase.requisition}: |
+      ctx = context.copy()
+      req_line_obj = self.pool.get('logistic.requisition.line')
+      line = req_line_obj.browse(cr, uid, ref("logistic_requisition_line_bid_02"))
+      rfq = line.po_requisition_id
+      ctx.update({'active_model': 'purchase.requisition',
+                  'active_ids': [rfq.id],
+                  'active_id': rfq.id})
+      supplier_id = ref('base.res_partner_6')
+      add_rfq_obj = self.pool.get('purchase.requisition.partner')
+      add_rfq_id = add_rfq_obj.create(cr, uid, {'partner_id': supplier_id}, context=ctx)
+      add_rfq_obj.create_order(cr, uid, [add_rfq_id], context=ctx)
+      supplier_id = ref('base.res_partner_16')
+      add_rfq_id = add_rfq_obj.create(cr, uid, {'partner_id': supplier_id}, context=ctx)
+      add_rfq_obj.create_order(cr, uid, [add_rfq_id], context=ctx)
+-
+  Then I should have 2 proposals
+-
+  !python {model: purchase.requisition}: |
+      req_line_obj = self.pool.get('logistic.requisition.line')
+      line = req_line_obj.browse(cr, uid, ref("logistic_requisition_line_bid_02"))
+      rfq = line.po_requisition_id
+      assert len(rfq.purchase_ids) == 2, "Should have 2 proposals, got %d" % len(rfq.purchase_ids)
+-
+  And I take 20 products after 1 supplier and 80 after the second one.
+-
+  !python {model: purchase.requisition}: |
+      ctx = context.copy()
+      req_line_obj = self.pool.get('logistic.requisition.line')
+      line = req_line_obj.browse(cr, uid, ref("logistic_requisition_line_bid_02"))
+      rfq = line.po_requisition_id
+      ctx.update({'active_model': 'purchase.order.line',
+                  'active_ids': [rfq.po_line_ids[0].id],
+                  'active_id': rfq.po_line_ids[0].id})
+      chg_qty_obj = self.pool.get('bid.line.qty')
+      wiz_id = chg_qty_obj.create(cr, uid, {'qty': 20}, context=ctx)
+      chg_qty_obj.change_qty(cr, uid, [wiz_id], context=ctx)
+      ctx.update({'active_model': 'purchase.order.line',
+                  'active_ids': [rfq.po_line_ids[1].id],
+                  'active_id': rfq.po_line_ids[1].id})
+      chg_qty_obj = self.pool.get('bid.line.qty')
+      wiz_id = chg_qty_obj.create(cr, uid, {'qty': 80}, context=ctx)
+      chg_qty_obj.change_qty(cr, uid, [wiz_id], context=ctx)
+-
+  And I confirm the po line for 20 products and the po line for 80 products
+-
+  !python {model: purchase.requisition}: |
+      req_line_obj = self.pool.get('logistic.requisition.line')
+      line = req_line_obj.browse(cr, uid, ref("logistic_requisition_line_bid_02"))
+      rfq = line.po_requisition_id
+      for po_line in rfq.po_line_ids:
+          po_line.action_confirm()
+-
+  And I generate the PO
+-
+  !python {model: purchase.requisition}: |
+      req_line_obj = self.pool.get('logistic.requisition.line')
+      line = req_line_obj.browse(cr, uid, ref("logistic_requisition_line_bid_02"))
+      rfq = line.po_requisition_id
+      rfq.generate_po()
+-
+  Then 1 draft purchase order per supplier should have been generated
+-
+  !python {model: purchase.requisition}: |
+      req_line_obj = self.pool.get('logistic.requisition.line')
+      line = req_line_obj.browse(cr, uid, ref("logistic_requisition_line_bid_02"))
+      rfq = line.po_requisition_id
+      cancel_po = [po for po in rfq.purchase_ids if po.state == 'cancel']
+      assert len(cancel_po) == 2, "Should have 2 canceled PO, got: %d" % len(cancel_po)
+      draft_po = [po for po in rfq.purchase_ids if po.state == 'draftpo']
+      assert len(draft_po) == 2, "Should have 2 draft po, got: %d" % len(draft_po)
+      draft_po = draft_po[0]
+-
+  And the logistic requisition should now have 3 lines
+-
+  !python {model: logistic.requisition}: |
+    req_id = ref("logistic_requisition_bid_01")
+    req = self.browse(cr, uid, req_id)
+    prod_id = ref('product.product_product_8')
+    assert len(req.line_ids) == 3, "Should have 3 lines, got %d" % len(req.line_ids)
+    line_20 = [line for line in req.line_ids
+               if line.product_id.id == prod_id and line.proposed_qty == 20]
+    assert line_20, "A line with 20 * product_id %d is missing" % prod_id
+    line_80 = [line for line in req.line_ids
+               if line.product_id.id == prod_id and line.proposed_qty == 80]
+    assert line_80, "A line with 80 * product_id %d is missing" % prod_id
