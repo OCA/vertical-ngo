@@ -70,3 +70,43 @@
       line = req_line_obj.browse(cr, uid, ref("logistic_requisition_line_bid_01"))
       rfq = line.po_requisition_id
       assert len(rfq.purchase_ids) == 2, "Should have 2 proposals, got %d" % len(rfq.purchase_ids)
+-
+  When I confirm a purchase order line
+-
+  !python {model: purchase.requisition}: |
+      req_line_obj = self.pool.get('logistic.requisition.line')
+      line = req_line_obj.browse(cr, uid, ref("logistic_requisition_line_bid_01"))
+      rfq = line.po_requisition_id
+      po_line = rfq.po_line_ids[0]
+      po_line.action_confirm()
+-
+  And I generate the PO
+-
+  !python {model: purchase.requisition}: |
+      req_line_obj = self.pool.get('logistic.requisition.line')
+      line = req_line_obj.browse(cr, uid, ref("logistic_requisition_line_bid_01"))
+      rfq = line.po_requisition_id
+      rfq.generate_po()
+-
+  Then a draft po should have been generated
+-
+  !python {model: purchase.requisition}: |
+      req_line_obj = self.pool.get('logistic.requisition.line')
+      line = req_line_obj.browse(cr, uid, ref("logistic_requisition_line_bid_01"))
+      rfq = line.po_requisition_id
+      cancel_po = [po for po in rfq.purchase_ids if po.state == 'cancel']
+      assert len(cancel_po) == 2, "Should have 2 canceled PO, got: %d" % len(cancel_po)
+      draft_po = [po for po in rfq.purchase_ids if po.state == 'draftpo']
+      assert len(draft_po) == 1, "Should have 1 draft po, got: %d" % len(draft_po)
+      draft_po = draft_po[0]
+-
+  And the logistic requisition line should have now a 'fixed' price
+-
+  !python {model: purchase.requisition}: |
+      req_line_obj = self.pool.get('logistic.requisition.line')
+      line = req_line_obj.browse(cr, uid, ref("logistic_requisition_line_bid_01"))
+      assert line.price_is == 'fixed', (
+          "line.price_is for line 1 should be 'fixed', got: '%s'" % line.price_is)
+      line = req_line_obj.browse(cr, uid, ref("logistic_requisition_line_bid_02"))
+      assert line.price_is == 'estimated', (
+          "line.price_is for line 2 should be 'estimated', got: '%s'" % line.price_is)
