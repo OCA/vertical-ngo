@@ -95,6 +95,9 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
                 'price_unit': line.unit_cost,
                 'price_is': line.price_is,
                 }
+        if line.dispatch_location_id:
+            vals['location_id'] = line.dispatch_location_id.id
+
         onchange_vals = sale_line_obj.product_id_change(
             cr, uid, [],
             line.requisition_id.consignee_id.property_product_pricelist.id,
@@ -117,41 +120,12 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
         A cost estimate is a sale.order record.
         """
         sale_obj = self.pool.get('sale.order')
-        location_obj = self.pool.get('stock.location')
-        location_ids = set()
-        for line in sourced_lines:
-            if line.dispatch_location_id:
-                location_ids.add(line.dispatch_location_id.id)
-        if len(location_ids) > 1:
-            raise orm.except_orm(
-                _('Error'),
-                _('All requisition lines must come from the same location '
-                  'or from purchase.'))
-        try:
-            location_id = location_ids.pop()
-        except KeyError:
-            data_obj = self.pool.get('ir.model.data')
-            __, shop_id = data_obj.get_object_reference(
-                cr, uid, 'sale', 'sale_shop_1')
-        else:
-            shop_id = location_obj._get_shop_from_location(cr, uid,
-                                                           location_id,
-                                                           context=context)
-            if not shop_id:
-                location = location_obj.browse(cr, uid, location_id,
-                                               context=context)
-                raise orm.except_orm(
-                    _('Error'),
-                    _('No shop is associated with the location %s') %
-                    location.name)
-
         partner_id = requisition.partner_id.id
         vals = {'partner_id': partner_id,
                 'partner_invoice_id': partner_id,
                 'partner_shipping_id': requisition.consignee_shipping_id.id,
                 'consignee_id': requisition.consignee_id.id,
                 'order_line': [(0, 0, x) for x in estimate_lines],
-                'shop_id': shop_id,
                 'incoterm': requisition.incoterm_id.id,
                 'incoterm_address': requisition.incoterm_address,
                 'requisition_id': requisition.id,
