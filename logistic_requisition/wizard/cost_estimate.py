@@ -85,18 +85,19 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
 
     def _prepare_cost_estimate_line(self, cr, uid, line, context=None):
         sale_line_obj = self.pool.get('sale.order.line')
-        make_type = ('make_to_stock'
-                     if line.procurement_method == 'wh_dispatch'
-                     else 'make_to_order')
         vals = {'requisition_id': line.id,
                 'product_id': line.product_id.id,
                 'name': line.description,
-                'type': make_type,
                 'price_unit': line.unit_cost,
                 'price_is': line.price_is,
                 }
         if line.dispatch_location_id:
             vals['location_id'] = line.dispatch_location_id.id
+        if line.procurement_method == 'wh_dispatch':
+            vals['type'] = 'make_to_stock'
+        else:
+            vals['type'] = 'make_to_order'
+            vals['sale_flow'] = 'direct_delivery'
 
         onchange_vals = sale_line_obj.product_id_change(
             cr, uid, [],
