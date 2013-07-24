@@ -416,7 +416,7 @@
                                                 states="assigned"
                                                 attrs="{'invisible': [('po_requisition_id', '!=', False)]}" />
                                         </div>
-                                        <field name="selected_bid"/>
+                                        <field name="selected_po_id"/>
                                     </group>
                                     <group string="Warehouse Dispatch"
                                         colspan="4"
