@@ -598,9 +598,9 @@ class logistic_requisition_line(orm.Model):
             'transport.plan',
             string='Transport Plan',
             states=SOURCED_STATES),
-        'selected_bid': fields.many2one('purchase.order',
-                                        string='Selected BID',
-                                        states=SOURCED_STATES),
+        'selected_po_id': fields.many2one('purchase.order',
+                                           string='Selected BID',
+                                           states=SOURCED_STATES),
         'price_is': fields.selection(
             PRICE_IS_SELECTION,
             string='Price is',
