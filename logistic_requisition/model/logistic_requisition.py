@@ -530,10 +530,12 @@ class logistic_requisition_line(orm.Model):
             'stock.location',
             string='Dispatch From',
             states=SOURCED_STATES),
-        'stock_owner': fields.many2one(
-            'res.partner',
+        'stock_owner': fields.related(
+            'dispatch_location_id', 'owner_id',
+            type='many2one',
+            relation='res.partner',
             string='Stock Owner',
-            states=SOURCED_STATES),
+            readonly=True),
         'purchase_id': fields.many2one('purchase.order', 'Purchase Order'),
         # NOTE: date that should be used for the stock move reservation
         'date_etd': fields.date('ETD',
