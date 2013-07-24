@@ -115,6 +115,10 @@
         assert sale_line.type == assert_type, (
             "Type should be %s, received: %s" % (assert_type, sale_line.type))
 
+        if line.procurement_method != 'wh_dispatch':
+            assert sale_line.sale_flow == 'direct_delivery', (
+                "A line not in 'Warehouse dispatch' should be in direct delivery")
+
         if line.dispatch_location_id:
             assert sale_line.location_id == line.dispatch_location_id, (
                 "dispatch should be %s, received %s" %
