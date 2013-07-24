@@ -21,6 +21,7 @@
     transport_applicable: 0
     procurement_method: wh_dispatch
     price_is: fixed
+    dispatch_location_id: stock.stock_location_shop1
 -
   And I add a line 2
 -
@@ -113,6 +114,15 @@
                        else 'make_to_order')
         assert sale_line.type == assert_type, (
             "Type should be %s, received: %s" % (assert_type, sale_line.type))
+
+        if line.dispatch_location_id:
+            assert sale_line.location_id == line.dispatch_location_id, (
+                "dispatch should be %s, received %s" %
+                (line.dispatch_location_id, sale_line.location_id))
+        else:
+            assert not sale_line.location_id, (
+                "No dispatch location on requisition line, but received a "
+                "location in sale order line")
 
     line1_id = ref("logistic_requisition_line_cost_estimate_01")
     line2_id = ref("logistic_requisition_line_cost_estimate_02")
