@@ -422,7 +422,6 @@ class logistic_requisition_line(orm.Model):
             res += [(rs.id, name)]
         return res
 
-
     _columns = {
         'name': fields.function(_get_name,
                                 string='Line N°',
@@ -433,6 +432,7 @@ class logistic_requisition_line(orm.Model):
             'logistic.requisition',
             'Requisition',
             readonly=True,
+            required=True,
             ondelete='cascade'),
         'logistic_user_id': fields.many2one(
             'res.users',
@@ -946,3 +946,21 @@ class logistic_requisition_line(orm.Model):
     def button_reset(self, cr, uid, ids, context=None):
         self._do_confirm(cr, uid, ids, context=None)
         return True
+
+    def _logistic_requisition_unique(self, cr, uid, ids, context=None):
+        for line in self.browse(cr, uid, ids, context=context):
+            if not line.transport_plan_id:
+                continue
+            plan = line.transport_plan_id
+            if not plan.logistic_requisition_id:
+                continue
+            if plan.logistic_requisition_id != line.requisition_id:
+                return False
+        return True
+
+    _constraints = [
+        (_logistic_requisition_unique,
+         "A transport plan cannot be linked to lines of different "
+         "logistic requisitions.",
+         ['transport_plan_id']),
+    ]
