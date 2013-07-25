@@ -100,3 +100,29 @@
     assert lines_len == 5, (
         "Cost Estimate should have 5 lines, 1 per logistic requisition line "
         " and 1 per transport plan used, got %s" % lines_len)
+-
+  I check if the information of the transport lines is correct
+-
+  !python {model: sale.order.line}: |
+    tp1_id = ref('transport_plan_tpe_01')
+    tp2_id = ref('transport_plan_tpe_02')
+    product_ship_id = ref('product_transport')
+    tp_obj = self.pool.get('transport.plan')
+    tp1, tp2 = tp_obj.browse(cr, uid, [tp1_id, tp2_id])
+    line1_ids = self.search(cr, uid,
+                            [('product_id', '=', product_ship_id),
+                             ('price_unit', '=', tp1.transport_estimated_cost)])
+    assert len(line1_ids) == 1, "Missing a line for transport"
+    line2_ids = self.search(cr, uid,
+                            [('product_id', '=', product_ship_id),
+                             ('price_unit', '=', tp2.transport_estimated_cost)])
+    assert len(line2_ids) == 1, "Missing a line for transport"
+    line1, line2 = self.browse(cr, uid, line1_ids + line2_ids)
+    def check(cr, uid, transport_plan, line):
+        pass
+        # Add assertions here for the propagation of values from the
+        # transport plan to the line. Actually there is only the product
+        # and the price, already validated by the search above.
+
+    check(cr, uid, tp1, line1)
+    check(cr, uid, tp2, line2)
