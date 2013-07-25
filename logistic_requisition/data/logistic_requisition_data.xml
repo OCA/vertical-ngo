@@ -6,5 +6,18 @@
             id="purchase_default_set"
             model="ir.values"
             name="set"/>
+
+        <record id="category_services" model="product.category">
+            <field name="name">Services</field>
+        </record>
+
+        <record id="product_transport" model="product.product">
+            <field name="default_code">SHIPPING</field>
+            <field name="list_price">0.0</field>
+            <field name="standard_price">0.0</field>
+            <field name="type">service</field>
+            <field name="name">Shipping / Transport</field>
+            <field name="categ_id" ref="category_services"/>
+        </record>
     </data>
 </openerp>

@@ -47,6 +47,17 @@ class transport_plan(orm.Model):
                 tp_ids.add(line.transport_plan_id.id)
         return list(tp_ids)
 
+    def _get_product_id(self, cr, uid, context=None):
+        data_obj = self.pool.get('ir.model.data')
+        try:
+            __, res_id = data_obj.get_object_reference(cr, uid,
+                                                       'logistic_requisition',
+                                                       'product_transport')
+        except ValueError:
+            return
+        else:
+            return res_id
+
     _columns = {
         'logistic_requisition_line_ids': fields.one2many(
             'logistic.requisition.line', 'transport_plan_id',
@@ -64,6 +75,15 @@ class transport_plan(orm.Model):
                                               10),
             },
             string='Requisition'),
+        'product_id': fields.many2one(
+            'product.product',
+            string='Product',
+            help='Product used for the transport, '
+                 'will be used in the cost estimate')
+    }
+
+    _defaults = {
+        'product_id': _get_product_id,
     }
 
     def _logistic_requisition_unique(self, cr, uid, ids, context=None):

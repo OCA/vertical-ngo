@@ -14,6 +14,9 @@
                         </group>
                     </page>
                 </xpath>
+                <field name="user_id" position="after">
+                    <field name="product_id"/>
+                </field>
             </field>
         </record>
     </data>
