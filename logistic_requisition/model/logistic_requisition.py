@@ -38,6 +38,7 @@ REQUESTER_TYPE = [
 class logistic_requisition(orm.Model):
     _name = "logistic.requisition"
     _description = "Logistic Requisition"
+    _inherit = ['mail.thread']
 
     REQ_STATES = {'confirmed': [('readonly', True)],
                   'done': [('readonly', True)]
