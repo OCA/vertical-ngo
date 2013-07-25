@@ -429,7 +429,9 @@
                                         colspan="4">
                                         <field name="transport_plan_id"
                                             attrs="{'required': [('transport_applicable', '=', True), ('state', 'in', ['assigned', 'sourced', 'quoted'])]}"
-                                            on_change="onchange_transport_plan_id(transport_plan_id)"/>
+                                            on_change="onchange_transport_plan_id(transport_plan_id)"
+                                            domain="['|', ('logistic_requisition_id', '=', False), ('logistic_requisition_id', '=', requisition_id)]"
+                                            />
                                         <field name="date_etd"/>
                                         <field name="date_eta"/>
                                     </group>
