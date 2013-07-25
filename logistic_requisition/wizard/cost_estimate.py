@@ -90,6 +90,8 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
                 'name': line.description,
                 'price_unit': line.unit_cost,
                 'price_is': line.price_is,
+                'product_uom_qty': line.proposed_qty,
+                'product_uom': line.requested_uom_id.id,
                 }
         if line.dispatch_location_id:
             vals['location_id'] = line.dispatch_location_id.id
