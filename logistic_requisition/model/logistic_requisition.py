@@ -837,6 +837,12 @@ class logistic_requisition_line(orm.Model):
             default = {}
         std_default = {
             'logistic_user_id': False,
+            'transport_plan_id': False,
+            'date_etd': False,
+            'date_eta': False,
+            'po_requisition_id': False,
+            'selected_po_id': False,
+            'cost_estimate_id': False,
         }
         std_default.update(default)
         return super(logistic_requisition_line, self).copy_data(
