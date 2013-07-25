@@ -35,6 +35,7 @@ REQUESTER_TYPE = [
              ('internal', 'Federation (internal)'),
         ]
 
+
 class logistic_requisition(orm.Model):
     _name = "logistic.requisition"
     _description = "Logistic Requisition"
@@ -392,43 +393,23 @@ class logistic_requisition_line(orm.Model):
                                        context=context)
         return line_ids
 
-    def _get_name(self, cr, uid, ids, field_names, arg=None, context=None):
-        return dict((line_id, line_id) for line_id in ids)
-
     def name_get(self, cr, user, ids, context=None):
         """
         Returns a list of tupples containing id, name.
         result format: {[(id, name), (id, name), ...]}
-
-        @param cr: A database cursor
-        @param user: ID of the user currently logged in
-        @param ids: list of ids for which name should be read
-        @param context: context arguments, like lang, time zone
-
-        @return: Returns a list of tupples containing id, name 
-                 composed by requisition_id.name + name
         """
         if not ids:
             return []
         if isinstance(ids, (int, long)):
             ids = [ids]
-        result = self.browse(cr, user, ids, context=context)
         res = []
-        for rs in result:
-            if rs.requisition_id:
-                lr_name = rs.requisition_id.name + " - "
-            else:
-                lr_name = ""
-            name = "%s%s" % (lr_name, rs.name)
-            res += [(rs.id, name)]
+        for line in self.browse(cr, user, ids, context=context):
+            name = "%s - %s" % (line.requisition_id.name, line.name)
+            res.append((rs.id, name))
         return res
 
     _columns = {
-        'name': fields.function(_get_name,
-                                string='Line N°',
-                                type='char',
-                                readonly=True,
-                                store=True),
+        'name': fields.char(u'Line N°', readonly=True),
         'requisition_id': fields.many2one(
             'logistic.requisition',
             'Requisition',
@@ -617,7 +598,22 @@ class logistic_requisition_line(orm.Model):
         'requested_qty': 1.0,
         'transport_applicable': True,
         'price_is': 'fixed',
+        'name': '/',
     }
+
+    _sql_constraints = [
+        ('name_uniq',
+         'unique(name)',
+         'Logistic Requisition Line number must be unique!'),
+    ]
+
+
+    def create(self, cr, uid, vals, context=None):
+        if vals.get('name', '/') == '/':
+            seq_obj = self.pool.get('ir.sequence')
+            vals['name'] = seq_obj.get(cr, uid, 'logistic.requisition.line') or '/'
+        return super(logistic_requisition_line, self).create(cr, uid, vals,
+                                                             context=context)
 
     def _check_transport_plan(self, cr, uid, ids, context=None):
         lines = self.browse(cr, uid, ids, context=context)
