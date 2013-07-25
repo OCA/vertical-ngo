@@ -83,6 +83,36 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
         defaults['requisition_id'] = req_id
         return defaults
 
+    def _prepare_transport_line(self, cr, uid, transport_plan, context=None):
+        """ Prepare the values to write the transport plan lines.
+
+        One ``sale.order.line`` is created for each transport plan
+        used in the requisition lines.
+
+        :param transport_plan: transport plan for the lines
+        """
+        # sale_line_obj = self.pool.get('sale.order.line')
+        vals = {# 'product_id': line.product_id.id,
+                'name': 'test',
+                'price_unit': transport_plan.transport_estimated_cost,
+                'price_is': 'fixed',
+                'product_uom_qty': 1.0,
+                }
+        # onchange_vals = sale_line_obj.product_id_change(
+        #     cr, uid, [],
+        #     line.requisition_id.consignee_id.property_product_pricelist.id,
+        #     line.product_id.id,
+        #     partner_id=line.requisition_id.consignee_id.id,
+        #     qty=line.proposed_qty,
+        #     uom=line.proposed_uom_id.id).get('value', {})
+        #  price_unit and type of the requisition line must be kept
+        # if 'price_unit' in onchange_vals:
+        #     del onchange_vals['price_unit']
+        # if 'type' in onchange_vals:
+        #     del onchange_vals['type']
+        # vals.update(onchange_vals)
+        return vals
+
     def _prepare_cost_estimate_line(self, cr, uid, line, context=None):
         sale_line_obj = self.pool.get('sale.order.line')
         vals = {'requisition_id': line.id,
@@ -117,7 +147,8 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
         return vals
 
     def _prepare_cost_estimate(self, cr, uid, requisition,
-                               sourced_lines, estimate_lines, context=None):
+                               sourced_lines, estimate_lines,
+                               context=None):
         """ Prepare the values for the creation of a cost estimate
         from a selection of requisition lines.
         A cost estimate is a sale.order record.
@@ -153,9 +184,16 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
                                  _('The cost estimate cannot be created, '
                                    'because no lines are sourced.'))
         estimate_lines = []
+        transport_plans = set()
         for line in sourced_lines:
+            if line.transport_applicable and line.transport_plan_id:
+                transport_plans.add(line.transport_plan_id)
             vals = self._prepare_cost_estimate_line(cr, uid, line,
                                                     context=context)
+            estimate_lines.append(vals)
+        for transport_plan in transport_plans:
+            vals = self._prepare_transport_line(cr, uid, transport_plan,
+                                                context=context)
             estimate_lines.append(vals)
         order_d = self._prepare_cost_estimate(cr, uid,
                                               requisition,
