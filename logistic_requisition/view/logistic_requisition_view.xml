@@ -494,14 +494,10 @@
                 <filter string="External (NS, Others)"  domain="[('requester_type','&lt;&gt;', 'internal')]" help="Requestor is External or National Societe"/>
                 <separator/>
                 <field name="requisition_id" />
-                <!-- use 'id' not 'name'
-                     because 'name' is a char so it would match '12'
-                     when searching '2',
-                     while id is int so match exactly 2  -->
-                <field name="id" string="Line N°"/>
+                <field name="name"/>
                 <field name="description" />
                 <field name="logistic_user_id" />
-                
+
                 <group expand="0" string="Group By...">
                     <filter string="Assigned Specialist" domain="[]" context="{'group_by':'logistic_user_id'}"/>
                     <filter string="Logistic Requisition" domain="[]" context="{'group_by':'requisition_id'}"/>
