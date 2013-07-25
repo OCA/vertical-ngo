@@ -91,26 +91,18 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
 
         :param transport_plan: transport plan for the lines
         """
-        # sale_line_obj = self.pool.get('sale.order.line')
-        vals = {# 'product_id': line.product_id.id,
-                'name': 'test',
-                'price_unit': transport_plan.transport_estimated_cost,
-                'price_is': 'fixed',
-                'product_uom_qty': 1.0,
-                }
-        # onchange_vals = sale_line_obj.product_id_change(
-        #     cr, uid, [],
-        #     line.requisition_id.consignee_id.property_product_pricelist.id,
-        #     line.product_id.id,
-        #     partner_id=line.requisition_id.consignee_id.id,
-        #     qty=line.proposed_qty,
-        #     uom=line.proposed_uom_id.id).get('value', {})
-        #  price_unit and type of the requisition line must be kept
-        # if 'price_unit' in onchange_vals:
-        #     del onchange_vals['price_unit']
-        # if 'type' in onchange_vals:
-        #     del onchange_vals['type']
-        # vals.update(onchange_vals)
+        sale_line_obj = self.pool.get('sale.order.line')
+        requisition = transport_plan.logistic_requisition_id
+        vals = sale_line_obj.product_id_change(
+            cr, uid, [],
+            requisition.consignee_id.property_product_pricelist.id,
+            transport_plan.product_id.id,
+            partner_id=requisition.consignee_id.id,
+            qty=1).get('value', {})
+        vals.update({
+            'product_id': transport_plan.product_id.id,
+            'price_unit': transport_plan.transport_estimated_cost,
+        })
         return vals
 
     def _prepare_cost_estimate_line(self, cr, uid, line, context=None):

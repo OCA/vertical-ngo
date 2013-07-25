@@ -78,6 +78,7 @@ class transport_plan(orm.Model):
         'product_id': fields.many2one(
             'product.product',
             string='Product',
+            required=True,
             help='Product used for the transport, '
                  'will be used in the cost estimate')
     }
