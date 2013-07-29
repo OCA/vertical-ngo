@@ -8,10 +8,6 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
     _name = 'logistic.requisition.cost.estimate'
     _description = 'Create cost estimate of logistic requisition lines'
 
-    def _get_requisition_id(self, cr, uid, context=None):
-        if context is None:
-            context = {}
-
     _columns = {
         'requisition_id': fields.many2one('logistic.requisition',
                                           string='Logistic Requisition',
@@ -54,6 +50,8 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
         return sourced, skipped
 
     def default_get(self, cr, uid, fields_list, context=None):
+        if context is None:
+            context = {}
         defaults = super(logistic_requisition_cost_estimate, self).\
             default_get(cr, uid, fields_list, context=context)
         req_obj = self.pool.get('logistic.requisition')
@@ -95,6 +93,7 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
                 'name': line.description,
                 'type': make_type,
                 'price_unit': line.unit_cost,
+                'cost_estimated': line.cost_estimated,
                 }
         onchange_vals = sale_line_obj.product_id_change(
             cr, uid, [],
@@ -144,20 +143,20 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
                     _('No shop is associated with the location %s') %
                     location.name)
 
-        requester_id = requisition.requester_id.id
-        vals = {'partner_id': requester_id,
-                'partner_invoice_id': requester_id,
+        partner_id = requisition.partner_id.id
+        vals = {'partner_id': partner_id,
+                'partner_invoice_id': partner_id,
                 'partner_shipping_id': requisition.consignee_shipping_id.id,
                 'consignee_id': requisition.consignee_id.id,
                 'order_line': [(0, 0, x) for x in estimate_lines],
                 'shop_id': shop_id,
                 'incoterm': requisition.incoterm_id.id,
                 'incoterm_address': requisition.incoterm_address,
-                'requested_by': requisition.requested_by,
+                'requisition_id': requisition.id,
                 }
 
         onchange_vals = sale_obj.onchange_partner_id(
-            cr, uid, [], requester_id, context=context).get('value', {})
+            cr, uid, [], partner_id, context=context).get('value', {})
         vals.update(onchange_vals)
         return vals
 
