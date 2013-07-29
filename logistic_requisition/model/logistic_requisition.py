@@ -43,6 +43,10 @@ class logistic_requisition(orm.Model):
                   'done': [('readonly', True)]
                   }
 
+    CANCEL_REASONS = [('only_quotation', 'Just for Quotation'),
+                      ('no_service_needed', 'No service needed anymore'),
+                      ('other_provider', 'Other Service Provider selected'),
+                     ]
 
     def _get_from_partner(self, cr, uid, ids, context=None):
         req_obj = self.pool.get('logistic.requisition')
@@ -79,8 +83,8 @@ class logistic_requisition(orm.Model):
             help="Mobilization Officer or Logistic Coordinator "
                  "in charge of the Logistic Requisition"
         ),
-        'requester_id': fields.many2one(
-            'res.partner', 'Requesting Entity', required=True,
+        'partner_id': fields.many2one(
+            'res.partner', 'Customer', required=True,
             states=REQ_STATES
         ),
         'requester_type': fields.selection(
@@ -88,8 +92,6 @@ class logistic_requisition(orm.Model):
             string='Type of Requestor',
             states=REQ_STATES
         ),
-        'requested_by': fields.text('Requested By',
-                                    states=REQ_STATES),
         'consignee_id': fields.many2one(
             'res.partner', 'Consignee',
             states=REQ_STATES
@@ -198,6 +200,8 @@ class logistic_requisition(orm.Model):
             string='Finance Officer'),
         'date_finance_officer': fields.datetime(
             'Finance Officer Validation Date'),
+        'cancel_reason': fields.selection(CANCEL_REASONS,
+                                          string='Cancellation Reason'),
     }
 
     _defaults = {
@@ -235,13 +239,15 @@ class logistic_requisition(orm.Model):
             res[requisition.id] = percentage
         return res
 
-    def _do_cancel(self, cr, uid, ids, context=None):
+    def _do_cancel(self, cr, uid, ids, reason, context=None):
         reqs = self.read(cr, uid, ids, ['line_ids'], context=context)
         line_ids = [lids for req in reqs for lids in req['line_ids']]
         if line_ids:
             line_obj = self.pool.get('logistic.requisition.line')
             line_obj._do_cancel(cr, uid, line_ids, context=context)
-        self.write(cr, uid, ids, {'state': 'cancel'}, context=context)
+        vals = {'state': 'cancel',
+                'cancel_reason': reason}
+        self.write(cr, uid, ids, vals, context=context)
 
     def _do_confirm(self, cr, uid, ids, context=None):
         reqs = self.read(cr, uid, ids, ['line_ids'], context=context)
@@ -262,6 +268,7 @@ class logistic_requisition(orm.Model):
                 'date_budget_holder': False,
                 'finance_officer_id': False,
                 'date_finance_officer': False,
+                'cancel_reason': False,
                 }
         self.write(cr, uid, ids, vals, context=context)
 
@@ -312,11 +319,6 @@ class logistic_requisition(orm.Model):
             values[date_field_name] = time.strftime(DT_FORMAT)
         return {'value': values}
 
-    def button_cancel(self, cr, uid, ids, context=None):
-        #TODO: ask confirmation
-        self._do_cancel(cr, uid, ids, context=context)
-        return True
-
     def button_confirm(self, cr, uid, ids, context=None):
         self._do_confirm(cr, uid, ids, context=context)
         return True
@@ -358,7 +360,7 @@ class logistic_requisition_line(orm.Model):
     _description = "Logistic Requisition Line"
     _inherit = ['mail.thread']
 
-    _order = "requisition_id asc"
+    _order = "requisition_id asc, id asc"
 
     REQUEST_STATES = {'assigned': [('readonly', True)],
                       'sourced': [('readonly', True)],
@@ -592,6 +594,9 @@ class logistic_requisition_line(orm.Model):
             'sale.order',
             string='Cost Estimate',
             readonly=True),
+        'transport_applicable': fields.boolean(
+            'Transport Applicable',
+            states=SOURCED_STATES),
         'transport_plan_id': fields.many2one(
             'transport.plan',
             string='Transport Plan',
@@ -599,12 +604,35 @@ class logistic_requisition_line(orm.Model):
         'selected_bid': fields.many2one('purchase.order',
                                         string='Selected BID',
                                         states=SOURCED_STATES),
+        'cost_estimated': fields.boolean(
+            'Cost is estimated',
+            help="The unit cost is an estimation, "
+                 "the final price may change. I.e. it is not based "
+                 " on a request for quotation.")
     }
 
     _defaults = {
         'state': 'draft',
         'requested_qty': 1.0,
+        'transport_applicable': True,
     }
+
+    def _check_transport_plan(self, cr, uid, ids, context=None):
+        lines = self.browse(cr, uid, ids, context=context)
+        states = ('sourced', 'quoted')
+        for line in lines:
+            if (line.transport_applicable and
+                    line.state in states and
+                    not line.transport_plan_id):
+                return False
+        return True
+
+    _constraints = [
+        (_check_transport_plan,
+         'Transport plan is mandatory for sourced requisition lines '
+         'when the transport is applicable.',
+         ['transport_plan_id']),
+    ]
 
     def _do_confirm(self, cr, uid, ids, context=None):
         self.write(cr, uid, ids, {'state': 'confirmed'}, context=context)
@@ -621,11 +649,14 @@ class logistic_requisition_line(orm.Model):
         self.write(cr, uid, ids, {'state': 'draft'}, context=context)
 
     def _do_assign(self, cr, uid, ids, context=None):
+        assigned_ids = []
         for line in self.browse(cr, uid, ids, context=context):
             if line.state == 'confirmed' and line.logistic_user_id:
-                self.write(cr, uid, ids,
-                           {'state': 'assigned'},
-                           context=context)
+                assigned_ids.append(line.id)
+        if assigned_ids:
+            self.write(cr, uid, assigned_ids,
+                       {'state': 'assigned'},
+                       context=context)
 
     def _do_quoted(self, cr, uid, ids, context=None):
         req_obj = self.pool.get('logistic.requisition')

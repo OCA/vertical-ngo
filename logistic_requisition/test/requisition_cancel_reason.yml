@@ -1,0 +1,26 @@
+-
+  Given I create a logistic requisition
+-
+  !record {model: logistic.requisition, id: logistic_requisition_cancel_01}:
+    partner_id: base.res_partner_4
+    consignee_id: base.res_partner_3
+    date_delivery: !eval "time.strftime('%Y-%m-%d')"
+    user_id: base.user_demo
+-
+  When I cancel it with the wizard asking for the reason
+-
+  !python {model: logistic.requisition.cancel}: |
+    context = {'active_model': 'logistic.requisition',
+               'active_ids': [ref('logistic_requisition_cancel_01')],
+               }
+    wizard_id = self.create(cr, uid,
+                            {'reason': 'only_quotation'},
+                            context=context)
+    self.confirm_cancel(cr, uid, wizard_id, context=context)
+-
+  Then the logistic requisition should be canceled
+  and the reason stored
+-
+  !assert {model: logistic.requisition, id: logistic_requisition_cancel_01, string: the requisition should be canceled}:
+    - state == 'cancel'
+    - cancel_reason == 'only_quotation'
