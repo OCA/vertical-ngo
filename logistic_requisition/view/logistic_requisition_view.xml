@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
 
@@ -52,7 +52,7 @@
                     </div>
                     <group>
                         <group>
-                            <field name="partner_id"/>
+                            <field name="partner_id" on_change="onchange_requester_id(partner_id)"/>
                             <field name="consignee_id"
                                    on_change="onchange_consignee_id(consignee_id)"
                                    attrs="{'required': [('cost_estimate_only', '=', False)]}"/>
