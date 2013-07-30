@@ -83,6 +83,18 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
         defaults['requisition_id'] = req_id
         return defaults
 
+    def _get_name_transport_line(self, cr, uid, transport_plan, context=None):
+        name = 'Transport from ' + \
+                transport_plan.from_address_id.name + \
+                ' to ' + \
+                transport_plan.to_address_id.name + \
+                ' by ' + \
+                 transport_plan.transport_mode_id.name + \
+                 '(Ref. ' + \
+                 transport_plan.name + \
+                 ')'
+        return name
+
     def _prepare_transport_line(self, cr, uid, transport_plan, context=None):
         """ Prepare the values to write the transport plan lines.
 
@@ -102,6 +114,10 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
         vals.update({
             'product_id': transport_plan.product_id.id,
             'price_unit': transport_plan.transport_estimated_cost,
+            'name': self._get_name_transport_line(cr, uid, 
+                                                  transport_plan, 
+                                                   context=context
+                                                  )
         })
         return vals
 
