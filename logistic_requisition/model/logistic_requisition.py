@@ -853,6 +853,14 @@ class logistic_requisition_line(orm.Model):
         return super(logistic_requisition_line, self).copy_data(
             cr, uid, id, default=std_default, context=context)
 
+    def copy(self, cr, uid, id, default=None, context=None):
+        if not default:
+            default = {}
+        default.update({
+            'name': '/',
+        })
+        return super(logistic_requisition_line, self).copy(cr, uid, id, default=default, context=context)
+
     def _message_get_auto_subscribe_fields(self, cr, uid, updated_fields,
                                            auto_follow_fields=['user_id'],
                                            context=None):
