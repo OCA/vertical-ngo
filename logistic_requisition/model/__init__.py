@@ -23,3 +23,4 @@ from . import sale_order
 from . import logistic_requisition
 from . import stock
 from . import transport_plan
+from . import res_partner

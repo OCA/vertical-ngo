@@ -54,6 +54,7 @@ A Logistic requisition express a need that is requested somewhere.
           "view/logistic_requisition_view.xml",
           "view/sale_order.xml",
           "view/transport_plan.xml",
+          "view/res_partner_view.xml",
           "logistic_requisition_report.xml",
           ],
  "auto_install": False,
@@ -63,6 +64,7 @@ A Logistic requisition express a need that is requested somewhere.
           'test/requisition_confirm_bid.yml',
           'test/transport_plan.yml',
           'test/transport_plan_to_cost_estimate.yml',
+          'test/logistic_requisition_onchange.yml',
           ],
  "installable": True,
  }
