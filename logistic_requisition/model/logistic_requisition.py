@@ -413,7 +413,7 @@ class logistic_requisition_line(orm.Model):
         res = []
         for line in self.browse(cr, user, ids, context=context):
             name = "%s - %s" % (line.requisition_id.name, line.name)
-            res.append((rs.id, name))
+            res.append((line.id, name))
         return res
 
     _columns = {
