@@ -417,11 +417,7 @@ class logistic_requisition_line(orm.Model):
         return res
 
     _columns = {
-        'name': fields.function(_get_name,
-                                string=u'Line N°',
-                                type='char',
-                                readonly=True,
-                                store=True),
+        'name': fields.char(u'Line N°', readonly=True),
         'requisition_id': fields.many2one(
             'logistic.requisition',
             'Requisition',
