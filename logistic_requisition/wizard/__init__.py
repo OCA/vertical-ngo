@@ -18,9 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-import logistic_requisition_split_line
-import logistic_line_create_requisition
-import assign_line
-import cost_estimate
-import logistic_requisition_cancel
-import transport_plan
+from . import logistic_requisition_split_line
+from . import logistic_line_create_requisition
+from . import assign_line
+from . import cost_estimate
+from . import logistic_requisition_cancel
+from . import transport_plan
