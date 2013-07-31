@@ -45,6 +45,7 @@ A Logistic requisition express a need that is requested somewhere.
  "data": ["wizard/logistic_requisition_split_line_view.xml",
           "wizard/logistic_line_create_requisition_view.xml",
           "wizard/assign_line_view.xml",
+          "wizard/transport_plan_view.xml",
           "wizard/cost_estimate_view.xml",
           "wizard/logistic_requisition_cancel_view.xml",
           "security/logistic_requisition.xml",
@@ -65,6 +66,7 @@ A Logistic requisition express a need that is requested somewhere.
           'test/transport_plan.yml',
           'test/transport_plan_to_cost_estimate.yml',
           'test/logistic_requisition_onchange.yml',
+          'test/transport_plan_from_lr_line_wizard.yml',
           ],
  "installable": True,
  }
