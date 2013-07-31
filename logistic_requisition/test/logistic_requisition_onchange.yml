@@ -7,7 +7,7 @@
   When I create a logistic requisition for this partner
 -
   !record {model: logistic.requisition, id: logistic_requisition_01}:
-    requester_id: base.res_partner_4
+    partner_id: base.res_partner_4
     consignee_id: base.res_partner_3
     date_delivery: !eval "time.strftime('%Y-%m-%d')"
     user_id: base.user_demo
@@ -25,7 +25,7 @@
   When I change the logistic requisition for this partner
 -
   !record {model: logistic.requisition, id: logistic_requisition_01}:
-    requester_id: base.res_partner_5
+    partner_id: base.res_partner_5
 -
   Then the requester type of the logistic requisition should be 'external'
 -
@@ -40,7 +40,7 @@
   When I change the logistic requisition for this contact
 -
   !record {model: logistic.requisition, id: logistic_requisition_01}:
-    requester_id: base.res_partner_address_4
+    partner_id: base.res_partner_address_4
 -
   Then the requester type of the logistic requisition should be 'internal'
 -

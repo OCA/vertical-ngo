@@ -1,5 +1,23 @@
 # -*- coding: utf-8 -*-
-
+##############################################################################
+#
+#    Author:  Joël Grand-Guillaume
+#    Copyright 2013 Camptocamp SA
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU Affero General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU Affero General Public License for more description.
+#
+#    You should have received a copy of the GNU Affero General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+##############################################################################
 from openerp.osv import fields, orm
 from openerp.tools.translate import _
 
@@ -78,10 +96,19 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
             lines = line_obj.browse(cr, uid, line_ids, context=context)
             sourced, skipped = self._filter_cost_estimate_lines(
                 cr, uid, lines, context=context)
-            defaults['sourced_line_ids'] = [line.id for line in sourced]
-            defaults['skipped_line_ids'] = [line.id for line in skipped]
+            defaults['sourced_line_ids'] = [s_line.id for s_line in sourced]
+            defaults['skipped_line_ids'] = [s_line.id for s_line in skipped]
         defaults['requisition_id'] = req_id
         return defaults
+
+    def _get_name_transport_line(self, cr, uid, transport_plan, context=None):
+        name = 'Transport from %s to %s by %s (Ref. %s)' % (
+            transport_plan.from_address_id.name,
+            transport_plan.to_address_id.name,
+            transport_plan.transport_mode_id.name,
+            transport_plan.name
+        )
+        return name
 
     def _prepare_transport_line(self, cr, uid, transport_plan, context=None):
         """ Prepare the values to write the transport plan lines.
@@ -102,6 +129,10 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
         vals.update({
             'product_id': transport_plan.product_id.id,
             'price_unit': transport_plan.transport_estimated_cost,
+            'name': self._get_name_transport_line(cr, uid,
+                                                  transport_plan,
+                                                  context=context
+                                                  )
         })
         return vals
 
