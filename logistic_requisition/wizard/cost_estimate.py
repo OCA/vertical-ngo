@@ -96,8 +96,8 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
             lines = line_obj.browse(cr, uid, line_ids, context=context)
             sourced, skipped = self._filter_cost_estimate_lines(
                 cr, uid, lines, context=context)
-            defaults['sourced_line_ids'] = [line.id for line in sourced]
-            defaults['skipped_line_ids'] = [line.id for line in skipped]
+            defaults['sourced_line_ids'] = [line.id for s_line in sourced]
+            defaults['skipped_line_ids'] = [line.id for s_line in skipped]
         defaults['requisition_id'] = req_id
         return defaults
 
