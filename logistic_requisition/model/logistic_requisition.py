@@ -29,11 +29,10 @@ import openerp.addons.decimal_precision as dp
 
 _logger = logging.getLogger(__name__)
 
-REQUESTER_TYPE = [
-             ('national_society', 'National Society'),
-             ('external', 'External Organization'),
-             ('internal', 'Federation (internal)'),
-        ]
+REQUESTER_TYPE = [('national_society', 'National Society'),
+                  ('external', 'External Organization'),
+                  ('internal', 'Federation (internal)'),
+                  ]
 
 
 class logistic_requisition(orm.Model):
@@ -856,10 +855,10 @@ class logistic_requisition_line(orm.Model):
     def copy(self, cr, uid, id, default=None, context=None):
         if not default:
             default = {}
-        default.update({
-            'name': '/',
-        })
-        return super(logistic_requisition_line, self).copy(cr, uid, id, default=default, context=context)
+        default.update({'name': '/'})
+        return super(logistic_requisition_line, self).copy(cr, uid, id,
+                                                           default=default,
+                                                           context=context)
 
     def _message_get_auto_subscribe_fields(self, cr, uid, updated_fields,
                                            auto_follow_fields=['user_id'],
