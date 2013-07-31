@@ -57,11 +57,10 @@ class logistic_requisition_line_transport_plan(orm.TransientModel):
     }
 
     def _prepare_transport_plan(self, cr, uid, form,
-                               context=None):
+                                context=None):
         """ Prepare the values for the creation of a transport plan
         from a selection of requisition lines.
         """
-        transport_obj = self.pool.get('transport.plan')
         vals = {'date_eta': form.date_eta,
                 'date_etd': form.date_etd,
                 'from_address_id': form.from_address_id.id,
