@@ -131,7 +131,7 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
             'price_unit': transport_plan.transport_estimated_cost,
             'name': self._get_name_transport_line(cr, uid,
                                                   transport_plan,
-                                                   context=context
+                                                  context=context
                                                   )
         })
         return vals
