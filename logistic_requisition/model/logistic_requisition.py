@@ -210,6 +210,7 @@ class logistic_requisition(orm.Model):
         'cost_estimate_only': False,
         'name': '/',
         'company_id': lambda self, cr, uid, c: self.pool.get('res.company')._company_default_get(cr, uid, 'logistic.request', context=c),
+        'user_id': lambda self, cr, uid, ctx: uid,
     }
 
     _sql_constraints = [
