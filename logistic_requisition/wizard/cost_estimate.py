@@ -102,7 +102,7 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
         return defaults
 
     def _get_name_transport_line(self, cr, uid, transport_plan, context=None):
-        name = 'Transport from %s to %s by %s (Ref. %s)' % (
+        name = _('Transport from %s to %s by %s (Ref. %s)') % (
             transport_plan.from_address_id.name,
             transport_plan.to_address_id.name,
             transport_plan.transport_mode_id.name,
