@@ -43,11 +43,6 @@ class logistic_requisition(orm.Model):
                   'done': [('readonly', True)]
                   }
 
-    CANCEL_REASONS = [('only_quotation', 'Just for Quotation'),
-                      ('no_service_needed', 'No service needed anymore'),
-                      ('other_provider', 'Other Service Provider selected'),
-                     ]
-
     def _get_from_partner(self, cr, uid, ids, context=None):
         req_obj = self.pool.get('logistic.requisition')
         req_ids = req_obj.search(cr, uid,
@@ -200,8 +195,11 @@ class logistic_requisition(orm.Model):
             string='Finance Officer'),
         'date_finance_officer': fields.datetime(
             'Finance Officer Validation Date'),
-        'cancel_reason': fields.selection(CANCEL_REASONS,
-                                          string='Cancellation Reason'),
+        'cancel_reason_id': fields.many2one(
+            'logistic.requisition.cancel.reason',
+            string='Reason for Cancellation',
+            ondelete='restrict',
+            readonly=True),
     }
 
     _defaults = {
@@ -240,14 +238,14 @@ class logistic_requisition(orm.Model):
             res[requisition.id] = percentage
         return res
 
-    def _do_cancel(self, cr, uid, ids, reason, context=None):
+    def _do_cancel(self, cr, uid, ids, reason_id, context=None):
         reqs = self.read(cr, uid, ids, ['line_ids'], context=context)
         line_ids = [lids for req in reqs for lids in req['line_ids']]
         if line_ids:
             line_obj = self.pool.get('logistic.requisition.line')
             line_obj._do_cancel(cr, uid, line_ids, context=context)
         vals = {'state': 'cancel',
-                'cancel_reason': reason}
+                'cancel_reason_id': reason_id}
         self.write(cr, uid, ids, vals, context=context)
 
     def _do_confirm(self, cr, uid, ids, context=None):
@@ -269,7 +267,7 @@ class logistic_requisition(orm.Model):
                 'date_budget_holder': False,
                 'finance_officer_id': False,
                 'date_finance_officer': False,
-                'cancel_reason': False,
+                'cancel_reason_id': False,
                 }
         self.write(cr, uid, ids, vals, context=context)
 

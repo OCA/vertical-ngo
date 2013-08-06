@@ -46,8 +46,9 @@
                             <field name="name" class="oe_inline" attrs="{'invisible': [('state', '=', 'draft')]}"/>
                         </h1>
                         <h2 attrs="{'invisible': [('state', '!=', 'cancel')]}">
-                            <label for="cancel_reason" string="Cancellation reason:"/>
-                            <field name="cancel_reason" class="oe_inline" />
+                            <label for="cancel_reason_id" string="Cancellation reason:"/>
+                            <field name="cancel_reason_id" class="oe_inline"
+                              options='{"no_open": True}' />
                         </h2>
                     </div>
                     <group>

@@ -11,7 +11,7 @@
                     logistic requisition.
                 </p>
                 <group>
-                    <field name="reason"/>
+                    <field name="reason_id"/>
                 </group>
                 <footer>
                     <button name="confirm_cancel"

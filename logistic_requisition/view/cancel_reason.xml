@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data noupdate="0">
+
+        <record model="ir.ui.view" id="view_logistic_requisition_cancel_reason_form">
+            <field name="name">Logistic Requisition Cancel Reason</field>
+            <field name="model">logistic.requisition.cancel.reason</field>
+            <field name="arch" type="xml">
+                <form string="Logistic Requisition Cancel Reasons">
+                    <field name="name"/>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_logistic_requisition_cancel_reason_tree">
+            <field name="name">Logistic Requisition Cancel Reason</field>
+            <field name="model">logistic.requisition.cancel.reason</field>
+            <field name="arch" type="xml">
+                <tree string="Purchase Cancel Reasons">
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_logistic_requisition_cancel_reason">
+            <field name="name">Logistic Requisition Cancel Reason</field>
+            <field name="res_model">logistic.requisition.cancel.reason</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <menuitem id="menu_logistic_requisition_cancel_reason"
+          parent="transport_plan.menu_order_configuration"
+          name="Logistic Requisition Cancel Reasons"
+          action="action_logistic_requisition_cancel_reason"
+          sequence="150"
+          groups="purchase.group_purchase_manager"/>
+    </data>
+</openerp>
