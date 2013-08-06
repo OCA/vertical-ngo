@@ -606,7 +606,13 @@ class logistic_requisition_line(orm.Model):
             string='Price is',
             required=True,
             help="When the price is an estimation, the final price may change. "
-                 "I.e. it is not based on a request for quotation.")
+                 "I.e. it is not based on a request for quotation."),
+        # needed to set the default destination address of the transport plan
+        # when created from the lr line view
+        'consignee_shipping_id': fields.related(
+            'requisition_id', 'consignee_shipping_id',
+            type='many2one', relation='res.partner',
+            string='Delivery Address', readonly=True)
     }
 
     _defaults = {

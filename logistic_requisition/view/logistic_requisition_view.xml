@@ -432,10 +432,12 @@
                                     <group string="Transport Plan"
                                         attrs="{'invisible': [('transport_applicable', '!=', True)]}"
                                         colspan="4">
+                                        <field name="consignee_shipping_id" invisible="1"/>
                                         <field name="transport_plan_id"
                                             attrs="{'required': [('transport_applicable', '=', True), ('state', 'in', ['assigned', 'sourced', 'quoted'])]}"
                                             on_change="onchange_transport_plan_id(transport_plan_id)"
                                             domain="['|', ('logistic_requisition_id', '=', False), ('logistic_requisition_id', '=', requisition_id)]"
+                                            context="{'default_to_address_id': consignee_shipping_id}"
                                             />
                                         <field name="date_etd"/>
                                         <field name="date_eta"/>
