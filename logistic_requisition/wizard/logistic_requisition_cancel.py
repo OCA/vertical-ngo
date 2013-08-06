@@ -29,9 +29,9 @@ class logistic_requisition_cancel(orm.Model):
     _description = __doc__
 
     _columns = {
-        'reason': fields.selection(base_requisition.CANCEL_REASONS,
-                                   string='Reason',
-                                   required=True),
+        'reason_id': fields.many2one('logistic.requisition.cancel.reason',
+                                  string='Reason',
+                                  required=True),
     }
 
     def confirm_cancel(self, cr, uid, ids, context=None):
@@ -48,6 +48,6 @@ class logistic_requisition_cancel(orm.Model):
         req_obj = self.pool.get('logistic.requisition')
         req_obj._do_cancel(cr, uid,
                            requisition_ids,
-                           form.reason,
+                           form.reason_id.id,
                            context=context)
         return act_close
