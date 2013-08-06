@@ -300,6 +300,15 @@ class logistic_requisition(orm.Model):
         })
         return super(logistic_requisition, self).copy(cr, uid, id, default=default, context=context)
 
+    def onchange_requester_type(self, cr, uid, ids, requester_type, context=None):
+        values = {}
+        if requester_type:
+            if requester_type in ('external', 'national_society'):
+                values['cost_estimate_only'] = True
+            else:
+                values['cost_estimate_only'] = False
+        return {'value': values}
+
     def onchange_requester_id(self, cr, uid, ids, partner_id, context=None):
         values = {}
         if partner_id:
