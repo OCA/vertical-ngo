@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    Author: Guewen Baconnier
 #    Copyright 2013 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -33,12 +32,15 @@ This module customizes the Sales Orders to disguise them in Logistic Orders
 
 """,
  "depends": ["sale_stock",
+             "sale_validity",
              "transport_plan",
+             "delivery",
+             "sale_order_webkit",
              ],
  "demo": [],
- "data": [
-    'view/sale_order_view.xml',
-    'data/logistic_order_sequence.xml',
+ "data": ['view/sale_order_view.xml',
+          'data/logistic_order_sequence.xml',
+          'report/report.xml',
           ],
  "auto_install": False,
  "test": [],
