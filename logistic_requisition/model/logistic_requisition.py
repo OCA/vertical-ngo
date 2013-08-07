@@ -610,7 +610,17 @@ class logistic_requisition_line(orm.Model):
         'consignee_shipping_id': fields.related(
             'requisition_id', 'consignee_shipping_id',
             type='many2one', relation='res.partner',
-            string='Delivery Address', readonly=True)
+            string='Delivery Address', readonly=True),
+        # 2 fields below needed to set the default origin address
+        # of the transport plan when created from the lr line view
+        'supplier_partner_id': fields.related(
+            'selected_po_id', 'partner_id',
+            type='many2one', relation='res.partner',
+            string='Supplier Address', readonly=True),
+        'location_partner_id': fields.related(
+            'dispatch_location_id', 'partner_id',
+            type='many2one', relation='res.partner',
+            string='Location Address', readonly=True)
     }
 
     _defaults = {
@@ -946,6 +956,36 @@ class logistic_requisition_line(orm.Model):
             plan = plan_obj.browse(cr, uid, transport_plan_id, context=context)
             value['date_eta'] = plan.date_eta
             value['date_etd'] = plan.date_etd
+        return {'value': value}
+
+    def onchange_dispatch_location_id(self, cr, uid, ids, dispatch_location_id, context=None):
+        """ Get the address of the location and write it in the
+        location_partner_id field, this field is a related read-only, so
+        this change will never be submitted to the server. But it is
+        necessary to set the default "from address" of the transport
+        plan in the context.
+        """
+        value = {'location_partner_id': False}
+        if dispatch_location_id:
+            location_obj = self.pool.get('stock.location')
+            location = location_obj.browse(cr, uid, dispatch_location_id,
+                                           context=context)
+            value['location_partner_id'] = location.partner_id.id
+        return {'value': value}
+
+    def onchange_selected_po_id(self, cr, uid, ids, selected_po_id, context=None):
+        """ Get the address of the supplier and write it in the
+        supplier_partner_id field, this field is a related read-only, so
+        this change will never be submitted to the server. But it is
+        necessary to set the default "from address" of the transport
+        plan in the context.
+        """
+        value = {'supplier_partner_id': False}
+        if selected_po_id:
+            purchase_obj = self.pool.get('purchase.order')
+            purchase = purchase_obj.browse(cr, uid, selected_po_id,
+                                           context=context)
+            value['supplier_partner_id'] = purchase.partner_id.id
         return {'value': value}
 
     def button_create_cost_estimate(self, cr, uid, ids, context=None):
