@@ -36,6 +36,7 @@ class sale_order(orm.Model):
             ('waiting_date', 'Waiting Schedule'),
             ('progress', 'Logistic Order'),
             ('manual', 'Logistic Order to Invoice'),
+            ('shipping_except', 'Shipping Exception'),
             ('invoice_except', 'Invoice Exception'),
             ('done', 'Done'),
             ], 'Status', readonly=True, track_visibility='onchange',
