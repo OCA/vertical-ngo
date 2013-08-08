@@ -70,7 +70,7 @@
     try:
         self.cost_estimate(cr, uid, wizard_id)
     except orm.except_orm as err:
-        assert 'BUDGET_VALID' in err.error_codes, (
+        assert 'NO_BUDGET_VALID' in err.error_codes, (
                 'Expected an error because the budget holder is missing')
         assert 'NO_ACCOUNT_CODE' in err.error_codes, (
                 'Expected an error because the account code is missing')
