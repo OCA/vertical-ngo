@@ -170,37 +170,65 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
         return vals
 
     def _check_requisition(self, cr, uid, requisition, context=None):
+        """ Check the rules to create a cost estimate from the
+        requisition
+
+        :returns: list of tuples ('message, 'error_code')
+        """
         errors = []
         if not requisition.budget_holder_id:
-            errors.append(_('The requisition must be validated '
-                            'by the Budget Holder.'))
+            error = (_('The requisition must be validated '
+                       'by the Budget Holder.'),
+                     'NO_BUDGET_VALID')
+            errors.append(error)
         if (requisition.requester_type == 'internal' and
                 not requisition.finance_officer_id):
-            errors.append(_('An internal requisition must be validated '
-                            'by the Finance Officer.'))
+            error = (_('An internal requisition must be validated '
+                       'by the Finance Officer.'),
+                     'NO_FINANCE_VALID')
+            errors.append(error)
         return errors
 
     def _check_line(self, cr, uid, line, context=None):
+        """ Check the rules to create a cost estimate from the
+        requisition line
+
+        :returns: list of tuples ('message, 'error_code')
+        """
         errors = []
         if not line.proposed_qty:
-            errors.append(_('Line %s: '
-                            'no quantity has been proposed') % line.name)
+            error = (_('Line %s: '
+                       'no quantity has been proposed') % line.name,
+                     'NO_QTY')
+            errors.append(error)
         if not line.account_code:
-            errors.append(_('Line %s: '
-                            'no account code has been stored') %
-                          line.name)
+            error = (_('Line %s: no account code has been stored') % line.name,
+                     'NO_ACCOUNT_CODE')
+            errors.append(error)
         return errors
 
     def _check_rules(self, cr, uid, requisition, sourced_lines, context=None):
         """ Check all the business rules which must be valid in order to
-        create a cost estimate. """
+        create a cost estimate.
+
+        A list of error codes is attached to the exception.
+        Theses tests are used in the tests to know if the rules are applied
+        correctly.
+        """
+        # each item of the error list contains the error message and an
+        # error code
         errors = self._check_requisition(cr, uid, requisition, context=context)
         for line in sourced_lines:
             errors += self._check_line(cr, uid, line, context=context)
-        if errors:
-            raise orm.except_orm(
-                _('Cannot create a cost estimate because:'),
-                '\n\n'.join([' * %s' % error for error in errors]))
+        if not errors:
+            return
+        msg = '\n\n'.join([' * %s' % error for error, __ in errors])
+        codes = [code for __, code in errors]
+        exception = orm.except_orm(
+            _('Cannot create a cost estimate because:'), msg)
+        # attach a list of error codes so we can test them
+        exception.error_codes = codes
+        raise exception
 
     def _prepare_cost_estimate(self, cr, uid, requisition,
                                sourced_lines, estimate_lines,
