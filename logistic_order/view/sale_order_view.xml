@@ -73,11 +73,24 @@
             <field name="incoterm" position="after">
                 <field name="incoterm_address"/>
             </field>
+
             <button name="action_button_confirm" position="attributes">
               <attribute name="string">Confirm Cost Estimate</attribute>
             </button>
         </field>
     </record>
+        <record id="view_order_form_delivery_time" model="ir.ui.view">
+            <field name="name">delivery time</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//group[@name='sale_total']" position="after">
+                  <group>
+                  <field name="delivery_time" class="oe_inline"/>
+                  </group>
+                </xpath>
+            </field>
+        </record>
 
         <record id="view_quotation_tree" model="ir.ui.view">
             <field name="name">sale.order.tree</field>
