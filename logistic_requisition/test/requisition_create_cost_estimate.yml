@@ -70,11 +70,9 @@
     try:
         self.cost_estimate(cr, uid, wizard_id)
     except orm.except_orm as err:
-        msg = err[1]
-        assert ('The requisition must be validated '
-                'by the Budget Holder' in msg), (
+        assert 'BUDGET_VALID' in err.error_codes, (
                 'Expected an error because the budget holder is missing')
-        assert 'no account code has been stored' in msg, (
+        assert 'NO_ACCOUNT_CODE' in err.error_codes, (
                 'Expected an error because the account code is missing')
     else:
         raise AssertionError('Expected an orm.except_orm error, got nothing')
