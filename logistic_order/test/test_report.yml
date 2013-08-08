@@ -44,7 +44,7 @@
 -
  I print the report
 -
-  !python {model: account.voucher}: |
+  !python {model: sale.order}: |
     import netsvc, tools, os
     (data, format) = netsvc.LocalService('report.sale.order.webkit').create(cr, uid, [ref('so_0')], {}, {})
     if tools.config['test_report_directory']:
