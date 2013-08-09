@@ -8,6 +8,7 @@
     user_id: base.user_demo
     incoterm_id: stock.incoterm_FCA
     incoterm_address: incoterm address as text
+    analytic_id: account.analytic_consultancy
 -
   And I add a line 1
 -
@@ -85,6 +86,7 @@
     assert sale.consignee_id == req.consignee_id
     assert sale.incoterm == req.incoterm_id
     assert sale.incoterm_address == req.incoterm_address
+    assert sale.project_id == req.analytic_id
 -
   I check if the information of the lines is correct
 -
