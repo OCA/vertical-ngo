@@ -613,7 +613,6 @@ class logistic_requisition_line(orm.Model):
          'Logistic Requisition Line number must be unique!'),
     ]
 
-
     def create(self, cr, uid, vals, context=None):
         if vals.get('name', '/') == '/':
             seq_obj = self.pool.get('ir.sequence')
@@ -760,7 +759,6 @@ class logistic_requisition_line(orm.Model):
                    context=context)
         return rfq_id
 
-
     def action_create_po_requisition(self, cr, uid, ids, context=None):
         rfq_id = self._action_create_po_requisition(cr, uid, ids, context=context)
         return {
@@ -846,6 +844,7 @@ class logistic_requisition_line(orm.Model):
             'po_requisition_id': False,
             'selected_po_id': False,
             'cost_estimate_id': False,
+            'name': False
         }
         std_default.update(default)
         return super(logistic_requisition_line, self).copy_data(
@@ -854,7 +853,7 @@ class logistic_requisition_line(orm.Model):
     def copy(self, cr, uid, id, default=None, context=None):
         if not default:
             default = {}
-        default.update({'name': '/'})
+        default.update({'name': False})
         return super(logistic_requisition_line, self).copy(cr, uid, id,
                                                            default=default,
                                                            context=context)
