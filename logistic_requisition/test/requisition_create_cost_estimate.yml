@@ -15,12 +15,15 @@
     requisition_id: logistic_requisition_cost_estimate_01
     product_id: product.product_product_7
     requested_qty: 100
+    requested_uom_id: product.product_uom_unit
+    proposed_qty: 110
     date_delivery: !eval "time.strftime('%Y-%m-%d')"
     budget_tot_price: 1000
     logistic_user_id: base.user_demo
     transport_applicable: 0
     procurement_method: wh_dispatch
     price_is: fixed
+    dispatch_location_id: stock.stock_location_shop1
 -
   And I add a line 2
 -
@@ -28,6 +31,8 @@
     requisition_id: logistic_requisition_cost_estimate_01
     product_id: product.product_product_8
     requested_qty: 100
+    requested_uom_id: product.product_uom_unit
+    proposed_qty: 90
     date_delivery: !eval "time.strftime('%Y-%m-%d')"
     budget_tot_price: 1000
     logistic_user_id: base.user_demo
@@ -101,6 +106,14 @@
             "name should be %s, received %s" %
             (line.description, sale_line.name))
 
+        assert sale_line.product_uom_qty == line.proposed_qty, (
+            "qty should be %s, received %s" %
+            (line.proposed_qty, sale_line.product_uom_qty))
+
+        assert sale_line.product_uom == line.requested_uom_id, (
+            "unit of measure should be %s, received %s" %
+            (line.requested_uom_uid, sale_line.product_uom))
+
         assert sale_line.price_unit == line.unit_cost, (
             "price_unit should be %s, received %s" %
             (line.unit_cost, sale_line.price_unit))
@@ -113,6 +126,19 @@
                        else 'make_to_order')
         assert sale_line.type == assert_type, (
             "Type should be %s, received: %s" % (assert_type, sale_line.type))
+
+        if line.procurement_method != 'wh_dispatch':
+            assert sale_line.sale_flow == 'direct_delivery', (
+                "A line not in 'Warehouse dispatch' should be in direct delivery")
+
+        if line.dispatch_location_id:
+            assert sale_line.location_id == line.dispatch_location_id, (
+                "dispatch should be %s, received %s" %
+                (line.dispatch_location_id, sale_line.location_id))
+        else:
+            assert not sale_line.location_id, (
+                "No dispatch location on requisition line, but received a "
+                "location in sale order line")
 
     line1_id = ref("logistic_requisition_line_cost_estimate_01")
     line2_id = ref("logistic_requisition_line_cost_estimate_02")
