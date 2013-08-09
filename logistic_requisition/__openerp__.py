@@ -38,6 +38,7 @@ A Logistic requisition express a need that is requested somewhere.
              "purchase",
              "purchase_requisition",
              "mail",
+             "sale_ownership",
              "logistic_order",
              'stock_location_ownership',
              ],
