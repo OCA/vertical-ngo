@@ -43,11 +43,6 @@ class logistic_requisition(orm.Model):
                   'done': [('readonly', True)]
                   }
 
-    CANCEL_REASONS = [('only_quotation', 'Just for Quotation'),
-                      ('no_service_needed', 'No service needed anymore'),
-                      ('other_provider', 'Other Service Provider selected'),
-                     ]
-
     def _get_from_partner(self, cr, uid, ids, context=None):
         req_obj = self.pool.get('logistic.requisition')
         req_ids = req_obj.search(cr, uid,
@@ -200,8 +195,11 @@ class logistic_requisition(orm.Model):
             string='Finance Officer'),
         'date_finance_officer': fields.datetime(
             'Finance Officer Validation Date'),
-        'cancel_reason': fields.selection(CANCEL_REASONS,
-                                          string='Cancellation Reason'),
+        'cancel_reason_id': fields.many2one(
+            'logistic.requisition.cancel.reason',
+            string='Reason for Cancellation',
+            ondelete='restrict',
+            readonly=True),
     }
 
     _defaults = {
@@ -210,6 +208,7 @@ class logistic_requisition(orm.Model):
         'cost_estimate_only': False,
         'name': '/',
         'company_id': lambda self, cr, uid, c: self.pool.get('res.company')._company_default_get(cr, uid, 'logistic.request', context=c),
+        'user_id': lambda self, cr, uid, ctx: uid,
     }
 
     _sql_constraints = [
@@ -239,14 +238,14 @@ class logistic_requisition(orm.Model):
             res[requisition.id] = percentage
         return res
 
-    def _do_cancel(self, cr, uid, ids, reason, context=None):
+    def _do_cancel(self, cr, uid, ids, reason_id, context=None):
         reqs = self.read(cr, uid, ids, ['line_ids'], context=context)
         line_ids = [lids for req in reqs for lids in req['line_ids']]
         if line_ids:
             line_obj = self.pool.get('logistic.requisition.line')
             line_obj._do_cancel(cr, uid, line_ids, context=context)
         vals = {'state': 'cancel',
-                'cancel_reason': reason}
+                'cancel_reason_id': reason_id}
         self.write(cr, uid, ids, vals, context=context)
 
     def _do_confirm(self, cr, uid, ids, context=None):
@@ -268,7 +267,7 @@ class logistic_requisition(orm.Model):
                 'date_budget_holder': False,
                 'finance_officer_id': False,
                 'date_finance_officer': False,
-                'cancel_reason': False,
+                'cancel_reason_id': False,
                 }
         self.write(cr, uid, ids, vals, context=context)
 
@@ -298,6 +297,15 @@ class logistic_requisition(orm.Model):
             'date_finance_officer': False,
         })
         return super(logistic_requisition, self).copy(cr, uid, id, default=default, context=context)
+
+    def onchange_requester_type(self, cr, uid, ids, requester_type, context=None):
+        values = {}
+        if requester_type:
+            if requester_type in ('external', 'national_society'):
+                values['cost_estimate_only'] = True
+            else:
+                values['cost_estimate_only'] = False
+        return {'value': values}
 
     def onchange_requester_id(self, cr, uid, ids, partner_id, context=None):
         values = {}
@@ -596,7 +604,23 @@ class logistic_requisition_line(orm.Model):
             string='Price is',
             required=True,
             help="When the price is an estimation, the final price may change. "
-                 "I.e. it is not based on a request for quotation.")
+                 "I.e. it is not based on a request for quotation."),
+        # needed to set the default destination address of the transport plan
+        # when created from the lr line view
+        'consignee_shipping_id': fields.related(
+            'requisition_id', 'consignee_shipping_id',
+            type='many2one', relation='res.partner',
+            string='Delivery Address', readonly=True),
+        # 2 fields below needed to set the default origin address
+        # of the transport plan when created from the lr line view
+        'supplier_partner_id': fields.related(
+            'selected_po_id', 'partner_id',
+            type='many2one', relation='res.partner',
+            string='Supplier Address', readonly=True),
+        'location_partner_id': fields.related(
+            'dispatch_location_id', 'partner_id',
+            type='many2one', relation='res.partner',
+            string='Location Address', readonly=True)
     }
 
     _defaults = {
@@ -932,6 +956,36 @@ class logistic_requisition_line(orm.Model):
             plan = plan_obj.browse(cr, uid, transport_plan_id, context=context)
             value['date_eta'] = plan.date_eta
             value['date_etd'] = plan.date_etd
+        return {'value': value}
+
+    def onchange_dispatch_location_id(self, cr, uid, ids, dispatch_location_id, context=None):
+        """ Get the address of the location and write it in the
+        location_partner_id field, this field is a related read-only, so
+        this change will never be submitted to the server. But it is
+        necessary to set the default "from address" of the transport
+        plan in the context.
+        """
+        value = {'location_partner_id': False}
+        if dispatch_location_id:
+            location_obj = self.pool.get('stock.location')
+            location = location_obj.browse(cr, uid, dispatch_location_id,
+                                           context=context)
+            value['location_partner_id'] = location.partner_id.id
+        return {'value': value}
+
+    def onchange_selected_po_id(self, cr, uid, ids, selected_po_id, context=None):
+        """ Get the address of the supplier and write it in the
+        supplier_partner_id field, this field is a related read-only, so
+        this change will never be submitted to the server. But it is
+        necessary to set the default "from address" of the transport
+        plan in the context.
+        """
+        value = {'supplier_partner_id': False}
+        if selected_po_id:
+            purchase_obj = self.pool.get('purchase.order')
+            purchase = purchase_obj.browse(cr, uid, selected_po_id,
+                                           context=context)
+            value['supplier_partner_id'] = purchase.partner_id.id
         return {'value': value}
 
     def button_create_cost_estimate(self, cr, uid, ids, context=None):

@@ -58,6 +58,36 @@
     self.write(cr, uid, ids, {'transport_applicable': False})
     self.button_sourced(cr, uid, ids)
 -
+  I open the wizard to create a cost estimate from the logistic requisition,
+  but it fails because the business rules are not satisfied.
+-
+  !python {model: logistic.requisition.cost.estimate}: |
+    from openerp.osv import orm
+    context = {'active_model': 'logistic.requisition',
+               'active_ids': [ref('logistic_requisition_cost_estimate_01')],
+               }
+    wizard_id = self.create(cr, uid, {}, context=context)
+    try:
+        self.cost_estimate(cr, uid, wizard_id)
+    except orm.except_orm as err:
+        assert 'NO_BUDGET_VALID' in err.error_codes, (
+                'Expected an error because the budget holder is missing')
+        assert 'NO_ACCOUNT_CODE' in err.error_codes, (
+                'Expected an error because the account code is missing')
+    else:
+        raise AssertionError('Expected an orm.except_orm error, got nothing')
+-
+  I set some data to fulfill the business rules
+-
+  !record {model: logistic.requisition, id: logistic_requisition_cost_estimate_01}:
+    budget_holder_id: base.user_demo
+-
+  !record {model: logistic.requisition.line, id: logistic_requisition_line_cost_estimate_01}:
+    account_code: 'XXXX'
+-
+  !record {model: logistic.requisition.line, id: logistic_requisition_line_cost_estimate_02}:
+    account_code: 'YYYY'
+-
   I open the wizard to create a cost estimate from the logistic requisition
 -
   !python {model: logistic.requisition.cost.estimate}: |

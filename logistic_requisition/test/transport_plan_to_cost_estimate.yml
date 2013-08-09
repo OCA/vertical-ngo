@@ -27,6 +27,8 @@
     consignee_id: base.res_partner_3
     date_delivery: !eval "time.strftime('%Y-%m-%d')"
     user_id: base.user_demo
+    budget_holder_id: base.user_demo
+    finance_officer_id: base.user_demo
 -
   And I add a line 1
 -
@@ -34,6 +36,7 @@
     requisition_id: logistic_requisition_tpe_01
     product_id: product.product_product_7
     requested_qty: 100
+    proposed_qty: 100
     date_delivery: !eval "time.strftime('%Y-%m-%d')"
     budget_tot_price: 1000
     logistic_user_id: base.user_demo
@@ -41,6 +44,7 @@
     transport_plan_id: transport_plan_tpe_01
     procurement_method: procurement
     price_is: estimated
+    account_code: 'XXXX'
 -
   And I add a line 2
 -
@@ -48,6 +52,7 @@
     requisition_id: logistic_requisition_tpe_01
     product_id: product.product_product_8
     requested_qty: 100
+    proposed_qty: 100
     date_delivery: !eval "time.strftime('%Y-%m-%d')"
     budget_tot_price: 1000
     logistic_user_id: base.user_demo
@@ -55,6 +60,7 @@
     transport_plan_id: transport_plan_tpe_01
     procurement_method: procurement
     price_is: estimated
+    account_code: 'YYYY'
 -
   And I add a line 3
 -
@@ -62,6 +68,7 @@
     requisition_id: logistic_requisition_tpe_01
     product_id: product.product_product_8
     requested_qty: 100
+    proposed_qty: 100
     date_delivery: !eval "time.strftime('%Y-%m-%d')"
     budget_tot_price: 1000
     logistic_user_id: base.user_demo
@@ -69,6 +76,7 @@
     transport_plan_id: transport_plan_tpe_02
     procurement_method: procurement
     price_is: estimated
+    account_code: 'ZZZZ'
 -
   And I confirm the logistic requisition
 -
