@@ -589,8 +589,8 @@ class logistic_requisition_line(orm.Model):
             string='Transport Plan',
             states=SOURCED_STATES),
         'selected_po_id': fields.many2one('purchase.order',
-                                           string='Selected BID',
-                                           states=SOURCED_STATES),
+                                          string='Selected BID',
+                                          states=SOURCED_STATES),
         'price_is': fields.selection(
             PRICE_IS_SELECTION,
             string='Price is',
@@ -600,6 +600,10 @@ class logistic_requisition_line(orm.Model):
         'purchase_line_id': fields.many2one('purchase.order.line',
                                             'Purchase Order Line',
                                             readonly=True),
+        'purchase_requisition_line_ids': fields.one2many(
+            'purchase.requisition.line', 'logistic_requisition_line_id',
+            'Purchase Requisition Lines',
+            readonly=True),
     }
 
     _defaults = {
@@ -743,6 +747,7 @@ class logistic_requisition_line(orm.Model):
                 'product_uom_id': line.requested_uom_id.id,
                 'product_qty': line.requested_qty,
                 'schedule_date': line.date_delivery,
+                'logistic_requisition_line_id': line.id,
                 }
 
     def _action_create_po_requisition(self, cr, uid, ids, context=None):
@@ -849,6 +854,9 @@ class logistic_requisition_line(orm.Model):
             'po_requisition_id': False,
             'selected_po_id': False,
             'cost_estimate_id': False,
+            'purchase_line_id': False,
+            'purchase_requisition_line_ids': False,
+            'name': False,
         }
         std_default.update(default)
         return super(logistic_requisition_line, self).copy_data(

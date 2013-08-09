@@ -20,24 +20,19 @@
 ##############################################################################
 
 from collections import namedtuple
+from operator import attrgetter
 from openerp.osv import orm, fields
 from openerp.tools.translate import _
+from openerp.tools import float_is_zero
+from openerp import SUPERUSER_ID
 
 
-ToAssignLine = namedtuple('ToAssignLine',
-                          ('line',
-                           'new_line',
-                           'quantity'))
-
-
-AssignedLine = namedtuple('AssignedLine',
-                          ('line',  # existing line of logistic.requisition.line
-                           'new_line',  # True if a new line should be created
-                                        # instead of using the `line`
-                           'quantity',  # quantity of products assigned
-                           'purchase_line'  # purchase.order.line linked
+CompletedLine = namedtuple('CompletedLine',
+                           ('requisition_line',
+                            'purchase_line',
+                            'newline',
+                            'quantity',
                            ))
-
 
 
 class purchase_requisition(orm.Model):
@@ -50,86 +45,108 @@ class purchase_requisition(orm.Model):
             readonly=True),
     }
 
-    def generate_po(self, cr, uid, id, context=None):
+    def generate_po(self, cr, uid, ids, context=None):
         result = super(purchase_requisition, self).generate_po(
-            cr, uid, id, context=context)
-        assert len(id) == 1, "generate_po accept only 1 ID"
-        purch_req = self.browse(cr, uid, id[0], context=context)
+            cr, uid, ids, context=context)
+        assert len(ids) == 1, "generate_po accepts only 1 ID, got: %s" % ids
+        purch_req = self.browse(cr, uid, ids[0], context=context)
         requisition_lines = purch_req.logistic_requisition_line_ids
         if not requisition_lines:
             return result
+        all_po_lines = purch_req.po_line_ids
+        assert all_po_lines, "Expected to have lines in the purchase order, got no lines"
 
-        complete = []
-        to_assign = []
-        for line in requisition_lines:
-            if line.purchase_line_id:
-                continue  # skip lines already assigned to a purchase line
-            product_id = line.product_id.id
-            to_assign.append(ToAssignLine(line=line,
-                                          new_line=False,
-                                          quantity=line.requested_qty))
+        all_po_lines = sorted(all_po_lines,
+                              key=attrgetter('quantity_bid'),
+                              reverse=True)
+        requisition_lines = sorted(requisition_lines,
+                                   key=attrgetter('proposed_qty'),
+                                   reverse=True)
+        # requisition lines linked with the purchase order line and
+        # completed with the final quantity
+        dp_obj = self.pool.get('decimal.precision')
+        precision = dp_obj.precision_get(cr, SUPERUSER_ID,
+                                         'Product Unit of Measure')
+        completed_items = []
+        for rline in requisition_lines[:]:
+            remaining = rline.proposed_qty
+            newline = False
+            po_lines = [po_line for po_line in all_po_lines
+                        if rline == po_line.requisition_line_id.logistic_requisition_line_id]
+            for po_line in po_lines:
 
-        purch_orders = [po for po in purch_req.purchase_ids
-                        if po.state == 'draftpo']
-        po_lines = [line for purch in purch_orders
-                    for line in purch.order_line]
-
-        for po_line in po_lines:
-            for req_line in to_assign[:]:
-                if req_line.line.product_id != po_line.product_id:
-                    continue
-                # TODO: conversion of uom to implement
-                if req_line.line.requested_uom_id != po_line.product_uom:
+                if rline.product_id != po_line.product_id:
                     raise orm.except_orm(
                         _('Error'),
-                        _('Different unit of measure are not supported.'))
-                if req_line.quantity <= po_line.quantity_bid:
-                    assigned_line = AssignedLine(
-                        line=req_line.line,
-                        new_line=req_line.new_line,
-                        quantity=req_line.quantity,
-                        purchase_line=po_line)
-                    if req_line.quantity < po_line.quantity_bid:
-                        # TODO: deal with the extra qty
-                        pass
-                    to_assign.remove(req_line)
-                    complete.append(assigned_line)
-                    break
-                elif req_line.quantity > po_line.quantity_bid:
-                    assigned_qty = po_line.quantity_bid
-                    remaining_qty = req_line.quantity - assigned_qty
-                    assigned_line = AssignedLine(
-                        line=req_line.line,
-                        new_line=req_line.new_line,
-                        quantity=assigned_qty,
-                        purchase_line=po_line)
-                    remaining_line = ToAssignLine(
-                        line=req_line.line,
-                        new_line=True,
-                        quantity=remaining_qty)
-                    to_assign.remove(req_line)
-                    to_assign.append(remaining_line)
-                    complete.append(assigned_line)
-                    break
+                        _("The product is not the same between the purchase "
+                          "order line and the logistic requisition line. "
+                          "This is not supported."))
+                if rline.requested_uom_id != po_line.product_uom:
+                    raise orm.except_orm(
+                        _('Error'),
+                        _("The unit of measure is not the same between "
+                          "the purchase order line and the logistic "
+                          "requisition line. This is not supported."))
 
-        for assigned in complete:
-            vals = {'requested_qty': assigned.quantity,
-                    'proposed_qty': assigned.quantity,
+                current_rest = remaining - po_line.quantity_bid
+                if (float_is_zero(current_rest, precision_digits=precision) or
+                        po_line.quantity_bid > remaining):
+                    current = CompletedLine(requisition_line=rline,
+                                            purchase_line=po_line,
+                                            newline=newline,
+                                            quantity=po_line.quantity_bid)
+                    completed_items.append(current)
+                    remaining = 0.
+                else:
+                    current = CompletedLine(requisition_line=rline,
+                                            purchase_line=po_line,
+                                            newline=newline,
+                                            quantity=po_line.quantity_bid)
+                    completed_items.append(current)
+                    remaining = current_rest
+                # the current req. line is completed, so
+                # if we have another purchase line or a remaining
+                # quantity, we will need to create a new line
+                newline = True
+            assert float_is_zero(remaining, precision), (
+                "All the quantity should have been purchased, rest: %f" %
+                remaining)
+
+        req_line_obj = self.pool.get('logistic.requisition.line')
+        for item in completed_items:
+            vals = {'proposed_qty': item.quantity,
                     'price_is': 'fixed',
-                    'unit_cost': assigned.purchase_line.price_unit,
-                    'purchase_line_id': assigned.purchase_line.id,
+                    'unit_cost': item.purchase_line.price_unit,
+                    'purchase_line_id': item.purchase_line.id,
                     }
 
-            if assigned.new_line:
-                req_line_obj = self.pool.get('logistic.requisition.line')
+            if item.newline:
+                origin = item.requisition_line
                 new_vals = vals.copy()
-                new_vals.update({'state': assigned.line.state})
-                # TODO use the split wizard
+                new_vals.update({
+                    'state': origin.state,
+                    'logistic_user_id': origin.requested_qty,
+                    'requested_qty': origin.requested_qty,
+                    'po_requisition_id': origin.po_requisition_id.id,
+                    'date_eta': origin.date_eta,
+                    'date_etd': origin.date_etd,
+                    'cost_estimate_id': origin.cost_estimate_id.id,
+                    'transport_plan_id': origin.transport_plan_id.id,
+                })
                 req_line_obj.copy(cr, uid,
-                                  assigned.line.id,
+                                  item.requisition_line.id,
                                   default=new_vals,
                                   context=context)
             else:
-                assigned.line.write(vals)
-
+                item.requisition_line.write(vals)
         return result
+
+
+class purchase_requisition_line(orm.Model):
+    _inherit = 'purchase.requisition.line'
+    _columns = {
+        'logistic_requisition_line_id': fields.many2one(
+            'logistic.requisition.line',
+            string='Logistic Requisition Line',
+            readonly=True),
+    }
