@@ -949,6 +949,18 @@ class logistic_requisition_line(orm.Model):
         self._do_sourced(cr, uid, ids, context=context)
         return True
 
+    def _open_cost_estimate(self, cr, uid, estimate_id, context=None):
+        return {
+            'name': _('Cost Estimate'),
+            'view_mode': 'form',
+            'res_model': 'sale.order',
+            'res_id': estimate_id,
+            'target': 'current',
+            'view_id': False,
+            'context': {},
+            'type': 'ir.actions.act_window',
+        }
+
     def button_open_cost_estimate(self, cr, uid, ids, context=None):
         assert len(ids) == 1, "Only 1 ID accepted"
         line = self.browse(cr, uid, ids[0], context=context)
