@@ -102,7 +102,7 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
         return defaults
 
     def _get_name_transport_line(self, cr, uid, transport_plan, context=None):
-        name = 'Transport from %s to %s by %s (Ref. %s)' % (
+        name = _('Transport from %s to %s by %s (Ref. %s)') % (
             transport_plan.from_address_id.name,
             transport_plan.to_address_id.name,
             transport_plan.transport_mode_id.name,
@@ -169,6 +169,67 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
         vals.update(onchange_vals)
         return vals
 
+    def _check_requisition(self, cr, uid, requisition, context=None):
+        """ Check the rules to create a cost estimate from the
+        requisition
+
+        :returns: list of tuples ('message, 'error_code')
+        """
+        errors = []
+        if not requisition.budget_holder_id:
+            error = (_('The requisition must be validated '
+                       'by the Budget Holder.'),
+                     'NO_BUDGET_VALID')
+            errors.append(error)
+        if (requisition.requester_type == 'internal' and
+                not requisition.finance_officer_id):
+            error = (_('An internal requisition must be validated '
+                       'by the Finance Officer.'),
+                     'NO_FINANCE_VALID')
+            errors.append(error)
+        return errors
+
+    def _check_line(self, cr, uid, line, context=None):
+        """ Check the rules to create a cost estimate from the
+        requisition line
+
+        :returns: list of tuples ('message, 'error_code')
+        """
+        errors = []
+        if not line.proposed_qty:
+            error = (_('Line %s: '
+                       'no quantity has been proposed') % line.name,
+                     'NO_QTY')
+            errors.append(error)
+        if not line.account_code:
+            error = (_('Line %s: no account code has been stored') % line.name,
+                     'NO_ACCOUNT_CODE')
+            errors.append(error)
+        return errors
+
+    def _check_rules(self, cr, uid, requisition, sourced_lines, context=None):
+        """ Check all the business rules which must be valid in order to
+        create a cost estimate.
+
+        A list of error codes is attached to the exception.
+        Theses tests are used in the tests to know if the rules are applied
+        correctly.
+        """
+        # each item of the error list contains the error message and an
+        # error code
+        errors = self._check_requisition(cr, uid, requisition, context=context)
+        for line in sourced_lines:
+            errors += self._check_line(cr, uid, line, context=context)
+        if not errors:
+            return
+        msg = '\n\n'.join([' * %s' % error for error, __ in errors])
+        codes = [code for __, code in errors]
+        exception = orm.except_orm(
+            _('Cannot create a cost estimate because:'), msg)
+        # attach a list of error codes so we can test them
+        exception.error_codes = codes
+        raise exception
+
     def _prepare_cost_estimate(self, cr, uid, requisition,
                                sourced_lines, estimate_lines,
                                context=None):
@@ -206,6 +267,7 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
             raise orm.except_orm(_('Error'),
                                  _('The cost estimate cannot be created, '
                                    'because no lines are sourced.'))
+        self._check_rules(cr, uid, requisition, sourced_lines, context=context)
         estimate_lines = []
         transport_plans = set()
         for line in sourced_lines:
