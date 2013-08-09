@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
+#    Author: Guewen Baconnier
 #    Copyright 2013 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -18,31 +19,19 @@
 #
 ##############################################################################
 
-{"name": "Logistic Order",
- "version": "0.1",
- "author": "Camptocamp",
- "license": "AGPL-3",
- "category": "Purchase Management",
- 'complexity': "normal",
- "images": [],
- "website": "http://www.camptocamp.com",
- "description": """
-This module customizes the Sales Orders to disguise them in Logistic Orders
-===========================================================================
+from openerp.osv import orm, fields
+from .logistic_requisition import REQUESTER_TYPE
 
-""",
- "depends": ["sale_stock",
-             "sale_validity",
-             "transport_plan",
-             "delivery",
-             "sale_order_webkit",
-             ],
- "demo": [],
- "data": ['view/sale_order_view.xml',
-          'data/logistic_order_sequence.xml',
-          'report/report.xml',
-          ],
- "auto_install": False,
- "test": ['test/test_report.yml'],
- "installable": True,
- }
+
+class res_partner(orm.Model):
+    _inherit = 'res.partner'
+
+    _columns = {
+        'requester_type': fields.selection(REQUESTER_TYPE,
+                                           string='Requester Type'),
+    }
+
+    def _commercial_fields(self, cr, uid, context=None):
+        fields = super(res_partner, self)._commercial_fields(cr, uid, context=context)
+        fields.append('requester_type')
+        return fields

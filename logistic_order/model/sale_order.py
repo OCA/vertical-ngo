@@ -1,5 +1,22 @@
 # -*- coding: utf-8 -*-
-
+##############################################################################
+#
+#    Copyright 2013 Camptocamp SA
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU Affero General Public License as
+#    published by the Free Software Foundation, either version 3 of the
+#    License, or (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU Affero General Public License for more details.
+#
+#    You should have received a copy of the GNU Affero General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+##############################################################################
 from openerp.osv import orm, fields
 
 
@@ -29,16 +46,24 @@ class sale_order(orm.Model):
                  "International Commercial Terms are a series of "
                  "predefined commercial terms used in "
                  "international transactions."),
-         'state': fields.selection([
+        'delivery_time': fields.char('Delivery time'),
+        'state': fields.selection([
             ('draft', 'Draft Cost Estimate'),
             ('sent', 'Cost Estimate Sent'),
             ('cancel', 'Cancelled'),
             ('waiting_date', 'Waiting Schedule'),
             ('progress', 'Logistic Order'),
             ('manual', 'Logistic Order to Invoice'),
+            ('shipping_except', 'Shipping Exception'),
             ('invoice_except', 'Invoice Exception'),
-            ('done', 'Done'),
-            ], 'Status', readonly=True, track_visibility='onchange',
-            help="Gives the status of the cost estimate or logistic order. \nThe exception status is automatically set when a cancel operation occurs in the processing of a document linked to the logistic order. \nThe 'Waiting Schedule' status is set when the invoice is confirmed but waiting for the scheduler to run on the order date.", select=True),
-
+            ('done', 'Done')],
+            'Status',
+            readonly=True,
+            track_visibility='onchange',
+            help="Gives the status of the cost estimate or logistic order.\n"
+                 "The exception status is automatically set when a cancel"
+                 " operation occurs in the processing of a document linked to the logistic order.\n"
+                 "The 'Waiting Schedule' status is set when the invoice is"
+                 " confirmed but waiting for the scheduler to run on the order date.",
+            select=True),
     }

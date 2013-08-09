@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-
 from __future__ import division
 import logging
 import time
@@ -29,15 +28,16 @@ import openerp.addons.decimal_precision as dp
 
 _logger = logging.getLogger(__name__)
 
-REQUESTER_TYPE = [
-             ('national_society', 'National Society'),
-             ('external', 'External Organization'),
-             ('internal', 'Federation (internal)'),
-        ]
+REQUESTER_TYPE = [('national_society', 'National Society'),
+                  ('external', 'External Organization'),
+                  ('internal', 'Federation (internal)'),
+                  ]
+
 
 class logistic_requisition(orm.Model):
     _name = "logistic.requisition"
     _description = "Logistic Requisition"
+    _inherit = ['mail.thread']
 
     REQ_STATES = {'confirmed': [('readonly', True)],
                   'done': [('readonly', True)]
@@ -299,6 +299,14 @@ class logistic_requisition(orm.Model):
         })
         return super(logistic_requisition, self).copy(cr, uid, id, default=default, context=context)
 
+    def onchange_requester_id(self, cr, uid, ids, partner_id, context=None):
+        values = {}
+        if partner_id:
+            partner_obj = self.pool.get('res.partner')
+            partner = partner_obj.browse(cr, uid, partner_id, context=context)
+            values['requester_type'] = partner.requester_type
+        return {'value': values}
+
     def onchange_consignee_id(self, cr, uid, ids, consignee_id, context=None):
         values = {'consignee_shipping_id': False}
         if not consignee_id:
@@ -391,48 +399,28 @@ class logistic_requisition_line(orm.Model):
                                        context=context)
         return line_ids
 
-    def _get_name(self, cr, uid, ids, field_names, arg=None, context=None):
-        return dict((line_id, line_id) for line_id in ids)
-
     def name_get(self, cr, user, ids, context=None):
         """
         Returns a list of tupples containing id, name.
         result format: {[(id, name), (id, name), ...]}
-
-        @param cr: A database cursor
-        @param user: ID of the user currently logged in
-        @param ids: list of ids for which name should be read
-        @param context: context arguments, like lang, time zone
-
-        @return: Returns a list of tupples containing id, name 
-                 composed by requisition_id.name + name
         """
         if not ids:
             return []
         if isinstance(ids, (int, long)):
             ids = [ids]
-        result = self.browse(cr, user, ids, context=context)
         res = []
-        for rs in result:
-            if rs.requisition_id:
-                lr_name = rs.requisition_id.name + " - "
-            else:
-                lr_name = ""
-            name = "%s%s" % (lr_name, rs.name)
-            res += [(rs.id, name)]
+        for line in self.browse(cr, user, ids, context=context):
+            name = "%s - %s" % (line.requisition_id.name, line.name)
+            res.append((line.id, name))
         return res
 
-
     _columns = {
-        'name': fields.function(_get_name,
-                                string='Line N°',
-                                type='char',
-                                readonly=True,
-                                store=True),
+        'name': fields.char(u'Line N°', readonly=True),
         'requisition_id': fields.many2one(
             'logistic.requisition',
             'Requisition',
             readonly=True,
+            required=True,
             ondelete='cascade'),
         'logistic_user_id': fields.many2one(
             'res.users',
@@ -530,10 +518,12 @@ class logistic_requisition_line(orm.Model):
             'stock.location',
             string='Dispatch From',
             states=SOURCED_STATES),
-        'stock_owner': fields.many2one(
-            'res.partner',
+        'stock_owner': fields.related(
+            'dispatch_location_id', 'owner_id',
+            type='many2one',
+            relation='res.partner',
             string='Stock Owner',
-            states=SOURCED_STATES),
+            readonly=True),
         'purchase_id': fields.many2one('purchase.order', 'Purchase Order'),
         # NOTE: date that should be used for the stock move reservation
         'date_etd': fields.date('ETD',
@@ -598,9 +588,9 @@ class logistic_requisition_line(orm.Model):
             'transport.plan',
             string='Transport Plan',
             states=SOURCED_STATES),
-        'selected_bid': fields.many2one('purchase.order',
-                                        string='Selected BID',
-                                        states=SOURCED_STATES),
+        'selected_po_id': fields.many2one('purchase.order',
+                                           string='Selected BID',
+                                           states=SOURCED_STATES),
         'price_is': fields.selection(
             PRICE_IS_SELECTION,
             string='Price is',
@@ -617,7 +607,22 @@ class logistic_requisition_line(orm.Model):
         'requested_qty': 1.0,
         'transport_applicable': True,
         'price_is': 'fixed',
+        'name': '/',
     }
+
+    _sql_constraints = [
+        ('name_uniq',
+         'unique(name)',
+         'Logistic Requisition Line number must be unique!'),
+    ]
+
+
+    def create(self, cr, uid, vals, context=None):
+        if vals.get('name', '/') == '/':
+            seq_obj = self.pool.get('ir.sequence')
+            vals['name'] = seq_obj.get(cr, uid, 'logistic.requisition.line') or '/'
+        return super(logistic_requisition_line, self).create(cr, uid, vals,
+                                                             context=context)
 
     def _check_transport_plan(self, cr, uid, ids, context=None):
         lines = self.browse(cr, uid, ids, context=context)
@@ -838,10 +843,24 @@ class logistic_requisition_line(orm.Model):
             default = {}
         std_default = {
             'logistic_user_id': False,
+            'transport_plan_id': False,
+            'date_etd': False,
+            'date_eta': False,
+            'po_requisition_id': False,
+            'selected_po_id': False,
+            'cost_estimate_id': False,
         }
         std_default.update(default)
         return super(logistic_requisition_line, self).copy_data(
             cr, uid, id, default=std_default, context=context)
+
+    def copy(self, cr, uid, id, default=None, context=None):
+        if not default:
+            default = {}
+        default.update({'name': '/'})
+        return super(logistic_requisition_line, self).copy(cr, uid, id,
+                                                           default=default,
+                                                           context=context)
 
     def _message_get_auto_subscribe_fields(self, cr, uid, updated_fields,
                                            auto_follow_fields=['user_id'],
@@ -947,3 +966,21 @@ class logistic_requisition_line(orm.Model):
     def button_reset(self, cr, uid, ids, context=None):
         self._do_confirm(cr, uid, ids, context=None)
         return True
+
+    def _logistic_requisition_unique(self, cr, uid, ids, context=None):
+        for line in self.browse(cr, uid, ids, context=context):
+            if not line.transport_plan_id:
+                continue
+            plan = line.transport_plan_id
+            if not plan.logistic_requisition_id:
+                continue
+            if plan.logistic_requisition_id != line.requisition_id:
+                return False
+        return True
+
+    _constraints = [
+        (_logistic_requisition_unique,
+         "A transport plan cannot be linked to lines of different "
+         "logistic requisitions.",
+         ['transport_plan_id']),
+    ]
