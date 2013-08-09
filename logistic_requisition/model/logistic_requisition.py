@@ -533,7 +533,7 @@ class logistic_requisition_line(orm.Model):
                                 states=SOURCED_STATES,
                                 help="Estimated Date of Arrival"),
         'offer_ids': fields.one2many('sale.order.line',
-                                     'requisition_id',
+                                     'requisition_line_id',
                                      'Sales Quotation Lines'),
         'unit_cost': fields.float(
             'Unit Cost',
