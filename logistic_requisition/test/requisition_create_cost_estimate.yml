@@ -123,8 +123,8 @@
         # the upper scope is not accessible here,
         # that's why self, cr, uid are passed as arguments
         sale_line_obj = self.pool.get('sale.order.line')
-        sale_line_ids = sale_line_obj.search(cr, uid,
-                                             [('requisition_id', '=', line_id)])
+        sale_line_ids = sale_line_obj.search(
+            cr, uid, [('requisition_line_id', '=', line_id)])
         assert len(sale_line_ids) == 1
         sale_line = sale_line_obj.browse(cr, uid, sale_line_ids[0])
         line = self.browse(cr, uid, line_id)
