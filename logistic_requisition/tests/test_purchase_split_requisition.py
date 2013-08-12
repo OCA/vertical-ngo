@@ -227,3 +227,44 @@ class test_purchase_split_requisition(common.TransactionCase):
         purchase_line2.refresh()
         self.assertPurchaseToRequisitionLines([purchase_line1,
                                                purchase_line2])
+
+    def test_create_call_for_bid_too_many_products(self):
+        """ Create a call for bids from the logistic requisition, 2 po line choosed (too many)
+
+        30 items in a first purchase order and 80 items in a second one,
+        for a total of 110 items. That means 110 products have been ordered
+        but 100 only have been ordered at the origin.
+        """
+        purchase_line1 = self._make_po_draft(self.partner_1)
+        # select the quantity and set a price
+        purchase_line1.write({'price_unit': 15,
+                              'quantity_bid': 30})
+        purchase_line2 = self._make_po_draft(self.partner_12)
+        purchase_line2.write({'price_unit': 13,
+                              'quantity_bid': 80})
+        purchase_line2.action_confirm()
+        self.purchase_requisition.generate_po()
+        purchase_line1.refresh()
+        purchase_line2.refresh()
+        self.assertPurchaseToRequisitionLines([purchase_line1,
+                                               purchase_line2])
+
+    def test_create_call_for_bid_too_few_products(self):
+        """ Create a call for bids from the logistic requisition, 2 po line choosed (too few)
+
+        30 items in a first purchase order and 50 items in a second one,
+        for a total of 80 items. That means 80 products have been ordered
+        but 100 have been ordered at the origin.
+
+        It fails because not all the quantities have been purchased.
+        """
+        purchase_line1 = self._make_po_draft(self.partner_1)
+        # select the quantity and set a price
+        purchase_line1.write({'price_unit': 15,
+                              'quantity_bid': 30})
+        purchase_line2 = self._make_po_draft(self.partner_12)
+        purchase_line2.write({'price_unit': 13,
+                              'quantity_bid': 50})
+        purchase_line2.action_confirm()
+        with self.assertRaises(AssertionError):
+            self.purchase_requisition.generate_po()
