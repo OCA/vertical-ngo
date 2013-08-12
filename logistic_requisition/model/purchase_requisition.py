@@ -125,7 +125,7 @@ class purchase_requisition(orm.Model):
                 new_vals = vals.copy()
                 new_vals.update({
                     'state': origin.state,
-                    'logistic_user_id': origin.requested_qty,
+                    'logistic_user_id': origin.logistic_user_id.id,
                     'requested_qty': origin.requested_qty,
                     'po_requisition_id': origin.po_requisition_id.id,
                     'date_eta': origin.date_eta,
