@@ -16,9 +16,9 @@ class sale_order(orm.Model):
 class sale_order_line(orm.Model):
     _inherit = "sale.order.line"
     _columns = {
-        'requisition_id': fields.many2one('logistic.requisition.line',
-                                          'Requisition Line',
-                                          ondelete='restrict'),
+        'requisition_line_id': fields.many2one('logistic.requisition.line',
+                                               'Requisition Line',
+                                               ondelete='restrict'),
         'price_is': fields.selection(
             logistic_requisition_line.PRICE_IS_SELECTION,
             string='Price is',

@@ -8,6 +8,7 @@
     user_id: base.user_demo
     incoterm_id: stock.incoterm_FCA
     incoterm_address: incoterm address as text
+    analytic_id: account.analytic_consultancy
 -
   And I add a line 1
 -
@@ -58,6 +59,36 @@
     self.write(cr, uid, ids, {'transport_applicable': False})
     self.button_sourced(cr, uid, ids)
 -
+  I open the wizard to create a cost estimate from the logistic requisition,
+  but it fails because the business rules are not satisfied.
+-
+  !python {model: logistic.requisition.cost.estimate}: |
+    from openerp.osv import orm
+    context = {'active_model': 'logistic.requisition',
+               'active_ids': [ref('logistic_requisition_cost_estimate_01')],
+               }
+    wizard_id = self.create(cr, uid, {}, context=context)
+    try:
+        self.cost_estimate(cr, uid, wizard_id)
+    except orm.except_orm as err:
+        assert 'NO_BUDGET_VALID' in err.error_codes, (
+                'Expected an error because the budget holder is missing')
+        assert 'NO_ACCOUNT_CODE' in err.error_codes, (
+                'Expected an error because the account code is missing')
+    else:
+        raise AssertionError('Expected an orm.except_orm error, got nothing')
+-
+  I set some data to fulfill the business rules
+-
+  !record {model: logistic.requisition, id: logistic_requisition_cost_estimate_01}:
+    budget_holder_id: base.user_demo
+-
+  !record {model: logistic.requisition.line, id: logistic_requisition_line_cost_estimate_01}:
+    account_code: 'XXXX'
+-
+  !record {model: logistic.requisition.line, id: logistic_requisition_line_cost_estimate_02}:
+    account_code: 'YYYY'
+-
   I open the wizard to create a cost estimate from the logistic requisition
 -
   !python {model: logistic.requisition.cost.estimate}: |
@@ -85,6 +116,7 @@
     assert sale.consignee_id == req.consignee_id
     assert sale.incoterm == req.incoterm_id
     assert sale.incoterm_address == req.incoterm_address
+    assert sale.project_id == req.analytic_id
 -
   I check if the information of the lines is correct
 -
@@ -93,8 +125,8 @@
         # the upper scope is not accessible here,
         # that's why self, cr, uid are passed as arguments
         sale_line_obj = self.pool.get('sale.order.line')
-        sale_line_ids = sale_line_obj.search(cr, uid,
-                                             [('requisition_id', '=', line_id)])
+        sale_line_ids = sale_line_obj.search(
+            cr, uid, [('requisition_line_id', '=', line_id)])
         assert len(sale_line_ids) == 1
         sale_line = sale_line_obj.browse(cr, uid, sale_line_ids[0])
         line = self.browse(cr, uid, line_id)
