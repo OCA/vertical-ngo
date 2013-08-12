@@ -69,7 +69,7 @@ class purchase_requisition(orm.Model):
                                          'Product Unit of Measure')
         completed_items = []
         for rline in requisition_lines[:]:
-            remaining = rline.proposed_qty
+            remaining = rline.requested_qty
             newline = False
             po_lines = [po_line for po_line in all_po_lines
                         if rline == po_line.requisition_line_id.logistic_requisition_line_id]
