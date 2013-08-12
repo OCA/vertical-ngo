@@ -56,9 +56,11 @@ class test_purchase_split_requisition(common.TransactionCase):
         self.log_req = self.registry('logistic.requisition')
         self.log_req_line = self.registry('logistic.requisition.line')
         self.purchase_requisition = self.registry('purchase.requisition')
+        self.purchase_order = self.registry('purchase.order')
         self.get_ref = partial(self.ir_model_data.get_object_reference,
                                self.cr, self.uid)
 
+        __, self.partner_1 = self.get_ref('base', 'res_partner_1')
         __, self.partner_3 = self.get_ref('base', 'res_partner_3')
         __, self.partner_4 = self.get_ref('base', 'res_partner_4')
         __, self.user_demo = self.get_ref('base', 'user_demo')
@@ -151,11 +153,41 @@ class test_purchase_split_requisition(common.TransactionCase):
                                 {'logistic_user_id': self.user_demo})
 
     def test_create_call_for_bid(self):
-        """ Create a call for bids from the logistic requisition """
+        """ Create a call for bids from the logistic requisition, 1 po line choosed """
         cr, uid = self.cr, self.uid
         requisition_id, line_ids = self._create_logistic_requisition()
-        assert len(line_ids) == 1
+        self.assertEquals(len(line_ids), 1)
         self._confirm_logistic_requisition(requisition_id)
         self._assign_logistic_req_lines(line_ids)
-        rfq_id = self.log_req_line._action_create_po_requisition(cr, uid, line_ids)
-        assert rfq_id
+        purch_req_id = self.log_req_line._action_create_po_requisition(
+            cr, uid, line_ids)
+        assert purch_req_id
+        purchase_req = self.purchase_requisition.browse(cr, uid, purch_req_id)
+        res = purchase_req.make_purchase_order(self.partner_1)
+        purch_id = res[purch_req_id]
+        assert purch_id
+        purchase = self.purchase_order.browse(cr, uid, purch_id)
+        self.assertEquals(len(purchase.order_line), 1)
+        purchase_line = purchase.order_line[0]
+        # select the quantity and set a price
+        purchase_line.write({'price_unit': 12,
+                             'quantity_bid': 100})
+        purchase_line.action_confirm()
+        purchase_req.generate_po()
+        purchase_line.refresh()
+        req_line = self.log_req_line.browse(cr, uid, line_ids[0])
+        self.assertEquals(req_line.purchase_line_id.id,
+                          purchase_line.id,
+                          "The requisition line should be linked with the "
+                          "purchase line.")
+        self.assertEquals(req_line.price_is,
+                          'fixed',
+                          "The requisition line price should be fixed. ")
+        self.assertEquals(req_line.proposed_qty,
+                          100,
+                          "The requisition line quantity should be kept "
+                          "the same. ")
+        self.assertEquals(req_line.unit_cost,
+                          purchase_line.price_unit,
+                          "The requisition line should have the price "
+                          "proposed on the purchase order line. ")
