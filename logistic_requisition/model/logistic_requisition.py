@@ -364,10 +364,7 @@ class logistic_requisition(orm.Model):
                                            'action_logistic_requisition_line')
         action_id = ref[1] if ref else False
         action = act_obj.read(cr, uid, [action_id], context=context)[0]
-        line_ids = []
-        for lr in self.browse(cr, uid, ids, context=context):
-            line_ids += [line.id for line in lr.line_ids]
-        action['domain'] = str([('id', 'in', line_ids)])
+        action['domain'] = str([('requisition_id', 'in', ids)])
         return action
 
 
