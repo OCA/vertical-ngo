@@ -75,7 +75,7 @@ class test_purchase_split_requisition(common.TransactionCase):
             'finance_officer_id': self.user_demo,
         }
 
-        self.logistic_requisition_line_vals = {
+        self.logistic_requisition_line_vals = [{
             'product_id': self.product_7,
             'requested_qty': 100,
             'requested_uom_id': self.product_uom_pce,
@@ -84,7 +84,7 @@ class test_purchase_split_requisition(common.TransactionCase):
             'transport_applicable': 0,
             'procurement_method': 'procurement',
             'price_is': 'estimated',
-        }
+        }]
         self.requisition_id, self.line_ids = self._create_logistic_requisition()
         self.assertEquals(len(self.line_ids), 1)
         self._confirm_logistic_requisition()
@@ -104,7 +104,7 @@ class test_purchase_split_requisition(common.TransactionCase):
                                 [ids of the lines])
         """
         requisition_vals = self.logistic_requisition_vals
-        lines_vals = [self.logistic_requisition_line_vals]
+        lines_vals = self.logistic_requisition_line_vals
         cr, uid = self.cr, self.uid
 
         requisition_vals.update(
