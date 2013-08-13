@@ -504,7 +504,7 @@ class logistic_requisition_line(orm.Model):
             ),
         'po_requisition_id': fields.many2one(
             'purchase.requisition', 'Call for Bids',
-            states=SOURCED_STATES),
+            readonly=True),
         'proposed_qty': fields.float(
             'Proposed Qty',
             states=SOURCED_STATES,
@@ -596,9 +596,6 @@ class logistic_requisition_line(orm.Model):
             'transport.plan',
             string='Transport Plan',
             states=SOURCED_STATES),
-        'selected_po_id': fields.many2one('purchase.order',
-                                          string='Selected BID',
-                                          states=SOURCED_STATES),
         'price_is': fields.selection(
             PRICE_IS_SELECTION,
             string='Price is',
@@ -608,6 +605,12 @@ class logistic_requisition_line(orm.Model):
         'purchase_line_id': fields.many2one('purchase.order.line',
                                             'Purchase Order Line',
                                             readonly=True),
+        'selected_po_id': fields.related('purchase_line_id',
+                                         'order_id',
+                                         type='many2one',
+                                         relation='purchase.order',
+                                         string='Selected Purchase Order',
+                                         readonly=True),
         'purchase_requisition_line_ids': fields.one2many(
             'purchase.requisition.line', 'logistic_requisition_line_id',
             'Purchase Requisition Lines',
