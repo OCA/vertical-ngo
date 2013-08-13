@@ -1008,8 +1008,8 @@ class logistic_requisition_line(orm.Model):
             elif quantity > line.requested_qty:
                 raise orm.except_orm(_('Error'),
                                      _('Split quantity exceeds '
-                                       'the quantity of this line: '
-                                       '"%s".') % line.description)
+                                       'the quantity of this line: %s') %
+                                     line.name)
 
             remaining = line.requested_qty - quantity
             total_budget = line.budget_tot_price
