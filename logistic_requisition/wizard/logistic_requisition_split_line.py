@@ -49,5 +49,10 @@ class LogisticRequisitionSplitLine(orm.TransientModel):
         line_obj = self.pool.get('logistic.requisition.line')
         for line in line_obj.browse(cr, uid, line_ids, context=context):
             quantity = line.requested_qty - remaining
+            if quantity < 0:
+                raise orm.except_orm(_('Error'),
+                                     _('Split quantity exceeds '
+                                       'the quantity of this line: %s') %
+                                     line.name)
             line.split(quantity)
         return {'type': 'ir.actions.act_window_close'}
