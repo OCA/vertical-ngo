@@ -6,9 +6,9 @@
             <field name="model">logistic.requisition.split.line</field>
             <field name="arch" type="xml">
             <form string="Split Requisition Line" version="7.0">
-                <separator string="How much do you want to Leave in the Line ?"/>
+                <separator string="How much do you want to leave in the line?"/>
                 <group>
-                    <field name="quantity"/>
+                    <field name="remaining"/>
                 </group>
                 <footer>
                     <button name="split" string="Ok" type="object" class="oe_highlight" />

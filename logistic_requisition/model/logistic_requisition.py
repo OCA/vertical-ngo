@@ -999,6 +999,54 @@ class logistic_requisition_line(orm.Model):
             value['supplier_partner_id'] = purchase.partner_id.id
         return {'value': value}
 
+    def split(self, cr, uid, ids, quantity, context=None):
+        """ Split a line in 2 lines.
+
+        :param quantity: the quantity to put in the new line
+        """
+        if not quantity:
+            return
+        if quantity < 0:
+            raise orm.except_orm(_('Error'),
+                                 _('Please provide a positive quantity '
+                                   'to extract.'))
+
+        line_obj = self.pool.get('logistic.requisition.line')
+        for line in line_obj.browse(cr, uid, ids, context=context):
+            if quantity == line.requested_qty:
+                continue
+
+            elif quantity > line.requested_qty:
+                raise orm.except_orm(_('Error'),
+                                     _('Split quantity exceeds '
+                                       'the quantity of this line: '
+                                       '"%s".') % line.description)
+
+            remaining = line.requested_qty - quantity
+            total_budget = line.budget_tot_price
+            budget_value = (total_budget / line.requested_qty) * remaining
+            line.write({'requested_qty': remaining,
+                        'budget_tot_price': budget_value})
+
+            default_vals = {
+                'requested_qty': quantity,
+                'budget_tot_price': total_budget - budget_value,
+                'state': line.state,
+                'logistic_user_id': line.logistic_user_id.id,
+                'date_eta': line.date_eta,
+                'date_etd': line.date_etd,
+                'transport_applicable': line.transport_applicable,
+                'cost_estimate_id': line.cost_estimate_id.id,
+                'transport_plan_id': line.transport_plan_id.id,
+            }
+            # TODO: Think to implement messaging posting on new
+            # generated line, we want to explicit that we split the
+            # line, warn the concerned users about it, etc..
+            new_id = line_obj.copy(cr, uid, line.id,
+                                   default=default_vals,
+                                   context=context)
+            return new_id
+
     def button_create_cost_estimate(self, cr, uid, ids, context=None):
         data_obj = self.pool.get('ir.model.data')
         act_obj = self.pool.get('ir.actions.act_window')

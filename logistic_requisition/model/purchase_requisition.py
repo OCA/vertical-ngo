@@ -114,31 +114,21 @@ class purchase_requisition(orm.Model):
 
         req_line_obj = self.pool.get('logistic.requisition.line')
         for item in completed_items:
-            vals = {'proposed_qty': item.quantity,
-                    'price_is': 'fixed',
+            vals = {'price_is': 'fixed',
+                    'proposed_qty': item.quantity,
                     'unit_cost': item.purchase_line.price_unit,
                     'purchase_line_id': item.purchase_line.id,
                     }
 
             if item.newline:
                 origin = item.requisition_line
-                new_vals = vals.copy()
-                new_vals.update({
-                    'state': origin.state,
-                    'logistic_user_id': origin.logistic_user_id.id,
-                    'requested_qty': origin.requested_qty,
+                line_id = origin.split(item.quantity)
+                vals.update({
                     'po_requisition_id': origin.po_requisition_id.id,
-                    'date_eta': origin.date_eta,
-                    'date_etd': origin.date_etd,
-                    'cost_estimate_id': origin.cost_estimate_id.id,
-                    'transport_plan_id': origin.transport_plan_id.id,
                 })
-                req_line_obj.copy(cr, uid,
-                                  item.requisition_line.id,
-                                  default=new_vals,
-                                  context=context)
             else:
-                item.requisition_line.write(vals)
+                line_id = item.requisition_line.id
+            req_line_obj.write(cr, uid, [line_id], vals, context=context)
         return result
 
 
