@@ -65,7 +65,6 @@ A Logistic requisition express a need that is requested somewhere.
  "test": ['test/line_assigned.yml',
           'test/requisition_create_cost_estimate.yml',
           'test/requisition_cancel_reason.yml',
-          'test/requisition_confirm_bid.yml',
           'test/transport_plan.yml',
           'test/transport_plan_to_cost_estimate.yml',
           'test/logistic_requisition_onchange.yml',
