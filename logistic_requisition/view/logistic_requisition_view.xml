@@ -419,8 +419,7 @@
                                             <field name="po_requisition_id" class="oe_inline"/>
                                             <button name="action_create_po_requisition"
                                                 string="Call for Bids" type="object"
-                                                states="assigned"
-                                                attrs="{'invisible': [('po_requisition_id', '!=', False)]}" />
+                                                attrs="{'invisible': ['|', ('state', '!=', 'assigned'), ('po_requisition_id', '!=', False)]}" />
                                         </div>
                                         <field name="selected_po_id"
                                             on_change="onchange_selected_po_id(selected_po_id)"/>
