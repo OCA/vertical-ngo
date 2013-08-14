@@ -25,8 +25,9 @@ from functools import partial
 
 from openerp.tools import DEFAULT_SERVER_DATE_FORMAT as D_FMT
 import openerp.tests.common as common
-from .logistic_requisition import create, confirm, assign_lines
-from .purchase_requisition import create_draft_purchase_order
+from . import logistic_requisition
+from . import purchase_requisition
+from . import purchase_order
 
 
 class test_purchase_split_requisition(common.TransactionCase):
@@ -87,13 +88,14 @@ class test_purchase_split_requisition(common.TransactionCase):
             'procurement_method': 'procurement',
             'price_is': 'estimated',
         }]
-        self.requisition_id, self.line_ids = create(self, self.vals, self.lines)
+        self.requisition_id, self.line_ids = logistic_requisition.create(
+            self, self.vals, self.lines)
         self.assertEquals(len(self.line_ids), 1)
-        confirm(self, self.requisition_id)
-        assign_lines(self, self.line_ids, self.user_demo)
-        purch_req_id = self.log_req_line._action_create_po_requisition(
-            cr, uid, self.line_ids)
-        assert purch_req_id
+        logistic_requisition.confirm(self, self.requisition_id)
+        logistic_requisition.assign_lines(self, self.line_ids, self.user_demo)
+        purch_req_id = logistic_requisition.create_purchase_requisition(
+            self, self.line_ids[0])
+        purchase_requisition.confirm_call(self, purch_req_id)
         purch_req_model = self.registry('purchase.requisition')
         self.purchase_requisition = purch_req_model.browse(cr, uid, purch_req_id)
 
@@ -128,12 +130,13 @@ class test_purchase_split_requisition(common.TransactionCase):
     def test_create_call_for_bid_1_line(self):
         """ Create a call for bids from the logistic requisition, 1 po line choosed """
         cr, uid = self.cr, self.uid
-        __, purchase_line = create_draft_purchase_order(
+        purchase, purchase_line = purchase_requisition.create_draft_purchase_order(
             self, self.purchase_requisition.id, self.partner_1)
-        # select the quantity and set a price
-        purchase_line.write({'price_unit': 12,
-                             'quantity_bid': 100})
-        purchase_line.action_confirm()
+        purchase_line.write({'price_unit': 12})
+        purchase_order.select_line(self, purchase_line.id, 100)
+        purchase_order.bid_encoded(self, purchase.id)
+        purchase_requisition.close_call(self, self.purchase_requisition.id)
+        purchase_requisition.bids_selected(self, self.purchase_requisition.id)
         self.purchase_requisition.generate_po()
         purchase_line.refresh()
         self.assertPurchaseToRequisitionLines([purchase_line])
@@ -144,16 +147,18 @@ class test_purchase_split_requisition(common.TransactionCase):
         30 items in a first purchase order and 70 items in a second one,
         for a total of 100 items.
         """
-        __, purchase_line1 = create_draft_purchase_order(
+        purchase1, purchase_line1 = purchase_requisition.create_draft_purchase_order(
             self, self.purchase_requisition.id, self.partner_1)
-        # select the quantity and set a price
-        purchase_line1.write({'price_unit': 15,
-                              'quantity_bid': 30})
-        __, purchase_line2 = create_draft_purchase_order(
+        purchase_line1.write({'price_unit': 15})
+        purchase_order.select_line(self, purchase_line1.id, 30)
+        purchase_order.bid_encoded(self, purchase1.id)
+        purchase2, purchase_line2 = purchase_requisition.create_draft_purchase_order(
             self, self.purchase_requisition.id, self.partner_12)
-        purchase_line2.write({'price_unit': 13,
-                              'quantity_bid': 70})
-        purchase_line2.action_confirm()
+        purchase_line2.write({'price_unit': 13})
+        purchase_order.select_line(self, purchase_line2.id, 70)
+        purchase_order.bid_encoded(self, purchase2.id)
+        purchase_requisition.close_call(self, self.purchase_requisition.id)
+        purchase_requisition.bids_selected(self, self.purchase_requisition.id)
         self.purchase_requisition.generate_po()
         purchase_line1.refresh()
         purchase_line2.refresh()
@@ -167,16 +172,18 @@ class test_purchase_split_requisition(common.TransactionCase):
         for a total of 110 items. That means 110 products have been ordered
         but 100 only have been ordered at the origin.
         """
-        __, purchase_line1 = create_draft_purchase_order(
+        purchase1, purchase_line1 = purchase_requisition.create_draft_purchase_order(
             self, self.purchase_requisition.id, self.partner_1)
-        # select the quantity and set a price
-        purchase_line1.write({'price_unit': 15,
-                              'quantity_bid': 30})
-        __, purchase_line2 = create_draft_purchase_order(
+        purchase_line1.write({'price_unit': 15})
+        purchase_order.select_line(self, purchase_line1.id, 30)
+        purchase_order.bid_encoded(self, purchase1.id)
+        purchase2, purchase_line2 = purchase_requisition.create_draft_purchase_order(
             self, self.purchase_requisition.id, self.partner_12)
-        purchase_line2.write({'price_unit': 13,
-                              'quantity_bid': 80})
-        purchase_line2.action_confirm()
+        purchase_line2.write({'price_unit': 13})
+        purchase_order.select_line(self, purchase_line2.id, 80)
+        purchase_order.bid_encoded(self, purchase2.id)
+        purchase_requisition.close_call(self, self.purchase_requisition.id)
+        purchase_requisition.bids_selected(self, self.purchase_requisition.id)
         self.purchase_requisition.generate_po()
         purchase_line1.refresh()
         purchase_line2.refresh()
@@ -192,15 +199,17 @@ class test_purchase_split_requisition(common.TransactionCase):
 
         It fails because not all the quantities have been purchased.
         """
-        __, purchase_line1 = create_draft_purchase_order(
+        purchase1, purchase_line1 = purchase_requisition.create_draft_purchase_order(
             self, self.purchase_requisition.id, self.partner_1)
-        # select the quantity and set a price
-        purchase_line1.write({'price_unit': 15,
-                              'quantity_bid': 30})
-        __, purchase_line2 = create_draft_purchase_order(
+        purchase_line1.write({'price_unit': 15})
+        purchase_order.select_line(self, purchase_line1.id, 30)
+        purchase_order.bid_encoded(self, purchase1.id)
+        purchase2, purchase_line2 = purchase_requisition.create_draft_purchase_order(
             self, self.purchase_requisition.id, self.partner_12)
-        purchase_line2.write({'price_unit': 13,
-                              'quantity_bid': 50})
-        purchase_line2.action_confirm()
+        purchase_line2.write({'price_unit': 13})
+        purchase_order.select_line(self, purchase_line2.id, 50)
+        purchase_order.bid_encoded(self, purchase2.id)
+        purchase_requisition.close_call(self, self.purchase_requisition.id)
+        purchase_requisition.bids_selected(self, self.purchase_requisition.id)
         with self.assertRaises(AssertionError):
             self.purchase_requisition.generate_po()
