@@ -201,7 +201,7 @@ td.amount, th.amount {
     <p>${_("Budget limit:")} ${formatLang(requisition.allowed_budget)}</p>
     <table class="basic_table" width="100%">
         <tr>
-            <td style="font-weight:bold;width:40%">${_("Budet/financial holder")}</td>
+            <td style="font-weight:bold;width:40%">${_("Budget/financial holder")}</td>
             <td style="font-weight:bold;width:30%">${_("Validation date")}</td>
             <td style="font-weight:bold;">${_("Signature")}</td>
         </tr>
