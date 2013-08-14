@@ -36,7 +36,7 @@ A Logistic requisition express a need that is requested somewhere.
 """,
  "depends": ["transport_plan",
              "purchase",
-             "purchase_requisition",
+             "purchase_requisition_extended",
              "mail",
              "logistic_order",
              ],
