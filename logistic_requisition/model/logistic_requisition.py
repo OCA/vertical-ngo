@@ -279,7 +279,7 @@ class logistic_requisition(orm.Model):
         self.write(cr, uid, done_ids, {'state': 'done'}, context=context)
 
     def create(self, cr, uid, vals, context=None):
-        if vals.get('name', '/') == '/':
+        if (vals.get('name') or '/') == '/':
             seq_obj = self.pool.get('ir.sequence')
             vals['name'] = seq_obj.get(cr, uid, 'logistic.requisition') or '/'
         return super(logistic_requisition, self).create(cr, uid, vals,
@@ -364,10 +364,7 @@ class logistic_requisition(orm.Model):
                                            'action_logistic_requisition_line')
         action_id = ref[1] if ref else False
         action = act_obj.read(cr, uid, [action_id], context=context)[0]
-        line_ids = []
-        for lr in self.browse(cr, uid, ids, context=context):
-            line_ids += [line.id for line in lr.line_ids]
-        action['domain'] = str([('id', 'in', line_ids)])
+        action['domain'] = str([('requisition_id', 'in', ids)])
         return action
 
 
@@ -504,7 +501,7 @@ class logistic_requisition_line(orm.Model):
             ),
         'po_requisition_id': fields.many2one(
             'purchase.requisition', 'Call for Bids',
-            states=SOURCED_STATES),
+            readonly=True),
         'proposed_qty': fields.float(
             'Proposed Qty',
             states=SOURCED_STATES,
@@ -532,7 +529,6 @@ class logistic_requisition_line(orm.Model):
             relation='res.partner',
             string='Stock Owner',
             readonly=True),
-        'purchase_id': fields.many2one('purchase.order', 'Purchase Order'),
         # NOTE: date that should be used for the stock move reservation
         'date_etd': fields.date('ETD',
                                 states=SOURCED_STATES,
@@ -596,15 +592,25 @@ class logistic_requisition_line(orm.Model):
             'transport.plan',
             string='Transport Plan',
             states=SOURCED_STATES),
-        'selected_po_id': fields.many2one('purchase.order',
-                                           string='Selected BID',
-                                           states=SOURCED_STATES),
         'price_is': fields.selection(
             PRICE_IS_SELECTION,
             string='Price is',
             required=True,
             help="When the price is an estimation, the final price may change. "
                  "I.e. it is not based on a request for quotation."),
+        'purchase_line_id': fields.many2one('purchase.order.line',
+                                            'Purchase Order Line',
+                                            readonly=True),
+        'selected_po_id': fields.related('purchase_line_id',
+                                         'order_id',
+                                         type='many2one',
+                                         relation='purchase.order',
+                                         string='Selected Purchase Order',
+                                         readonly=True),
+        'purchase_requisition_line_ids': fields.one2many(
+            'purchase.requisition.line', 'logistic_requisition_line_id',
+            'Purchase Requisition Lines',
+            readonly=True),
         # needed to set the default destination address of the transport plan
         # when created from the lr line view
         'consignee_shipping_id': fields.related(
@@ -638,7 +644,7 @@ class logistic_requisition_line(orm.Model):
     ]
 
     def create(self, cr, uid, vals, context=None):
-        if vals.get('name', '/') == '/':
+        if (vals.get('name') or '/') == '/':
             seq_obj = self.pool.get('ir.sequence')
             vals['name'] = seq_obj.get(cr, uid, 'logistic.requisition.line') or '/'
         return super(logistic_requisition_line, self).create(cr, uid, vals,
@@ -763,6 +769,7 @@ class logistic_requisition_line(orm.Model):
                 'product_uom_id': line.requested_uom_id.id,
                 'product_qty': line.requested_qty,
                 'schedule_date': line.date_delivery,
+                'logistic_requisition_line_id': line.id,
                 }
 
     def _action_create_po_requisition(self, cr, uid, ids, context=None):
@@ -868,19 +875,13 @@ class logistic_requisition_line(orm.Model):
             'po_requisition_id': False,
             'selected_po_id': False,
             'cost_estimate_id': False,
-            'name': False
+            'purchase_line_id': False,
+            'purchase_requisition_line_ids': False,
+            'name': False,
         }
         std_default.update(default)
         return super(logistic_requisition_line, self).copy_data(
             cr, uid, id, default=std_default, context=context)
-
-    def copy(self, cr, uid, id, default=None, context=None):
-        if not default:
-            default = {}
-        default.update({'name': False})
-        return super(logistic_requisition_line, self).copy(cr, uid, id,
-                                                           default=default,
-                                                           context=context)
 
     def _message_get_auto_subscribe_fields(self, cr, uid, updated_fields,
                                            auto_follow_fields=['user_id'],
@@ -986,6 +987,54 @@ class logistic_requisition_line(orm.Model):
                                            context=context)
             value['supplier_partner_id'] = purchase.partner_id.id
         return {'value': value}
+
+    def split(self, cr, uid, ids, quantity, context=None):
+        """ Split a line in 2 lines.
+
+        :param quantity: the quantity to put in the new line
+        """
+        if not quantity:
+            return
+        if quantity < 0:
+            raise orm.except_orm(_('Error'),
+                                 _('Please provide a positive quantity '
+                                   'to extract.'))
+
+        line_obj = self.pool.get('logistic.requisition.line')
+        for line in line_obj.browse(cr, uid, ids, context=context):
+            if quantity == line.requested_qty:
+                continue
+
+            elif quantity > line.requested_qty:
+                raise orm.except_orm(_('Error'),
+                                     _('Split quantity exceeds '
+                                       'the quantity of this line: %s') %
+                                     line.name)
+
+            remaining = line.requested_qty - quantity
+            total_budget = line.budget_tot_price
+            budget_value = (total_budget / line.requested_qty) * remaining
+            line.write({'requested_qty': remaining,
+                        'budget_tot_price': budget_value})
+
+            default_vals = {
+                'requested_qty': quantity,
+                'budget_tot_price': total_budget - budget_value,
+                'state': line.state,
+                'logistic_user_id': line.logistic_user_id.id,
+                'date_eta': line.date_eta,
+                'date_etd': line.date_etd,
+                'transport_applicable': line.transport_applicable,
+                'cost_estimate_id': line.cost_estimate_id.id,
+                'transport_plan_id': line.transport_plan_id.id,
+            }
+            # TODO: Think to implement messaging posting on new
+            # generated line, we want to explicit that we split the
+            # line, warn the concerned users about it, etc..
+            new_id = line_obj.copy(cr, uid, line.id,
+                                   default=default_vals,
+                                   context=context)
+            return new_id
 
     def button_create_cost_estimate(self, cr, uid, ids, context=None):
         data_obj = self.pool.get('ir.model.data')
