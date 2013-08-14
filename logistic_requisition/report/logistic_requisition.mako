@@ -85,10 +85,10 @@ td.amount, th.amount {
         <table class="recipient">
             %if requisition.partner_id.parent_id:
             <tr><td class="name">${requisition.partner_id.parent_id.name or ''}</td></tr>
-            <tr><td>${requisition.partner_id.title and requisition.partner_id.title.name or ''} ${requisition.partner_id.name }</td></tr>
+            <tr><td>${requisition.partner_id.title.name if requisition.partner_id.title else ''} ${requisition.partner_id.name }</td></tr>
             <% address_lines = requisition.partner_id.contact_address.split("\n")[1:] %>
             %else:
-            <tr><td class="name">${requisition.partner_id.title and requisition.partner_id.title.name or ''} ${requisition.partner_id.name }</td></tr>
+            <tr><td class="name">${requisition.partner_id.title.name if requisition.partner_id.title else ''} ${requisition.partner_id.name }</td></tr>
             <% address_lines = requisition.partner_id.contact_address.split("\n") %>
             %endif
             %for part in address_lines:
@@ -102,7 +102,7 @@ td.amount, th.amount {
             <tr><td class="address_title">${_("Shipping address:")}</td></tr>
             %if requisition.consignee_shipping_id.parent_id:
             <tr><td>${requisition.consignee_shipping_id.parent_id.name or ''}</td></tr>
-            <tr><td>${requisition.consignee_shipping_id.title and requisition.consignee_shipping_id.title.name or ''} ${requisition.consignee_shipping_id.name }</td></tr>
+            <tr><td>${requisition.consignee_shipping_id.title.name if requisition.consignee_shipping_id.title else ''} ${requisition.consignee_shipping_id.name }</td></tr>
             <% address_lines = requisition.consignee_shipping_id.contact_address.split("\n")[1:] %>
             %else:
             <tr><td>${requisition.consignee_shipping_id.title and requisition.consignee_shipping_id.title.name or ''} ${requisition.consignee_shipping_id.name }</td></tr>
@@ -119,10 +119,10 @@ td.amount, th.amount {
             <tr><td class="address_title">${_("Consignee address:")}</td></tr>
             %if requisition.consignee_id.parent_id:
             <tr><td>${requisition.consignee_id.parent_id.name or ''}</td></tr>
-            <tr><td>${requisition.consignee_id.title and requisition.consignee_id.title.name or ''} ${requisition.consignee_id.name }</td></tr>
+            <tr><td>${requisition.consignee_id.title.name if requisition.consignee_id.title else ''} ${requisition.consignee_id.name }</td></tr>
             <% address_lines = requisition.consignee_id.contact_address.split("\n")[1:] %>
             %else:
-            <tr><td>${requisition.consignee_id.title and requisition.consignee_id.title.name or ''} ${requisition.consignee_id.name }</td></tr>
+            <tr><td>${requisition.consignee_id.title.name if requisition.consignee_id.title else ''} ${requisition.consignee_id.name }</td></tr>
             <% address_lines = requisition.consignee_id.contact_address.split("\n") %>
             %endif
             %for part in address_lines:
