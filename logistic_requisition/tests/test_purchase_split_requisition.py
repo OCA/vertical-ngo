@@ -25,6 +25,8 @@ from functools import partial
 
 from openerp.tools import DEFAULT_SERVER_DATE_FORMAT as D_FMT
 import openerp.tests.common as common
+from .logistic_requisition import create, confirm, assign_lines
+from .purchase_requisition import create_draft_purchase_order
 
 
 class test_purchase_split_requisition(common.TransactionCase):
@@ -66,7 +68,7 @@ class test_purchase_split_requisition(common.TransactionCase):
         __, self.user_demo = self.get_ref('base', 'user_demo')
         __, self.product_7 = self.get_ref('product', 'product_product_7')
         __, self.product_uom_pce = self.get_ref('product', 'product_uom_unit')
-        self.logistic_requisition_vals = {
+        self.vals = {
             'partner_id': self.partner_4,
             'consignee_id': self.partner_3,
             'date_delivery': time.strftime(D_FMT),
@@ -75,7 +77,7 @@ class test_purchase_split_requisition(common.TransactionCase):
             'finance_officer_id': self.user_demo,
         }
 
-        self.logistic_requisition_line_vals = [{
+        self.lines = [{
             'product_id': self.product_7,
             'requested_qty': 100,
             'requested_uom_id': self.product_uom_pce,
@@ -85,88 +87,15 @@ class test_purchase_split_requisition(common.TransactionCase):
             'procurement_method': 'procurement',
             'price_is': 'estimated',
         }]
-        self.requisition_id, self.line_ids = self._create_logistic_requisition()
+        self.requisition_id, self.line_ids = create(self, self.vals, self.lines)
         self.assertEquals(len(self.line_ids), 1)
-        self._confirm_logistic_requisition()
-        self._assign_logistic_req_lines()
+        confirm(self, self.requisition_id)
+        assign_lines(self, self.line_ids, self.user_demo)
         purch_req_id = self.log_req_line._action_create_po_requisition(
             cr, uid, self.line_ids)
         assert purch_req_id
         purch_req_model = self.registry('purchase.requisition')
         self.purchase_requisition = purch_req_model.browse(cr, uid, purch_req_id)
-
-    def _create_logistic_requisition(self):
-        """ Create a logistic requisition.
-
-        :param requisition_vals: dict of values to create the requisition
-        :param line_vals: list with a dict per line to create with their values
-        :returns: a tuple with (id of the requisition created,
-                                [ids of the lines])
-        """
-        requisition_vals = self.logistic_requisition_vals
-        lines_vals = self.logistic_requisition_line_vals
-        cr, uid = self.cr, self.uid
-
-        requisition_vals.update(
-            self.log_req.onchange_requester_id(
-                cr, uid, [], requisition_vals.get('partner_id'))['value']
-        )
-        requisition_vals.update(
-            self.log_req.onchange_consignee_id(
-                cr, uid, [], requisition_vals.get('consignee_id'))['value']
-        )
-        requisition_vals.update(
-            self.log_req.onchange_validate(
-                cr, uid, [],
-                requisition_vals.get('budget_holder_id'),
-                False,
-                'date_budget_holder')['value']
-        )
-        requisition_vals.update(
-            self.log_req.onchange_validate(
-                cr, uid, [],
-                requisition_vals.get('finance_officer_id'),
-                False,
-                'date_finance_officer')['value']
-        )
-        requisition_id = self.log_req.create(cr, uid, requisition_vals)
-        line_ids = []
-        for row_vals in lines_vals:
-            row_vals['requisition_id'] = requisition_id
-            row_vals.update(
-                self.log_req_line.onchange_product_id(
-                    cr, uid, [],
-                    row_vals.get('product_id'),
-                    row_vals.get('requested_uom_id'))['value']
-            )
-            row_vals.update(
-                self.log_req_line.onchange_transport_plan_id(
-                    cr, uid, [],
-                    row_vals.get('transport_plan_id'))['value']
-            )
-            line_id = self.log_req_line.create(cr, uid, row_vals)
-            line_ids.append(line_id)
-        return requisition_id, line_ids
-
-    def _confirm_logistic_requisition(self):
-        """ Helper to confirm a logistic requisition """
-        cr, uid = self.cr, self.uid
-        self.log_req.button_confirm(cr, uid, [self.requisition_id])
-
-    def _assign_logistic_req_lines(self):
-        """ Helper to assign a logistic requisition line """
-        self.log_req_line.write(self.cr, self.uid, self.line_ids,
-                                {'logistic_user_id': self.user_demo})
-
-    def _make_po_draft(self, partner_id):
-        cr, uid = self.cr, self.uid
-        res = self.purchase_requisition.make_purchase_order(partner_id)
-        purch_id = res[self.purchase_requisition.id]
-        assert purch_id
-        purchase = self.purchase_order.browse(cr, uid, purch_id)
-        self.assertEquals(len(purchase.order_line), 1)
-        purchase_line = purchase.order_line[0]
-        return purchase_line
 
     def assertPurchaseToRequisitionLines(self, purchase_lines):
         """ assert that the lines of a logistic requisition are correct
@@ -199,7 +128,8 @@ class test_purchase_split_requisition(common.TransactionCase):
     def test_create_call_for_bid_1_line(self):
         """ Create a call for bids from the logistic requisition, 1 po line choosed """
         cr, uid = self.cr, self.uid
-        purchase_line = self._make_po_draft(self.partner_1)
+        __, purchase_line = create_draft_purchase_order(
+            self, self.purchase_requisition.id, self.partner_1)
         # select the quantity and set a price
         purchase_line.write({'price_unit': 12,
                              'quantity_bid': 100})
@@ -214,11 +144,13 @@ class test_purchase_split_requisition(common.TransactionCase):
         30 items in a first purchase order and 70 items in a second one,
         for a total of 100 items.
         """
-        purchase_line1 = self._make_po_draft(self.partner_1)
+        __, purchase_line1 = create_draft_purchase_order(
+            self, self.purchase_requisition.id, self.partner_1)
         # select the quantity and set a price
         purchase_line1.write({'price_unit': 15,
                               'quantity_bid': 30})
-        purchase_line2 = self._make_po_draft(self.partner_12)
+        __, purchase_line2 = create_draft_purchase_order(
+            self, self.purchase_requisition.id, self.partner_12)
         purchase_line2.write({'price_unit': 13,
                               'quantity_bid': 70})
         purchase_line2.action_confirm()
@@ -235,11 +167,13 @@ class test_purchase_split_requisition(common.TransactionCase):
         for a total of 110 items. That means 110 products have been ordered
         but 100 only have been ordered at the origin.
         """
-        purchase_line1 = self._make_po_draft(self.partner_1)
+        __, purchase_line1 = create_draft_purchase_order(
+            self, self.purchase_requisition.id, self.partner_1)
         # select the quantity and set a price
         purchase_line1.write({'price_unit': 15,
                               'quantity_bid': 30})
-        purchase_line2 = self._make_po_draft(self.partner_12)
+        __, purchase_line2 = create_draft_purchase_order(
+            self, self.purchase_requisition.id, self.partner_12)
         purchase_line2.write({'price_unit': 13,
                               'quantity_bid': 80})
         purchase_line2.action_confirm()
@@ -258,11 +192,13 @@ class test_purchase_split_requisition(common.TransactionCase):
 
         It fails because not all the quantities have been purchased.
         """
-        purchase_line1 = self._make_po_draft(self.partner_1)
+        __, purchase_line1 = create_draft_purchase_order(
+            self, self.purchase_requisition.id, self.partner_1)
         # select the quantity and set a price
         purchase_line1.write({'price_unit': 15,
                               'quantity_bid': 30})
-        purchase_line2 = self._make_po_draft(self.partner_12)
+        __, purchase_line2 = create_draft_purchase_order(
+            self, self.purchase_requisition.id, self.partner_12)
         purchase_line2.write({'price_unit': 13,
                               'quantity_bid': 50})
         purchase_line2.action_confirm()
