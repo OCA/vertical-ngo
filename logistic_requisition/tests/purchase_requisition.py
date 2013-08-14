@@ -22,6 +22,28 @@
 
 """ Helpers for the tests for the purchase requisition model
 """
+from openerp import netsvc
+
+
+def confirm_call(test, purchase_requisition_id):
+    """ Confirm the call for bids """
+    wf_service = netsvc.LocalService("workflow")
+    wf_service.trg_validate(test.uid, 'purchase.requisition',
+                            purchase_requisition_id, 'sent_suppliers', test.cr)
+
+
+def close_call(test, purchase_requisition_id):
+    """ Confirm the call for bids, next step is selection of lines """
+    wf_service = netsvc.LocalService("workflow")
+    wf_service.trg_validate(test.uid, 'purchase.requisition',
+                            purchase_requisition_id, 'open_bid', test.cr)
+
+
+def bids_selected(test, purchase_requisition_id):
+    """ Close the purchase requisition, after selection purchase lines """
+    wf_service = netsvc.LocalService("workflow")
+    wf_service.trg_validate(test.uid, 'purchase.requisition',
+                            purchase_requisition_id, 'close_bid', test.cr)
 
 
 def create_draft_purchase_order(test, purchase_requisition_id, partner_id):
@@ -39,9 +61,11 @@ def create_draft_purchase_order(test, purchase_requisition_id, partner_id):
     cr, uid = test.cr, test.uid
     purch_req_obj = test.registry('purchase.requisition')
     purch_order_obj = test.registry('purchase.order')
+    context = {'draft_bid': True}
     res = purch_req_obj.make_purchase_order(cr, uid,
                                             [purchase_requisition_id],
-                                            partner_id)
+                                            partner_id,
+                                            context=context)
     po_id = res[purchase_requisition_id]
     assert po_id
     purchase = purch_order_obj.browse(cr, uid, po_id)
