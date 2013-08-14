@@ -45,15 +45,13 @@ class purchase_requisition(orm.Model):
             readonly=True),
     }
 
-    def generate_po(self, cr, uid, ids, context=None):
-        result = super(purchase_requisition, self).generate_po(
-            cr, uid, ids, context=context)
-        assert len(ids) == 1, "generate_po accepts only 1 ID, got: %s" % ids
-        purch_req = self.browse(cr, uid, ids[0], context=context)
-        requisition_lines = purch_req.logistic_requisition_line_ids
+    def _prepare_split_logistic_lines(self, cr, uid, purchase_requisition, context=None):
+        """ Prepare the split of the logistic requisition lines
+        according to the selected lines """
+        requisition_lines = purchase_requisition.logistic_requisition_line_ids
         if not requisition_lines:
-            return result
-        all_po_lines = purch_req.po_line_ids
+            return []
+        all_po_lines = purchase_requisition.po_line_ids
         assert all_po_lines, "Expected to have lines in the purchase order, got no lines"
 
         all_po_lines = sorted(all_po_lines,
@@ -111,7 +109,21 @@ class purchase_requisition(orm.Model):
             assert float_is_zero(remaining, precision), (
                 "All the quantity should have been purchased, rest: %f" %
                 remaining)
+        return completed_items
 
+    def _split_completed_items(self, cr, uid, id, context=None):
+        """ Effectively split the logistic requisition lines
+
+        :param completed_items: list of CompletedLine instances
+        """
+        if isinstance(id, (tuple, list)):
+            assert len(id) == 1, (
+                "_split_logistic_lines_from_po() accepts only 1 ID, "
+                "got: %s" % id)
+            id = id[0]
+        purchase_requisition = self.browse(cr, uid, id, context=context)
+        completed_items = self._prepare_split_logistic_lines(
+            cr, uid, purchase_requisition, context=context)
         req_line_obj = self.pool.get('logistic.requisition.line')
         for item in completed_items:
             vals = {'price_is': 'fixed',
@@ -129,6 +141,17 @@ class purchase_requisition(orm.Model):
             else:
                 line_id = item.requisition_line.id
             req_line_obj.write(cr, uid, [line_id], vals, context=context)
+
+    def tender_close(self, cr, uid, ids, context=None):
+        """ Called after the selection of the lines, when we click
+        on the 'Confirm selection of lines'.
+
+        We have to split the logistic requisition lines according to the
+        selected lines.
+        """
+        result = super(purchase_requisition, self).tender_close(
+            cr, uid, ids, context=context)
+        self._split_completed_items(cr, uid, ids, context=context)
         return result
 
 
