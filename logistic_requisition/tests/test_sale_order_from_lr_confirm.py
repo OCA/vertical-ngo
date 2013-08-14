@@ -104,8 +104,12 @@ class test_sale_order_from_lr_confirm(common.TransactionCase):
         logistic_requisition.source_lines(self, line_ids)
         sale_id, __ = logistic_requisition.create_quotation(
             self, requisition_id, line_ids)
+        # the confirmation of the sale order should generate the
+        # purchase order of the purchase requisition
         self.sale_model.action_button_confirm(cr, uid, [sale_id])
         purch_req = self.purch_req_model.browse(cr, uid, purch_req_id)
         self.assertEquals(purch_req.state,
                           'done',
                           "The purchase requisition should be in 'done' state.")
+        self.assertEquals(len(purch_req.purchase_ids), 1,
+                          "We should have only 1 purchase order.")
