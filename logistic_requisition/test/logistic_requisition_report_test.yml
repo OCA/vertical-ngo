@@ -1,5 +1,5 @@
 -
- In order to test logistic order report customisation I try to print the report
+ In order to test logistic order report I try to print the report
 -
   Given I create a logistic requisition
 -
