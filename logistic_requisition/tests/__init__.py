@@ -20,10 +20,12 @@
 ##############################################################################
 
 import test_purchase_split_requisition
+import test_sale_order_from_lr_confirm
 
 fast_suite = [
 ]
 
 checks = [
     test_purchase_split_requisition,
+    test_sale_order_from_lr_confirm,
 ]

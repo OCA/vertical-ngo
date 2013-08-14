@@ -97,3 +97,59 @@ def assign_lines(test, line_ids, user_id):
     log_req_line_obj = test.registry('logistic.requisition.line')
     log_req_line_obj.write(test.cr, test.uid, line_ids,
                            {'logistic_user_id': user_id})
+
+
+def source_lines(test, line_ids):
+    """ Source lines of a logistic requisition
+
+    :param test: instance of the running test
+    :param line_ids: ids of the lines to assign
+    """
+    log_req_line_obj = test.registry('logistic.requisition.line')
+    log_req_line_obj.button_sourced(test.cr, test.uid, line_ids)
+
+
+def create_quotation(test, requisition_id, line_ids):
+    """ Create the quotation / cost estimate (sale.order)
+
+    It also checks if a quotation line has been created for
+    each line_ids. That means that you have to give only the
+    line_ids which are valid for the creation of the quotation
+    (sourced).
+
+    :param test: instance of the running test
+    :param requisition_id: id of the requisition
+    :returns: tuple with (sale id, [sale line ids])
+    """
+    cr, uid = test.cr, test.uid
+    log_req_obj = test.registry('logistic.requisition')
+    log_req_line_obj = test.registry('logistic.requisition.line')
+    wizard_obj = test.registry('logistic.requisition.cost.estimate')
+    sale_obj = test.registry('sale.order')
+    ctx = {'active_model': 'logistic.requisition.line',
+           'active_ids': line_ids}
+    wizard_id = wizard_obj.create(cr, uid,
+                                  {'requisition_id': requisition_id},
+                                  context=ctx)
+    res = wizard_obj.cost_estimate(cr, uid, wizard_id)
+    sale_id = res['res_id']
+    sale = sale_obj.browse(cr, uid, sale_id)
+    sale_lines = sale.order_line
+    test.assertEquals(len(sale_lines),
+                      len(line_ids),
+                      "A sale line per logistic requisition "
+                      "line should have been created")
+    sale_line_ids = []
+    for sale_line in sale_lines:
+        test.assertTrue(sale_line.requisition_line_id.id in line_ids)
+        sale_line_ids.append(sale_line.id)
+    return sale_id, sale_line_ids
+
+
+def create_purchase_requisition(test, logistic_line_id):
+    """ Create a purchase requisition for a logistic requisition line """
+    log_req_line_obj = test.registry('logistic.requisition.line')
+    purch_req_id = log_req_line_obj._action_create_po_requisition(
+        test.cr, test.uid, [logistic_line_id])
+    assert purch_req_id
+    return purch_req_id
