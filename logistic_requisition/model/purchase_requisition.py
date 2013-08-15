@@ -154,18 +154,6 @@ class purchase_requisition(orm.Model):
                 line_id = item.requisition_line.id
             req_line_obj.write(cr, uid, [line_id], vals, context=context)
 
-    def tender_close(self, cr, uid, ids, context=None):
-        """ Called after the selection of the lines, when we click
-        on the 'Confirm selection of lines'.
-
-        We have to split the logistic requisition lines according to the
-        selected lines.
-        """
-        result = super(purchase_requisition, self).tender_close(
-            cr, uid, ids, context=context)
-        self._split_completed_items(cr, uid, ids, context=context)
-        return result
-
 
 class purchase_requisition_line(orm.Model):
     _inherit = 'purchase.requisition.line'
@@ -175,3 +163,23 @@ class purchase_requisition_line(orm.Model):
             string='Logistic Requisition Line',
             readonly=True),
     }
+
+
+class purchase_order_line(orm.Model):
+
+    _inherit = 'purchase.order.line'
+
+    def close_callforbids_ok(self, cr, uid, ids, context=None):
+        """ This really has nothing to do in purchase.order.line. Sic.
+
+        Whatever, we have to split the logistic requisition lines
+        according to the selected lines.
+
+        Called after the selection of the lines, when we click
+        on the 'Confirm selection of lines'.
+        """
+        result = super(purchase_order_line, self).close_callforbids_ok(
+            cr, uid, ids, context=context)
+        purch_req_obj = self.pool.get('purchase.requisition')
+        purch_req_obj._split_completed_items(cr, uid, ids, context=context)
+        return result
