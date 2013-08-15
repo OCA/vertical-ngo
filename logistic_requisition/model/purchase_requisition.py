@@ -56,7 +56,8 @@ class purchase_requisition(orm.Model):
         requisition_lines = purchase_requisition.logistic_requisition_line_ids
         if not requisition_lines:
             return []
-        all_po_lines = purchase_requisition.po_line_ids
+        all_po_lines = [line for line in purchase_requisition.po_line_ids
+                        if line.state == 'confirmed' and line.quantity_bid]
         assert all_po_lines, "Expected to have lines in the purchase order, got no lines"
 
         all_po_lines = sorted(all_po_lines,
@@ -154,6 +155,16 @@ class purchase_requisition(orm.Model):
                 line_id = item.requisition_line.id
             req_line_obj.write(cr, uid, [line_id], vals, context=context)
 
+    def close_callforbids_ok(self, cr, uid, ids, context=None):
+        """ We have to split the logistic requisition lines according to
+        the selected lines after the selection of the lines, when we
+        click on the 'Confirm selection of lines'.
+        """
+        result = super(purchase_requisition, self).close_callforbids_ok(
+            cr, uid, ids, context=context)
+        self._split_completed_items(cr, uid, ids, context=context)
+        return result
+
 
 class purchase_requisition_line(orm.Model):
     _inherit = 'purchase.requisition.line'
@@ -163,23 +174,3 @@ class purchase_requisition_line(orm.Model):
             string='Logistic Requisition Line',
             readonly=True),
     }
-
-
-class purchase_order_line(orm.Model):
-
-    _inherit = 'purchase.order.line'
-
-    def close_callforbids_ok(self, cr, uid, ids, context=None):
-        """ This really has nothing to do in purchase.order.line. Sic.
-
-        Whatever, we have to split the logistic requisition lines
-        according to the selected lines.
-
-        Called after the selection of the lines, when we click
-        on the 'Confirm selection of lines'.
-        """
-        result = super(purchase_order_line, self).close_callforbids_ok(
-            cr, uid, ids, context=context)
-        purch_req_obj = self.pool.get('purchase.requisition')
-        purch_req_obj._split_completed_items(cr, uid, ids, context=context)
-        return result

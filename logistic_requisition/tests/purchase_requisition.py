@@ -41,9 +41,9 @@ def close_call(test, purchase_requisition_id):
 
 def bids_selected(test, purchase_requisition_id):
     """ Close the purchase requisition, after selection of purchase lines """
-    po_line_obj = test.registry('purchase.order.line')
-    po_line_obj.close_callforbids_ok(test.cr, test.uid,
-                                     [purchase_requisition_id])
+    purch_req_obj = test.registry('purchase.requisition')
+    purch_req_obj.close_callforbids_ok(test.cr, test.uid,
+                                       [purchase_requisition_id])
 
 
 def create_draft_purchase_order(test, purchase_requisition_id, partner_id):
