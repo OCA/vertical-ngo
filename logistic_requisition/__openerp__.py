@@ -56,6 +56,7 @@ A Logistic requisition express a need that is requested somewhere.
           "view/transport_plan.xml",
           "view/res_partner_view.xml",
           "view/cancel_reason.xml",
+          "view/purchase_requisition.xml",
           "logistic_requisition_report.xml",
           "data/logistic.requisition.cancel.reason.csv",
           ],
