@@ -40,7 +40,7 @@ def close_call(test, purchase_requisition_id):
 
 
 def bids_selected(test, purchase_requisition_id):
-    """ Close the purchase requisition, after selection purchase lines """
+    """ Close the purchase requisition, after selection of purchase lines """
     wf_service = netsvc.LocalService("workflow")
     wf_service.trg_validate(test.uid, 'purchase.requisition',
                             purchase_requisition_id, 'close_bid', test.cr)

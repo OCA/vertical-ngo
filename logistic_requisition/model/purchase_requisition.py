@@ -23,11 +23,16 @@ from collections import namedtuple
 from operator import attrgetter
 from openerp.osv import orm, fields
 from openerp.tools.translate import _
-from openerp.tools import float_is_zero
+from openerp.tools import float_is_zero, float_compare
 from openerp import SUPERUSER_ID
 
 
-CompletedLine = namedtuple('CompletedLine',
+# Used for the split of the requisition lines from purchase lines.
+# Each requisition line is associated with a purchase line and
+# its new quantity. `newline` is a boolean defining if the requisition
+# line should be a new line or if we have to keep the existing one
+# (a newline will be a split of the `requisition_line`).
+CompletedItem = namedtuple('CompletedItem',
                            ('requisition_line',
                             'purchase_line',
                             'newline',
@@ -77,44 +82,48 @@ class purchase_requisition(orm.Model):
                     raise orm.except_orm(
                         _('Error'),
                         _("The product is not the same between the purchase "
-                          "order line and the logistic requisition line. "
-                          "This is not supported."))
+                          "order line and the logistic requisition line %s. "
+                          "This is not supported.") % rline.name)
                 if rline.requested_uom_id != po_line.product_uom:
                     raise orm.except_orm(
                         _('Error'),
                         _("The unit of measure is not the same between "
                           "the purchase order line and the logistic "
-                          "requisition line. This is not supported."))
+                          "requisition line %s. This is not supported.") %
+                        rline.name)
 
-                current_rest = remaining - po_line.quantity_bid
-                if (float_is_zero(current_rest, precision_digits=precision) or
-                        po_line.quantity_bid > remaining):
-                    current = CompletedLine(requisition_line=rline,
-                                            purchase_line=po_line,
-                                            newline=newline,
-                                            quantity=po_line.quantity_bid)
-                    completed_items.append(current)
-                    remaining = 0.
-                else:
-                    current = CompletedLine(requisition_line=rline,
-                                            purchase_line=po_line,
-                                            newline=newline,
-                                            quantity=po_line.quantity_bid)
-                    completed_items.append(current)
-                    remaining = current_rest
+                remaining = remaining - po_line.quantity_bid
+                # returns -1 if remaining is less than 0 at the given
+                # precision
+                compare = float_compare(remaining, 0,
+                                        precision_digits=precision)
+                assert compare >= 0, (
+                    "Should not be able to select a bigger quantity in "
+                    "purchase lines than requested in logistic requisition lines")
+
+                current = CompletedItem(requisition_line=rline,
+                                        purchase_line=po_line,
+                                        newline=newline,
+                                        quantity=po_line.quantity_bid)
+                completed_items.append(current)
                 # the current req. line is completed, so
                 # if we have another purchase line or a remaining
                 # quantity, we will need to create a new line
                 newline = True
-            assert float_is_zero(remaining, precision), (
-                "All the quantity should have been purchased, rest: %f" %
-                remaining)
+            if not float_is_zero(remaining, precision):
+                # the selected quantity in purchase lines is less
+                # than the requested quantity
+                rest_item = CompletedItem(requisition_line=rline,
+                                          purchase_line=None,
+                                          newline=newline,
+                                          quantity=remaining)
+                completed_items.append(rest_item)
         return completed_items
 
     def _split_completed_items(self, cr, uid, id, context=None):
         """ Effectively split the logistic requisition lines
 
-        :param completed_items: list of CompletedLine instances
+        :param completed_items: list of CompletedItem instances
         """
         if isinstance(id, (tuple, list)):
             assert len(id) == 1, (
@@ -128,9 +137,12 @@ class purchase_requisition(orm.Model):
         for item in completed_items:
             vals = {'price_is': 'fixed',
                     'proposed_qty': item.quantity,
+                    }
+            if item.purchase_line is not None:
+                vals.update({
                     'unit_cost': item.purchase_line.price_unit,
                     'purchase_line_id': item.purchase_line.id,
-                    }
+                })
 
             if item.newline:
                 origin = item.requisition_line
