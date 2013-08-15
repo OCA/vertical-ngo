@@ -32,6 +32,7 @@ class logistic_requisition_line_transport_plan(orm.TransientModel):
             'ETA',
             required=True,
             help="Estimated Date of Arrival"
+                 " if not set requisition ETA will be used"
         ),
         'date_etd': fields.date(
             'ETD',
@@ -56,12 +57,23 @@ class logistic_requisition_line_transport_plan(orm.TransientModel):
         'note': fields.text('Remarks/Description'),
     }
 
+    def _get_date_eta_from_lines(self, cr, uid, line_brs, context=None):
+        if len(line_brs) != 1:
+            return False
+        return line_brs[0].date_eta
+
     def _prepare_transport_plan(self, cr, uid, form,
-                                context=None):
+                                line_brs, context=None):
         """ Prepare the values for the creation of a transport plan
         from a selection of requisition lines.
         """
-        vals = {'date_eta': form.date_eta,
+        date_eta = False
+        if form.date_eta:
+            date_eta = form.date_eta
+        else:
+            date_eta = self._get_date_eta_from_lines(cr, uid, line_brs,
+                                                     context=context)
+        vals = {'date_eta': date_eta,
                 'date_etd': form.date_etd,
                 'from_address_id': form.from_address_id.id,
                 'to_address_id': form.to_address_id.id,
@@ -77,10 +89,12 @@ class logistic_requisition_line_transport_plan(orm.TransientModel):
         line_ids = context.get('active_ids')
         if not line_ids:
             return
+        lr_obj = self.pool['logistic.requisition.line']
+        lines = lr_obj.browse(cr, uid, line_ids, context=context)
         form = self.browse(cr, uid, ids[0], context=context)
         transport_obj = self.pool.get('transport.plan')
         line_obj = self.pool.get('logistic.requisition.line')
-        vals = self._prepare_transport_plan(cr, uid, form, context=context)
+        vals = self._prepare_transport_plan(cr, uid, form, lines, context=context)
         transport_id = transport_obj.create(cr, uid, vals, context=context)
         line_obj.write(cr, uid, line_ids,
                        {'transport_plan_id': transport_id},
