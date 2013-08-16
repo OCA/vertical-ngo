@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from openerp.osv import fields, orm
+from itertools import groupby
+from openerp.osv import orm, fields
 from .logistic_requisition import logistic_requisition_line
 
 
@@ -11,6 +12,34 @@ class sale_order(orm.Model):
                                           'Logistic Requisition',
                                           ondelete='restrict'),
     }
+
+    def _create_pickings_and_procurements(self, cr, uid, order, order_lines,
+                                          picking_id=False, context=None):
+        """ Instead of creating 1 picking for all the sale order lines, it creates:
+
+        * 1 delivery order per different source location (each line has its own)
+
+        At end, only the MTS / not drop shipping lines will be part
+        of the delivery orders, because the sale_dropshipping module
+        will take care of the drop shipping lines (create
+        procurement.order for them and exclude them from the
+        picking).
+
+        :param browse_record order: sales order to which the order lines belong
+        :param list(browse_record) order_lines: sales order line records to procure
+        :param int picking_id: optional ID of a stock picking to which the created stock moves
+                               will be added. A new picking will be created if ommitted.
+        :return: True
+        """
+        def get_location_address(line):
+            if line.location_id and line.location_id.partner_id:
+                return line.location_id.partner_id.id
+
+        sorted_lines = sorted(order_lines, key=get_location_address)
+        for _unused_location, lines in groupby(sorted_lines, key=get_location_address):
+            super(sale_order, self)._create_pickings_and_procurements(
+                cr, uid, order, list(lines), picking_id=False, context=context)
+        return True
 
 
 class sale_order_line(orm.Model):
