@@ -660,10 +660,25 @@ class logistic_requisition_line(orm.Model):
                 return False
         return True
 
+    def _logistic_requisition_unique(self, cr, uid, ids, context=None):
+        for line in self.browse(cr, uid, ids, context=context):
+            if not line.transport_plan_id:
+                continue
+            plan = line.transport_plan_id
+            if not plan.logistic_requisition_id:
+                continue
+            if plan.logistic_requisition_id != line.requisition_id:
+                return False
+        return True
+
     _constraints = [
         (_check_transport_plan,
          'Transport plan is mandatory for sourced requisition lines '
          'when the transport is applicable.',
+         ['transport_plan_id']),
+        (_logistic_requisition_unique,
+         "A transport plan cannot be linked to lines of different "
+         "logistic requisitions.",
          ['transport_plan_id']),
     ]
 
@@ -1077,21 +1092,3 @@ class logistic_requisition_line(orm.Model):
     def button_reset(self, cr, uid, ids, context=None):
         self._do_confirm(cr, uid, ids, context=None)
         return True
-
-    def _logistic_requisition_unique(self, cr, uid, ids, context=None):
-        for line in self.browse(cr, uid, ids, context=context):
-            if not line.transport_plan_id:
-                continue
-            plan = line.transport_plan_id
-            if not plan.logistic_requisition_id:
-                continue
-            if plan.logistic_requisition_id != line.requisition_id:
-                return False
-        return True
-
-    _constraints = [
-        (_logistic_requisition_unique,
-         "A transport plan cannot be linked to lines of different "
-         "logistic requisitions.",
-         ['transport_plan_id']),
-    ]
