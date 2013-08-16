@@ -642,14 +642,6 @@ class logistic_requisition_line(orm.Model):
          'unique(name)',
          'Logistic Requisition Line number must be unique!'),
     ]
-
-    def create(self, cr, uid, vals, context=None):
-        if (vals.get('name') or '/') == '/':
-            seq_obj = self.pool.get('ir.sequence')
-            vals['name'] = seq_obj.get(cr, uid, 'logistic.requisition.line') or '/'
-        return super(logistic_requisition_line, self).create(cr, uid, vals,
-                                                             context=context)
-
     def _check_transport_plan(self, cr, uid, ids, context=None):
         lines = self.browse(cr, uid, ids, context=context)
         states = ('sourced', 'quoted')
@@ -681,6 +673,13 @@ class logistic_requisition_line(orm.Model):
          "logistic requisitions.",
          ['transport_plan_id']),
     ]
+
+    def create(self, cr, uid, vals, context=None):
+        if (vals.get('name') or '/') == '/':
+            seq_obj = self.pool.get('ir.sequence')
+            vals['name'] = seq_obj.get(cr, uid, 'logistic.requisition.line') or '/'
+        return super(logistic_requisition_line, self).create(cr, uid, vals,
+                                                             context=context)
 
     def _do_confirm(self, cr, uid, ids, context=None):
         self.write(cr, uid, ids, {'state': 'confirmed'}, context=context)
