@@ -103,7 +103,7 @@ class test_purchase_split_requisition(common.TransactionCase):
         self.uom_precision = dp_obj.precision_get(cr, SUPERUSER_ID,
                                                   'Product Unit of Measure')
 
-    def assertPurchaseToRequisitionLines(self, purchase_lines):
+    def assertPurchaseToRequisitionLines(self, bid_lines):
         """ assert that the lines of a logistic requisition are correct
         after the generation of the purchase order.
 
@@ -118,36 +118,36 @@ class test_purchase_split_requisition(common.TransactionCase):
                           100,
                           "The total quantity of the split lines should "
                           "be the same than requested.")
-        purchase_line_ids = [line.id for line in purchase_lines]
+        bid_line_ids = [line.id for line in bid_lines]
         lines = [line for line in requisition.line_ids
-                 if line.purchase_line_id.id in purchase_line_ids]
+                 if line.bid_line_id.id in bid_line_ids]
         self.assertEquals(len(lines),
-                          len(purchase_lines),
+                          len(bid_lines),
                           "The requisition lines should be linked with the "
                           "purchase lines.")
         for rline in lines:
-            purchase_line = rline.purchase_line_id
+            bid_line = rline.bid_line_id
             self.assertEquals(rline.price_is,
                               'fixed',
                               "The requisition line price should be fixed. ")
             self.assertAlmostEquals(rline.proposed_qty,
-                                    purchase_line.quantity_bid,
+                                    bid_line.quantity_bid,
                                     places=self.uom_precision,
                                     msg="The requisition line quantity "
                                         "should be the same than the bid "
                                         "quantity. ")
             self.assertEquals(rline.unit_cost,
-                              purchase_line.price_unit,
+                              bid_line.price_unit,
                               "The requisition line should have the price "
                               "proposed on the purchase order line. ")
 
     def test_split_1_line_selected(self):
         """ Create a call for bids from the logistic requisition, 1 po line choosed """
         # create a first draft bid and select completely the line
-        purchase, purchase_line = purchase_requisition.create_draft_purchase_order(
+        purchase, bid_line = purchase_requisition.create_draft_purchase_order(
             self, self.purchase_requisition.id, self.partner_1)
-        purchase_line.write({'price_unit': 12})
-        purchase_order.select_line(self, purchase_line.id, 100)
+        bid_line.write({'price_unit': 12})
+        purchase_order.select_line(self, bid_line.id, 100)
         purchase_order.bid_encoded(self, purchase.id)
 
         # close the call for bids
@@ -155,10 +155,10 @@ class test_purchase_split_requisition(common.TransactionCase):
         # selection of bids will trigger the split of lines
         purchase_requisition.bids_selected(self, self.purchase_requisition.id)
 
-        purchase_line.refresh()
+        bid_line.refresh()
 
         # check if the lines are split correctly
-        self.assertPurchaseToRequisitionLines([purchase_line])
+        self.assertPurchaseToRequisitionLines([bid_line])
 
     def test_split_bid_2_line_selected(self):
         """ Create a call for bids from the logistic requisition, 2 po line choosed
@@ -167,17 +167,17 @@ class test_purchase_split_requisition(common.TransactionCase):
         for a total of 100 items.
         """
         # create a first draft bid and select a part of the line
-        purchase1, purchase_line1 = purchase_requisition.create_draft_purchase_order(
+        purchase1, bid_line1 = purchase_requisition.create_draft_purchase_order(
             self, self.purchase_requisition.id, self.partner_1)
-        purchase_line1.write({'price_unit': 15})
-        purchase_order.select_line(self, purchase_line1.id, 30)
+        bid_line1.write({'price_unit': 15})
+        purchase_order.select_line(self, bid_line1.id, 30)
         purchase_order.bid_encoded(self, purchase1.id)
 
         # create a second draft bid and select a part of the line
-        purchase2, purchase_line2 = purchase_requisition.create_draft_purchase_order(
+        purchase2, bid_line2 = purchase_requisition.create_draft_purchase_order(
             self, self.purchase_requisition.id, self.partner_12)
-        purchase_line2.write({'price_unit': 13})
-        purchase_order.select_line(self, purchase_line2.id, 70)
+        bid_line2.write({'price_unit': 13})
+        purchase_order.select_line(self, bid_line2.id, 70)
         purchase_order.bid_encoded(self, purchase2.id)
 
         # close the call for bids
@@ -185,11 +185,11 @@ class test_purchase_split_requisition(common.TransactionCase):
         # selection of bids will trigger the split of lines
         purchase_requisition.bids_selected(self, self.purchase_requisition.id)
 
-        purchase_line1.refresh()
-        purchase_line2.refresh()
+        bid_line1.refresh()
+        bid_line2.refresh()
 
         # check if the lines are split correctly
-        self.assertPurchaseToRequisitionLines([purchase_line1, purchase_line2])
+        self.assertPurchaseToRequisitionLines([bid_line1, bid_line2])
 
     def test_split_too_many_products_selected(self):
         """ Create a call for bids from the logistic requisition, 2 po line choosed (too many)
@@ -202,17 +202,17 @@ class test_purchase_split_requisition(common.TransactionCase):
         requested.
         """
         # create a first draft bid and select a part of the line
-        purchase1, purchase_line1 = purchase_requisition.create_draft_purchase_order(
+        purchase1, bid_line1 = purchase_requisition.create_draft_purchase_order(
             self, self.purchase_requisition.id, self.partner_1)
-        purchase_line1.write({'price_unit': 15})
-        purchase_order.select_line(self, purchase_line1.id, 30)
+        bid_line1.write({'price_unit': 15})
+        purchase_order.select_line(self, bid_line1.id, 30)
         purchase_order.bid_encoded(self, purchase1.id)
 
         # create a second draft bid and select a part of the line
-        purchase2, purchase_line2 = purchase_requisition.create_draft_purchase_order(
+        purchase2, bid_line2 = purchase_requisition.create_draft_purchase_order(
             self, self.purchase_requisition.id, self.partner_12)
-        purchase_line2.write({'price_unit': 13})
-        purchase_order.select_line(self, purchase_line2.id, 80)
+        bid_line2.write({'price_unit': 13})
+        purchase_order.select_line(self, bid_line2.id, 80)
         purchase_order.bid_encoded(self, purchase2.id)
 
         # close the call for bids
@@ -235,17 +235,17 @@ class test_purchase_split_requisition(common.TransactionCase):
         the lines.
         """
         # create a first draft bid and select a part of the line
-        purchase1, purchase_line1 = purchase_requisition.create_draft_purchase_order(
+        purchase1, bid_line1 = purchase_requisition.create_draft_purchase_order(
             self, self.purchase_requisition.id, self.partner_1)
-        purchase_line1.write({'price_unit': 15})
-        purchase_order.select_line(self, purchase_line1.id, 30)
+        bid_line1.write({'price_unit': 15})
+        purchase_order.select_line(self, bid_line1.id, 30)
         purchase_order.bid_encoded(self, purchase1.id)
 
         # create a second draft bid and select a part of the line
-        purchase2, purchase_line2 = purchase_requisition.create_draft_purchase_order(
+        purchase2, bid_line2 = purchase_requisition.create_draft_purchase_order(
             self, self.purchase_requisition.id, self.partner_12)
-        purchase_line2.write({'price_unit': 13})
-        purchase_order.select_line(self, purchase_line2.id, 50)
+        bid_line2.write({'price_unit': 13})
+        purchase_order.select_line(self, bid_line2.id, 50)
         purchase_order.bid_encoded(self, purchase2.id)
 
         # close the call for bids
@@ -253,11 +253,11 @@ class test_purchase_split_requisition(common.TransactionCase):
         # selection of bids will trigger the split of lines
         purchase_requisition.bids_selected(self, self.purchase_requisition.id)
 
-        purchase_line1.refresh()
-        purchase_line2.refresh()
+        bid_line1.refresh()
+        bid_line2.refresh()
 
         # check if the lines are split correctly
-        self.assertPurchaseToRequisitionLines([purchase_line1, purchase_line2])
+        self.assertPurchaseToRequisitionLines([bid_line1, bid_line2])
 
         # one extra line without relation to a purchase line should have
         # been created for the rest
@@ -267,7 +267,7 @@ class test_purchase_split_requisition(common.TransactionCase):
         self.assertEquals(len(lines), 3,
                           "We should have 2 lines linked with the purchase "
                           "lines and 1 remaining line.")
-        rest_line = [line for line in lines if not line.purchase_line_id]
+        rest_line = [line for line in lines if not line.bid_line_id]
         self.assertEquals(len(rest_line), 1)
         rest_line = rest_line[0]
         self.assertEquals(rest_line.requested_qty, 20)

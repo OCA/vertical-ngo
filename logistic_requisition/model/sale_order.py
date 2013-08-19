@@ -2,6 +2,7 @@
 
 from itertools import groupby
 from openerp.osv import orm, fields
+from openerp import netsvc
 from .logistic_requisition import logistic_requisition_line
 
 
@@ -13,6 +14,61 @@ class sale_order(orm.Model):
                                           ondelete='restrict'),
     }
 
+    def _create_procurements_direct_mto(self, cr, uid, order, order_lines,
+                                        context=None):
+        """ Create procurement for the direct MTO lines.
+
+        No picking or move is created for those lines because the
+        delivery will be handled by the 'Incoming Shipment' from the
+        purchase order.
+
+        We reconnect the procurement to the existing purchase order if
+        it has already be created from the logistic requisition.
+
+        The purchase order has to be handled like a drop shipping for
+        the procurements, so we change the sale flow of the purchase
+        to 'direct_delivery'. We also link the purchase with the sale
+        and sale lines because this is how the ``sale_dropshipping``
+        does.
+        """
+        purchase_ids = set()
+        for line in order_lines:
+            log_req_line = line.requisition_line_id
+            if log_req_line and log_req_line.purchase_line_id:
+                purchase_ids.add(log_req_line.purchase_line_id.order_id.id)
+
+        purchase_obj = self.pool.get('purchase.order')
+        purchase_obj.write(cr, uid, list(purchase_ids),
+                           {'invoice_method': 'order',
+                            'sale_flow': 'direct_delivery',
+                            'sale_id': order.id},
+                           context=context)
+
+        proc_obj = self.pool.get('procurement.order')
+        wf_service = netsvc.LocalService("workflow")
+        for line in order_lines:
+            logistic_req_line = line.requisition_line_id
+            if logistic_req_line and logistic_req_line.purchase_line_id:
+                purchase_line = logistic_req_line.purchase_line_id
+                # reconnect with the purchase line created previously
+                # by the purchase requisition
+                # as needed by the sale_dropshipping module
+                purchase_line.write({'sale_order_line_id': line.id,
+                                     'sale_flow': 'direct_delivery'})
+
+            date_planned = self._get_date_planned(cr, uid, order, line,
+                                                  order.date_order,
+                                                  context=context)
+
+            vals = self._prepare_order_line_procurement(cr, uid, order, line,
+                                                        False, date_planned,
+                                                        context=context)
+            proc_id = proc_obj.create(cr, uid, vals, context=context)
+            line.write({'procurement_id': proc_id,
+                        'sale_order_line_id': line.id})
+            wf_service.trg_validate(uid, 'procurement.order',
+                                    proc_id, 'button_confirm', cr)
+
     def _create_pickings_and_procurements(self, cr, uid, order, order_lines,
                                           picking_id=False, context=None):
         """ Instead of creating 1 picking for all the sale order lines, it creates:
@@ -21,7 +77,7 @@ class sale_order(orm.Model):
 
         At end, only the MTS / not drop shipping lines will be part
         of the delivery orders, because the sale_dropshipping module
-        will take care of the drop shipping lines (create
+        will take care of the drop shipping lines (create only
         procurement.order for them and exclude them from the
         picking).
 
@@ -31,12 +87,28 @@ class sale_order(orm.Model):
                                will be added. A new picking will be created if ommitted.
         :return: True
         """
+
+        direct_mto_lines = []
+        other_lines = []
+        for line in order_lines:
+            if (line.type == 'make_to_order' and
+                    line.sale_flow == 'direct_delivery'):
+                direct_mto_lines.append(line)
+            else:
+                other_lines.append(line)
+
+        self._create_procurements_direct_mto(cr, uid, order, direct_mto_lines,
+                                             context=context)
+
         def get_location_address(line):
             if line.location_id and line.location_id.partner_id:
                 return line.location_id.partner_id.id
 
-        sorted_lines = sorted(order_lines, key=get_location_address)
-        for _unused_location, lines in groupby(sorted_lines, key=get_location_address):
+        # group the lines by address of source location and create
+        # a different picking for each address
+        sorted_lines = sorted(other_lines, key=get_location_address)
+        for _unused_location, lines in groupby(sorted_lines,
+                                               key=get_location_address):
             super(sale_order, self)._create_pickings_and_procurements(
                 cr, uid, order, list(lines), picking_id=False, context=context)
         return True
