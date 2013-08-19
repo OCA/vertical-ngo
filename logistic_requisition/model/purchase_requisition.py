@@ -142,7 +142,7 @@ class purchase_requisition(orm.Model):
             if item.purchase_line is not None:
                 vals.update({
                     'unit_cost': item.purchase_line.price_unit,
-                    'purchase_line_id': item.purchase_line.id,
+                    'bid_line_id': item.purchase_line.id,
                 })
 
             if item.newline:

@@ -419,6 +419,29 @@ class logistic_requisition_line(orm.Model):
             res.append((line.id, name))
         return res
 
+    def _purchase_line_id(self, cr, uid, ids, field_name, arg, context=None):
+        """ For each line, returns the generated purchase line from the
+        purchase requisition.
+        """
+        result = {}
+        purch_req_line_obj = self.pool.get('purchase.requisition.line')
+        po_line_obj = self.pool.get('purchase.order.line')
+        for line_id in ids:
+            purch_req_line_ids = purch_req_line_obj.search(
+                cr, uid,
+                [('logistic_requisition_line_id', '=', line_id)],
+                context=context)
+            po_line_ids = po_line_obj.search(
+                cr, uid,
+                [('requisition_line_id', 'in', purch_req_line_ids),
+                 ('order_id.type', '=', 'purchase')],
+                context=context)
+            assert len(po_line_ids) < 2, (
+                "We should not have several purchase order lines "
+                "for a logistic requisition line")
+            result[line_id] = po_line_ids[0] if po_line_ids else False
+        return result
+
     _columns = {
         'name': fields.char(u'Line N°', readonly=True),
         'requisition_id': fields.many2one(
@@ -598,9 +621,17 @@ class logistic_requisition_line(orm.Model):
             required=True,
             help="When the price is an estimation, the final price may change. "
                  "I.e. it is not based on a request for quotation."),
-        'purchase_line_id': fields.many2one('purchase.order.line',
-                                            'Purchase Order Line',
-                                            readonly=True),
+        # when filled, it means that it has been associated with a
+        # bid order line during the split process
+        'bid_line_id': fields.many2one('purchase.order.line',
+                                       'Purchase Order Line',
+                                       readonly=True),
+        'purchase_line_id': fields.function(
+            _purchase_line_id,
+            type='many2one',
+            relation='purchase.order.line',
+            readonly=True,
+            string='Purchase Order Line'),
         'selected_po_id': fields.related('purchase_line_id',
                                          'order_id',
                                          type='many2one',
@@ -889,7 +920,7 @@ class logistic_requisition_line(orm.Model):
             'po_requisition_id': False,
             'selected_po_id': False,
             'cost_estimate_id': False,
-            'purchase_line_id': False,
+            'bid_line_id': False,
             'purchase_requisition_line_ids': False,
             'name': False,
         }
