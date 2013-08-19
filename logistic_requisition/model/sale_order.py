@@ -46,28 +46,40 @@ class sale_order(orm.Model):
 
         proc_obj = self.pool.get('procurement.order')
         wf_service = netsvc.LocalService("workflow")
-        for line in order_lines:
-            logistic_req_line = line.requisition_line_id
+        for sale_line in order_lines:
+            purchase_line = None
+            logistic_req_line = sale_line.requisition_line_id
             if logistic_req_line and logistic_req_line.purchase_line_id:
                 purchase_line = logistic_req_line.purchase_line_id
                 # reconnect with the purchase line created previously
                 # by the purchase requisition
                 # as needed by the sale_dropshipping module
-                purchase_line.write({'sale_order_line_id': line.id,
+                purchase_line.write({'sale_order_line_id': sale_line.id,
                                      'sale_flow': 'direct_delivery'})
 
-            date_planned = self._get_date_planned(cr, uid, order, line,
+            date_planned = self._get_date_planned(cr, uid, order, sale_line,
                                                   order.date_order,
                                                   context=context)
 
-            vals = self._prepare_order_line_procurement(cr, uid, order, line,
-                                                        False, date_planned,
+            vals = self._prepare_order_line_procurement(cr, uid, order,
+                                                        sale_line, False,
+                                                        date_planned,
                                                         context=context)
+            vals['sale_order_line_id'] = sale_line.id
+            if purchase_line is not None:
+                # the purchase order for this procurement as already
+                # been created from the purchase requisition, reconnect
+                # with it
+                vals['purchase_id'] = purchase_line.order_id.id
+
             proc_id = proc_obj.create(cr, uid, vals, context=context)
-            line.write({'procurement_id': proc_id,
-                        'sale_order_line_id': line.id})
+            sale_line.write({'procurement_id': proc_id})
             wf_service.trg_validate(uid, 'procurement.order',
                                     proc_id, 'button_confirm', cr)
+            if purchase_line is not None:
+                proc_obj.write(cr, uid, proc_id,
+                               {'state': 'running'},
+                               context=context)
 
     def _create_pickings_and_procurements(self, cr, uid, order, order_lines,
                                           picking_id=False, context=None):
