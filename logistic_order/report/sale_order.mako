@@ -143,13 +143,18 @@ td.amount, th.amount {
     <table class="basic_table" width="100%">
         <tr>
             <td style="font-weight:bold;">${l_order and _("Order Date") or _("Date")}</td>
-            <td style="font-weight:bold;">${_("Your Reference")}</td>
-            <td style="font-weight:bold;">${_("Valid until")}</td>
+            <td style="font-weight:bold;width:30%">${_("Your Reference")}</td>
+            <td style="font-weight:bold;">${_("Validity")}</td>
         </tr>
         <tr>
             <td>${formatLang(order.date_order, date=True)}</td>
             <td>${order.client_order_ref or ''}</td>
-            <td>${formatLang(order.date_validity, date=True)}</td>
+            %if order.date_validity.val:
+            <td>${_('The pricing indications in this estimate are valid till:')}<br/>
+                ${formatLang(order.date_validity, date=True)}</td>
+            %else:
+               <td></td>
+            %endif
         </tr>
     </table>
 
@@ -218,9 +223,14 @@ td.amount, th.amount {
             <td style="font-weight:bold;">${_("Incoterm/Incoterm Place")}</td>
         </tr>
         <tr>
-            <td>${order.delivery_time or 'N/A'| carriage_returns}</td>
+            <td>${_('Item subjet to supplier availability.')}<br/>
+                ${_('Transit Time')} ${order.delivery_time or _('N/A')| carriage_returns}</td>
             <td>${order.payment_term and order.payment_term.note or ''}</td>
-            <td>${order.incoterm or ''} ${order.incoterm_address or ''}</td>
+            %if order.incoterm or order.incoterm_address:
+              <td>${order.incoterm.name if order.incoterm else ''} ${order.incoterm_address or ''} INCOTERMS 2010</td>
+            %else:
+              <td></td>
+            %endif
         </tr>
     </table>
     %if order.note :
