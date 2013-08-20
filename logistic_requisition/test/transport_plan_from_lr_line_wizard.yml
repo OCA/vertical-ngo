@@ -61,7 +61,6 @@
                              'from_address_id': ref('base.res_partner_5'),
                              'to_address_id': ref('base.res_partner_6'),
                              'transport_estimated_cost': 12000,
-                             'transport_mode_id': ref('transport_plan.transport_mode1'),
                              'note': "A comment....",
                             },
                             context=context)
@@ -103,5 +102,3 @@
 -
   !assert {model: logistic.requisition.line, id: logistic_requisition_line_tp_02, string: The line should be sourced}:
     - state == 'sourced'
-
-
