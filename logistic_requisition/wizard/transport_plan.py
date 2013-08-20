@@ -57,10 +57,21 @@ class logistic_requisition_line_transport_plan(orm.TransientModel):
         'note': fields.text('Remarks/Description'),
     }
 
-    def _get_date_eta_from_lines(self, cr, uid, line_brs, context=None):
-        if len(line_brs) != 1:
+    def _get_default_transport_mode(self, cr, uid, context):
+        """ Set the default value for transport mode using
+        preffered LR mode, if lines came from differents
+        requisitions nothing is set"""
+        active_ids = context.get('active_ids')
+        if context is None or not active_ids:
             return False
-        return line_brs[0].date_eta
+        req_line_obj = self.pool['logistic.requisition.line']
+        lines = req_line_obj.browse(cr, uid, active_ids, context=context)
+        if any(lines[0].requisition_id != x.requisition_id for x in lines):
+            return False
+        else:
+            return lines[0].requisition_id.preferred_transport.id
+
+    _defaults = {'transport_mode_id': _get_default_transport_mode}
 
     def _prepare_transport_plan(self, cr, uid, form,
                                 line_brs, context=None):
