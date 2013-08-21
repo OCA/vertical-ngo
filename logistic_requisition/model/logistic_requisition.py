@@ -923,6 +923,7 @@ class logistic_requisition_line(orm.Model):
             'bid_line_id': False,
             'purchase_requisition_line_ids': False,
             'name': False,
+            'offer_ids': False,
         }
         std_default.update(default)
         return super(logistic_requisition_line, self).copy_data(

@@ -31,26 +31,20 @@ class sale_order(orm.Model):
         and sale lines because this is how the ``sale_dropshipping``
         does.
         """
-        purchase_ids = set()
-        for line in order_lines:
-            log_req_line = line.requisition_line_id
-            if log_req_line and log_req_line.purchase_line_id:
-                purchase_ids.add(log_req_line.purchase_line_id.order_id.id)
-
-        purchase_obj = self.pool.get('purchase.order')
-        purchase_obj.write(cr, uid, list(purchase_ids),
-                           {'invoice_method': 'order',
-                            'sale_flow': 'direct_delivery',
-                            'sale_id': order.id},
-                           context=context)
-
         proc_obj = self.pool.get('procurement.order')
         wf_service = netsvc.LocalService("workflow")
+        purchase_ids = set()
         for sale_line in order_lines:
             purchase_line = None
             logistic_req_line = sale_line.requisition_line_id
-            if logistic_req_line and logistic_req_line.purchase_line_id:
+            if logistic_req_line:
+                if not logistic_req_line.purchase_line_id:
+                    raise orm.except_orm(
+                        _('Error'),
+                        _('The logistic requisition line %s has no '
+                          'purchase order line.') % logistic_req_line.name)
                 purchase_line = logistic_req_line.purchase_line_id
+                purchase_ids.add(purchase_line.order_id.id)
                 # reconnect with the purchase line created previously
                 # by the purchase requisition
                 # as needed by the sale_dropshipping module
@@ -77,9 +71,16 @@ class sale_order(orm.Model):
             wf_service.trg_validate(uid, 'procurement.order',
                                     proc_id, 'button_confirm', cr)
             if purchase_line is not None:
-                proc_obj.write(cr, uid, proc_id,
-                               {'state': 'running'},
-                               context=context)
+                wf_service.trg_validate(uid, 'procurement.order',
+                                        proc_id, 'button_check', cr)
+
+        # set the purchases to direct delivery
+        purchase_obj = self.pool.get('purchase.order')
+        purchase_obj.write(cr, uid, list(purchase_ids),
+                           {'invoice_method': 'order',
+                            'sale_flow': 'direct_delivery',
+                            'sale_id': order.id},
+                           context=context)
 
     def _create_pickings_and_procurements(self, cr, uid, order, order_lines,
                                           picking_id=False, context=None):
