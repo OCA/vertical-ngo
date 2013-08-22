@@ -37,21 +37,30 @@ class test_mto_workflow(common.TransactionCase):
 
     We create a logistic requisition for 100 products A.
     From there, we create a purchase requisition for these products.
-    From the purchase requisition, we create a Bid, once accepted,
-    the Bid becomes a purchase quotation.
+    From the purchase requisition, we create one or several bids. We
+    select lines to keep in the bids.
 
     From the logistic requisition (now sourced), we create a sales
     order. This sales order is confirmed, and the full complexity
-    appears now. The sales order lines created in this way should be
-    MTO and direct delivery (dropshipping). The procurement generated
-    for these lines should be linked to the purchase quotation created
-    before and not generate a new one. The stock move (reservation) of
-    the procurement should be the same than the stock move generated for
-    the Incoming Shipment of the purchase order.
+    appears now. At the moment when the sales order is confirmed,
+    a purchase quotation is generated (using the selected bid lines).
+
+    The sales order lines created in this way are MTO and direct
+    delivery (dropshipping). The procurement generated for these lines
+    should be linked to the purchase quotation created before and not
+    generate a new one. The stock move (reservation) of the procurement
+    should be the same than the stock move generated for the Incoming
+    Shipment of the purchase order.
 
     Finally, when the Incoming Shipment of the purchase order is done,
-    the sales orders should be "delivered" as well as the purchase order
-    should be "received".
+    the sales orders should be "delivered" and the purchase order
+    should be "received" as well.
+
+    In order to achieve that, when the procurement of the sales order line
+    is generated, we leave the procurement as draft, we link it with the PO
+    and we leave the move_id empty. Only at the moment when the picking
+    of the purchase order is generated, we link the procurement's move_id
+    to the picking's move and confirm the procurement.
     """
 
     def setUp(self):
