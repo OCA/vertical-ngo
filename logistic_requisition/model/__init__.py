@@ -26,3 +26,4 @@ from . import stock
 from . import transport_plan
 from . import res_partner
 from . import requisition_cancel
+from . import procurement

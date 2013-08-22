@@ -48,8 +48,7 @@ class sale_order(orm.Model):
                 # reconnect with the purchase line created previously
                 # by the purchase requisition
                 # as needed by the sale_dropshipping module
-                purchase_line.write({'sale_order_line_id': sale_line.id,
-                                     'sale_flow': 'direct_delivery'})
+                purchase_line.write({'sale_order_line_id': sale_line.id})
 
             date_planned = self._get_date_planned(cr, uid, order, sale_line,
                                                   order.date_order,
