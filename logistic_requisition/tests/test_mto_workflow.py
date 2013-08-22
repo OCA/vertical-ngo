@@ -1,0 +1,177 @@
+# -*- coding: utf-8 -*-
+##############################################################################
+#
+#    Author: Guewen Baconnier
+#    Copyright 2013 Camptocamp SA
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU Affero General Public License as
+#    published by the Free Software Foundation, either version 3 of the
+#    License, or (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU Affero General Public License for more details.
+#
+#    You should have received a copy of the GNU Affero General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+##############################################################################
+
+import time
+import unittest2
+
+from openerp.tools import DEFAULT_SERVER_DATE_FORMAT as D_FMT
+import openerp.tests.common as common
+from openerp import netsvc
+from . import logistic_requisition
+from . import purchase_requisition
+from . import purchase_order
+
+
+class test_mto_workflow(common.TransactionCase):
+    """ Test the workflows of MTO products accross the models
+    logistic requisition, to purchase orders, to sale orders
+    passing through stock pickings.
+
+    We create a logistic requisition for 100 products A.
+    From there, we create a purchase requisition for these products.
+    From the purchase requisition, we create a Bid, once accepted,
+    the Bid becomes a purchase quotation.
+
+    From the logistic requisition (now sourced), we create a sales
+    order. This sales order is confirmed, and the full complexity
+    appears now. The sales order lines created in this way should be
+    MTO and direct delivery (dropshipping). The procurement generated
+    for these lines should be linked to the purchase quotation created
+    before and not generate a new one. The stock move (reservation) of
+    the procurement should be the same than the stock move generated for
+    the Incoming Shipment of the purchase order.
+
+    Finally, when the Incoming Shipment of the purchase order is done,
+    the sales orders should be "delivered" as well as the purchase order
+    should be "received".
+    """
+
+    def setUp(self):
+        super(test_mto_workflow, self).setUp()
+        self.log_req_model = self.registry('logistic.requisition')
+        self.log_req_line_model = self.registry('logistic.requisition.line')
+        self.purchase_order_model = self.registry('purchase.order')
+        self.purch_req_model = self.registry('purchase.requisition')
+        self.sale_model = self.registry('sale.order')
+        self.picking_in_model = self.registry('stock.picking.in')
+
+        self.partner_1 = self.ref('base.res_partner_1')
+        self.partner_3 = self.ref('base.res_partner_3')
+        self.partner_4 = self.ref('base.res_partner_4')
+        self.partner_12 = self.ref('base.res_partner_12')
+        self.user_demo = self.ref('base.user_demo')
+        self.product_7 = self.ref('product.product_product_7')
+        self.product_uom_pce = self.ref('product.product_uom_unit')
+        self.vals = {
+            'partner_id': self.partner_4,
+            'consignee_id': self.partner_3,
+            'date_delivery': time.strftime(D_FMT),
+            'user_id': self.user_demo,
+            'budget_holder_id': self.user_demo,
+            'finance_officer_id': self.user_demo,
+        }
+
+        self.lines = [{
+            'product_id': self.product_7,
+            'requested_qty': 100,
+            'requested_uom_id': self.product_uom_pce,
+            'date_delivery': time.strftime(D_FMT),
+            'budget_tot_price': 1000,
+            'transport_applicable': 0,
+            'procurement_method': 'procurement',
+            'price_is': 'estimated',
+            'account_code': 'a code',
+        }]
+
+    def test_workflow_with_1_line(self):
+        """ Test the full workflow and check if sale and purchase are both delivered """
+        cr, uid = self.cr, self.uid
+        # logistic requisition creation
+        requisition_id, line_ids = logistic_requisition.create(
+            self, self.vals, self.lines)
+        logistic_requisition.confirm(self, requisition_id)
+        logistic_requisition.assign_lines(self, line_ids, self.user_demo)
+
+        # purchase requisition creation, bids selection
+        for line_id in line_ids:
+            purch_req_id = logistic_requisition.create_purchase_requisition(
+                self, line_id)
+            purchase_requisition.confirm_call(self, purch_req_id)
+            bid, bid_line = purchase_requisition.create_draft_purchase_order(
+                self, purch_req_id, self.partner_1)
+            bid_line.write({'price_unit': 100})
+            purchase_order.select_line(self, bid_line.id, 100)
+            purchase_order.bid_encoded(self, bid.id)
+            purchase_requisition.close_call(self, purch_req_id)
+            purchase_requisition.bids_selected(self, purch_req_id)
+
+        # set lines as sourced
+        logistic_requisition.source_lines(self, line_ids)
+
+        # sales order creation
+        sale_id, __ = logistic_requisition.create_quotation(
+            self, requisition_id, line_ids)
+
+        # the confirmation of the sale order generates the
+        # purchase order of the purchase requisition
+        self.sale_model.action_button_confirm(cr, uid, [sale_id])
+        sale = self.sale_model.browse(cr, uid, sale_id)
+        assert len(sale.order_line) == 1
+        sale_line = sale.order_line[0]
+        # check if the sale order line is linked with the purchase order
+        # line
+        self.assertTrue(sale_line.purchase_order_line_id)
+        self.assertTrue(sale_line.purchase_order_id)
+
+        # check if the procurement is linked with the correct purchase
+        # order
+        purchase = sale_line.purchase_order_id
+        procurement = sale_line.procurement_id
+        self.assertEquals(procurement.purchase_id, purchase,
+                          "The purchase of the procurement should be "
+                          "the same than the one generated by the purchase "
+                          "requisition.")
+
+        # confirm the purchase order
+        self.assertEquals(purchase.state, 'draftpo')
+        wf_service = netsvc.LocalService("workflow")
+        wf_service.trg_validate(uid, 'purchase.order',
+                                purchase.id, 'purchase_confirm', cr)
+        purchase.refresh()
+        self.assertEquals(purchase.state, 'approved')
+
+        # the incoming shipment of the purchase order has been generated
+        purchase.refresh()
+        self.assertEquals(len(purchase.picking_ids), 1)
+        picking = purchase.picking_ids[0]
+        # receive it
+        receive_obj = self.registry('stock.partial.picking')
+        wizard_id = receive_obj.create(cr, uid, {},
+                                       {'active_model': 'stock.picking.in',
+                                        'active_id': picking.id,
+                                        'active_ids': [picking.id]})
+        receive_obj.do_partial(cr, uid, [wizard_id])
+        picking.refresh()
+        self.assertEquals(picking.state, 'done')
+
+        # the purchase order should be received as we received the
+        # picking
+        purchase.refresh()
+        self.assertTrue(purchase.shipped,
+                        "The sales order should be considered as 'received' "
+                        "because the picking 'in' has been received.")
+
+        # the sale order should be delivered as well
+        sale.refresh()
+        self.assertTrue(sale.shipped,
+                        "The sales order should be considered as 'shipped' "
+                        "because the procurement is the same than the one "
+                        "of the purchase order.")
