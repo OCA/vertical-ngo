@@ -3,6 +3,7 @@
 from itertools import groupby
 from openerp.osv import orm, fields
 from openerp import netsvc
+from openerp.tools.translate import _
 from .logistic_requisition import logistic_requisition_line
 
 
@@ -32,7 +33,7 @@ class sale_order(orm.Model):
         does.
         """
         proc_obj = self.pool.get('procurement.order')
-        wf_service = netsvc.LocalService("workflow")
+        # wf_service = netsvc.LocalService("workflow")
         purchase_ids = set()
         for sale_line in order_lines:
             purchase_line = None
@@ -45,33 +46,40 @@ class sale_order(orm.Model):
                           'purchase order line.') % logistic_req_line.name)
                 purchase_line = logistic_req_line.purchase_line_id
                 purchase_ids.add(purchase_line.order_id.id)
-                # reconnect with the purchase line created previously
-                # by the purchase requisition
-                # as needed by the sale_dropshipping module
-                purchase_line.write({'sale_order_line_id': sale_line.id})
+
+            else:  # no logistic requisition line
+                # The sales line has been created manually as a mto and
+                # dropshipping, pass it to the normal flow
+                super(sale_order, self)._create_procurements_direct_mto(
+                    cr, uid, order, [sale_line], context=context)
+                continue
+
+            # reconnect with the purchase line created previously
+            # by the purchase requisition
+            # as needed by the sale_dropshipping module
+            purchase_line.write({'sale_order_line_id': sale_line.id})
 
             date_planned = self._get_date_planned(cr, uid, order, sale_line,
                                                   order.date_order,
                                                   context=context)
-
             vals = self._prepare_order_line_procurement(cr, uid, order,
                                                         sale_line, False,
                                                         date_planned,
                                                         context=context)
             vals['sale_order_line_id'] = sale_line.id
-            if purchase_line is not None:
-                # the purchase order for this procurement as already
-                # been created from the purchase requisition, reconnect
-                # with it
-                vals['purchase_id'] = purchase_line.order_id.id
-
+            # the purchase order for this procurement as already
+            # been created from the purchase requisition, reconnect
+            # with it
+            vals['purchase_id'] = purchase_line.order_id.id
             proc_id = proc_obj.create(cr, uid, vals, context=context)
+
             sale_line.write({'procurement_id': proc_id})
-            wf_service.trg_validate(uid, 'procurement.order',
-                                    proc_id, 'button_confirm', cr)
-            if purchase_line is not None:
-                wf_service.trg_validate(uid, 'procurement.order',
-                                        proc_id, 'button_check', cr)
+            # We do not confirm the procurement. It will stay in 'draft'
+            # without reservation move. At the moment when the picking
+            # (in) of the purchase order will be created, we'll write
+            # the id of the picking's move in this procurement and
+            # confirm the procurement
+            # (see in purchase_order.action_picking_create())
 
         # set the purchases to direct delivery
         purchase_obj = self.pool.get('purchase.order')
