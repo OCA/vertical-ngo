@@ -167,11 +167,17 @@ class sale_order_line(orm.Model):
         order for the purchase requisition.
         """
         result = super(sale_order_line, self).button_confirm(cr, uid, ids, context=context)
+        purchase_requisitions = set()
         for line in self.browse(cr, uid, ids, context=context):
             if not line.requisition_line_id:
                 continue
             purchase_req = line.requisition_line_id.po_requisition_id
-            if not purchase_req:
-                continue
-            purchase_req.generate_po()
+            if purchase_req:
+                purchase_requisitions.add(purchase_req)
+        # Beware! generate_po() accepts a list of ids, but discards the
+        # ids > 1.
+        # We can't call it 2 times on a purchase_requisition,
+        # and 2 lines may have the same one.
+        for purchase_requisition in purchase_requisitions:
+            purchase_requisition.generate_po()
         return result
