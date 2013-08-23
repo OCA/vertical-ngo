@@ -23,9 +23,9 @@ import openerp.addons.decimal_precision as dp
 from openerp.tools.translate import _
 
 
-class logistic_requisition_line_transport_plan(orm.TransientModel):
-    _name = 'logistic.requisition.line.transport.plan'
-    _description = 'Create a transport plan for logistic requisition lines'
+class logistic_requisition_source_transport_plan(orm.TransientModel):
+    _name = 'logistic.requisition.source.transport.plan'
+    _description = 'Create a transport plan for logistic requisition source lines'
 
     _columns = {
         'date_eta': fields.date(
@@ -74,17 +74,18 @@ class logistic_requisition_line_transport_plan(orm.TransientModel):
     def create_and_affect(self, cr, uid, ids, context=None):
         if context is None:
             context = {}
-        line_ids = context.get('active_ids')
-        if not line_ids:
+        source_ids = context.get('active_ids')
+        if not source_ids:
             return
+        assert len(ids) == 1, "One ID expected"
         form = self.browse(cr, uid, ids[0], context=context)
         transport_obj = self.pool.get('transport.plan')
-        line_obj = self.pool.get('logistic.requisition.line')
+        source_obj = self.pool.get('logistic.requisition.source')
         vals = self._prepare_transport_plan(cr, uid, form, context=context)
         transport_id = transport_obj.create(cr, uid, vals, context=context)
-        line_obj.write(cr, uid, line_ids,
-                       {'transport_plan_id': transport_id},
-                       context=context)
+        source_obj.write(cr, uid, source_ids,
+                         {'transport_plan_id': transport_id},
+                         context=context)
         return self._open_transport_plan(cr, uid, transport_id, context=context)
 
     def _open_transport_plan(self, cr, uid, transport_id, context=None):

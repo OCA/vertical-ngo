@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
-        <record id="view_logistic_requisition_split_line_wizard" model="ir.ui.view">
-            <field name="name">Split Requisition Line</field>
-            <field name="model">logistic.requisition.split.line</field>
+        <record id="view_logistic_requisition_split_source_wizard" model="ir.ui.view">
+            <field name="name">Split Requisition Source</field>
+            <field name="model">logistic.requisition.split.source.line</field>
             <field name="arch" type="xml">
-            <form string="Split Requisition Line" version="7.0">
+            <form string="Split Requisition Source" version="7.0">
                 <separator string="How much do you want to leave in the line?"/>
                 <group>
                     <field name="remaining"/>
@@ -18,11 +18,11 @@
             </form>
             </field>
         </record>
-        
+
        <record id="action_requisition_split_into" model="ir.actions.act_window">
-             <field name="name">Split Requisition Line</field>
+             <field name="name">Split Requisition Source</field>
              <field name="type">ir.actions.act_window</field>
-             <field name="res_model">logistic.requisition.split.line</field>
+             <field name="res_model">logistic.requisition.split.source.line</field>
              <field name="view_type">form</field>
              <field name="view_mode">form</field>
              <field name="target">new</field>

@@ -23,11 +23,12 @@ import openerp.addons.decimal_precision as dp
 
 
 class LogisticRequisitionSplitLine(orm.TransientModel):
-    _name = "logistic.requisition.split.line"
-    _description = "Split Requisition Line"
+    _name = "logistic.requisition.split.source.line"
+    _description = "Split Requisition Source Line"
     _columns = {
-        'remaining': fields.float('Remaining',
-                                  digits_compute=dp.get_precision('Product Unit of Measure')),
+        'remaining': fields.float(
+            'Remaining',
+            digits_compute=dp.get_precision('Product Unit of Measure')),
     }
 
     _defaults = {
@@ -46,9 +47,9 @@ class LogisticRequisitionSplitLine(orm.TransientModel):
             context = {}
         remaining = self.browse(cr, uid, ids, context=context).remaining or 0.0
         line_ids = context.get('active_ids')
-        line_obj = self.pool.get('logistic.requisition.line')
-        for line in line_obj.browse(cr, uid, line_ids, context=context):
-            quantity = line.requested_qty - remaining
+        source_obj = self.pool.get('logistic.requisition.source')
+        for line in source_obj.browse(cr, uid, line_ids, context=context):
+            quantity = line.proposed_qty - remaining
             if quantity < 0:
                 raise orm.except_orm(_('Error'),
                                      _('Split quantity exceeds '

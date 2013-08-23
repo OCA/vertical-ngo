@@ -373,27 +373,27 @@ class logistic_requisition_line(orm.Model):
     _description = "Logistic Requisition Line"
     _inherit = ['mail.thread']
 
-    _order = "requisition_id asc, id asc"
+    _order = "requisition_id asc, name asc"
 
     REQUEST_STATES = {'assigned': [('readonly', True)],
                       'sourced': [('readonly', True)],
                       'quoted': [('readonly', True)],
                       }
 
-    SOURCED_STATES = {'sourced': [('readonly', True)],
-                      'quoted': [('readonly', True)]
-                      }
-
-    PRICE_IS_SELECTION = [('fixed', 'Fixed'),
-                          ('estimated', 'Estimated'),
-                          ]
+    STATES = [('draft', 'Draft'),
+              ('confirmed', 'Confirmed'),
+              ('assigned', 'Assigned'),
+              ('sourced', 'Sourced'),
+              ('quoted', 'Quoted'),
+              ('cancel', 'Cancelled')
+              ]
 
     def _get_from_partner(self, cr, uid, ids, context=None):
         req_obj = self.pool.get('logistic.requisition')
         req_line_obj = self.pool.get('logistic.requisition.line')
         req_ids = req_obj.search(cr, uid,
                                  [('consignee_shipping_id', 'in', ids)],
-                                context=context)
+                                 context=context)
         return req_line_obj._get_from_requisition(cr, uid, req_ids,
                                                   context=context)
 
@@ -404,41 +404,6 @@ class logistic_requisition_line(orm.Model):
                                        context=context)
         return line_ids
 
-    def name_get(self, cr, user, ids, context=None):
-        """
-        Returns a list of tupples containing id, name.
-        result format: {[(id, name), (id, name), ...]}
-        """
-        if not ids:
-            return []
-        if isinstance(ids, (int, long)):
-            ids = [ids]
-        res = []
-        for line in self.browse(cr, user, ids, context=context):
-            name = "%s - %s" % (line.requisition_id.name, line.name)
-            res.append((line.id, name))
-        return res
-
-    def _purchase_line_id(self, cr, uid, ids, field_name, arg, context=None):
-        """ For each line, returns the generated purchase line from the
-        purchase requisition.
-        """
-        result = {}
-        purch_req_line_obj = self.pool.get('purchase.requisition.line')
-        po_line_obj = self.pool.get('purchase.order.line')
-        for line in self.browse(cr, uid, ids, context=context):
-            bid_line = line.bid_line_id
-            if not bid_line:
-                continue
-            po_lines = bid_line.po_line_from_bid_ids
-            if not po_lines:
-                continue
-            assert len(po_lines) == 1, (
-                "We should not have several purchase order lines "
-                "for a logistic requisition line")
-            result[line.id] = po_lines[0].id if po_lines else False
-        return result
-
     _columns = {
         'name': fields.char(u'Line N°', readonly=True),
         'requisition_id': fields.many2one(
@@ -447,6 +412,10 @@ class logistic_requisition_line(orm.Model):
             readonly=True,
             required=True,
             ondelete='cascade'),
+        'source_ids': fields.one2many(
+            'logistic.requisition.source',
+            'requisition_line_id',
+            string='Source Lines'),
         'logistic_user_id': fields.many2one(
             'res.users',
             'Assigned To',
@@ -458,7 +427,7 @@ class logistic_requisition_line(orm.Model):
             help="User in charge of the "
                  "Logistic Requisition Line"),
         'product_id': fields.many2one('product.product', 'Product',
-                                      states=SOURCED_STATES,),
+                                      states=REQUEST_STATES),
         'description': fields.char('Description',
                                    states=REQUEST_STATES,
                                    required=True),
@@ -519,63 +488,8 @@ class logistic_requisition_line(orm.Model):
                                          10),
                 }
             ),
-        'po_requisition_id': fields.many2one(
-            'purchase.requisition', 'Call for Bids',
-            readonly=True),
-        'proposed_qty': fields.float(
-            'Proposed Qty',
-            states=SOURCED_STATES,
-            digits_compute=dp.get_precision('Product UoM')),
-        # to be able to display the UOM 2 times
-        'proposed_uom_id': fields.related('requested_uom_id',
-                                          string='Proposed UoM',
-                                          type='many2one',
-                                          relation='product.uom',
-                                          readonly=True),
-        'procurement_method': fields.selection(
-            [('procurement', 'Procurement'),
-             ('wh_dispatch', 'Warehouse Dispatch'),
-             ('fw_agreement', 'Framework Agreement'),
-             ],
-            string='Procurement Method',
-            states=SOURCED_STATES),
-        'dispatch_location_id': fields.many2one(
-            'stock.location',
-            string='Dispatch From',
-            states=SOURCED_STATES),
-        'stock_owner': fields.related(
-            'dispatch_location_id', 'owner_id',
-            type='many2one',
-            relation='res.partner',
-            string='Stock Owner',
-            readonly=True),
-        # NOTE: date that should be used for the stock move reservation
-        'date_etd': fields.date('ETD',
-                                states=SOURCED_STATES,
-                                help="Estimated Date of Departure"),
-        'date_eta': fields.date('ETA',
-                                states=SOURCED_STATES,
-                                help="Estimated Date of Arrival"),
-        'offer_ids': fields.one2many('sale.order.line',
-                                     'requisition_line_id',
-                                     'Sales Quotation Lines'),
-        'unit_cost': fields.float(
-            'Unit Cost',
-            states=SOURCED_STATES,
-            digits_compute=dp.get_precision('Account')),
-        'total_cost': fields.function(
-            lambda self, *args, **kwargs: self._get_total_cost(*args,**kwargs),
-            string='Total Cost',
-            type='float',
-            digits_compute=dp.get_precision('Account'),
-            store=True),
         'state': fields.selection(
-            [('draft', 'Draft'),
-             ('confirmed', 'Confirmed'),
-             ('assigned', 'Assigned'),
-             ('sourced', 'Sourced'),
-             ('quoted', 'Quoted'),
-             ('cancel', 'Cancelled')],
+            STATES,
             string='State',
             required=True,
             readonly=True,
@@ -605,63 +519,11 @@ class logistic_requisition_line(orm.Model):
             'sale.order',
             string='Cost Estimate',
             readonly=True),
-        'transport_applicable': fields.boolean(
-            'Transport Applicable',
-            states=SOURCED_STATES),
-        'transport_plan_id': fields.many2one(
-            'transport.plan',
-            string='Transport Plan',
-            states=SOURCED_STATES),
-        'price_is': fields.selection(
-            PRICE_IS_SELECTION,
-            string='Price is',
-            required=True,
-            help="When the price is an estimation, the final price may change. "
-                 "I.e. it is not based on a request for quotation."),
-        # when filled, it means that it has been associated with a
-        # bid order line during the split process
-        'bid_line_id': fields.many2one('purchase.order.line',
-                                       'Purchase Order Line',
-                                       readonly=True),
-        'purchase_line_id': fields.function(
-            _purchase_line_id,
-            type='many2one',
-            relation='purchase.order.line',
-            readonly=True,
-            string='Purchase Order Line'),
-        'selected_po_id': fields.related('purchase_line_id',
-                                         'order_id',
-                                         type='many2one',
-                                         relation='purchase.order',
-                                         string='Selected Purchase Order',
-                                         readonly=True),
-        'purchase_requisition_line_ids': fields.one2many(
-            'purchase.requisition.line', 'logistic_requisition_line_id',
-            'Purchase Requisition Lines',
-            readonly=True),
-        # needed to set the default destination address of the transport plan
-        # when created from the lr line view
-        'consignee_shipping_id': fields.related(
-            'requisition_id', 'consignee_shipping_id',
-            type='many2one', relation='res.partner',
-            string='Delivery Address', readonly=True),
-        # 2 fields below needed to set the default origin address
-        # of the transport plan when created from the lr line view
-        'supplier_partner_id': fields.related(
-            'selected_po_id', 'partner_id',
-            type='many2one', relation='res.partner',
-            string='Supplier Address', readonly=True),
-        'location_partner_id': fields.related(
-            'dispatch_location_id', 'partner_id',
-            type='many2one', relation='res.partner',
-            string='Location Address', readonly=True)
     }
 
     _defaults = {
         'state': 'draft',
         'requested_qty': 1.0,
-        'transport_applicable': True,
-        'price_is': 'fixed',
         'name': '/',
     }
 
@@ -670,37 +532,21 @@ class logistic_requisition_line(orm.Model):
          'unique(name)',
          'Logistic Requisition Line number must be unique!'),
     ]
-    def _check_transport_plan(self, cr, uid, ids, context=None):
-        lines = self.browse(cr, uid, ids, context=context)
-        states = ('sourced', 'quoted')
-        for line in lines:
-            if (line.transport_applicable and
-                    line.state in states and
-                    not line.transport_plan_id):
-                return False
-        return True
 
-    def _logistic_requisition_unique(self, cr, uid, ids, context=None):
-        for line in self.browse(cr, uid, ids, context=context):
-            if not line.transport_plan_id:
-                continue
-            plan = line.transport_plan_id
-            if not plan.logistic_requisition_id:
-                continue
-            if plan.logistic_requisition_id != line.requisition_id:
-                return False
-        return True
-
-    _constraints = [
-        (_check_transport_plan,
-         'Transport plan is mandatory for sourced requisition lines '
-         'when the transport is applicable.',
-         ['transport_plan_id']),
-        (_logistic_requisition_unique,
-         "A transport plan cannot be linked to lines of different "
-         "logistic requisitions.",
-         ['transport_plan_id']),
-    ]
+    def name_get(self, cr, user, ids, context=None):
+        """
+        Returns a list of tupples containing id, name.
+        result format: {[(id, name), (id, name), ...]}
+        """
+        if not ids:
+            return []
+        if isinstance(ids, (int, long)):
+            ids = [ids]
+        res = []
+        for line in self.browse(cr, user, ids, context=context):
+            name = "%s - %s" % (line.requisition_id.name, line.name)
+            res.append((line.id, name))
+        return res
 
     def create(self, cr, uid, vals, context=None):
         if (vals.get('name') or '/') == '/':
@@ -748,139 +594,37 @@ class logistic_requisition_line(orm.Model):
                          context=context, load='_classic_write')
         return [x['requisition_id'] for x in reqs]
 
-    def _prepare_po_requisition(self, cr, uid, lines, rfq_lines, context=None):
-        company_id = None
-        user_id = None
-        consignee_id = None
-        dest_address_id = None
-        warehouse_id = False  # TODO: always empty, where does it comes from?
-        origin = []
-        for line in lines:
-            origin.append(line.name)
-            line_user_id = line.logistic_user_id.id
-            if user_id is None:
-                user_id = line_user_id
-            elif user_id != line_user_id:
-                raise orm.except_orm(
-                    _('Error'),
-                    _('The lines are not assigned to the same '
-                      'User.'))
-            line_company_id = line.requisition_id.company_id.id
-            if company_id is None:
-                company_id = line_company_id
-            elif company_id != line_company_id:
-                raise orm.except_orm(
-                    _('Error'),
-                    _('The lines do not belong to the same company.'))
-            line_consignee_id = line.requisition_id.consignee_id.id
-            if consignee_id is None:
-                consignee_id = line_consignee_id
-            elif consignee_id != line_consignee_id:
-                raise orm.except_orm(
-                    _('Error'),
-                    _('The lines do not have the same consignee.'))
-            line_dest_address_id = line.requisition_id.consignee_shipping_id.id
-            if dest_address_id is None:
-                dest_address_id = line_dest_address_id
-            elif dest_address_id != line_dest_address_id:
-                raise orm.except_orm(
-                    _('Error'),
-                    _('The lines do not have the same delivery address.'))
-        return {'user_id': user_id or uid,
-                'company_id': company_id,
-                'consignee_id': consignee_id,
-                'dest_address_id': dest_address_id,
-                'warehouse_id': warehouse_id,
-                'line_ids': [(0, 0, line) for line in rfq_lines],
-                'origin': ", ".join(origin),
-                }
-
-    def _prepare_po_requisition_line(self, cr, uid, line, context=None):
-        if line.po_requisition_id:
-            raise orm.except_orm(
-                _('Existing'),
-                _('The logistic requisition line %d is '
-                  'already linked to a Request for Tender.') % line.id)
-        if not line.product_id:
-            raise orm.except_orm(
-                _('Missing information'),
-                _('The logistic requisition line %d '
-                  'does not have any product defined, '
-                  'please choose one.') % line.id)
-        return {'product_id': line.product_id.id,
-                'product_uom_id': line.requested_uom_id.id,
-                'product_qty': line.requested_qty,
-                'schedule_date': line.date_delivery,
-                'logistic_requisition_line_id': line.id,
-                }
-
-    def _action_create_po_requisition(self, cr, uid, ids, context=None):
-        rfq_obj = self.pool.get('purchase.requisition')
-        rfq_lines = []
-        lines = self.browse(cr, uid, ids, context=context)
-        for line in lines:
-            vals = self._prepare_po_requisition_line(cr, uid, line,
-                                                     context=context)
-            rfq_lines.append(vals)
-        vals = self._prepare_po_requisition(cr, uid,
-                                            lines,
-                                            rfq_lines,
-                                            context=context)
-        rfq_id = rfq_obj.create(cr, uid, vals, context=context)
-        self.write(cr, uid, ids,
-                   {'po_requisition_id': rfq_id},
-                   context=context)
-        return rfq_id
-
-    def action_create_po_requisition(self, cr, uid, ids, context=None):
-        rfq_id = self._action_create_po_requisition(cr, uid, ids, context=context)
-        return {
-            'type': 'ir.actions.act_window',
-            'name': _('Request for Tender'),
-            'res_model': 'purchase.requisition',
-            'res_id': rfq_id,
-            'view_type': 'form',
-            'view_mode': 'form',
-            'target': 'current',
-            'nodestroy': True,
-        }
+    def _get_unit_amount_line(self, cr, uid, ids, prop, unknow_none, unknow_dict, context=None):
+        res = {}
+        for line in self.browse(cr, uid, ids, context=context):
+            price = line.budget_tot_price / line.requested_qty
+            res[line.id] = price
+        return res
 
     def view_stock_by_location(self, cr, uid, ids, context=None):
-        if context is None:
-            context = {}
-        product_id = set()
-        for line in self.browse(cr, uid, ids, context=context):
-            if line.product_id:
-                product_id.add(line.product_id.id)
-        assert len(product_id) == 1, (
-            "You can only have stock by location for one product")
+        assert len(ids) == 1, "Expected only 1 ID"
+        line = self.browse(cr, uid, ids, context=context)
         return {
             'name': _('Stock by Location'),
             'view_mode': 'tree',
             'res_model': 'stock.location',
             'target': 'current',
             'view_id': False,
-            'context': {'product_id': product_id.pop()},
+            'context': {'product_id': line.product_id.id},
             'domain': [('usage', '=', 'internal')],
             'type': 'ir.actions.act_window',
         }
 
     def view_price_by_location(self, cr, uid, ids, context=None):
+        assert len(ids) == 1, "Expected only 1 ID"
         price_obj = self.pool.get('product.pricelist')
-        if context is None:
-            context = {}
-        product_id = set()
-        for line in self.browse(cr, uid, ids, context=context):
-            if line.product_id:
-                product_id.add(line.product_id.id)
-        assert len(product_id) == 1, (
-            "You can only have price by location for one product")
+        line = self.browse(cr, uid, ids[0], context=context)
         ctx = {"search_default_name": line.product_id.name}
-        pricelist = line.dispatch_location_id and line.dispatch_location_id.name
-        if pricelist:
-            price_l_id = price_obj.search(cr, uid,
-                                          [('name', 'like', pricelist)],
-                                          context=context)
+        if line.dispatch_location_id:
+            price_l_id = price_obj.search(
+                cr, uid,
+                [('name', 'like', line.dispatch_location_id.name)],
+                context=context)
             ctx['pricelist'] = price_l_id
         return {
             'name': _('Prices for location'),
@@ -893,34 +637,13 @@ class logistic_requisition_line(orm.Model):
             'type': 'ir.actions.act_window',
         }
 
-    def _get_unit_amount_line(self, cr, uid, ids, prop, unknow_none, unknow_dict, context=None):
-        res = {}
-        for line in self.browse(cr, uid, ids, context=context):
-            price = line.budget_tot_price / line.requested_qty
-            res[line.id] = price
-        return res
-
-    def _get_total_cost(self, cr, uid, ids, prop, unknow_none, unknow_dict, context=None):
-        res = {}
-        for line in self.browse(cr, uid, ids, context=context):
-            res[line.id] = line.unit_cost * line.proposed_qty
-        return res
-
     def copy_data(self, cr, uid, id, default=None, context=None):
         if default is None:
             default = {}
         std_default = {
             'logistic_user_id': False,
-            'transport_plan_id': False,
-            'date_etd': False,
-            'date_eta': False,
-            'po_requisition_id': False,
-            'selected_po_id': False,
-            'cost_estimate_id': False,
-            'bid_line_id': False,
-            'purchase_requisition_line_ids': False,
             'name': False,
-            'offer_ids': False,
+            'cost_estimate_id': False,
         }
         std_default.update(default)
         return super(logistic_requisition_line, self).copy_data(
@@ -991,6 +714,359 @@ class logistic_requisition_line(orm.Model):
             }
         return {'value': value}
 
+    def button_create_cost_estimate(self, cr, uid, ids, context=None):
+        data_obj = self.pool.get('ir.model.data')
+        act_obj = self.pool.get('ir.actions.act_window')
+        try:
+            __, action_id = data_obj.get_object_reference(
+                cr, uid, 'logistic_requisition',
+                'action_logistic_requisition_cost_estimate')
+        except ValueError:
+            action_id = False
+        return act_obj.read(cr, uid, action_id, context=context)
+
+    def button_sourced(self, cr, uid, ids, context=None):
+        self._do_sourced(cr, uid, ids, context=context)
+        return True
+
+    def _open_cost_estimate(self, cr, uid, estimate_id, context=None):
+        return {
+            'name': _('Cost Estimate'),
+            'view_mode': 'form',
+            'res_model': 'sale.order',
+            'res_id': estimate_id,
+            'target': 'current',
+            'view_id': False,
+            'context': {},
+            'type': 'ir.actions.act_window',
+        }
+
+    def button_open_cost_estimate(self, cr, uid, ids, context=None):
+        assert len(ids) == 1, "Only 1 ID accepted"
+        line = self.browse(cr, uid, ids[0], context=context)
+        return self._open_cost_estimate(cr, uid,
+                                        line.cost_estimate_id.id,
+                                        context=context)
+
+    def button_cancel(self, cr, uid, ids, context=None):
+        self._do_cancel(cr, uid, ids, context=context)
+        return True
+
+    def button_reset(self, cr, uid, ids, context=None):
+        self._do_confirm(cr, uid, ids, context=None)
+        return True
+
+
+class logistic_requisition_source(orm.Model):
+    _name = "logistic.requisition.source"
+    _description = "Logistic Requisition Source"
+    _inherit = ['mail.thread']
+
+    PRICE_IS_SELECTION = [('fixed', 'Fixed'),
+                          ('estimated', 'Estimated'),
+                          ]
+
+    SOURCED_STATES = {'sourced': [('readonly', True)],
+                      'quoted': [('readonly', True)]
+                      }
+
+    def _purchase_line_id(self, cr, uid, ids, field_name, arg, context=None):
+        """ For each line, returns the generated purchase line from the
+        purchase requisition.
+        """
+        result = {}
+        for line in self.browse(cr, uid, ids, context=context):
+            bid_line = line.bid_line_id
+            if not bid_line:
+                continue
+            po_lines = bid_line.po_line_from_bid_ids
+            if not po_lines:
+                continue
+            assert len(po_lines) == 1, (
+                "We should not have several purchase order lines "
+                "for a logistic requisition line")
+            result[line.id] = po_lines[0].id if po_lines else False
+        return result
+
+    _columns = {
+        'name': fields.char('Source Name', readonly=True),
+        'requisition_line_id': fields.many2one(
+            'logistic.requisition.line',
+            'Requisition Line',
+            readonly=True,
+            required=True,
+            ondelete='cascade'),
+        'state': fields.related(
+            'requisition_line_id', 'state',
+            type='selection',
+            selection=logistic_requisition_line.STATES,
+            string='Line\'s State',
+            readonly=True),
+        'po_requisition_id': fields.many2one(
+            'purchase.requisition', 'Purchase Requisition',
+            readonly=True),
+        'proposed_qty': fields.float(
+            'Proposed Qty',
+            states=SOURCED_STATES,
+            digits_compute=dp.get_precision('Product UoM')),
+        # to be able to display the UOM next to the qty
+        'proposed_uom_id': fields.related('requisition_line_id',
+                                          'requested_uom_id',
+                                          string='Proposed UoM',
+                                          type='many2one',
+                                          relation='product.uom',
+                                          readonly=True),
+        'procurement_method': fields.selection(
+            [('procurement', 'Procurement'),
+             ('wh_dispatch', 'Warehouse Dispatch'),
+             ('fw_agreement', 'Framework Agreement'),
+             ],
+            string='Procurement Method',
+            states=SOURCED_STATES),
+        'dispatch_location_id': fields.many2one(
+            'stock.location',
+            string='Dispatch From',
+            states=SOURCED_STATES),
+        'stock_owner': fields.related(
+            'dispatch_location_id', 'owner_id',
+            type='many2one',
+            relation='res.partner',
+            string='Stock Owner',
+            readonly=True),
+        # NOTE: date that should be used for the stock move reservation
+        'date_etd': fields.date('ETD',
+                                states=SOURCED_STATES,
+                                help="Estimated Date of Departure"),
+        'date_eta': fields.date('ETA',
+                                states=SOURCED_STATES,
+                                help="Estimated Date of Arrival"),
+        'offer_ids': fields.one2many('sale.order.line',
+                                     'logistic_requisition_source_id',
+                                     'Sales Quotation Lines',
+                                     readonly=True),
+        'unit_cost': fields.float(
+            'Unit Cost',
+            states=SOURCED_STATES,
+            digits_compute=dp.get_precision('Account')),
+        'total_cost': fields.function(
+            lambda self, *args, **kwargs: self._get_total_cost(*args, **kwargs),
+            string='Total Cost',
+            type='float',
+            digits_compute=dp.get_precision('Account'),
+            store=True),
+        'transport_applicable': fields.boolean(
+            'Transport Applicable',
+            states=SOURCED_STATES),
+        'transport_plan_id': fields.many2one(
+            'transport.plan',
+            string='Transport Plan',
+            states=SOURCED_STATES),
+        'price_is': fields.selection(
+            PRICE_IS_SELECTION,
+            string='Price is',
+            required=True,
+            help="When the price is an estimation, the final price may change."
+                 " I.e. it is not based on a request for quotation."),
+        # when filled, it means that it has been associated with a
+        # bid order line during the split process
+        'bid_line_id': fields.many2one('purchase.order.line',
+                                       'Purchase Order Line',
+                                       readonly=True),
+        'purchase_line_id': fields.function(
+            _purchase_line_id,
+            type='many2one',
+            relation='purchase.order.line',
+            readonly=True,
+            string='Purchase Order Line'),
+        'selected_po_id': fields.related('purchase_line_id',
+                                         'order_id',
+                                         type='many2one',
+                                         relation='purchase.order',
+                                         string='Selected Purchase Order',
+                                         readonly=True),
+        'purchase_requisition_line_ids': fields.one2many(
+            'purchase.requisition.line', 'logistic_requisition_source_id',
+            'Purchase Requisition Lines',
+            readonly=True),
+        # needed to set the default destination address of the transport plan
+        # when created from the lr line view
+        'consignee_shipping_id': fields.related(
+            'requisition_line_id', 'requisition_id', 'consignee_shipping_id',
+            type='many2one', relation='res.partner',
+            string='Delivery Address', readonly=True),
+        # 2 fields below needed to set the default origin address
+        # of the transport plan when created from the lr line view
+        'supplier_partner_id': fields.related(
+            'selected_po_id', 'partner_id',
+            type='many2one', relation='res.partner',
+            string='Supplier Address', readonly=True),
+        'location_partner_id': fields.related(
+            'dispatch_location_id', 'partner_id',
+            type='many2one', relation='res.partner',
+            string='Location Address', readonly=True)
+    }
+
+    _defaults = {
+        'transport_applicable': True,
+        'price_is': 'fixed',
+        'name': '/',
+    }
+
+    def _check_transport_plan(self, cr, uid, ids, context=None):
+        lines = self.browse(cr, uid, ids, context=context)
+        states = ('sourced', 'quoted')
+        for line in lines:
+            if (line.transport_applicable and
+                    line.state in states and
+                    not line.transport_plan_id):
+                return False
+        return True
+
+    def _logistic_requisition_unique(self, cr, uid, ids, context=None):
+        for line in self.browse(cr, uid, ids, context=context):
+            if not line.transport_plan_id:
+                continue
+            plan = line.transport_plan_id
+            if not plan.logistic_requisition_id:
+                continue
+            if plan.logistic_requisition_id != line.requisition_id:
+                return False
+        return True
+
+    _constraints = [
+        (_check_transport_plan,
+         'Transport plan is mandatory for sourced requisition lines '
+         'when the transport is applicable.',
+         ['transport_plan_id']),
+        (_logistic_requisition_unique,
+         "A transport plan cannot be linked to lines of different "
+         "logistic requisitions.",
+         ['transport_plan_id']),
+    ]
+
+    def _prepare_po_requisition(self, cr, uid, sources, purch_req_lines, context=None):
+        company_id = None
+        user_id = None
+        consignee_id = None
+        dest_address_id = None
+        warehouse_id = False  # TODO: always empty, where does it comes from?
+        origin = []
+        for line in sources:
+            origin.append(line.name)
+            line_user_id = line.logistic_user_id.id
+            if user_id is None:
+                user_id = line_user_id
+            elif user_id != line_user_id:
+                raise orm.except_orm(
+                    _('Error'),
+                    _('The lines are not assigned to the same '
+                      'User.'))
+            line_company_id = line.requisition_id.company_id.id
+            if company_id is None:
+                company_id = line_company_id
+            elif company_id != line_company_id:
+                raise orm.except_orm(
+                    _('Error'),
+                    _('The sourcing lines do not belong to the same company.'))
+            line_consignee_id = line.requisition_id.consignee_id.id
+            if consignee_id is None:
+                consignee_id = line_consignee_id
+            elif consignee_id != line_consignee_id:
+                raise orm.except_orm(
+                    _('Error'),
+                    _('The sourcing lines do not have the same consignee.'))
+            line_dest_address_id = line.requisition_id.consignee_shipping_id.id
+            if dest_address_id is None:
+                dest_address_id = line_dest_address_id
+            elif dest_address_id != line_dest_address_id:
+                raise orm.except_orm(
+                    _('Error'),
+                    _('The sourcing lines do not have the '
+                      'same delivery address.'))
+        return {'user_id': user_id or uid,
+                'company_id': company_id,
+                'consignee_id': consignee_id,
+                'dest_address_id': dest_address_id,
+                'warehouse_id': warehouse_id,
+                'line_ids': [(0, 0, rline) for rline in purch_req_lines],
+                'origin': ", ".join(origin),
+                }
+
+    def _prepare_po_requisition_line(self, cr, uid, line, context=None):
+        if line.po_requisition_id:
+            raise orm.except_orm(
+                _('Existing'),
+                _('The logistic requisition sourcing line %s is '
+                  'already linked to a Purchase Requisition.') % line.name)
+        if not line.product_id:
+            raise orm.except_orm(
+                _('Missing information'),
+                _('The logistic requisition sourcing line %d '
+                  'does not have any product defined, '
+                  'please choose one.') % line.id)
+        return {'product_id': line.product_id.id,
+                'product_uom_id': line.requested_uom_id.id,
+                'product_qty': line.requested_qty,
+                'schedule_date': line.date_delivery,
+                'logistic_requisition_line_id': line.id,
+                }
+
+    def _action_create_po_requisition(self, cr, uid, ids, context=None):
+        purch_req_obj = self.pool.get('purchase.requisition')
+        purch_req_lines = []
+        lines = self.browse(cr, uid, ids, context=context)
+        for line in lines:
+            vals = self._prepare_po_requisition_line(cr, uid, line,
+                                                     context=context)
+            purch_req_lines.append(vals)
+        vals = self._prepare_po_requisition(cr, uid,
+                                            lines,
+                                            purch_req_lines,
+                                            context=context)
+        purch_req_id = purch_req_obj.create(cr, uid, vals, context=context)
+        self.write(cr, uid, ids,
+                   {'po_requisition_id': purch_req_id},
+                   context=context)
+        return purch_req_id
+
+    def action_create_po_requisition(self, cr, uid, ids, context=None):
+        purch_req_id = self._action_create_po_requisition(
+            cr, uid, ids, context=context)
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Purchase Requisition'),
+            'res_model': 'purchase.requisition',
+            'res_id': purch_req_id,
+            'view_type': 'form',
+            'view_mode': 'form',
+            'target': 'current',
+            'nodestroy': True,
+        }
+
+    def _get_total_cost(self, cr, uid, ids, prop, unknow_none, unknow_dict, context=None):
+        res = {}
+        for line in self.browse(cr, uid, ids, context=context):
+            res[line.id] = line.unit_cost * line.proposed_qty
+        return res
+
+    def copy_data(self, cr, uid, id, default=None, context=None):
+        if default is None:
+            default = {}
+        std_default = {
+            'transport_plan_id': False,
+            'date_etd': False,
+            'date_eta': False,
+            'po_requisition_id': False,
+            'selected_po_id': False,
+            'bid_line_id': False,
+            'purchase_requisition_line_ids': False,
+            'name': False,
+            'offer_ids': False,
+        }
+        std_default.update(default)
+        return super(logistic_requisition_source, self).copy_data(
+            cr, uid, id, default=std_default, context=context)
+
     def onchange_transport_plan_id(self, cr, uid, ids, transport_plan_id, context=None):
         value = {'date_eta': False,
                  'date_etd': False}
@@ -1043,80 +1119,27 @@ class logistic_requisition_line(orm.Model):
                                  _('Please provide a positive quantity '
                                    'to extract.'))
 
-        line_obj = self.pool.get('logistic.requisition.line')
-        for line in line_obj.browse(cr, uid, ids, context=context):
-            if quantity == line.requested_qty:
+        for line in self.browse(cr, uid, ids, context=context):
+            if quantity == line.proposed_qty:
                 continue
 
-            elif quantity > line.requested_qty:
+            elif quantity > line.proposed_qty:
                 raise orm.except_orm(_('Error'),
                                      _('Split quantity exceeds '
                                        'the quantity of this line: %s') %
                                      line.name)
 
-            remaining = line.requested_qty - quantity
-            total_budget = line.budget_tot_price
-            budget_value = (total_budget / line.requested_qty) * remaining
-            line.write({'requested_qty': remaining,
-                        'budget_tot_price': budget_value})
+            remaining = line.proposed_qty - quantity
+            line.write({'proposed_qty': remaining})
 
             default_vals = {
-                'requested_qty': quantity,
-                'budget_tot_price': total_budget - budget_value,
-                'state': line.state,
-                'logistic_user_id': line.logistic_user_id.id,
+                'proposed_qty': quantity,
                 'date_eta': line.date_eta,
                 'date_etd': line.date_etd,
                 'transport_applicable': line.transport_applicable,
-                'cost_estimate_id': line.cost_estimate_id.id,
                 'transport_plan_id': line.transport_plan_id.id,
             }
-            # TODO: Think to implement messaging posting on new
-            # generated line, we want to explicit that we split the
-            # line, warn the concerned users about it, etc..
-            new_id = line_obj.copy(cr, uid, line.id,
-                                   default=default_vals,
-                                   context=context)
+            new_id = self.copy(cr, uid, line.id,
+                               default=default_vals,
+                               context=context)
             return new_id
-
-    def button_create_cost_estimate(self, cr, uid, ids, context=None):
-        data_obj = self.pool.get('ir.model.data')
-        act_obj = self.pool.get('ir.actions.act_window')
-        try:
-            __, action_id = data_obj.get_object_reference(
-                cr, uid, 'logistic_requisition',
-                'action_logistic_requisition_cost_estimate')
-        except ValueError:
-            action_id = False
-        return act_obj.read(cr, uid, action_id, context=context)
-
-    def button_sourced(self, cr, uid, ids, context=None):
-        self._do_sourced(cr, uid, ids, context=context)
-        return True
-
-    def _open_cost_estimate(self, cr, uid, estimate_id, context=None):
-        return {
-            'name': _('Cost Estimate'),
-            'view_mode': 'form',
-            'res_model': 'sale.order',
-            'res_id': estimate_id,
-            'target': 'current',
-            'view_id': False,
-            'context': {},
-            'type': 'ir.actions.act_window',
-        }
-
-    def button_open_cost_estimate(self, cr, uid, ids, context=None):
-        assert len(ids) == 1, "Only 1 ID accepted"
-        line = self.browse(cr, uid, ids[0], context=context)
-        return self._open_cost_estimate(cr, uid,
-                                        line.cost_estimate_id.id,
-                                        context=context)
-
-    def button_cancel(self, cr, uid, ids, context=None):
-        self._do_cancel(cr, uid, ids, context=context)
-        return True
-
-    def button_reset(self, cr, uid, ids, context=None):
-        self._do_confirm(cr, uid, ids, context=None)
-        return True
