@@ -18,7 +18,7 @@
                 <notebook>
                     <page string="Sourced">
                         <group>
-                            <field name="sourced_line_ids" nolabel="1"/>
+                            <field name="line_ids" nolabel="1"/>
                         </group>
                     </page>
                     <page string="Skipped">

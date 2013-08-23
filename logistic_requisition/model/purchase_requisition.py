@@ -134,7 +134,7 @@ class purchase_requisition(orm.Model):
                 "got: %s" % id)
             id = id[0]
         purchase_requisition = self.browse(cr, uid, id, context=context)
-        completed_items = self._prepare_split_logistic_lines(
+        completed_items = self._prepare_split_logistic_source(
             cr, uid, purchase_requisition, context=context)
         req_line_obj = self.pool.get('logistic.requisition.source')
         for item in completed_items:

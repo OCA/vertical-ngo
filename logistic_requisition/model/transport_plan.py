@@ -39,7 +39,7 @@ class transport_plan(orm.Model):
             req_ids[plan.id] = req_id
         return req_ids
 
-    def _get_tp_from_lr_line(self, cr, uid, ids, context=None):
+    def _get_tp_from_lrs_line(self, cr, uid, ids, context=None):
         lrs_line_obj = self.pool.get('logistic.requisition.source')
         tp_ids = set()
         for line in lrs_line_obj.browse(cr, uid, ids, context=context):
@@ -67,13 +67,6 @@ class transport_plan(orm.Model):
             _get_requisition_id,
             type='many2one',
             relation='logistic.requisition',
-            store={
-                'transport.plan': (lambda self, cr, uid, ids, c=None: ids,
-                                   ['logistic_requisition_source_ids'], 10),
-                'logistic.requisition.line': (_get_tp_from_lr_line,
-                                              ['transport_plan_id'],
-                                              10),
-            },
             string='Logistic Requisition'),
         'product_id': fields.many2one(
             'product.product',

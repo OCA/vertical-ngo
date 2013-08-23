@@ -581,8 +581,8 @@ class logistic_requisition_line(orm.Model):
 
     def _do_quoted(self, cr, uid, ids, context=None):
         req_obj = self.pool.get('logistic.requisition')
-        req_ids = list(set(line.requisition_id.id for line
-                           in self.browse(cr, uid, ids, context=context)))
+        lines = self.browse(cr, uid, ids, context=context)
+        req_ids = list(set(line.requisition_id.id for line in lines))
         self.write(cr, uid, ids, {'state': 'quoted'}, context=context)
         # When all lines of a requisition are 'quoted', it should be
         # done, so try to change the state
@@ -603,7 +603,7 @@ class logistic_requisition_line(orm.Model):
 
     def view_stock_by_location(self, cr, uid, ids, context=None):
         assert len(ids) == 1, "Expected only 1 ID"
-        line = self.browse(cr, uid, ids, context=context)
+        line = self.browse(cr, uid, ids[0], context=context)
         return {
             'name': _('Stock by Location'),
             'view_mode': 'tree',
@@ -620,12 +620,12 @@ class logistic_requisition_line(orm.Model):
         price_obj = self.pool.get('product.pricelist')
         line = self.browse(cr, uid, ids[0], context=context)
         ctx = {"search_default_name": line.product_id.name}
-        if line.dispatch_location_id:
-            price_l_id = price_obj.search(
-                cr, uid,
-                [('name', 'like', line.dispatch_location_id.name)],
-                context=context)
-            ctx['pricelist'] = price_l_id
+        # if line.dispatch_location_id:
+        #     price_l_id = price_obj.search(
+        #         cr, uid,
+        #         [('name', 'like', line.dispatch_location_id.name)],
+        #         context=context)
+        #     ctx['pricelist'] = price_l_id
         return {
             'name': _('Prices for location'),
             'view_mode': 'tree',
@@ -796,6 +796,12 @@ class logistic_requisition_source(orm.Model):
             readonly=True,
             required=True,
             ondelete='cascade'),
+        'requisition_id': fields.related(
+            'requisition_line_id', 'requisition_id',
+            type='many2one',
+            relation='logistic.requisition',
+            string='Logistic Requisition',
+            readonly=True),
         'state': fields.related(
             'requisition_line_id', 'state',
             type='selection',
@@ -953,7 +959,7 @@ class logistic_requisition_source(orm.Model):
         origin = []
         for line in sources:
             origin.append(line.name)
-            line_user_id = line.logistic_user_id.id
+            line_user_id = line.requisition_line_id.logistic_user_id.id
             if user_id is None:
                 user_id = line_user_id
             elif user_id != line_user_id:
@@ -998,17 +1004,17 @@ class logistic_requisition_source(orm.Model):
                 _('Existing'),
                 _('The logistic requisition sourcing line %s is '
                   'already linked to a Purchase Requisition.') % line.name)
-        if not line.product_id:
+        if not line.requisition_line_id.product_id:
             raise orm.except_orm(
                 _('Missing information'),
                 _('The logistic requisition sourcing line %d '
                   'does not have any product defined, '
                   'please choose one.') % line.id)
-        return {'product_id': line.product_id.id,
-                'product_uom_id': line.requested_uom_id.id,
-                'product_qty': line.requested_qty,
-                'schedule_date': line.date_delivery,
-                'logistic_requisition_line_id': line.id,
+        return {'product_id': line.requisition_line_id.product_id.id,
+                'product_uom_id': line.proposed_uom_id.id,
+                'product_qty': line.proposed_qty,
+                'schedule_date': line.requisition_line_id.date_delivery,
+                'logistic_requisition_source_id': line.id,
                 }
 
     def _action_create_po_requisition(self, cr, uid, ids, context=None):
