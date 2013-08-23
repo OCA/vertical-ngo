@@ -165,6 +165,20 @@ class purchase_requisition(orm.Model):
         self._split_completed_items(cr, uid, ids, context=context)
         return result
 
+    def _prepare_po_line_from_tender(self, cr, uid, tender, line,
+                                     purchase_id, context=None):
+        """ Prepare the values to write in the purchase order line
+        created for a line of the tender.
+
+        :param tender: the source tender from which we generate a purchase order
+        :param line: the source tender's line from which we generate a line
+        :param purchase_id: the id of the new purchase
+        """
+        vals = super(purchase_requisition, self)._prepare_po_line_from_tender(
+            cr, uid, tender, line, purchase_id, context=context)
+        vals['from_bid_line_id'] = line.id
+        return vals
+
 
 class purchase_requisition_line(orm.Model):
     _inherit = 'purchase.requisition.line'

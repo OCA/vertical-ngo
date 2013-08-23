@@ -426,20 +426,17 @@ class logistic_requisition_line(orm.Model):
         result = {}
         purch_req_line_obj = self.pool.get('purchase.requisition.line')
         po_line_obj = self.pool.get('purchase.order.line')
-        for line_id in ids:
-            purch_req_line_ids = purch_req_line_obj.search(
-                cr, uid,
-                [('logistic_requisition_line_id', '=', line_id)],
-                context=context)
-            po_line_ids = po_line_obj.search(
-                cr, uid,
-                [('requisition_line_id', 'in', purch_req_line_ids),
-                 ('order_id.type', '=', 'purchase')],
-                context=context)
-            assert len(po_line_ids) < 2, (
+        for line in self.browse(cr, uid, ids, context=context):
+            bid_line = line.bid_line_id
+            if not bid_line:
+                continue
+            po_lines = bid_line.po_line_from_bid_ids
+            if not po_lines:
+                continue
+            assert len(po_lines) == 1, (
                 "We should not have several purchase order lines "
                 "for a logistic requisition line")
-            result[line_id] = po_line_ids[0] if po_line_ids else False
+            result[line.id] = po_lines[0].id if po_lines else False
         return result
 
     _columns = {
