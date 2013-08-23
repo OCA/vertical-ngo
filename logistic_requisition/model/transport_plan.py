@@ -33,16 +33,16 @@ class transport_plan(orm.Model):
         req_ids = {}
         for plan in self.browse(cr, uid, ids, context=context):
             req_id = False
-            if plan.logistic_requisition_line_ids:
-                lines = plan.logistic_requisition_line_ids[0]
-                req_id = lines.requisition_id.id
+            if plan.logistic_requisition_source_ids:
+                line = plan.logistic_requisition_source_ids[0]
+                req_id = line.requisition_line_id.requisition_id.id
             req_ids[plan.id] = req_id
         return req_ids
 
     def _get_tp_from_lr_line(self, cr, uid, ids, context=None):
-        lr_line_obj = self.pool.get('logistic.requisition.line')
+        lrs_line_obj = self.pool.get('logistic.requisition.source')
         tp_ids = set()
-        for line in lr_line_obj.browse(cr, uid, ids, context=context):
+        for line in lrs_line_obj.browse(cr, uid, ids, context=context):
             if line.transport_plan_id:
                 tp_ids.add(line.transport_plan_id.id)
         return list(tp_ids)
@@ -59,9 +59,9 @@ class transport_plan(orm.Model):
             return res_id
 
     _columns = {
-        'logistic_requisition_line_ids': fields.one2many(
-            'logistic.requisition.line', 'transport_plan_id',
-            string='Logistic Requisition Lines',
+        'logistic_requisition_source_ids': fields.one2many(
+            'logistic.requisition.source', 'transport_plan_id',
+            string='Logistic Requisition Source Lines',
             readonly=True),
         'logistic_requisition_id': fields.function(
             _get_requisition_id,
@@ -69,12 +69,12 @@ class transport_plan(orm.Model):
             relation='logistic.requisition',
             store={
                 'transport.plan': (lambda self, cr, uid, ids, c=None: ids,
-                                   ['logistic_requisition_line_ids'], 10),
+                                   ['logistic_requisition_source_ids'], 10),
                 'logistic.requisition.line': (_get_tp_from_lr_line,
                                               ['transport_plan_id'],
                                               10),
             },
-            string='Requisition'),
+            string='Logistic Requisition'),
         'product_id': fields.many2one(
             'product.product',
             string='Product',
@@ -101,5 +101,5 @@ class transport_plan(orm.Model):
         (_logistic_requisition_unique,
          "A transport plan cannot be linked to lines of different "
          "logistic requisitions.",
-         ['logistic_requisition_line_ids']),
+         ['logistic_requisition_source_ids']),
     ]

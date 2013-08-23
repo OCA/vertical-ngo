@@ -33,7 +33,7 @@ from openerp import SUPERUSER_ID
 # line should be a new line or if we have to keep the existing one
 # (a newline will be a split of the `requisition_line`).
 CompletedItem = namedtuple('CompletedItem',
-                           ('requisition_line',
+                           ('requisition_source',
                             'purchase_line',
                             'newline',
                             'quantity',
@@ -44,17 +44,17 @@ class purchase_requisition(orm.Model):
     _inherit = 'purchase.requisition'
 
     _columns = {
-        'logistic_requisition_line_ids': fields.one2many(
-            'logistic.requisition.line', 'po_requisition_id',
-            string='Logistic Requisition Lines',
+        'logistic_requisition_source_ids': fields.one2many(
+            'logistic.requisition.source', 'po_requisition_id',
+            string='Logistic Requisition Sourcing Lines',
             readonly=True),
     }
 
-    def _prepare_split_logistic_lines(self, cr, uid, purchase_requisition, context=None):
+    def _prepare_split_logistic_source(self, cr, uid, purchase_requisition, context=None):
         """ Prepare the split of the logistic requisition lines
         according to the selected lines """
-        requisition_lines = purchase_requisition.logistic_requisition_line_ids
-        if not requisition_lines:
+        req_sources = purchase_requisition.logistic_requisition_source_ids
+        if not req_sources:
             return []
         all_po_lines = [line for line in purchase_requisition.po_line_ids
                         if line.state == 'confirmed' and line.quantity_bid]
@@ -63,29 +63,30 @@ class purchase_requisition(orm.Model):
         all_po_lines = sorted(all_po_lines,
                               key=attrgetter('quantity_bid'),
                               reverse=True)
-        requisition_lines = sorted(requisition_lines,
-                                   key=attrgetter('proposed_qty'),
-                                   reverse=True)
+        req_sources = sorted(req_sources,
+                             key=attrgetter('proposed_qty'),
+                             reverse=True)
         # requisition lines linked with the purchase order line and
         # completed with the final quantity
         dp_obj = self.pool.get('decimal.precision')
         precision = dp_obj.precision_get(cr, SUPERUSER_ID,
                                          'Product Unit of Measure')
         completed_items = []
-        for rline in requisition_lines[:]:
-            remaining = rline.requested_qty
+        for rline in req_sources[:]:
+            remaining = rline.proposed_qty
             newline = False
             po_lines = [po_line for po_line in all_po_lines
-                        if rline == po_line.requisition_line_id.logistic_requisition_line_id]
+                        if rline == po_line.requisition_line_id.logistic_requisition_source_id]
             for po_line in po_lines:
 
-                if rline.product_id != po_line.product_id:
+                req_line = rline.requisition_line_id
+                if req_line.product_id != po_line.product_id:
                     raise orm.except_orm(
                         _('Error'),
                         _("The product is not the same between the purchase "
                           "order line and the logistic requisition line %s. "
                           "This is not supported.") % rline.name)
-                if rline.requested_uom_id != po_line.product_uom:
+                if req_line.requested_uom_id != po_line.product_uom:
                     raise orm.except_orm(
                         _('Error'),
                         _("The unit of measure is not the same between "
@@ -98,11 +99,12 @@ class purchase_requisition(orm.Model):
                 # precision
                 compare = float_compare(remaining, 0,
                                         precision_digits=precision)
+                # TODO: extend the proposed_qty when >= 0
                 assert compare >= 0, (
                     "Should not be able to select a bigger quantity in "
                     "purchase lines than requested in logistic requisition lines")
 
-                current = CompletedItem(requisition_line=rline,
+                current = CompletedItem(requisition_source=rline,
                                         purchase_line=po_line,
                                         newline=newline,
                                         quantity=po_line.quantity_bid)
@@ -114,7 +116,7 @@ class purchase_requisition(orm.Model):
             if not float_is_zero(remaining, precision):
                 # the selected quantity in purchase lines is less
                 # than the requested quantity
-                rest_item = CompletedItem(requisition_line=rline,
+                rest_item = CompletedItem(requisition_source=rline,
                                           purchase_line=None,
                                           newline=newline,
                                           quantity=remaining)
@@ -122,7 +124,7 @@ class purchase_requisition(orm.Model):
         return completed_items
 
     def _split_completed_items(self, cr, uid, id, context=None):
-        """ Effectively split the logistic requisition lines
+        """ Effectively split the logistic requisition source lines
 
         :param completed_items: list of CompletedItem instances
         """
@@ -134,7 +136,7 @@ class purchase_requisition(orm.Model):
         purchase_requisition = self.browse(cr, uid, id, context=context)
         completed_items = self._prepare_split_logistic_lines(
             cr, uid, purchase_requisition, context=context)
-        req_line_obj = self.pool.get('logistic.requisition.line')
+        req_line_obj = self.pool.get('logistic.requisition.source')
         for item in completed_items:
             vals = {'price_is': 'fixed',
                     'proposed_qty': item.quantity,
@@ -146,13 +148,13 @@ class purchase_requisition(orm.Model):
                 })
 
             if item.newline:
-                origin = item.requisition_line
+                origin = item.requisition_source
                 line_id = origin.split(item.quantity)
                 vals.update({
                     'po_requisition_id': origin.po_requisition_id.id,
                 })
             else:
-                line_id = item.requisition_line.id
+                line_id = item.requisition_source.id
             req_line_obj.write(cr, uid, [line_id], vals, context=context)
 
     def close_callforbids_ok(self, cr, uid, ids, context=None):
@@ -183,8 +185,8 @@ class purchase_requisition(orm.Model):
 class purchase_requisition_line(orm.Model):
     _inherit = 'purchase.requisition.line'
     _columns = {
-        'logistic_requisition_line_id': fields.many2one(
-            'logistic.requisition.line',
-            string='Logistic Requisition Line',
+        'logistic_requisition_source_id': fields.many2one(
+            'logistic.requisition.source',
+            string='Logistic Requisition Source Line',
             readonly=True),
     }

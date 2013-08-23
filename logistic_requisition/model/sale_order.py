@@ -4,7 +4,7 @@ from itertools import groupby
 from openerp.osv import orm, fields
 from openerp import netsvc
 from openerp.tools.translate import _
-from .logistic_requisition import logistic_requisition_line
+from .logistic_requisition import logistic_requisition_source
 
 
 class sale_order(orm.Model):
@@ -37,14 +37,14 @@ class sale_order(orm.Model):
         purchase_ids = set()
         for sale_line in order_lines:
             purchase_line = None
-            logistic_req_line = sale_line.requisition_line_id
-            if logistic_req_line:
-                if not logistic_req_line.purchase_line_id:
+            logistic_req_source = sale_line.logistic_requisition_source_id
+            if logistic_req_source:
+                if not logistic_req_source.purchase_line_id:
                     raise orm.except_orm(
                         _('Error'),
                         _('The logistic requisition line %s has no '
-                          'purchase order line.') % logistic_req_line.name)
-                purchase_line = logistic_req_line.purchase_line_id
+                          'purchase order line.') % logistic_req_source.name)
+                purchase_line = logistic_req_source.purchase_line_id
                 purchase_ids.add(purchase_line.order_id.id)
 
             else:  # no logistic requisition line
@@ -137,11 +137,12 @@ class sale_order(orm.Model):
 class sale_order_line(orm.Model):
     _inherit = "sale.order.line"
     _columns = {
-        'requisition_line_id': fields.many2one('logistic.requisition.line',
-                                               'Requisition Line',
-                                               ondelete='restrict'),
+        'logistic_requisition_source_id': fields.many2one(
+            'logistic.requisition.source',
+            'Requisition Source',
+            ondelete='restrict'),
         'price_is': fields.selection(
-            logistic_requisition_line.PRICE_IS_SELECTION,
+            logistic_requisition_source.PRICE_IS_SELECTION,
             string='Price is',
             help="When the price is an estimation, the final price may change. "
                  "I.e. it is not based on a request for quotation.")
@@ -169,9 +170,9 @@ class sale_order_line(orm.Model):
         result = super(sale_order_line, self).button_confirm(cr, uid, ids, context=context)
         purchase_requisitions = set()
         for line in self.browse(cr, uid, ids, context=context):
-            if not line.requisition_line_id:
+            if not line.logistic_requisition_source_id:
                 continue
-            purchase_req = line.requisition_line_id.po_requisition_id
+            purchase_req = line.logistic_requisition_source_id.po_requisition_id
             if purchase_req:
                 purchase_requisitions.add(purchase_req)
         # Beware! generate_po() accepts a list of ids, but discards the
