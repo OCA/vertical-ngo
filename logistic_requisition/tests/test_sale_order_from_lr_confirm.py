@@ -64,46 +64,49 @@ class test_sale_order_from_lr_confirm(common.TransactionCase):
             'finance_officer_id': self.user_demo,
         }
 
-        self.lines = [{
+        self.line1 = {
             'product_id': self.product_16,  # MTO
             'requested_qty': 100,
-            'proposed_qty': 100,
             'requested_uom_id': self.product_uom_pce,
             'date_delivery': time.strftime(D_FMT),
             'budget_tot_price': 10000,
+            'account_code': '1234',
+        }
+        self.source1 = {
+            'proposed_qty': 100,
+            'unit_cost': 10,
             'transport_applicable': 0,
             'procurement_method': 'procurement',
             'price_is': 'estimated',
-            'account_code': '1234',
-        }]
+        }
 
     def test_mto_generate_po(self):
         """ The purchase requisition must generate the purchase orders on confirmation of sale order.
 
-        When a logistic requisiton creates a sale order with MTO lines,
+        When a logistic requisition creates a sale order with MTO lines,
         the confirmation of the lines should generates the purchase
         orders on the purchase requisition linked to the logistic
         requisition lines.
         """
         cr, uid = self.cr, self.uid
-        requisition_id, line_ids = logistic_requisition.create(
-            self, self.vals, self.lines)
-        self.assertEquals(len(line_ids), 1)
+        requisition_id = logistic_requisition.create(self, self.vals)
+        line_id = logistic_requisition.add_line(self, requisition_id, self.line1)
+        source_id = logistic_requisition.add_source(self, line_id, self.source1)
         logistic_requisition.confirm(self, requisition_id)
-        logistic_requisition.assign_lines(self, line_ids, self.user_demo)
+        logistic_requisition.assign_lines(self, [line_id], self.user_demo)
         purch_req_id = logistic_requisition.create_purchase_requisition(
-            self, line_ids[0])
+            self, source_id)
         purchase_requisition.confirm_call(self, purch_req_id)
-        purchase, purchase_line = purchase_requisition.create_draft_purchase_order(
+        bid, bid_line = purchase_requisition.create_draft_purchase_order(
             self, purch_req_id, self.partner_1)
-        purchase_line.write({'price_unit': 100})
-        purchase_order.select_line(self, purchase_line.id, 100)
-        purchase_order.bid_encoded(self, purchase.id)
+        bid_line.write({'price_unit': 10})
+        purchase_order.select_line(self, bid_line.id, 100)
+        purchase_order.bid_encoded(self, bid.id)
         purchase_requisition.close_call(self, purch_req_id)
         purchase_requisition.bids_selected(self, purch_req_id)
-        logistic_requisition.source_lines(self, line_ids)
+        logistic_requisition.source_lines(self, [line_id])
         sale_id, __ = logistic_requisition.create_quotation(
-            self, requisition_id, line_ids)
+            self, requisition_id, [line_id])
         # the confirmation of the sale order should generate the
         # purchase order of the purchase requisition
         self.sale_model.action_button_confirm(cr, uid, [sale_id])
@@ -113,3 +116,44 @@ class test_sale_order_from_lr_confirm(common.TransactionCase):
                           "The purchase requisition should be in 'done' state.")
         self.assertEquals(len(purch_req.purchase_ids), 1,
                           "We should have only 1 purchase order.")
+
+    def test_mto_sales_order_line_per_source_line(self):
+        """ 1 sales order line is generated for each source line """
+        cr, uid = self.cr, self.uid
+        requisition_id = logistic_requisition.create(self, self.vals)
+        line_id = logistic_requisition.add_line(self, requisition_id, self.line1)
+        source_id = logistic_requisition.add_source(self, line_id, self.source1)
+        logistic_requisition.confirm(self, requisition_id)
+        logistic_requisition.assign_lines(self, [line_id], self.user_demo)
+        purch_req_id = logistic_requisition.create_purchase_requisition(
+            self, source_id)
+        purchase_requisition.confirm_call(self, purch_req_id)
+        # create 2 purchase requisitions
+        bid1, bid_line1 = purchase_requisition.create_draft_purchase_order(
+            self, purch_req_id, self.partner_1)
+        bid_line1.write({'price_unit': 10})
+        purchase_order.select_line(self, bid_line1.id, 60)
+        purchase_order.bid_encoded(self, bid1.id)
+
+        bid2, bid_line2 = purchase_requisition.create_draft_purchase_order(
+            self, purch_req_id, self.partner_3)
+        bid_line2.write({'price_unit': 10})
+        purchase_order.select_line(self, bid_line2.id, 40)
+        purchase_order.bid_encoded(self, bid2.id)
+
+        purchase_requisition.close_call(self, purch_req_id)
+        purchase_requisition.bids_selected(self, purch_req_id)
+        logistic_requisition.source_lines(self, [line_id])
+        sale_id, sale_line_ids = logistic_requisition.create_quotation(
+            self, requisition_id, [line_id])
+        self.assertEquals(len(sale_line_ids), 2,
+                          "We should have one sales order line per "
+                          "logistic requisition source")
+        sale_line_obj = self.registry('sale.order.line')
+        sale_lines = sale_line_obj.browse(cr, uid, sale_line_ids)
+        lrl_obj = self.registry('logistic.requisition.line')
+        line = lrl_obj.browse(cr, uid, line_id)
+        self.assertEquals(len(line.source_ids), 2)
+        self.assertEquals(sorted([line.source_ids[0].id, line.source_ids[1].id]),
+                          sorted([sl.logistic_requisition_source_id.id for sl
+                                  in sale_lines]))
