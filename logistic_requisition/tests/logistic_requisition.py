@@ -23,18 +23,16 @@
 """
 
 
-def create(test, vals, lines):
+def create(test, vals):
     """ Create a logistic requisition.
 
     :param test: instance of the running test
     :param vals: dict of values to create the requisition
-    :param lines: list with a dict per line to create with their values
-    :returns: a tuple with (id of the requisition created,
-                            [ids of the lines])
+    :returns: id of the logistic requisition
     """
     cr, uid = test.cr, test.uid
     log_req_obj = test.registry('logistic.requisition')
-    log_req_line_obj = test.registry('logistic.requisition.line')
+    vals = vals.copy()
     vals.update(
         log_req_obj.onchange_requester_id(
             cr, uid, [], vals.get('partner_id'))['value']
@@ -57,24 +55,50 @@ def create(test, vals, lines):
             False,
             'date_finance_officer')['value']
     )
-    requisition_id = log_req_obj.create(cr, uid, vals)
-    line_ids = []
-    for row_vals in lines:
-        row_vals['requisition_id'] = requisition_id
-        row_vals.update(
-            log_req_line_obj.onchange_product_id(
-                cr, uid, [],
-                row_vals.get('product_id'),
-                row_vals.get('requested_uom_id'))['value']
-        )
-        row_vals.update(
-            log_req_line_obj.onchange_transport_plan_id(
-                cr, uid, [],
-                row_vals.get('transport_plan_id'))['value']
-        )
-        line_id = log_req_line_obj.create(cr, uid, row_vals)
-        line_ids.append(line_id)
-    return requisition_id, line_ids
+    return log_req_obj.create(cr, uid, vals)
+
+
+def add_line(test, requisition_id, vals):
+    """ Create a logistic requisition line in an existing logistic
+    requisition.
+
+    :param test: instance of the running test
+    :param requisition_id: ID of the requisition
+    :param vals: dict of values to create the requisition line
+    :returns: id of the line
+    """
+    cr, uid = test.cr, test.uid
+    log_req_line_obj = test.registry('logistic.requisition.line')
+    vals = vals.copy()
+    vals['requisition_id'] = requisition_id
+    vals.update(
+        log_req_line_obj.onchange_product_id(
+            cr, uid, [],
+            vals.get('product_id'),
+            vals.get('requested_uom_id'))['value']
+    )
+    return log_req_line_obj.create(cr, uid, vals)
+
+
+def add_source(test, requisition_line_id, vals):
+    """ Create a logistic requisition source in an existing logistic
+    requisition line.
+
+    :param test: instance of the running test
+    :param requisition_line_id: ID of the requisition line
+    :param vals: dict of values to create the requisition line
+    :returns: id of the source line
+    """
+    cr, uid = test.cr, test.uid
+    log_req_source_obj = test.registry('logistic.requisition.source')
+    vals = vals.copy()
+    vals['requisition_line_id'] = requisition_line_id
+    vals.update(
+        log_req_source_obj.onchange_transport_plan_id(
+            cr, uid, [],
+            vals.get('transport_plan_id'))['value']
+    )
+    return log_req_source_obj.create(cr, uid, vals)
 
 
 def confirm(test, requisition_id):
@@ -146,10 +170,10 @@ def create_quotation(test, requisition_id, line_ids):
     return sale_id, sale_line_ids
 
 
-def create_purchase_requisition(test, logistic_line_id):
+def create_purchase_requisition(test, source_id):
     """ Create a purchase requisition for a logistic requisition line """
-    log_req_line_obj = test.registry('logistic.requisition.line')
-    purch_req_id = log_req_line_obj._action_create_po_requisition(
-        test.cr, test.uid, [logistic_line_id])
+    log_req_source_obj = test.registry('logistic.requisition.source')
+    purch_req_id = log_req_source_obj._action_create_po_requisition(
+        test.cr, test.uid, [source_id])
     assert purch_req_id
     return purch_req_id

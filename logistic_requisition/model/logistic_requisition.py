@@ -547,7 +547,7 @@ class logistic_requisition_line(orm.Model):
          'Logistic Requisition Line number must be unique!'),
     ]
 
-    def source_lines_total_amount(self, cr, uid, ids, context=None):
+    def _source_lines_total_amount(self, cr, uid, ids, context=None):
         for line in self.browse(cr, uid, ids, context=context):
             total = sum(source.total_cost for source in line.source_ids)
             if total > line.budget_tot_price:
@@ -555,7 +555,7 @@ class logistic_requisition_line(orm.Model):
         return True
 
     _constraints = [
-        (source_lines_total_amount,
+        (_source_lines_total_amount,
          'The total cost cannot be more than the total budget.',
          ['source_ids', 'budget_tot_price']),
     ]
@@ -966,6 +966,14 @@ class logistic_requisition_source(orm.Model):
                 return False
         return True
 
+    def _source_lines_total_amount(self, cr, uid, ids, context=None):
+        for source in self.browse(cr, uid, ids, context=context):
+            line = source.requisition_line_id
+            total = sum(source.total_cost for source in line.source_ids)
+            if total > line.budget_tot_price:
+                return False
+        return True
+
     _constraints = [
         (_check_transport_plan,
          'Transport plan is mandatory for sourced requisition lines '
@@ -975,6 +983,9 @@ class logistic_requisition_source(orm.Model):
          "A transport plan cannot be linked to lines of different "
          "logistic requisitions.",
          ['transport_plan_id']),
+        (_source_lines_total_amount,
+         'The total cost cannot be more than the total budget.',
+         ['unit_cost', 'total_cost']),
     ]
 
     def _prepare_po_requisition(self, cr, uid, sources, purch_req_lines, context=None):
@@ -1145,6 +1156,10 @@ class logistic_requisition_source(orm.Model):
 
         :param quantity: the quantity to put in the new line
         """
+        if isinstance(ids, (tuple, list)):
+            assert len(ids) == 1, (
+                "split() accepts only 1 ID, got: %s" % ids)
+            ids = ids[0]
         if not quantity:
             return
         if quantity < 0:
@@ -1152,27 +1167,27 @@ class logistic_requisition_source(orm.Model):
                                  _('Please provide a positive quantity '
                                    'to extract.'))
 
-        for line in self.browse(cr, uid, ids, context=context):
-            if quantity == line.proposed_qty:
-                continue
+        line = self.browse(cr, uid, ids, context=context)
+        if quantity == line.proposed_qty:
+            return False
 
-            elif quantity > line.proposed_qty:
-                raise orm.except_orm(_('Error'),
-                                     _('Split quantity exceeds '
-                                       'the quantity of this line: %s') %
-                                     line.name)
+        elif quantity > line.proposed_qty:
+            raise orm.except_orm(_('Error'),
+                                 _('Split quantity exceeds '
+                                   'the quantity of this line: %s') %
+                                 line.name)
 
-            remaining = line.proposed_qty - quantity
-            line.write({'proposed_qty': remaining})
+        remaining = line.proposed_qty - quantity
+        line.write({'proposed_qty': remaining})
 
-            default_vals = {
-                'proposed_qty': quantity,
-                'date_eta': line.date_eta,
-                'date_etd': line.date_etd,
-                'transport_applicable': line.transport_applicable,
-                'transport_plan_id': line.transport_plan_id.id,
-            }
-            new_id = self.copy(cr, uid, line.id,
-                               default=default_vals,
-                               context=context)
-            return new_id
+        default_vals = {
+            'proposed_qty': quantity,
+            'date_eta': line.date_eta,
+            'date_etd': line.date_etd,
+            'transport_applicable': line.transport_applicable,
+            'transport_plan_id': line.transport_plan_id.id,
+        }
+        new_id = self.copy(cr, uid, line.id,
+                           default=default_vals,
+                           context=context)
+        return new_id
