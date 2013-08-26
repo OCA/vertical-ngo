@@ -328,16 +328,12 @@ class test_purchase_split_requisition(common.TransactionCase):
         req_line = self.log_req_line.browse(self.cr, self.uid, self.line_id)
         self.assertEquals(sum(source.proposed_qty for source
                               in req_line.source_ids),
-                          100,
+                          80,
                           "The total quantity of the split lines should "
-                          "be the same than requested.")
+                          "be the same than the selected bid lines.")
         # one extra line without relation to a purchase line should have
         # been created for the rest
         sources = req_line.source_ids
-        self.assertEquals(len(sources), 3,
+        self.assertEquals(len(sources), 2,
                           "We should have 2 lines linked with the purchase "
-                          "lines and 1 remaining line.")
-        rest_line = [sline for sline in sources if not sline.bid_line_id]
-        self.assertEquals(len(rest_line), 1)
-        rest_line = rest_line[0]
-        self.assertEquals(rest_line.proposed_qty, 20)
+                          "lines and no remaining line.")
