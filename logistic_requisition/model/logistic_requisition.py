@@ -547,6 +547,19 @@ class logistic_requisition_line(orm.Model):
          'Logistic Requisition Line number must be unique!'),
     ]
 
+    def source_lines_total_amount(self, cr, uid, ids, context=None):
+        for line in self.browse(cr, uid, ids, context=context):
+            total = sum(source.total_cost for source in line.source_ids)
+            if total > line.budget_tot_price:
+                return False
+        return True
+
+    _constraints = [
+        (source_lines_total_amount,
+         'The total cost cannot be more than the total budget.',
+         ['source_ids', 'budget_tot_price']),
+    ]
+
     def name_get(self, cr, user, ids, context=None):
         """
         Returns a list of tupples containing id, name.
