@@ -36,15 +36,21 @@
     requisition_id: logistic_requisition_tpe_01
     product_id: product.product_product_7
     requested_qty: 100
-    proposed_qty: 100
     date_delivery: !eval "time.strftime('%Y-%m-%d')"
     budget_tot_price: 1000
     logistic_user_id: base.user_demo
+    account_code: 'XXXX'
+-
+  And I add a sourcing line 1
+-
+  !record {model: logistic.requisition.source, id: logistic_requisition_source_tpe_01}:
+    requisition_line_id: logistic_requisition_line_tpe_01
+    proposed_qty: 100
+    unit_cost: 10
     transport_applicable: 1
     transport_plan_id: transport_plan_tpe_01
     procurement_method: procurement
     price_is: estimated
-    account_code: 'XXXX'
 -
   And I add a line 2
 -
@@ -52,15 +58,21 @@
     requisition_id: logistic_requisition_tpe_01
     product_id: product.product_product_8
     requested_qty: 100
-    proposed_qty: 100
     date_delivery: !eval "time.strftime('%Y-%m-%d')"
     budget_tot_price: 1000
     logistic_user_id: base.user_demo
+    account_code: 'YYYY'
+-
+  And I add a sourcing line 2
+-
+  !record {model: logistic.requisition.source, id: logistic_requisition_source_tpe_02}:
+    requisition_line_id: logistic_requisition_line_tpe_02
+    proposed_qty: 100
+    unit_cost: 10
     transport_applicable: 1
     transport_plan_id: transport_plan_tpe_01
     procurement_method: procurement
     price_is: estimated
-    account_code: 'YYYY'
 -
   And I add a line 3
 -
@@ -68,15 +80,21 @@
     requisition_id: logistic_requisition_tpe_01
     product_id: product.product_product_8
     requested_qty: 100
-    proposed_qty: 100
     date_delivery: !eval "time.strftime('%Y-%m-%d')"
     budget_tot_price: 1000
     logistic_user_id: base.user_demo
+    account_code: 'ZZZZ'
+-
+  And I add a sourcing line 3
+-
+  !record {model: logistic.requisition.source, id: logistic_requisition_source_tpe_03}:
+    requisition_line_id: logistic_requisition_line_tpe_03
+    proposed_qty: 100
+    unit_cost: 10
     transport_applicable: 1
     transport_plan_id: transport_plan_tpe_02
     procurement_method: procurement
     price_is: estimated
-    account_code: 'ZZZZ'
 -
   And I confirm the logistic requisition
 -
