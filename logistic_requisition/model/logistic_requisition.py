@@ -367,6 +367,20 @@ class logistic_requisition(orm.Model):
         action['domain'] = str([('requisition_id', 'in', ids)])
         return action
 
+    def button_view_source_lines(self, cr, uid, ids, context=None):
+        """
+        This function returns an action that display related sourcing lines.
+        """
+        mod_obj = self.pool.get('ir.model.data')
+        act_obj = self.pool.get('ir.actions.act_window')
+        ref = mod_obj.get_object_reference(
+            cr, uid, 'logistic_requisition',
+            'action_logistic_requisition_source')
+        action_id = ref[1] if ref else False
+        action = act_obj.read(cr, uid, [action_id], context=context)[0]
+        action['domain'] = str([('requisition_id', 'in', ids)])
+        return action
+
 
 class logistic_requisition_line(orm.Model):
     _name = "logistic.requisition.line"
