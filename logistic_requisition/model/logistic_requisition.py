@@ -547,19 +547,6 @@ class logistic_requisition_line(orm.Model):
          'Logistic Requisition Line number must be unique!'),
     ]
 
-    def _source_lines_total_amount(self, cr, uid, ids, context=None):
-        for line in self.browse(cr, uid, ids, context=context):
-            total = sum(source.total_cost for source in line.source_ids)
-            if total > line.budget_tot_price:
-                return False
-        return True
-
-    _constraints = [
-        (_source_lines_total_amount,
-         'The total cost cannot be more than the total budget.',
-         ['source_ids', 'budget_tot_price']),
-    ]
-
     def name_get(self, cr, user, ids, context=None):
         """
         Returns a list of tupples containing id, name.
@@ -671,6 +658,7 @@ class logistic_requisition_line(orm.Model):
             'logistic_user_id': False,
             'name': False,
             'cost_estimate_id': False,
+            'source_ids': False,
         }
         std_default.update(default)
         return super(logistic_requisition_line, self).copy_data(
@@ -969,7 +957,8 @@ class logistic_requisition_source(orm.Model):
     def _source_lines_total_amount(self, cr, uid, ids, context=None):
         for source in self.browse(cr, uid, ids, context=context):
             line = source.requisition_line_id
-            total = sum(source.total_cost for source in line.source_ids)
+            total = sum(source.unit_cost * source.proposed_qty
+                        for source in line.source_ids)
             if total > line.budget_tot_price:
                 return False
         return True
@@ -985,7 +974,7 @@ class logistic_requisition_source(orm.Model):
          ['transport_plan_id']),
         (_source_lines_total_amount,
          'The total cost cannot be more than the total budget.',
-         ['unit_cost', 'total_cost']),
+         ['proposed_qty', 'unit_cost', 'requisition_line_id']),
     ]
 
     def _prepare_po_requisition(self, cr, uid, sources, purch_req_lines, context=None):

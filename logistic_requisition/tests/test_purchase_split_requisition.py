@@ -118,11 +118,6 @@ class test_purchase_split_requisition(common.TransactionCase):
         (remaining), they should be tested apart.
         """
         req_line = self.log_req_line.browse(self.cr, self.uid, self.line_id)
-        self.assertEquals(sum(source.proposed_qty for source
-                              in req_line.source_ids),
-                          100,
-                          "The total quantity of the split lines should "
-                          "be the same than requested.")
         bid_line_ids = [line.id for line in bid_lines]
         sources = [source for source in req_line.source_ids
                    if source.bid_line_id.id in bid_line_ids]
@@ -165,6 +160,17 @@ class test_purchase_split_requisition(common.TransactionCase):
         # check if the lines are split correctly
         self.assertPurchaseToRequisitionLines([bid_line])
 
+        req_line = self.log_req_line.browse(self.cr, self.uid, self.line_id)
+        self.assertEquals(sum(source.proposed_qty for source
+                              in req_line.source_ids),
+                          100,
+                          "The total quantity of the split lines should "
+                          "be the same than requested.")
+        sources = req_line.source_ids
+        self.assertEquals(len(sources), 1,
+                          "We should have 0 line linked with the purchase "
+                          "line and no remaining line.")
+
     def test_split_bid_2_line_selected(self):
         """ Create a call for bids from the logistic requisition, 2 po line choosed
 
@@ -195,6 +201,16 @@ class test_purchase_split_requisition(common.TransactionCase):
 
         # check if the lines are split correctly
         self.assertPurchaseToRequisitionLines([bid_line1, bid_line2])
+        req_line = self.log_req_line.browse(self.cr, self.uid, self.line_id)
+        self.assertEquals(sum(source.proposed_qty for source
+                              in req_line.source_ids),
+                          100,
+                          "The total quantity of the split lines should "
+                          "be the same than requested.")
+        sources = req_line.source_ids
+        self.assertEquals(len(sources), 2,
+                          "We should have 2 lines linked with the purchase "
+                          "lines and no remaining line.")
 
     def test_split_too_many_products_selected_budget_exceeded(self):
         """ Create a call for bids from the logistic requisition, 2 po line choosed (budget exceeded)
@@ -263,6 +279,16 @@ class test_purchase_split_requisition(common.TransactionCase):
 
         # check if the lines are split correctly
         self.assertPurchaseToRequisitionLines([bid_line1, bid_line2])
+        req_line = self.log_req_line.browse(self.cr, self.uid, self.line_id)
+        self.assertEquals(sum(source.proposed_qty for source
+                              in req_line.source_ids),
+                          110,
+                          "The total quantity should extend to the "
+                          "quantity of the bid lines.")
+        sources = req_line.source_ids
+        self.assertEquals(len(sources), 2,
+                          "We should have 2 lines linked with the purchase "
+                          "lines and no remaining line.")
 
     def test_split_too_few_products_selected(self):
         """ Create a call for bids from the logistic requisition, 2 po line choosed (too few)
@@ -299,11 +325,15 @@ class test_purchase_split_requisition(common.TransactionCase):
         # check if the lines are split correctly
         self.assertPurchaseToRequisitionLines([bid_line1, bid_line2])
 
+        req_line = self.log_req_line.browse(self.cr, self.uid, self.line_id)
+        self.assertEquals(sum(source.proposed_qty for source
+                              in req_line.source_ids),
+                          100,
+                          "The total quantity of the split lines should "
+                          "be the same than requested.")
         # one extra line without relation to a purchase line should have
         # been created for the rest
-        requisition = self.log_req.browse(self.cr, self.uid,
-                                          self.requisition_id)
-        sources = requisition.line_ids[0].source_ids
+        sources = req_line.source_ids
         self.assertEquals(len(sources), 3,
                           "We should have 2 lines linked with the purchase "
                           "lines and 1 remaining line.")
