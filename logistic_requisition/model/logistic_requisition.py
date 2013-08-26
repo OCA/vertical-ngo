@@ -816,6 +816,7 @@ class logistic_requisition_source(orm.Model):
             type='many2one',
             relation='logistic.requisition',
             string='Logistic Requisition',
+            store=True,
             readonly=True),
         'state': fields.related(
             'requisition_line_id', 'state',
@@ -948,10 +949,13 @@ class logistic_requisition_source(orm.Model):
             if not line.transport_plan_id:
                 continue
             plan = line.transport_plan_id
-            if not plan.logistic_requisition_id:
+            if not plan.logistic_requisition_source_ids:
                 continue
-            if plan.logistic_requisition_id != line.requisition_id:
-                return False
+            first_source = plan.logistic_requisition_source_ids[0]
+            requisition_id = first_source.requisition_line_id.requisition_id
+            for oline in plan.logistic_requisition_source_ids:
+                if oline.requisition_line_id.requisition_id != requisition_id:
+                    return False
         return True
 
     def _source_lines_total_amount(self, cr, uid, ids, context=None):
@@ -971,7 +975,7 @@ class logistic_requisition_source(orm.Model):
         (_logistic_requisition_unique,
          "A transport plan cannot be linked to lines of different "
          "logistic requisitions.",
-         ['transport_plan_id']),
+         ['transport_plan_id', 'requisition_id']),
         (_source_lines_total_amount,
          'The total cost cannot be more than the total budget.',
          ['proposed_qty', 'unit_cost', 'requisition_line_id']),
