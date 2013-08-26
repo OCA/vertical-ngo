@@ -88,20 +88,20 @@ class test_mto_workflow(common.TransactionCase):
             'budget_holder_id': self.user_demo,
             'finance_officer_id': self.user_demo,
         }
-
-        self.lines = [{
+        self.line = {
             'product_id': self.product_7,
             'requested_qty': 100,
             'requested_uom_id': self.product_uom_pce,
             'date_delivery': time.strftime(D_FMT),
             'budget_tot_price': 1000,
-            'transport_applicable': 0,
-            'procurement_method': 'procurement',
-            'price_is': 'estimated',
             'account_code': 'a code',
-        }]
+            'source_ids': [{'proposed_qty': 100,
+                            'transport_applicable': 0,
+                            'procurement_method': 'procurement',
+                            'price_is': 'estimated'}],
+        }
 
-    def _setup_initial_data(self):
+    def _setup_initial_data(self, lines_vals):
         """ Create objects and initialize the data for the tests
 
             - creates and confirm a logistic requisition
@@ -112,23 +112,31 @@ class test_mto_workflow(common.TransactionCase):
         """
         cr, uid = self.cr, self.uid
         # logistic requisition creation
-        requisition_id, line_ids = logistic_requisition.create(
-            self, self.vals, self.lines)
-        logistic_requisition.confirm(self, requisition_id)
-        logistic_requisition.assign_lines(self, line_ids, self.user_demo)
+        requisition_id = logistic_requisition.create(self, self.vals)
+        line_ids = []
+        for line_vals in lines_vals:
+            source_vals = line_vals.pop('source_ids')
+            line_id = logistic_requisition.add_line(
+                self, requisition_id, line_vals)
+            logistic_requisition.confirm(self, requisition_id)
+            logistic_requisition.assign_lines(self, [line_id], self.user_demo)
+            for src_vals in source_vals:
+                source_id = logistic_requisition.add_source(
+                    self, line_id, src_vals)
 
-        # purchase requisition creation, bids selection
-        for line_id in line_ids:
-            purch_req_id = logistic_requisition.create_purchase_requisition(
-                self, line_id)
-            purchase_requisition.confirm_call(self, purch_req_id)
-            bid, bid_line = purchase_requisition.create_draft_purchase_order(
-                self, purch_req_id, self.partner_1)
-            bid_line.write({'price_unit': 100})
-            purchase_order.select_line(self, bid_line.id, 100)
-            purchase_order.bid_encoded(self, bid.id)
-            purchase_requisition.close_call(self, purch_req_id)
-            purchase_requisition.bids_selected(self, purch_req_id)
+                # purchase requisition creation, bids selection
+                purch_req_id = logistic_requisition.create_purchase_requisition(
+                    self, source_id)
+                purchase_requisition.confirm_call(self, purch_req_id)
+                bid, bid_line = purchase_requisition.create_draft_purchase_order(
+                    self, purch_req_id, self.partner_1)
+                bid_line.write({'price_unit': 10})
+                purchase_order.select_line(self, bid_line.id,
+                                           src_vals['proposed_qty'])
+                purchase_order.bid_encoded(self, bid.id)
+                purchase_requisition.close_call(self, purch_req_id)
+                purchase_requisition.bids_selected(self, purch_req_id)
+            line_ids.append(line_id)
 
         # set lines as sourced
         logistic_requisition.source_lines(self, line_ids)
@@ -191,7 +199,7 @@ class test_mto_workflow(common.TransactionCase):
     def test_workflow_with_1_line(self):
         """ Test the full workflow and check if sale and purchase are both delivered """
         cr, uid = self.cr, self.uid
-        requisition_id, line_ids, sale_id = self._setup_initial_data()
+        requisition_id, line_ids, sale_id = self._setup_initial_data([self.line])
 
         sale = self.sale_model.browse(cr, uid, sale_id)
         assert len(sale.order_line) == 1
@@ -208,18 +216,20 @@ class test_mto_workflow(common.TransactionCase):
         """ Test the full workflow and check if sale and purchase are both delivered for 2 lines """
         cr, uid = self.cr, self.uid
         # add a line in the logistic requisition
-        self.lines.append({
+        line2 = {
             'product_id': self.product_8,
             'requested_qty': 200,
             'requested_uom_id': self.product_uom_pce,
             'date_delivery': time.strftime(D_FMT),
-            'budget_tot_price': 2000,
-            'transport_applicable': 0,
-            'procurement_method': 'procurement',
-            'price_is': 'estimated',
+            'budget_tot_price': 4000,
             'account_code': 'a code',
-        })
-        requisition_id, line_ids, sale_id = self._setup_initial_data()
+            'source_ids': [{'proposed_qty': 200,
+                            'transport_applicable': 0,
+                            'procurement_method': 'procurement',
+                            'price_is': 'estimated'}],
+        }
+        lines = [self.line, line2]
+        requisition_id, line_ids, sale_id = self._setup_initial_data(lines)
 
         # the confirmation of the sale order generates the
         # purchase order of the purchase requisition
@@ -228,7 +238,8 @@ class test_mto_workflow(common.TransactionCase):
         self._check_sale_line(sale.order_line[0])
         sale.refresh()
         self.assertFalse(sale.shipped,
-                         "The sale is not shipped, not all lines are delivered")
+                         "The sale is not shipped, not all lines "
+                         "are delivered")
         self._check_sale_line(sale.order_line[1])
 
         # the sale order should be delivered as well
