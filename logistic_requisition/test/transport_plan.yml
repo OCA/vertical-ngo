@@ -112,7 +112,7 @@
   I should not be allowed to assign the same transport plan to a different
   logistic requisition
 -
-  !python {model: logistic.requisition.line}: |
+  !python {model: logistic.requisition.source}: |
     source_id = ref("logistic_requisition_source_tp_10")
     tp1_id = ref('transport_plan_01')
     try:

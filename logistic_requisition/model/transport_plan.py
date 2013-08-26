@@ -39,7 +39,7 @@ class transport_plan(orm.Model):
             req_ids[plan.id] = req_id
         return req_ids
 
-    def _get_tp_from_lrs_line(self, cr, uid, ids, context=None):
+    def _get_tp_from_lr_source(self, cr, uid, ids, context=None):
         lrs_line_obj = self.pool.get('logistic.requisition.source')
         tp_ids = set()
         for line in lrs_line_obj.browse(cr, uid, ids, context=context):
@@ -67,7 +67,16 @@ class transport_plan(orm.Model):
             _get_requisition_id,
             type='many2one',
             relation='logistic.requisition',
-            string='Logistic Requisition'),
+            string='Logistic Requisition',
+            store={
+                'transport.plan': (lambda self, cr, uid, ids, c=None: ids,
+                                   ['logistic_requisition_source_ids'], 20),
+                'logistic.requisition.source': (
+                    _get_tp_from_lr_source,
+                    ['transport_plan_id'],
+                    20
+                ),
+            }),
         'product_id': fields.many2one(
             'product.product',
             string='Product',
@@ -79,20 +88,3 @@ class transport_plan(orm.Model):
     _defaults = {
         'product_id': _get_product_id,
     }
-
-    def _logistic_requisition_unique(self, cr, uid, ids, context=None):
-        for plan in self.browse(cr, uid, ids, context=context):
-            if not plan.logistic_requisition_id:
-                continue
-            requisition_id = plan.logistic_requisition_id
-            for line in plan.logistic_requisition_line_ids:
-                if line.requisition_id != requisition_id:
-                    return False
-        return True
-
-    _constraints = [
-        (_logistic_requisition_unique,
-         "A transport plan cannot be linked to lines of different "
-         "logistic requisitions.",
-         ['logistic_requisition_source_ids']),
-    ]
