@@ -146,7 +146,6 @@ def create_quotation(test, requisition_id, line_ids):
     :returns: tuple with (sale id, [sale line ids])
     """
     cr, uid = test.cr, test.uid
-    log_req_obj = test.registry('logistic.requisition')
     log_req_line_obj = test.registry('logistic.requisition.line')
     wizard_obj = test.registry('logistic.requisition.cost.estimate')
     sale_obj = test.registry('sale.order')
@@ -159,13 +158,16 @@ def create_quotation(test, requisition_id, line_ids):
     sale_id = res['res_id']
     sale = sale_obj.browse(cr, uid, sale_id)
     sale_lines = sale.order_line
+    lines = log_req_line_obj.browse(cr, uid, line_ids)
+    source_lines = [sl for line in lines for sl in line.source_ids]
     test.assertEquals(len(sale_lines),
-                      len(line_ids),
+                      len(source_lines),
                       "A sale line per logistic requisition "
-                      "line should have been created")
+                      "soucing line should have been created")
     sale_line_ids = []
     for sale_line in sale_lines:
-        test.assertTrue(sale_line.requisition_line_id.id in line_ids)
+        test.assertTrue(sale_line.logistic_requisition_source_id.id
+                        in [sl.id for sl in source_lines])
         sale_line_ids.append(sale_line.id)
     return sale_id, sale_line_ids
 
