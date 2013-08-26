@@ -404,8 +404,6 @@
                                         <field name="proposed_uom_id"/>
                                         <field name="unit_cost"/>
                                         <field name="total_cost" sum="Total Budget"/>
-                                        <button name="%(action_requisition_split_into)d" icon="gtk-justify-fill"
-                                            string="Split the line" type="action" />
                                         <field name="po_requisition_id" invisible="1"/>
                                         <button name="action_create_po_requisition" icon="gtk-execute"
                                             string="Purchase Requisition" type="object"
@@ -510,9 +508,6 @@
                <field name="proposed_qty"/>
                <field name="proposed_uom_id"/>
                <field name="total_cost" sum="Total Budget"/>
-               <button name="%(action_requisition_split_into)d" icon="gtk-justify-fill"
-                   attrs="{'invisible': ['|', ('state', '!=', 'assigned'), ('po_requisition_id', '!=', False)]}"
-                   string="Split the line" type="action" />
                <field name="po_requisition_id" invisible="1"/>
                <button name="action_create_po_requisition" icon="gtk-execute"
                    string="Purchase Requisition" type="object"
