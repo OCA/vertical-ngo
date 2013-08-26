@@ -72,39 +72,30 @@ class purchase_requisition(orm.Model):
         precision = dp_obj.precision_get(cr, SUPERUSER_ID,
                                          'Product Unit of Measure')
         completed_items = []
-        for rline in req_sources[:]:
-            remaining = rline.proposed_qty
+        for sline in req_sources[:]:
+            remaining = sline.proposed_qty
             newline = False
             po_lines = [po_line for po_line in all_po_lines
-                        if rline == po_line.requisition_line_id.logistic_requisition_source_id]
+                        if sline == po_line.requisition_line_id.logistic_requisition_source_id]
             for po_line in po_lines:
 
-                req_line = rline.requisition_line_id
+                req_line = sline.requisition_line_id
                 if req_line.product_id != po_line.product_id:
                     raise orm.except_orm(
                         _('Error'),
                         _("The product is not the same between the purchase "
                           "order line and the logistic requisition line %s. "
-                          "This is not supported.") % rline.name)
+                          "This is not supported.") % sline.name)
                 if req_line.requested_uom_id != po_line.product_uom:
                     raise orm.except_orm(
                         _('Error'),
                         _("The unit of measure is not the same between "
                           "the purchase order line and the logistic "
                           "requisition line %s. This is not supported.") %
-                        rline.name)
+                        sline.name)
 
                 remaining = remaining - po_line.quantity_bid
-                # returns -1 if remaining is less than 0 at the given
-                # precision
-                compare = float_compare(remaining, 0,
-                                        precision_digits=precision)
-                # TODO: extend the proposed_qty when >= 0
-                assert compare >= 0, (
-                    "Should not be able to select a bigger quantity in "
-                    "purchase lines than requested in logistic requisition lines")
-
-                current = CompletedItem(requisition_source=rline,
+                current = CompletedItem(requisition_source=sline,
                                         purchase_line=po_line,
                                         newline=newline,
                                         quantity=po_line.quantity_bid)
@@ -116,7 +107,7 @@ class purchase_requisition(orm.Model):
             if not float_is_zero(remaining, precision):
                 # the selected quantity in purchase lines is less
                 # than the requested quantity
-                rest_item = CompletedItem(requisition_source=rline,
+                rest_item = CompletedItem(requisition_source=sline,
                                           purchase_line=None,
                                           newline=newline,
                                           quantity=remaining)
@@ -130,13 +121,13 @@ class purchase_requisition(orm.Model):
         """
         if isinstance(id, (tuple, list)):
             assert len(id) == 1, (
-                "_split_logistic_lines_from_po() accepts only 1 ID, "
+                "_split_completed_items() accepts only 1 ID, "
                 "got: %s" % id)
             id = id[0]
         purchase_requisition = self.browse(cr, uid, id, context=context)
         completed_items = self._prepare_split_logistic_source(
             cr, uid, purchase_requisition, context=context)
-        req_line_obj = self.pool.get('logistic.requisition.source')
+        req_source_obj = self.pool.get('logistic.requisition.source')
         for item in completed_items:
             vals = {'price_is': 'fixed',
                     'proposed_qty': item.quantity,
@@ -149,13 +140,24 @@ class purchase_requisition(orm.Model):
 
             if item.newline:
                 origin = item.requisition_source
-                line_id = origin.split(item.quantity)
+                default_vals = {
+                    'proposed_qty': item.quantity,
+                    'date_eta': origin.date_eta,
+                    'date_etd': origin.date_etd,
+                    'transport_applicable': origin.transport_applicable,
+                }
+                if origin.transport_plan_id:
+                    default_vals['transport_plan_id'] = origin.transport_plan_id.id
+                # line_id = origin.split(item.quantity)
+                line_id = req_source_obj.copy(cr, uid, origin.id,
+                                              default=default_vals,
+                                              context=context)
                 vals.update({
                     'po_requisition_id': origin.po_requisition_id.id,
                 })
             else:
                 line_id = item.requisition_source.id
-            req_line_obj.write(cr, uid, [line_id], vals, context=context)
+            req_source_obj.write(cr, uid, [line_id], vals, context=context)
 
     def close_callforbids_ok(self, cr, uid, ids, context=None):
         """ We have to split the logistic requisition lines according to
