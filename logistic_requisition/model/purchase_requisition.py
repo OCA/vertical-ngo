@@ -23,7 +23,7 @@ from collections import namedtuple
 from operator import attrgetter
 from openerp.osv import orm, fields
 from openerp.tools.translate import _
-from openerp.tools import float_is_zero, float_compare
+from openerp.tools import float_compare
 from openerp import SUPERUSER_ID
 
 
@@ -104,7 +104,11 @@ class purchase_requisition(orm.Model):
                 # if we have another purchase line or a remaining
                 # quantity, we will need to create a new line
                 newline = True
-            if not float_is_zero(remaining, precision):
+
+            # returns 1 if left value is more than right value (`0` here)
+            compare = float_compare(remaining, 0,
+                                    precision_digits=precision)
+            if compare == 1:
                 # the selected quantity in purchase lines is less
                 # than the requested quantity
                 rest_item = CompletedItem(requisition_source=sline,
