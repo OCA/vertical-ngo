@@ -94,6 +94,11 @@ class logistic_requisition_source_transport_plan(orm.TransientModel):
                 }
         return vals
 
+    def _get_date_eta_from_lines(self, cr, uid, line_brs, context=None):
+        if len(line_brs) != 1:
+            return False
+        return line_brs[0].date_eta
+
     def create_and_affect(self, cr, uid, ids, context=None):
         if context is None:
             context = {}
