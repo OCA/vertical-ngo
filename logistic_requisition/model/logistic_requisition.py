@@ -429,7 +429,9 @@ class logistic_requisition_line(orm.Model):
         'source_ids': fields.one2many(
             'logistic.requisition.source',
             'requisition_line_id',
-            string='Source Lines'),
+            string='Source Lines',
+            states={'sourced': [('readonly', True)],
+                    'quoted': [('readonly', True)]}),
         'logistic_user_id': fields.many2one(
             'res.users',
             'Assigned To',
@@ -791,6 +793,7 @@ class logistic_requisition_source(orm.Model):
         """
         result = {}
         for line in self.browse(cr, uid, ids, context=context):
+            result[line.id] = False
             bid_line = line.bid_line_id
             if not bid_line:
                 continue
@@ -805,8 +808,7 @@ class logistic_requisition_source(orm.Model):
 
     _columns = {
         'name': fields.char('Source Name', readonly=True),
-        'requisition_line_id': fields.many2one(
-            'logistic.requisition.line',
+        'requisition_line_id': fields.many2one( 'logistic.requisition.line',
             'Requisition Line',
             readonly=True,
             required=True,
@@ -944,7 +946,7 @@ class logistic_requisition_source(orm.Model):
                 return False
         return True
 
-    def _logistic_requisition_unique(self, cr, uid, ids, context=None):
+    def _transport_plan_unique(self, cr, uid, ids, context=None):
         for line in self.browse(cr, uid, ids, context=context):
             if not line.transport_plan_id:
                 continue
@@ -954,6 +956,18 @@ class logistic_requisition_source(orm.Model):
             first_source = plan.logistic_requisition_source_ids[0]
             requisition_id = first_source.requisition_line_id.requisition_id
             for oline in plan.logistic_requisition_source_ids:
+                if oline.requisition_line_id.requisition_id != requisition_id:
+                    return False
+        return True
+
+    def _purchase_requisition_unique(self, cr, uid, ids, context=None):
+        for line in self.browse(cr, uid, ids, context=context):
+            if not line.po_requisition_id:
+                continue
+            purch_req = line.po_requisition_id
+            first_source = purch_req.logistic_requisition_source_ids[0]
+            requisition_id = first_source.requisition_line_id.requisition_id
+            for oline in purch_req.logistic_requisition_source_ids:
                 if oline.requisition_line_id.requisition_id != requisition_id:
                     return False
         return True
@@ -972,14 +986,25 @@ class logistic_requisition_source(orm.Model):
          'Transport plan is mandatory for sourced requisition lines '
          'when the transport is applicable.',
          ['transport_plan_id']),
-        (_logistic_requisition_unique,
+        (_transport_plan_unique,
          "A transport plan cannot be linked to lines of different "
          "logistic requisitions.",
          ['transport_plan_id', 'requisition_id']),
         (_source_lines_total_amount,
          'The total cost cannot be more than the total budget.',
          ['proposed_qty', 'unit_cost', 'requisition_line_id']),
+        (_purchase_requisition_unique,
+         "A purchase requisition cannot be linked to lines of different "
+         "logistics requisitions.",
+         ['po_requisition_id', 'requisition_id']),
     ]
+
+    def create(self, cr, uid, vals, context=None):
+        if (vals.get('name') or '/') == '/':
+            seq_obj = self.pool.get('ir.sequence')
+            vals['name'] = seq_obj.get(cr, uid, 'logistic.requisition.source') or '/'
+        return super(logistic_requisition_source, self).create(cr, uid, vals,
+                                                               context=context)
 
     def _prepare_po_requisition(self, cr, uid, sources, purch_req_lines, context=None):
         company_id = None
