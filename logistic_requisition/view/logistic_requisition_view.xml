@@ -15,11 +15,6 @@
                         states="confirmed,done,cancel"
                         type="object"
                         class="oe_highlight"/>
-                    <button name="button_view_source_lines"
-                        string="View Sourcing Lines"
-                        states="confirmed,done,cancel"
-                        type="object"
-                        class="oe_highlight"/>
                     <button name="button_create_cost_estimate"
                         string="Create Cost Estimate"
                         states="confirmed"
@@ -29,6 +24,10 @@
                         string="Confirm"
                         states="draft"
                         class="oe_highlight"
+                        type="object" />
+                    <button name="button_view_source_lines"
+                        string="View Sourcing Lines"
+                        states="confirmed,done,cancel"
                         type="object" />
                     <button name="button_reset"
                         string="Reset to Draft"
