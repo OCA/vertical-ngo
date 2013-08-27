@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    Author: Guewen Baconnier
-#    Copyright 2012 Camptocamp SA
+#    Author: Nicolas Bessi
+#    Copyright 2013 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -18,10 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
+from . import test_purchase_split_requisition
+from . import test_sale_order_from_lr_confirm
+from . import test_mto_workflow
+from . import transport_plan_date
 
-import test_purchase_split_requisition
-import test_sale_order_from_lr_confirm
-import test_mto_workflow
 
 fast_suite = [
 ]
@@ -30,4 +31,5 @@ checks = [
     test_purchase_split_requisition,
     test_sale_order_from_lr_confirm,
     test_mto_workflow,
+    transport_plan_date,
 ]

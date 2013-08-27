@@ -56,7 +56,7 @@ A Logistic requisition express a need that is requested somewhere.
           "view/res_partner_view.xml",
           "view/cancel_reason.xml",
           "view/purchase_requisition.xml",
-          "logistic_requisition_report.xml",
+          "report/logistic_requisition_report.xml",
           "data/logistic.requisition.cancel.reason.csv",
           ],
  "auto_install": False,
@@ -67,6 +67,7 @@ A Logistic requisition express a need that is requested somewhere.
           'test/transport_plan_to_cost_estimate.yml',
           'test/logistic_requisition_onchange.yml',
           'test/transport_plan_from_lr_line_wizard.yml',
+          'test/logistic_requisition_report_test.yml',
           ],
  "installable": True,
  }
