@@ -1011,7 +1011,6 @@ class logistic_requisition_source(orm.Model):
         user_id = None
         consignee_id = None
         dest_address_id = None
-        warehouse_id = False  # TODO: always empty, where does it comes from?
         origin = []
         for line in sources:
             origin.append(line.name)
@@ -1049,7 +1048,6 @@ class logistic_requisition_source(orm.Model):
                 'company_id': company_id,
                 'consignee_id': consignee_id,
                 'dest_address_id': dest_address_id,
-                'warehouse_id': warehouse_id,
                 'line_ids': [(0, 0, rline) for rline in purch_req_lines],
                 'origin': ", ".join(origin),
                 }
