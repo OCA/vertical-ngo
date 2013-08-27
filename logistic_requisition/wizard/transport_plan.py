@@ -32,6 +32,7 @@ class logistic_requisition_source_transport_plan(orm.TransientModel):
             'ETA',
             required=True,
             help="Estimated Date of Arrival"
+                 " if not set requisition ETA will be used"
         ),
         'date_etd': fields.date(
             'ETD',
@@ -56,12 +57,34 @@ class logistic_requisition_source_transport_plan(orm.TransientModel):
         'note': fields.text('Remarks/Description'),
     }
 
+    def _get_default_transport_mode(self, cr, uid, context):
+        """ Set the default value for transport mode using
+        preffered LR mode, if lines came from differents
+        requisitions nothing is set"""
+        active_ids = context.get('active_ids')
+        if context is None or not active_ids:
+            return False
+        req_source_obj = self.pool['logistic.requisition.source']
+        lines = req_source_obj.browse(cr, uid, active_ids, context=context)
+        if any(lines[0].requisition_id != x.requisition_id for x in lines):
+            return False
+        else:
+            return lines[0].requisition_id.preferred_transport.id
+
+    _defaults = {'transport_mode_id': _get_default_transport_mode}
+
     def _prepare_transport_plan(self, cr, uid, form,
-                                context=None):
+                                line_brs, context=None):
         """ Prepare the values for the creation of a transport plan
         from a selection of requisition lines.
         """
-        vals = {'date_eta': form.date_eta,
+        date_eta = False
+        if form.date_eta:
+            date_eta = form.date_eta
+        else:
+            date_eta = self._get_date_eta_from_lines(cr, uid, line_brs,
+                                                     context=context)
+        vals = {'date_eta': date_eta,
                 'date_etd': form.date_etd,
                 'from_address_id': form.from_address_id.id,
                 'to_address_id': form.to_address_id.id,
@@ -81,7 +104,8 @@ class logistic_requisition_source_transport_plan(orm.TransientModel):
         form = self.browse(cr, uid, ids[0], context=context)
         transport_obj = self.pool.get('transport.plan')
         source_obj = self.pool.get('logistic.requisition.source')
-        vals = self._prepare_transport_plan(cr, uid, form, context=context)
+        lines = source_obj.browse(cr, uid, source_ids, context=context)
+        vals = self._prepare_transport_plan(cr, uid, form, lines, context=context)
         transport_id = transport_obj.create(cr, uid, vals, context=context)
         source_obj.write(cr, uid, source_ids,
                          {'transport_plan_id': transport_id},
