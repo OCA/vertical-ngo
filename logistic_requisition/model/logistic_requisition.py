@@ -808,8 +808,9 @@ class logistic_requisition_source(orm.Model):
 
     _columns = {
         'name': fields.char('Source Name', readonly=True),
-        'requisition_line_id': fields.many2one( 'logistic.requisition.line',
-            'Requisition Line',
+        'requisition_line_id': fields.many2one(
+            'logistic.requisition.line',
+            string='Requisition Line',
             readonly=True,
             required=True,
             ondelete='cascade'),
