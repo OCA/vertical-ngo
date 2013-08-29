@@ -928,7 +928,7 @@ class logistic_requisition_source(orm.Model):
         'location_partner_id': fields.related(
             'dispatch_location_id', 'partner_id',
             type='many2one', relation='res.partner',
-            string='Location Address', readonly=True)
+            string='Location Address', readonly=True),
     }
 
     _defaults = {
@@ -1091,13 +1091,17 @@ class logistic_requisition_source(orm.Model):
         return purch_req_id
 
     def action_create_po_requisition(self, cr, uid, ids, context=None):
-        purch_req_id = self._action_create_po_requisition(
-            cr, uid, ids, context=context)
+        self._action_create_po_requisition(cr, uid, ids, context=context)
+        return self.action_open_po_requisition(cr, uid, ids, context=context)
+
+    def action_open_po_requisition(self, cr, uid, ids, context=None):
+        assert len(ids) == 1, "Only 1 ID expected, got: %r" % ids
+        source = self.browse(cr, uid, ids[0], context=context)
         return {
             'type': 'ir.actions.act_window',
             'name': _('Purchase Requisition'),
             'res_model': 'purchase.requisition',
-            'res_id': purch_req_id,
+            'res_id': source.po_requisition_id.id,
             'view_type': 'form',
             'view_mode': 'form',
             'target': 'current',
