@@ -580,6 +580,18 @@ class logistic_requisition_line(orm.Model):
         self.write(cr, uid, ids, vals, context=context)
 
     def _do_sourced(self, cr, uid, ids, context=None):
+        sourced_types = ('procurement', 'fw_agreement')
+        for line in self.browse(cr, uid, ids, context=context):
+            for source in line.source_ids:
+                if source.procurement_method not in sourced_types:
+                    continue
+                if (not source.po_requisition_id or
+                        source.po_requisition_id.state != 'closed'):
+                    raise orm.except_orm(
+                        _('Error'),
+                        _('Line %s cannot be sourced because it has '
+                          'sourcing lines without accepted purchase '
+                          'requisition.') % line.name)
         self.write(cr, uid, ids, {'state': 'sourced'}, context=context)
 
     def _do_draft(self, cr, uid, ids, context=None):
