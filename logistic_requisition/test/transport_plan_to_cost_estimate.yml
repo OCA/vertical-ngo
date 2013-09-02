@@ -49,7 +49,7 @@
     unit_cost: 10
     transport_applicable: 1
     transport_plan_id: transport_plan_tpe_01
-    procurement_method: procurement
+    procurement_method: wh_dispatch
     price_is: estimated
 -
   And I add a line 2
@@ -71,7 +71,7 @@
     unit_cost: 10
     transport_applicable: 1
     transport_plan_id: transport_plan_tpe_01
-    procurement_method: procurement
+    procurement_method: wh_dispatch
     price_is: estimated
 -
   And I add a line 3
@@ -93,7 +93,7 @@
     unit_cost: 10
     transport_applicable: 1
     transport_plan_id: transport_plan_tpe_02
-    procurement_method: procurement
+    procurement_method: wh_dispatch
     price_is: estimated
 -
   And I confirm the logistic requisition
