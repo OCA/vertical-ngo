@@ -50,8 +50,9 @@
     proposed_qty: 90
     unit_cost: 8
     transport_applicable: 0
-    procurement_method: procurement
+    procurement_method: wh_dispatch
     price_is: estimated
+    dispatch_location_id: stock.stock_location_shop1
 -
   When I confirm the logistic requisition
 -
