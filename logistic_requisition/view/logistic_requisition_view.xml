@@ -507,10 +507,11 @@
                <field name="requisition_line_id"/>
                <field name="name"/>
                <field name="procurement_method"/>
+               <field name="proposed_product_id"/>
                <field name="proposed_qty"/>
                <field name="proposed_uom_id"/>
                <field name="total_cost" sum="Total Budget"/>
-               <field name="po_requisition_id" invisible="1"/>
+               <field name="po_requisition_id"/>
                <button name="action_create_po_requisition" icon="gtk-execute"
                    string="Purchase Requisition" type="object"
                    attrs="{'invisible': ['|', '|', ('procurement_method', 'not in', ['procurement', 'fw_agreement']), ('state', '!=', 'assigned'), ('po_requisition_id', '!=', False)]}" />
@@ -528,7 +529,7 @@
                         <h1>
                             <label string="Requisition Line"/>
                             <field name="requisition_id"
-                                class="oe_inline" invisible="1"/> /
+                                class="oe_inline" invisible="1"/>
                             <field name="requisition_line_id"
                                 class="oe_inline" readonly="1"/> /
                             <label string="Sourcing Line N° "/>
@@ -539,8 +540,7 @@
                         <page string="Sourcing">
                             <group>
                                 <field name="state" invisible="1"/>
-                                <field name="procurement_method"
-                                    attrs="{'required': [('state', 'in', ('assigned', 'sourced', 'quoted'))]}" />
+                                <field name="procurement_method"/>
                                 <label for="proposed_qty"/>
                                 <div>
                                     <field name="proposed_qty" class="oe_inline"/>
@@ -562,7 +562,7 @@
                                         <field name="po_requisition_id" class="oe_inline"/>
                                         <button name="action_create_po_requisition"
                                             string="Purchase Requisition" type="object"
-                                            attrs="{'invisible': ['|', ('state', '!=', 'assigned'), ('po_requisition_id', '!=', False)]}" />
+                                            attrs="{'invisible': [('po_requisition_id', '!=', False)]}" />
                                     </div>
                                     <field name="selected_po_id"
                                         on_change="onchange_selected_po_id(selected_po_id)"/>
@@ -582,7 +582,7 @@
                                     <field name="supplier_partner_id" invisible="1"/>
                                     <field name="location_partner_id" invisible="1"/>
                                     <field name="transport_plan_id"
-                                        attrs="{'required': [('transport_applicable', '=', True), ('state', 'in', ['assigned', 'sourced', 'quoted'])]}"
+                                        attrs="{'required': [('transport_applicable', '=', True)]}"
                                         on_change="onchange_transport_plan_id(transport_plan_id)"
                                         domain="['|', ('logistic_requisition_id', '=', False), ('logistic_requisition_id', '=', requisition_id)]"
                                         context="{'default_to_address_id': consignee_shipping_id, 'default_from_address_id': (procurement_method == 'wh_dispatch' and location_partner_id) or (procurement_method != 'wh_dispatch' and supplier_partner_id)}"
@@ -623,7 +623,7 @@
         <field name="res_model">logistic.requisition.source</field>
         <field name="view_type">form</field>
         <field name="view_mode">tree,form</field>
-        <field name="context">{"search_default_groupby_requisition_line_id" : True}</field>
+        <field name="context">{"search_default_groupby_procurement_method" : True}</field>
         <field name="search_view_id" ref="view_logistic_requisition_source_filter"/>
         <field name="help"></field>
     </record>
