@@ -52,18 +52,16 @@ class purchase_order(orm.Model):
                     and sale_line.sale_flow == 'direct_delivery'):
                 continue
             procurement = sale_line.procurement_id
-            assert not procurement.move_id, (
-                "The procurement should not have any move_id, got %s" %
-                procurement.move_id)
-            # the procurement for the sales and purchase is the same!
-            # So when the move will be done, the sales order and the
-            # purchase order will be shipped at the same time
-            procurement.write({'move_id': move.id})
-            wf_service.trg_validate(uid, 'procurement.order',
-                                    procurement.id, 'button_confirm', cr)
-            if purchase_line is not None:
+            if not procurement.move_id:
+                # the procurement for the sales and purchase is the same!
+                # So when the move will be done, the sales order and the
+                # purchase order will be shipped at the same time
+                procurement.write({'move_id': move.id})
                 wf_service.trg_validate(uid, 'procurement.order',
-                                        procurement.id, 'button_check', cr)
+                                        procurement.id, 'button_confirm', cr)
+                if purchase_line is not None:
+                    wf_service.trg_validate(uid, 'procurement.order',
+                                            procurement.id, 'button_check', cr)
 
         return picking_id
 
