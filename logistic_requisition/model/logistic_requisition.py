@@ -38,6 +38,7 @@ class logistic_requisition(orm.Model):
     _name = "logistic.requisition"
     _description = "Logistic Requisition"
     _inherit = ['mail.thread']
+    _order = "name desc"
 
     REQ_STATES = {'confirmed': [('readonly', True)],
                   'done': [('readonly', True)]
@@ -387,7 +388,7 @@ class logistic_requisition_line(orm.Model):
     _description = "Logistic Requisition Line"
     _inherit = ['mail.thread']
 
-    _order = "requisition_id asc, name asc"
+    _order = "requisition_id desc, name desc"
 
     REQUEST_STATES = {'assigned': [('readonly', True)],
                       'sourced': [('readonly', True)],
@@ -842,6 +843,13 @@ class logistic_requisition_source(orm.Model):
         'po_requisition_id': fields.many2one(
             'purchase.requisition', 'Purchase Requisition',
             readonly=True),
+        'proposed_product_id': fields.related(
+            'requisition_line_id', 'product_id',
+            type='many2one',
+            relation='product.product',
+            string='Proposed Product',
+            readonly=True,
+            store=True),
         'proposed_qty': fields.float(
             'Proposed Qty',
             states=SOURCED_STATES,
@@ -859,6 +867,7 @@ class logistic_requisition_source(orm.Model):
              ('fw_agreement', 'Framework Agreement'),
              ],
             string='Procurement Method',
+            required=True,
             states=SOURCED_STATES),
         'dispatch_location_id': fields.many2one(
             'stock.location',
@@ -944,7 +953,7 @@ class logistic_requisition_source(orm.Model):
     }
 
     _defaults = {
-        'transport_applicable': True,
+        'transport_applicable': False,
         'price_is': 'fixed',
         'name': '/',
     }
