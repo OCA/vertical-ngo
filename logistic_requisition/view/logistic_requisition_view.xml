@@ -572,7 +572,8 @@
                                     attrs="{'invisible': [('procurement_method', '!=', 'wh_dispatch')]}">
                                     <field name="dispatch_location_id"
                                         on_change="onchange_dispatch_location_id(dispatch_location_id)" 
-                                        attrs="{'required': [('procurement_method', '=', 'wh_dispatch')]}" />
+                                        attrs="{'required': [('procurement_method', '=', 'wh_dispatch')]}" 
+                                        domain="[('usage', '!=', 'view')]"/>
                                     <field name="stock_owner" />
                                 </group>
                                 <group string="Transport Plan"
