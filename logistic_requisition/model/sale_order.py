@@ -145,7 +145,8 @@ class sale_order_line(orm.Model):
             logistic_requisition_source.PRICE_IS_SELECTION,
             string='Price is',
             help="When the price is an estimation, the final price may change. "
-                 "I.e. it is not based on a request for quotation.")
+                 "I.e. it is not based on a request for quotation."),
+        'account_code': fields.char('Account Code', size=32)
     }
 
     _defaults = {

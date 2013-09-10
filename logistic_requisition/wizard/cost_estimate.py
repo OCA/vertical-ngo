@@ -145,6 +145,7 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
                 'price_is': sourcing.price_is,
                 'product_uom_qty': sourcing.proposed_qty,
                 'product_uom': sourcing.proposed_uom_id.id,
+                'account_code': sourcing.requisition_line_id.account_code,
                 }
         if sourcing.dispatch_location_id:
             vals['location_id'] = sourcing.dispatch_location_id.id
