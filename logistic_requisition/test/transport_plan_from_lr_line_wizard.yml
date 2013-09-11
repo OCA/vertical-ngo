@@ -24,6 +24,7 @@
     requisition_line_id: logistic_requisition_line_tpw_01
     proposed_qty: 100
     transport_applicable: 1
+    procurement_method: wh_dispatch
 -
   And I add a second line with an assignee
 -
@@ -41,6 +42,7 @@
     requisition_line_id: logistic_requisition_line_tpw_02
     proposed_qty: 100
     transport_applicable: 1
+    procurement_method: wh_dispatch
 -
   When I confirm the logistic requisition
 -
