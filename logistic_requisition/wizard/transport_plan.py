@@ -81,9 +81,9 @@ class logistic_requisition_source_transport_plan(orm.TransientModel):
         if context is None:
             return False
         lines = self._get_default_lines(cr, uid, context=context)
-        if len(lines) != 1:
+        if any(lines[0].requisition_line_id != x.requisition_line_id for x in lines):
             return False
-        return lines[0].date_eta
+        return lines[0].requisition_line_id.date_delivery
 
     def _get_default_from_address(self, cr, uid, context=None):
         """ Set the default source address,
@@ -144,7 +144,8 @@ class logistic_requisition_source_transport_plan(orm.TransientModel):
         vals = self._prepare_transport_plan(cr, uid, form, lines, context=context)
         transport_id = transport_obj.create(cr, uid, vals, context=context)
         source_obj.write(cr, uid, source_ids,
-                         {'transport_plan_id': transport_id},
+                         {'transport_plan_id': transport_id,
+                          'transport_applicable': True},
                          context=context)
         return self._open_transport_plan(cr, uid, transport_id, context=context)
 
