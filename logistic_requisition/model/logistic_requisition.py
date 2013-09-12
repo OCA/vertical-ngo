@@ -1178,6 +1178,7 @@ class logistic_requisition_source(orm.Model):
             cr, uid, id, default=std_default, context=context)
 
     def onchange_transport_plan_id(self, cr, uid, ids, transport_plan_id, context=None):
+        # Even if date fields are related we want to have immediate visual feedback
         value = {'date_eta': False,
                  'date_etd': False}
         if transport_plan_id:
