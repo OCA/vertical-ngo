@@ -57,7 +57,7 @@
                     </div>
                     <group>
                         <group>
-                            <field name="partner_id" on_change="onchange_requester_id(partner_id)"/>
+                            <field name="partner_id"/>
                             <field name="consignee_id"
                                    on_change="onchange_consignee_id(consignee_id)"
                                    attrs="{'required': [('cost_estimate_only', '=', False)]}"/>
@@ -70,8 +70,6 @@
                         <group>
                             <field name="date"/>
                             <field name="date_delivery"/>
-                            <field name="requester_type"
-                                on_change="onchange_requester_type(requester_type)" />
                             <field name="cost_estimate_only"/>
                             <field name="preferred_transport"/>
                             <field name="source_document"/>
@@ -179,7 +177,6 @@
                 <field name="state"/>
                 <field name="sourced" widget="progressbar"/>
                 <field name="partner_id" invisible="1"/>
-                <field name="requester_type" invisible="1"/>
             </tree>
         </field>
     </record>
@@ -205,9 +202,8 @@
                     help="Your assigned Requisition"/>
                 <filter string="Unassigned"  domain="[('user_id','=', False)]" help="Unassigned Requisition"/>
                 <separator/>
-                <filter string="Cost Estimate Only"  domain="[('cost_estimate_only','=', True)]" help="Show cost estimate only"/>
-                <filter string="Internal (Federation)"  domain="[('requester_type','=', 'internal')]" help="Requestor is the Federation"/>
-                <filter string="External (NS, Others)"  domain="[('requester_type','&lt;&gt;', 'internal')]" help="Requestor is External or National Societe"/>
+                <filter name="cost_estimate_only" string="Cost Estimate Only"
+                    domain="[('cost_estimate_only','=', True)]" help="Show cost estimate only"/>
                 <separator/>
                 <field name="name"/>
                 <field name="user_id" />
@@ -215,11 +211,10 @@
                 <field name="analytic_id" />
                 <group expand="0" string="Group By...">
                     <filter string="Business Unit Officer" domain="[]" context="{'group_by':'user_id'}"/>
-                    <filter string="Requesting Entity" domain="[]" context="{'group_by':'partner_id'}"/>
+                    <filter name="partner_id" string="Requesting Entity" domain="[]" context="{'group_by':'partner_id'}"/>
                     <filter string="Country" domain="[]" context="{'group_by':'country_id'}"/>
                     <filter string="Project" domain="[]" context="{'group_by':'analytic_id'}"/>
                     <separator/>
-                    <filter string="Type of Requestor" domain="[]" context="{'group_by':'requester_type'}"/>
                     <filter string="State" domain="[]" context="{'group_by':'state'}"/>
                     <separator/>
                     <filter string="Requisition Date" domain="[]" context="{'group_by':'date'}"/>
@@ -262,7 +257,6 @@
              <field name="budget_tot_price" sum="Total Budget"/>
              <field name="state"/>
              <field name="country_id" invisible="1"/>
-             <field name="requester_type" invisible="1"/>
            </tree>
         </field>
     </record>
@@ -382,7 +376,6 @@
                                 options="{'currency_field': 'currency_id'}"/>
                         </group>
                         <group>
-                            <field name="requester_type"/>
                             <field name="cost_estimate_only"/>
                             <field name="logistic_user_id"/>
                             <field name="account_id"/>
@@ -394,13 +387,16 @@
                             <group>
                               <field name="source_ids" nolabel="1"
                                 options='{"reload_on_button": true}'
-                                context="{'default_requisition_line_id': active_id}">
+                                context="{'default_requisition_line_id': active_id,
+                                          'default_proposed_product_id': product_id,
+                                          'default_proposed_uom_id': requested_uom_id}">
                                     <tree string="Sourcing Lines">
                                         <field name="state" invisible="1"/>
                                         <field name="name"/>
                                         <field name="procurement_method"/>
-                                        <field name="proposed_qty" sum="Total Proposed"/>
+                                        <field name="proposed_product_id"/>
                                         <field name="proposed_uom_id"/>
+                                        <field name="proposed_qty" sum="Total Proposed"/>
                                         <field name="unit_cost"/>
                                         <field name="total_cost" sum="Total Budget"/>
                                         <field name="po_requisition_id" invisible="1"/>
@@ -451,16 +447,15 @@
                 <filter name="quoted" string="Quoted"
                     domain="[('state','=','quoted')]"/>
                 <separator/>
-                <filter string="My Requisition Line"
+                <filter name="my_lines" string="My Requisition Line"
                     domain="[('logistic_user_id','=', uid)]"
                     help="Your assigned Requisition Line"/>
-                <filter string="Unassigned"
+                <filter name="unassigned" string="Unassigned"
                     domain="[('logistic_user_id','=', False)]"
                     help="Unassigned Requisition"/>
                 <separator/>
-                <filter string="Cost Estimate Only"  domain="[('cost_estimate_only','=', True)]" help="Show cost estimate only"/>
-                <filter string="Internal (Federation)"  domain="[('requester_type','=', 'internal')]" help="Requestor is the Federation"/>
-                <filter string="External (NS, Others)"  domain="[('requester_type','&lt;&gt;', 'internal')]" help="Requestor is External or National Societe"/>
+                <filter name="cost_estimate_only" string="Cost Estimate Only"
+                    domain="[('cost_estimate_only','=', True)]" help="Show cost estimate only"/>
                 <separator/>
                 <field name="requisition_id" />
                 <field name="name"/>
@@ -468,14 +463,18 @@
                 <field name="logistic_user_id" />
 
                 <group expand="0" string="Group By...">
-                    <filter string="Assigned Specialist" domain="[]" context="{'group_by':'logistic_user_id'}"/>
-                    <filter string="Logistic Requisition" domain="[]" context="{'group_by':'requisition_id'}"/>
+                    <filter name="groupby_logistic_user_id" string="Assigned Specialist"
+                        domain="[]" context="{'group_by':'logistic_user_id'}"/>
+                    <filter name="groupby_requisition_id" string="Logistic Requisition"
+                        domain="[]" context="{'group_by':'requisition_id'}"/>
                     <separator/>
-                    <filter string="State" domain="[]" context="{'group_by':'state'}"/>
-                     <filter string="Type of Requestor" domain="[]" context="{'group_by':'requester_type'}"/>
-                     <separator/>
-                    <filter string="Product" domain="[]" context="{'group_by':'product_id'}"/>
-                    <filter string="Country" domain="[]" context="{'group_by':'country_id'}"/>
+                    <filter name="groupby_state" string="State"
+                        domain="[]" context="{'group_by':'state'}"/>
+                    <separator/>
+                    <filter name="groupby_product_id" string="Product"
+                        domain="[]" context="{'group_by':'product_id'}"/>
+                    <filter name="groupby_country_id" string="Country"
+                        domain="[]" context="{'group_by':'country_id'}"/>
                 </group>
             </search>
         </field>
@@ -541,6 +540,7 @@
                             <group>
                                 <field name="state" invisible="1"/>
                                 <field name="procurement_method"/>
+                                <field name="proposed_product_id"/>
                                 <label for="proposed_qty"/>
                                 <div>
                                     <field name="proposed_qty" class="oe_inline"/>
@@ -564,8 +564,8 @@
                                             string="Purchase Requisition" type="object"
                                             attrs="{'invisible': [('po_requisition_id', '!=', False)]}" />
                                     </div>
-                                    <field name="selected_po_id"
-                                        on_change="onchange_selected_po_id(selected_po_id)"/>
+                                    <field name="selected_bid_id"
+                                        on_change="onchange_selected_bid_id(selected_bid_id)"/>
                                 </group>
                                 <group string="Warehouse Dispatch"
                                     colspan="4"

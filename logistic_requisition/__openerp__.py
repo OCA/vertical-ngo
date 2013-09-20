@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    Author:  Joël Grand-Guillaume
+#    Author:  Joël Grand-Guillaume, Jacques-Etienne Baudoux, Guewen Baconnier
 #    Copyright 2013 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -50,10 +50,9 @@ A Logistic requisition express a need that is requested somewhere.
           "security/ir.model.access.csv",
           "data/logistic_requisition_data.xml",
           "data/logistic_requisition_sequence.xml",
-          "view/logistic_requisition_view.xml",
+          "view/logistic_requisition.xml",
           "view/sale_order.xml",
           "view/transport_plan.xml",
-          "view/res_partner_view.xml",
           "view/cancel_reason.xml",
           "view/purchase_requisition.xml",
           "report/logistic_requisition_report.xml",
@@ -65,7 +64,6 @@ A Logistic requisition express a need that is requested somewhere.
           'test/requisition_cancel_reason.yml',
           'test/transport_plan.yml',
           'test/transport_plan_to_cost_estimate.yml',
-          'test/logistic_requisition_onchange.yml',
           'test/transport_plan_from_lr_line_wizard.yml',
           'test/logistic_requisition_report_test.yml',
           'test/test_picking_by_location_address.yml',

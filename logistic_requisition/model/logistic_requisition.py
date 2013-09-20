@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    Author:  Joël Grand-Guillaume
+#    Author:  Joël Grand-Guillaume, Jacques-Etienne Baudoux, Guewen Baconnier
 #    Copyright 2013 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -18,9 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from __future__ import division
+
 import logging
 import time
+
 from openerp.osv import fields, orm
 from openerp.tools.translate import _
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DT_FORMAT
@@ -28,10 +29,14 @@ import openerp.addons.decimal_precision as dp
 
 _logger = logging.getLogger(__name__)
 
-REQUESTER_TYPE = [('national_society', 'National Society'),
-                  ('external', 'External Organization'),
-                  ('internal', 'Federation (internal)'),
-                  ]
+
+class res_partner(orm.Model):
+    _inherit = "res.partner"
+
+    def _store_get_requisition_ids(self, cr, uid, ids, sfield, context=None):
+        req_obj = self.pool.get('logistic.requisition')
+        req_ids = req_obj.search(cr, uid, [(sfield, 'in', ids)], context=context)
+        return req_ids
 
 
 class logistic_requisition(orm.Model):
@@ -44,19 +49,11 @@ class logistic_requisition(orm.Model):
                   'done': [('readonly', True)]
                   }
 
-    def _get_from_partner(self, cr, uid, ids, context=None):
-        req_obj = self.pool.get('logistic.requisition')
-        req_ids = req_obj.search(cr, uid,
-                                 [('consignee_shipping_id', 'in', ids)],
-                                 context=context)
-        return req_ids
-
     _columns = {
         'name': fields.char(
             'Reference',
             required=True,
             readonly=True),
-
         # Not intended to match OpenERP origin field convention.
         # Source comes from paper
         'source_document': fields.char(
@@ -83,11 +80,6 @@ class logistic_requisition(orm.Model):
             'res.partner', 'Customer', required=True,
             states=REQ_STATES
         ),
-        'requester_type': fields.selection(
-            REQUESTER_TYPE,
-            string='Type of Requestor',
-            states=REQ_STATES
-        ),
         'consignee_id': fields.many2one(
             'res.partner', 'Consignee',
             states=REQ_STATES
@@ -105,10 +97,13 @@ class logistic_requisition(orm.Model):
             select=True,
             readonly=True,
             store={
-                'logistic.requisition': (lambda self, cr, uid, ids, c=None: ids,
-                                         ['consignee_shipping_id'],
-                                         10),
-                'res.partner': (_get_from_partner, ['country_id'], 10),
+                'logistic.requisition': (
+                    lambda self, cr, uid, ids, c=None: ids,
+                    ['consignee_shipping_id'], 10),
+                'res.partner': (
+                    lambda self, *a, **kw:
+                        self._store_get_requisition_ids(*a, sfield='consignee_shipping_id', **kw),
+                    ['country_id'], 10),
             }),
         'company_id': fields.many2one(
             'res.company',
@@ -165,14 +160,12 @@ class logistic_requisition(orm.Model):
             digits_compute=dp.get_precision('Account'),
             string='Total Budget',
             store={
-                'logistic.requisition': (lambda self, cr, uid, ids, c=None: ids,
-                                         ['line_ids'], 20),
-                'logistic.requisition.line': (lambda self, *args, **kwargs: self._store__get_requisitions(*args, **kwargs),
-                                              ['requested_qty',
-                                               'budget_unit_price',
-                                               'budget_tot_price',
-                                               'requisition_id'],
-                                              20),
+                'logistic.requisition': (
+                    lambda self, cr, uid, ids, c=None: ids,
+                    ['line_ids'], 20),
+                'logistic.requisition.line': (
+                    lambda self, *a, **kw: self._store_get_requisition_ids(*a, **kw),
+                    ['requested_qty', 'budget_unit_price', 'budget_tot_price', 'requisition_id'], 20),
             }),
         'sourced': fields.function(
             lambda self, *args, **kwargs: self._get_sourced(*args, **kwargs),
@@ -239,6 +232,14 @@ class logistic_requisition(orm.Model):
             res[requisition.id] = percentage
         return res
 
+    def _store_get_requisition_line_ids(self, cr, uid, ids, context=None):
+        req_line_obj = self.pool.get('logistic.requisition.line')
+        line_ids = req_line_obj.search(cr, uid,
+                                       [('requisition_id', 'in', ids)],
+                                       context=context)
+        return line_ids
+
+
     def _do_cancel(self, cr, uid, ids, reason_id, context=None):
         reqs = self.read(cr, uid, ids, ['line_ids'], context=context)
         line_ids = [lids for req in reqs for lids in req['line_ids']]
@@ -298,23 +299,6 @@ class logistic_requisition(orm.Model):
             'date_finance_officer': False,
         })
         return super(logistic_requisition, self).copy(cr, uid, id, default=default, context=context)
-
-    def onchange_requester_type(self, cr, uid, ids, requester_type, context=None):
-        values = {}
-        if requester_type:
-            if requester_type in ('external', 'national_society'):
-                values['cost_estimate_only'] = True
-            else:
-                values['cost_estimate_only'] = False
-        return {'value': values}
-
-    def onchange_requester_id(self, cr, uid, ids, partner_id, context=None):
-        values = {}
-        if partner_id:
-            partner_obj = self.pool.get('res.partner')
-            partner = partner_obj.browse(cr, uid, partner_id, context=context)
-            values['requester_type'] = partner.requester_type
-        return {'value': values}
 
     def onchange_consignee_id(self, cr, uid, ids, consignee_id, context=None):
         values = {'consignee_shipping_id': False}
@@ -387,14 +371,12 @@ class logistic_requisition_line(orm.Model):
     _name = "logistic.requisition.line"
     _description = "Logistic Requisition Line"
     _inherit = ['mail.thread']
-
     _order = "requisition_id desc, name desc"
 
     REQUEST_STATES = {'assigned': [('readonly', True)],
                       'sourced': [('readonly', True)],
                       'quoted': [('readonly', True)],
                       }
-
     STATES = [('draft', 'Draft'),
               ('confirmed', 'Confirmed'),
               ('assigned', 'Assigned'),
@@ -402,22 +384,6 @@ class logistic_requisition_line(orm.Model):
               ('quoted', 'Quoted'),
               ('cancel', 'Cancelled')
               ]
-
-    def _get_from_partner(self, cr, uid, ids, context=None):
-        req_obj = self.pool.get('logistic.requisition')
-        req_line_obj = self.pool.get('logistic.requisition.line')
-        req_ids = req_obj.search(cr, uid,
-                                 [('consignee_shipping_id', 'in', ids)],
-                                 context=context)
-        return req_line_obj._get_from_requisition(cr, uid, req_ids,
-                                                  context=context)
-
-    def _get_from_requisition(self, cr, uid, ids, context=None):
-        req_line_obj = self.pool.get('logistic.requisition.line')
-        line_ids = req_line_obj.search(cr, uid,
-                                       [('requisition_id', 'in', ids)],
-                                       context=context)
-        return line_ids
 
     _columns = {
         'name': fields.char(u'Line N°', readonly=True),
@@ -484,25 +450,12 @@ class logistic_requisition_line(orm.Model):
             type='boolean',
             readonly=True,
             store={
-                'logistic.requisition.line': (lambda self, cr, uid, ids, c=None: ids,
-                                              ['requisition_id'], 10),
-                'logistic.requisition': (_get_from_requisition,
-                                         ['cost_estimate_only'],
-                                         10),
-                }
-            ),
-        'requester_type': fields.related(
-            'requisition_id', 'requester_type',
-            string='Type of Requestor',
-            type='selection',
-            selection=REQUESTER_TYPE,
-            readonly=True,
-            store={
-                'logistic.requisition.line': (lambda self, cr, uid, ids, c=None: ids,
-                                              ['requisition_id'], 10),
-                'logistic.requisition': (_get_from_requisition,
-                                         ['requester_type'],
-                                         10),
+                'logistic.requisition.line': (
+                    lambda self, cr, uid, ids, c=None: ids,
+                    ['requisition_id'], 10),
+                'logistic.requisition': (
+                    lambda self, *a, **kw: self._store_get_requisition_line_ids(*a, **kw),
+                    ['cost_estimate_only'], 10),
                 }
             ),
         'state': fields.selection(
@@ -617,11 +570,10 @@ class logistic_requisition_line(orm.Model):
         # done, so try to change the state
         req_obj._do_done(cr, uid, req_ids, context=context)
 
-    def _store__get_requisitions(self, cr, uid, ids, context=None):
-        # _classic_write returns only the m2o id and not the name_get's tuple
+    def _store_get_requisition_ids(self, cr, uid, ids, context=None):
         reqs = self.read(cr, uid, ids, ['requisition_id'],
                          context=context, load='_classic_write')
-        return [x['requisition_id'] for x in reqs]
+        return list(set([x['requisition_id'] for x in reqs]))
 
     def _get_unit_amount_line(self, cr, uid, ids, prop, unknow_none, unknow_dict, context=None):
         res = {}
@@ -800,25 +752,6 @@ class logistic_requisition_source(orm.Model):
                       'quoted': [('readonly', True)]
                       }
 
-    def _purchase_line_id(self, cr, uid, ids, field_name, arg, context=None):
-        """ For each line, returns the generated purchase line from the
-        purchase requisition.
-        """
-        result = {}
-        for line in self.browse(cr, uid, ids, context=context):
-            result[line.id] = False
-            bid_line = line.bid_line_id
-            if not bid_line:
-                continue
-            po_lines = bid_line.po_line_from_bid_ids
-            if not po_lines:
-                continue
-            assert len(po_lines) == 1, (
-                "We should not have several purchase order lines "
-                "for a logistic requisition line")
-            result[line.id] = po_lines[0].id if po_lines else False
-        return result
-
     _columns = {
         'name': fields.char('Source Name', readonly=True),
         'requisition_line_id': fields.many2one(
@@ -840,27 +773,18 @@ class logistic_requisition_source(orm.Model):
             selection=logistic_requisition_line.STATES,
             string='Line\'s State',
             readonly=True),
-        'po_requisition_id': fields.many2one(
-            'purchase.requisition', 'Purchase Requisition',
-            readonly=True),
-        'proposed_product_id': fields.related(
-            'requisition_line_id', 'product_id',
-            type='many2one',
-            relation='product.product',
+        'proposed_product_id': fields.many2one(
+            'product.product',
             string='Proposed Product',
-            readonly=True,
-            store=True),
+            states=SOURCED_STATES),
+        'proposed_uom_id': fields.many2one(
+            'product.uom',
+            string='Proposed UoM',
+            states=SOURCED_STATES),
         'proposed_qty': fields.float(
             'Proposed Qty',
             states=SOURCED_STATES,
             digits_compute=dp.get_precision('Product UoM')),
-        # to be able to display the UOM next to the qty
-        'proposed_uom_id': fields.related('requisition_line_id',
-                                          'requested_uom_id',
-                                          string='Proposed UoM',
-                                          type='many2one',
-                                          relation='product.uom',
-                                          readonly=True),
         'procurement_method': fields.selection(
             [('procurement', 'Procurement'),
              ('wh_dispatch', 'Warehouse Dispatch'),
@@ -913,27 +837,36 @@ class logistic_requisition_source(orm.Model):
             required=True,
             help="When the price is an estimation, the final price may change."
                  " I.e. it is not based on a request for quotation."),
+        #
+        'purchase_requisition_line_id': fields.many2one(
+            'purchase.requisition.line',
+            'Purchase Requisition Line',
+            ondelete='set null',
+            readonly=True),
+        'po_requisition_id': fields.related(
+            'purchase_requisition_line_id', 'requisition_id',
+            type='many2one',
+            relation='purchase.requisition',
+            string='Purchase Requisition',
+            readonly=True),
         # when filled, it means that it has been associated with a
         # bid order line during the split process
-        'bid_line_id': fields.many2one('purchase.order.line',
+        'selected_bid_line_id': fields.many2one('purchase.order.line',  # one2one relation with lr_source_line_id
                                        'Purchase Order Line',
-                                       readonly=True),
+                                       readonly=True,
+                                       ondelete='restrict'),
+        'selected_bid_id': fields.related('selected_bid_line_id',
+                                         'order_id',
+                                         type='many2one',
+                                         relation='purchase.order',
+                                         string='Selected Bid',
+                                         readonly=True),
         'purchase_line_id': fields.function(
-            _purchase_line_id,
+            lambda self, *a, **kw: self._get_purchase_line_id(*a, **kw),
             type='many2one',
             relation='purchase.order.line',
             readonly=True,
             string='Purchase Order Line'),
-        'selected_po_id': fields.related('purchase_line_id',
-                                         'order_id',
-                                         type='many2one',
-                                         relation='purchase.order',
-                                         string='Selected Purchase Order',
-                                         readonly=True),
-        'purchase_requisition_line_ids': fields.one2many(
-            'purchase.requisition.line', 'logistic_requisition_source_id',
-            'Purchase Requisition Lines',
-            readonly=True),
         # needed to set the default destination address of the transport plan
         # when created from the lr line view
         'consignee_shipping_id': fields.related(
@@ -943,7 +876,7 @@ class logistic_requisition_source(orm.Model):
         # 2 fields below needed to set the default origin address
         # of the transport plan when created from the lr line view
         'supplier_partner_id': fields.related(
-            'selected_po_id', 'partner_id',
+            'selected_bid_id', 'partner_id',
             type='many2one', relation='res.partner',
             string='Supplier Address', readonly=True),
         'location_partner_id': fields.related(
@@ -951,12 +884,28 @@ class logistic_requisition_source(orm.Model):
             type='many2one', relation='res.partner',
             string='Location Address', readonly=True),
     }
-
     _defaults = {
         'transport_applicable': False,
         'price_is': 'fixed',
         'name': '/',
     }
+    _constraints = [
+        (lambda self, *a, **kw: self._check_transport_plan(*a, **kw),
+         'Transport plan is mandatory for sourced requisition lines '
+         'when the transport is applicable.',
+         ['transport_plan_id']),
+        (lambda self, *a, **kw: self._check_transport_plan_unique(*a, **kw),
+         "A transport plan cannot be linked to lines of different "
+         "logistic requisitions.",
+         ['transport_plan_id', 'requisition_id']),
+        (lambda self, *a, **kw: self._check_source_lines_total_amount(*a, **kw),
+         'The total cost cannot be more than the total budget.',
+         ['proposed_qty', 'unit_cost', 'requisition_line_id']),
+        (lambda self, *a, **kw: self._check_purchase_requisition_unique(*a, **kw),
+         "A call for bids cannot be linked to lines of different "
+         "logistics requisitions.",
+         ['po_requisition_id', 'requisition_id']),
+    ]
 
     def _check_transport_plan(self, cr, uid, ids, context=None):
         lines = self.browse(cr, uid, ids, context=context)
@@ -968,7 +917,7 @@ class logistic_requisition_source(orm.Model):
                 return False
         return True
 
-    def _transport_plan_unique(self, cr, uid, ids, context=None):
+    def _check_transport_plan_unique(self, cr, uid, ids, context=None):
         for line in self.browse(cr, uid, ids, context=context):
             if not line.transport_plan_id:
                 continue
@@ -982,19 +931,20 @@ class logistic_requisition_source(orm.Model):
                     return False
         return True
 
-    def _purchase_requisition_unique(self, cr, uid, ids, context=None):
+    def _check_purchase_requisition_unique(self, cr, uid, ids, context=None):
         for line in self.browse(cr, uid, ids, context=context):
+            requisition_id = False
             if not line.po_requisition_id:
                 continue
-            purch_req = line.po_requisition_id
-            first_source = purch_req.logistic_requisition_source_ids[0]
-            requisition_id = first_source.requisition_line_id.requisition_id
-            for oline in purch_req.logistic_requisition_source_ids:
-                if oline.requisition_line_id.requisition_id != requisition_id:
-                    return False
+            for pr_line in line.po_requisition_id.line_ids:
+                for source in pr_line.logistic_requisition_source_ids:
+                    if not requisition_id:
+                        requisition_id = source.requisition_line_id.requisition_id
+                    elif requisition_id != source.requisition_line_id.requisition_id:
+                        return False
         return True
 
-    def _source_lines_total_amount(self, cr, uid, ids, context=None):
+    def _check_source_lines_total_amount(self, cr, uid, ids, context=None):
         for source in self.browse(cr, uid, ids, context=context):
             line = source.requisition_line_id
             total = sum(source.unit_cost * source.proposed_qty
@@ -1003,23 +953,24 @@ class logistic_requisition_source(orm.Model):
                 return False
         return True
 
-    _constraints = [
-        (_check_transport_plan,
-         'Transport plan is mandatory for sourced requisition lines '
-         'when the transport is applicable.',
-         ['transport_plan_id']),
-        (_transport_plan_unique,
-         "A transport plan cannot be linked to lines of different "
-         "logistic requisitions.",
-         ['transport_plan_id', 'requisition_id']),
-        (_source_lines_total_amount,
-         'The total cost cannot be more than the total budget.',
-         ['proposed_qty', 'unit_cost', 'requisition_line_id']),
-        (_purchase_requisition_unique,
-         "A purchase requisition cannot be linked to lines of different "
-         "logistics requisitions.",
-         ['po_requisition_id', 'requisition_id']),
-    ]
+    def _get_purchase_line_id(self, cr, uid, ids, field_name, arg, context=None):
+        """ For each line, returns the generated purchase line from the
+        purchase requisition.
+        """
+        result = {}
+        for line in self.browse(cr, uid, ids, context=context):
+            result[line.id] = False
+            bid_line = line.selected_bid_line_id
+            if not bid_line:
+                continue
+            po_lines = bid_line.po_line_from_bid_ids
+            if not po_lines:
+                continue
+            assert len(po_lines) == 1, (
+                "We should not have several purchase order lines "
+                "for a logistic requisition line")
+            result[line.id] = po_lines[0].id if po_lines else False
+        return result
 
     def create(self, cr, uid, vals, context=None):
         if (vals.get('name') or '/') == '/':
@@ -1090,7 +1041,7 @@ class logistic_requisition_source(orm.Model):
                 'product_uom_id': line.proposed_uom_id.id,
                 'product_qty': line.proposed_qty,
                 'schedule_date': line.requisition_line_id.date_delivery,
-                'logistic_requisition_source_id': line.id,
+                'logistic_requisition_source_ids': [(4, line.id)],
                 }
 
     def _action_create_po_requisition(self, cr, uid, ids, context=None):
@@ -1142,10 +1093,8 @@ class logistic_requisition_source(orm.Model):
             'transport_plan_id': False,
             'date_etd': False,
             'date_eta': False,
-            'po_requisition_id': False,
-            'selected_po_id': False,
-            'bid_line_id': False,
-            'purchase_requisition_line_ids': False,
+            'purchase_requisition_line_id': False,
+            'selected_bid_line_id': False,
             'name': False,
             'offer_ids': False,
         }
@@ -1178,7 +1127,8 @@ class logistic_requisition_source(orm.Model):
             value['location_partner_id'] = location.partner_id.id
         return {'value': value}
 
-    def onchange_selected_po_id(self, cr, uid, ids, selected_po_id, context=None):
+    def onchange_selected_bid_id(self, cr, uid, ids, selected_bid_id, context=None):
+        #FIXME: don't understand
         """ Get the address of the supplier and write it in the
         supplier_partner_id field, this field is a related read-only, so
         this change will never be submitted to the server. But it is
@@ -1186,9 +1136,9 @@ class logistic_requisition_source(orm.Model):
         plan in the context.
         """
         value = {'supplier_partner_id': False}
-        if selected_po_id:
+        if selected_bid_id:
             purchase_obj = self.pool.get('purchase.order')
-            purchase = purchase_obj.browse(cr, uid, selected_po_id,
+            purchase = purchase_obj.browse(cr, uid, selected_bid_id,
                                            context=context)
             value['supplier_partner_id'] = purchase.partner_id.id
         return {'value': value}
