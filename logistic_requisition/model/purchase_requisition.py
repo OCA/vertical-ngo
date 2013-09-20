@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    Author: Guewen Baconnier
+#    Author: Jacques-Etienne Baudoux, Guewen Baconnier
 #    Copyright 2013 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -19,137 +19,80 @@
 #
 ##############################################################################
 
-from collections import namedtuple
-from operator import attrgetter
 from openerp.osv import orm, fields
 from openerp.tools.translate import _
-from openerp import SUPERUSER_ID
-
-
-# Used for the split of the requisition lines from purchase lines.
-# Each requisition line is associated with a purchase line and
-# its new quantity. `newline` is a boolean defining if the requisition
-# line should be a new line or if we have to keep the existing one
-# (a newline will be a split of the `requisition_line`).
-CompletedItem = namedtuple('CompletedItem',
-                           ('requisition_source',
-                            'purchase_line',
-                            'newline',
-                            'quantity',
-                           ))
 
 
 class purchase_requisition(orm.Model):
     _inherit = 'purchase.requisition'
 
-    _columns = {
-        'logistic_requisition_source_ids': fields.one2many(
-            'logistic.requisition.source', 'po_requisition_id',
-            string='Logistic Requisition Sourcing Lines',
-            readonly=True),
-    }
-
-    def _prepare_split_logistic_source(self, cr, uid, purchase_requisition, context=None):
-        """ Prepare the split of the logistic requisition lines
-        according to the selected lines """
-        req_sources = purchase_requisition.logistic_requisition_source_ids
-        if not req_sources:
-            return []
-        all_po_lines = [line for line in purchase_requisition.po_line_ids
-                        if line.state == 'confirmed' and line.quantity_bid]
-        assert all_po_lines, "Expected to have lines in the purchase order, got no lines"
-
-        all_po_lines = sorted(all_po_lines,
-                              key=attrgetter('quantity_bid'),
-                              reverse=True)
-        req_sources = sorted(req_sources,
-                             key=attrgetter('proposed_qty'),
-                             reverse=True)
-        # requisition lines linked with the purchase order line and
-        # completed with the final quantity
-        dp_obj = self.pool.get('decimal.precision')
-        precision = dp_obj.precision_get(cr, SUPERUSER_ID,
-                                         'Product Unit of Measure')
-        completed_items = []
-        for sline in req_sources[:]:
-            remaining = sline.proposed_qty
-            newline = False
-            po_lines = [po_line for po_line in all_po_lines
-                        if sline == po_line.requisition_line_id.logistic_requisition_source_id]
-            for po_line in po_lines:
-
-                req_line = sline.requisition_line_id
-                if req_line.product_id != po_line.product_id:
-                    raise orm.except_orm(
-                        _('Error'),
-                        _("The product is not the same between the purchase "
-                          "order line and the logistic requisition line %s. "
-                          "This is not supported.") % sline.name)
-                if req_line.requested_uom_id != po_line.product_uom:
-                    raise orm.except_orm(
-                        _('Error'),
-                        _("The unit of measure is not the same between "
-                          "the purchase order line and the logistic "
-                          "requisition line %s. This is not supported.") %
-                        sline.name)
-
-                remaining = remaining - po_line.quantity_bid
-                current = CompletedItem(requisition_source=sline,
-                                        purchase_line=po_line,
-                                        newline=newline,
-                                        quantity=po_line.quantity_bid)
-                completed_items.append(current)
-                # the current req. line is completed, so
-                # if we have another purchase line or a remaining
-                # quantity, we will need to create a new line
-                newline = True
-
-        return completed_items
-
-    def _split_completed_items(self, cr, uid, id, context=None):
-        """ Effectively split the logistic requisition source lines
-
-        :param completed_items: list of CompletedItem instances
+    def _split_requisition_sources(self, cr, uid, id, context=None):
+        """ Effectively split the logistic requisition sources.
+        For each selected bid line, we ensure there is a corresponding source
+        (one2one relation) and we update the source data with the bid line data.
         """
         if isinstance(id, (tuple, list)):
             assert len(id) == 1, (
-                "_split_completed_items() accepts only 1 ID, "
+                "_split_requisition_source_lines() accepts only 1 ID, "
                 "got: %s" % id)
             id = id[0]
-        purchase_requisition = self.browse(cr, uid, id, context=context)
-        completed_items = self._prepare_split_logistic_source(
-            cr, uid, purchase_requisition, context=context)
         req_source_obj = self.pool.get('logistic.requisition.source')
-        for item in completed_items:
-            vals = {'price_is': 'fixed',
-                    'proposed_qty': item.quantity,
+        purchase_requisition = self.browse(cr, uid, id, context=context)
+        for pr_line in purchase_requisition.line_ids:
+            if not pr_line.logistic_requisition_source_ids:
+                # this call for bid line has been added manually
+                continue
+            source = pr_line.logistic_requisition_source_ids[0]
+            set_sources = set()
+            for pr_bid_line in pr_line.bid_line_ids:
+                vals = {
+                    'price_is': 'fixed',
+                    'proposed_qty': pr_bid_line.quantity_bid,
+                    'proposed_product_id': pr_bid_line.product_id.id,
+                    'proposed_uom_id': pr_bid_line.product_uom.id,
+                    'selected_bid_line_id': pr_bid_line.id,
+                    'unit_cost': pr_bid_line.price_unit,
+                    #FIXME: we need to take care of the scheduled date
+                    # set eta or etd depending if transport is included
                     }
-            if item.purchase_line is not None:
-                vals.update({
-                    'unit_cost': item.purchase_line.price_unit,
-                    'bid_line_id': item.purchase_line.id,
-                })
-
-            if item.newline:
-                origin = item.requisition_source
-                default_vals = {
-                    'proposed_qty': item.quantity,
-                    'date_eta': origin.date_eta,
-                    'date_etd': origin.date_etd,
-                    'transport_applicable': origin.transport_applicable,
-                }
-                if origin.transport_plan_id:
-                    default_vals['transport_plan_id'] = origin.transport_plan_id.id
-                # line_id = origin.split(item.quantity)
-                line_id = req_source_obj.copy(cr, uid, origin.id,
-                                              default=default_vals,
+                if source.transport_applicable:
+                    if pr_bid_line.order_id.transport == 'included':
+                        vals.update({'date_etd': False,
+                                     'date_eta': pr_bid_line.date_planned,
+                                     })
+                    else:
+                        vals.update({'date_etd': pr_bid_line.date_planned,
+                                     'date_eta': False,
+                                     })
+                else:
+                    vals.update({'date_etd': pr_bid_line.date_planned,
+                                 'date_eta': pr_bid_line.date_planned,
+                                 })
+                if not pr_bid_line.lr_source_line_id:
+                    if not pr_bid_line.quantity_bid or pr_bid_line.state not in ('confirmed', 'done'):
+                        # this bid line is not selected
+                        continue
+                    # We need to set the quantity on the LR source line and
+                    # create the one2one link with this bid line
+                    if not source.selected_bid_line_id and source.id not in set_sources:
+                        pr_line.logistic_requisition_source_ids[0].write(vals)
+                        pr_bid_line.write({'lr_source_line_id': source.id})
+                        set_sources.add(source.id)
+                    else:
+                        # create a new source line
+                        vals.update({'purchase_requisition_line_id': pr_line.id})
+                        new_id = req_source_obj.copy(cr, uid, source.id,
+                                              default=vals,
                                               context=context)
-                vals.update({
-                    'po_requisition_id': origin.po_requisition_id.id,
-                })
-            else:
-                line_id = item.requisition_source.id
-            req_source_obj.write(cr, uid, [line_id], vals, context=context)
+                        pr_bid_line.write({'lr_source_line_id': new_id})
+                else:
+                    if not pr_bid_line.quantity_bid or pr_bid_line.state not in ('confirmed', 'done'):
+                        # this bid line is not anymore selected
+                        pr_bid_line.lr_source_line_id.write({'proposed_qty': 0})
+                    else:
+                        # update source line
+                        pr_bid_line.lr_source_line_id.write(vals)
+        return
 
     def close_callforbids_ok(self, cr, uid, ids, context=None):
         """ We have to split the logistic requisition lines according to
@@ -158,7 +101,7 @@ class purchase_requisition(orm.Model):
         """
         result = super(purchase_requisition, self).close_callforbids_ok(
             cr, uid, ids, context=context)
-        self._split_completed_items(cr, uid, ids, context=context)
+        self._split_requisition_sources(cr, uid, ids, context=context)
         return result
 
     def _prepare_po_line_from_tender(self, cr, uid, tender, line,
@@ -175,24 +118,26 @@ class purchase_requisition(orm.Model):
         vals['from_bid_line_id'] = line.id
         return vals
 
-    def _prepare_purchase_order(self, cr, uid, requisition, supplier, context=None):
-        vals = super(purchase_requisition, self)._prepare_purchase_order(
-            cr, uid, requisition, supplier, context=context)
-        if requisition.logistic_requisition_source_ids:
-            # comes from a logistic.requisition -> generate direct
-            # delivery purchases, so we put the location customer
-            # of the first consignee_id (same consignee on all lines)
-            source = requisition.logistic_requisition_source_ids[0]
-            req = source.requisition_id
-            vals['location_id'] = req.consignee_id.property_stock_customer.id
-        return vals
+    #FIXME: we should not do that, the location must be known from the beginning of the RFQ-Bid process
+    #def _prepare_purchase_order(self, cr, uid, requisition, supplier, context=None):
+    #    vals = super(purchase_requisition, self)._prepare_purchase_order(
+    #        cr, uid, requisition, supplier, context=context)
+    #    if requisition.logistic_requisition_source_ids:
+    #        # comes from a logistic.requisition -> generate direct
+    #        # delivery purchases, so we put the location customer
+    #        # of the first consignee_id (same consignee on all lines)
+    #        source = requisition.logistic_requisition_source_ids[0]
+    #        req = source.requisition_id
+    #        vals['location_id'] = req.consignee_id.property_stock_customer.id
+    #    return vals
 
 
 class purchase_requisition_line(orm.Model):
     _inherit = 'purchase.requisition.line'
     _columns = {
-        'logistic_requisition_source_id': fields.many2one(
+        'logistic_requisition_source_ids': fields.one2many(
             'logistic.requisition.source',
-            string='Logistic Requisition Source Line',
+            'purchase_requisition_line_id',
+            string='Logistic Requisition Source Lines',
             readonly=True),
     }

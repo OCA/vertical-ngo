@@ -182,12 +182,6 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
                        'by the Budget Holder.'),
                      'NO_BUDGET_VALID')
             errors.append(error)
-        if (requisition.requester_type == 'internal' and
-                not requisition.finance_officer_id):
-            error = (_('An internal requisition must be validated '
-                       'by the Finance Officer.'),
-                     'NO_FINANCE_VALID')
-            errors.append(error)
         return errors
 
     def _check_line(self, cr, uid, line, context=None):

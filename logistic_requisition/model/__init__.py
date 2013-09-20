@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    Author:  Joël Grand-Guillaume
+#    Author:  Joël Grand-Guillaume, Jacques-Etienne Baudoux, Guewen Baconnier
 #    Copyright 2013 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -24,7 +24,6 @@ from . import logistic_requisition
 from . import purchase_requisition
 from . import stock
 from . import transport_plan
-from . import res_partner
 from . import requisition_cancel
 from . import procurement
 from . import purchase
