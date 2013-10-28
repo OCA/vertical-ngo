@@ -49,6 +49,10 @@ class logistic_requisition(orm.Model):
                   'done': [('readonly', True)]
                   }
 
+    def get_partner_requisition(self, cr, uid, ids, context=None):
+        model = self.pool['res.partner']
+        return model._store_get_requisition_ids(cr, uid, ids, sfield='consignee_shipping_id', context=context)
+        
     _columns = {
         'name': fields.char(
             'Reference',
@@ -101,8 +105,7 @@ class logistic_requisition(orm.Model):
                     lambda self, cr, uid, ids, c=None: ids,
                     ['consignee_shipping_id'], 10),
                 'res.partner': (
-                    lambda self, *a, **kw:
-                        self._store_get_requisition_ids(*a, sfield='consignee_shipping_id', **kw),
+                    get_partner_requisition,
                     ['country_id'], 10),
             }),
         'company_id': fields.many2one(
