@@ -1040,7 +1040,7 @@ class logistic_requisition_source(orm.Model):
                 _('The logistic requisition sourcing line %d '
                   'does not have any product defined, '
                   'please choose one.') % line.id)
-        return {'product_id': line.requisition_line_id.product_id.id,
+        return {'product_id': line.proposed_product_id.id,
                 'product_uom_id': line.proposed_uom_id.id,
                 'product_qty': line.proposed_qty,
                 'schedule_date': line.requisition_line_id.date_delivery,
