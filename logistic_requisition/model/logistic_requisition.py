@@ -1034,7 +1034,7 @@ class logistic_requisition_source(orm.Model):
                 _('Existing'),
                 _('The logistic requisition sourcing line %s is '
                   'already linked to a Purchase Requisition.') % line.name)
-        if not line.proposed_product_id.product_id:
+        if not line.proposed_product_id:
             raise orm.except_orm(
                 _('Missing information'),
                 _('The sourcing line %d '
