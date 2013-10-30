@@ -537,18 +537,12 @@ class logistic_requisition_line(orm.Model):
         self.write(cr, uid, ids, vals, context=context)
 
     def _do_sourced(self, cr, uid, ids, context=None):
-        sourced_types = ('procurement', 'fw_agreement')
         for line in self.browse(cr, uid, ids, context=context):
             for source in line.source_ids:
-                if source.procurement_method not in sourced_types:
-                    continue
-                if (not source.po_requisition_id or
-                        source.po_requisition_id.state != 'closed'):
-                    raise orm.except_orm(
-                        _('Error'),
-                        _('Line %s cannot be sourced because it has '
-                          'sourcing lines without accepted purchase '
-                          'requisition.') % line.name)
+                if not source._is_sourced():
+                    raise orm.except_orm(_('line %s is not sourced') % source.name,
+                                         _('Please create source ressource using'
+                                           ' various source line actions'))
         self.write(cr, uid, ids, {'state': 'sourced'}, context=context)
 
     def _do_draft(self, cr, uid, ids, context=None):
@@ -909,6 +903,33 @@ class logistic_requisition_source(orm.Model):
          "logistics requisitions.",
          ['po_requisition_id', 'requisition_id']),
     ]
+
+    def _is_sourced_procurement(self, cr, uid, source, context=None):
+        """Predicate function to test if line on procurement
+        method are sourced"""
+        if (not source.po_requisition_id or
+                source.po_requisition_id.state != 'closed'):
+            return False
+        return True
+
+    def _is_sourced_wh_dispatch(self, cr, uid, source, context=None):
+       """Predicate function to test if line on warehouse
+       method are sourced"""
+       return True
+
+    def _is_sourced(self, cr, uid, source_id, context=None):
+        """ check if line is source using predicate function
+        that must be called _is_sourced_ + name of procurement.
+        :returns: boolean True if sourced"""
+        if isinstance(source_id, list):
+            assert len(source_id) == 1
+            source_id = source_id[0]
+        source = self.browse(cr, uid, source_id, context=context)
+        callable_name = "_is_sourced_%s" % source.procurement_method
+        if not hasattr(self, callable_name):
+            raise NotImplementedError(callable_name)
+        callable_fun =  getattr(self, callable_name)
+        return callable_fun(cr, uid, source, context=context)
 
     def _check_transport_plan(self, cr, uid, ids, context=None):
         lines = self.browse(cr, uid, ids, context=context)
