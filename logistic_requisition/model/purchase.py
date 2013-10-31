@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    Author: Guewen Baconnier
+#    Author: Guewen Baconnier, Jacques-Etienne Baudoux
 #    Copyright 2013 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -70,6 +70,11 @@ class purchase_order_line(orm.Model):
     _inherit = 'purchase.order.line'
 
     _columns = {
+        'lr_source_line_id': fields.many2one(  # one2one relation with selected_bid_line_id
+            'logistic.requisition.source',
+            'Logistic Requisition Source',
+            readonly=True,
+            ondelete='restrict'),
         'from_bid_line_id': fields.many2one(
             'purchase.order.line',
             'Generated from bid',
