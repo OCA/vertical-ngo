@@ -49,6 +49,10 @@ class logistic_requisition(orm.Model):
                   'done': [('readonly', True)]
                   }
 
+    def get_partner_requisition(self, cr, uid, ids, context=None):
+        model = self.pool['res.partner']
+        return model._store_get_requisition_ids(cr, uid, ids, sfield='consignee_shipping_id', context=context)
+
     _columns = {
         'name': fields.char(
             'Reference',
@@ -101,8 +105,7 @@ class logistic_requisition(orm.Model):
                     lambda self, cr, uid, ids, c=None: ids,
                     ['consignee_shipping_id'], 10),
                 'res.partner': (
-                    lambda self, *a, **kw:
-                        self._store_get_requisition_ids(*a, sfield='consignee_shipping_id', **kw),
+                    get_partner_requisition,
                     ['country_id'], 10),
             }),
         'company_id': fields.many2one(
@@ -534,18 +537,12 @@ class logistic_requisition_line(orm.Model):
         self.write(cr, uid, ids, vals, context=context)
 
     def _do_sourced(self, cr, uid, ids, context=None):
-        sourced_types = ('procurement', 'fw_agreement')
         for line in self.browse(cr, uid, ids, context=context):
             for source in line.source_ids:
-                if source.procurement_method not in sourced_types:
-                    continue
-                if (not source.po_requisition_id or
-                        source.po_requisition_id.state != 'closed'):
-                    raise orm.except_orm(
-                        _('Error'),
-                        _('Line %s cannot be sourced because it has '
-                          'sourcing lines without accepted purchase '
-                          'requisition.') % line.name)
+                if not source._is_sourced():
+                    raise orm.except_orm(_('line %s is not sourced') % source.name,
+                                         _('Please create source ressource using'
+                                           ' various source line actions'))
         self.write(cr, uid, ids, {'state': 'sourced'}, context=context)
 
     def _do_draft(self, cr, uid, ids, context=None):
@@ -907,6 +904,33 @@ class logistic_requisition_source(orm.Model):
          ['po_requisition_id', 'requisition_id']),
     ]
 
+    def _is_sourced_procurement(self, cr, uid, source, context=None):
+        """Predicate function to test if line on procurement
+        method are sourced"""
+        if (not source.po_requisition_id or
+                source.po_requisition_id.state != 'closed'):
+            return False
+        return True
+
+    def _is_sourced_wh_dispatch(self, cr, uid, source, context=None):
+       """Predicate function to test if line on warehouse
+       method are sourced"""
+       return True
+
+    def _is_sourced(self, cr, uid, source_id, context=None):
+        """ check if line is source using predicate function
+        that must be called _is_sourced_ + name of procurement.
+        :returns: boolean True if sourced"""
+        if isinstance(source_id, list):
+            assert len(source_id) == 1
+            source_id = source_id[0]
+        source = self.browse(cr, uid, source_id, context=context)
+        callable_name = "_is_sourced_%s" % source.procurement_method
+        if not hasattr(self, callable_name):
+            raise NotImplementedError(callable_name)
+        callable_fun =  getattr(self, callable_name)
+        return callable_fun(cr, uid, source, context=context)
+
     def _check_transport_plan(self, cr, uid, ids, context=None):
         lines = self.browse(cr, uid, ids, context=context)
         states = ('sourced', 'quoted')
@@ -1031,13 +1055,13 @@ class logistic_requisition_source(orm.Model):
                 _('Existing'),
                 _('The logistic requisition sourcing line %s is '
                   'already linked to a Purchase Requisition.') % line.name)
-        if not line.requisition_line_id.product_id:
+        if not line.proposed_product_id:
             raise orm.except_orm(
                 _('Missing information'),
-                _('The logistic requisition sourcing line %d '
+                _('The sourcing line %d '
                   'does not have any product defined, '
                   'please choose one.') % line.id)
-        return {'product_id': line.requisition_line_id.product_id.id,
+        return {'product_id': line.proposed_product_id.id,
                 'product_uom_id': line.proposed_uom_id.id,
                 'product_qty': line.proposed_qty,
                 'schedule_date': line.requisition_line_id.date_delivery,
