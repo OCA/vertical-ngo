@@ -139,7 +139,7 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
     def _prepare_cost_estimate_line(self, cr, uid, sourcing, context=None):
         sale_line_obj = self.pool.get('sale.order.line')
         vals = {'logistic_requisition_source_id': sourcing.id,
-                'product_id': sourcing.requisition_line_id.product_id.id,
+                'product_id': sourcing.proposed_product_id.id,
                 'name': sourcing.requisition_line_id.description,
                 'price_unit': sourcing.unit_cost,
                 'price_is': sourcing.price_is,
