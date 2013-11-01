@@ -35,6 +35,7 @@ This module customizes the Sales Orders to disguise them in Logistic Orders
              "sale_validity",
              "transport_plan",
              "delivery",
+             "sale_ownership",
              "sale_order_webkit",
              ],
  "demo": [],
@@ -43,6 +44,7 @@ This module customizes the Sales Orders to disguise them in Logistic Orders
           'report/report.xml',
           ],
  "auto_install": False,
- "test": ['test/test_report.yml'],
+ "test": ['test/test_report.yml',
+          ],
  "installable": True,
  }

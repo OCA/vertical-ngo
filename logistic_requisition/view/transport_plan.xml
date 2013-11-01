@@ -7,9 +7,9 @@
             <field name="inherit_id" ref="transport_plan.view_transport_plan_form"/>
             <field name="arch" type="xml">
                 <xpath expr="/form/sheet/notebook/page[1]" position="after">
-                    <page string="Logistic Requisition Lines" name="lr_lines">
+                    <page string="Logistic Requisition Source Lines" name="lr_lines">
                         <group>
-                          <field name="logistic_requisition_line_ids"
+                          <field name="logistic_requisition_source_ids"
                             nolabel="1" />
                         </group>
                     </page>

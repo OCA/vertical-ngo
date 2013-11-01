@@ -25,6 +25,10 @@
                         states="draft"
                         class="oe_highlight"
                         type="object" />
+                    <button name="button_view_source_lines"
+                        string="View Sourcing Lines"
+                        states="confirmed,done,cancel"
+                        type="object" />
                     <button name="button_reset"
                         string="Reset to Draft"
                         states="cancel"
@@ -53,7 +57,7 @@
                     </div>
                     <group>
                         <group>
-                            <field name="partner_id" on_change="onchange_requester_id(partner_id)"/>
+                            <field name="partner_id"/>
                             <field name="consignee_id"
                                    on_change="onchange_consignee_id(consignee_id)"
                                    attrs="{'required': [('cost_estimate_only', '=', False)]}"/>
@@ -66,8 +70,6 @@
                         <group>
                             <field name="date"/>
                             <field name="date_delivery"/>
-                            <field name="requester_type"
-                                on_change="onchange_requester_type(requester_type)" />
                             <field name="cost_estimate_only"/>
                             <field name="preferred_transport"/>
                             <field name="source_document"/>
@@ -175,7 +177,6 @@
                 <field name="state"/>
                 <field name="sourced" widget="progressbar"/>
                 <field name="partner_id" invisible="1"/>
-                <field name="requester_type" invisible="1"/>
             </tree>
         </field>
     </record>
@@ -201,9 +202,8 @@
                     help="Your assigned Requisition"/>
                 <filter string="Unassigned"  domain="[('user_id','=', False)]" help="Unassigned Requisition"/>
                 <separator/>
-                <filter string="Cost Estimate Only"  domain="[('cost_estimate_only','=', True)]" help="Show cost estimate only"/>
-                <filter string="Internal (Federation)"  domain="[('requester_type','=', 'internal')]" help="Requestor is the Federation"/>
-                <filter string="External (NS, Others)"  domain="[('requester_type','&lt;&gt;', 'internal')]" help="Requestor is External or National Societe"/>
+                <filter name="cost_estimate_only" string="Cost Estimate Only"
+                    domain="[('cost_estimate_only','=', True)]" help="Show cost estimate only"/>
                 <separator/>
                 <field name="name"/>
                 <field name="user_id" />
@@ -211,11 +211,10 @@
                 <field name="analytic_id" />
                 <group expand="0" string="Group By...">
                     <filter string="Business Unit Officer" domain="[]" context="{'group_by':'user_id'}"/>
-                    <filter string="Requesting Entity" domain="[]" context="{'group_by':'partner_id'}"/>
+                    <filter name="partner_id" string="Requesting Entity" domain="[]" context="{'group_by':'partner_id'}"/>
                     <filter string="Country" domain="[]" context="{'group_by':'country_id'}"/>
                     <filter string="Project" domain="[]" context="{'group_by':'analytic_id'}"/>
                     <separator/>
-                    <filter string="Type of Requestor" domain="[]" context="{'group_by':'requester_type'}"/>
                     <filter string="State" domain="[]" context="{'group_by':'state'}"/>
                     <separator/>
                     <filter string="Requisition Date" domain="[]" context="{'group_by':'date'}"/>
@@ -257,11 +256,7 @@
              <field name="logistic_user_id"/>
              <field name="budget_tot_price" sum="Total Budget"/>
              <field name="state"/>
-             <button name="%(action_requisition_split_into)d" icon="gtk-justify-fill"
-                 string="Split the line" type="action"
-                 states="draft,confirmed,assigned" />
              <field name="country_id" invisible="1"/>
-             <field name="requester_type" invisible="1"/>
            </tree>
         </field>
     </record>
@@ -365,15 +360,13 @@
                     </div>
                     <group>
                         <group>
+                            <field name="product_id"
+                                on_change="onchange_product_id(product_id,requested_uom_id)"/>
                             <field name="description"/>
                             <label for="requested_qty"/>
                             <div>
                                 <field name="requested_qty" class="oe_inline"/>
                                 <field name="requested_uom_id" class="oe_inline"/>
-                                <button name="%(action_requisition_split_into)d"
-                                    string="Split"
-                                    type="action"
-                                    states="draft,confirmed,assigned" />
                             </div>
                             <field name="date_delivery"/>
                             <field name="currency_id" invisible="1"/>
@@ -383,7 +376,6 @@
                                 options="{'currency_field': 'currency_id'}"/>
                         </group>
                         <group>
-                            <field name="requester_type"/>
                             <field name="cost_estimate_only"/>
                             <field name="logistic_user_id"/>
                             <field name="account_id"/>
@@ -393,65 +385,30 @@
                     <notebook>
                         <page string="Sourcing">
                             <group>
-                                <group>
-                                    <field name="procurement_method"
-                                        attrs="{'required': [('state', 'in', ('assigned', 'sourced', 'quoted'))]}" />
-                                    <field name="product_id"
-                                        on_change="onchange_product_id(product_id,requested_uom_id)"/>
-                                    <label for="proposed_qty"/>
-                                    <div>
-                                        <field name="proposed_qty" class="oe_inline"/>
-                                        <field name="proposed_uom_id" class="oe_inline"/>
-                                    </div>
-                                    <field name="unit_cost" widget="monetary"
-                                        options="{'currency_field': 'currency_id'}"/>
-                                    <field name="total_cost" widget="monetary"
-                                        options="{'currency_field': 'currency_id'}"/>
-                                    <field name="price_is"/>
-                                    <field name="transport_applicable"/>
-                                </group>
-                                <group>
-                                    <group string="Call for Bids"
-                                        attrs="{'invisible': [('procurement_method', 'not in', ['procurement', 'fw_agreement'])]}"
-                                        colspan="4">
-                                        <label for="po_requisition_id"/>
-                                        <div>
-                                            <field name="po_requisition_id" class="oe_inline"/>
-                                            <button name="action_create_po_requisition"
-                                                string="Call for Bids" type="object"
-                                                states="assigned"
-                                                attrs="{'invisible': [('po_requisition_id', '!=', False)]}" />
-                                        </div>
-                                        <field name="selected_po_id"
-                                            on_change="onchange_selected_po_id(selected_po_id)"/>
-                                    </group>
-                                    <group string="Warehouse Dispatch"
-                                        colspan="4"
-                                        attrs="{'invisible': [('procurement_method', '!=', 'wh_dispatch')]}">
-                                        <field name="dispatch_location_id"
-                                            on_change="onchange_dispatch_location_id(dispatch_location_id)" />
-                                        <field name="stock_owner" />
-                                    </group>
-                                    <group string="Transport Plan"
-                                        attrs="{'invisible': [('transport_applicable', '!=', True)]}"
-                                        colspan="4">
-                                        <field name="consignee_shipping_id" invisible="1"/>
-                                        <field name="supplier_partner_id" invisible="1"/>
-                                        <field name="location_partner_id" invisible="1"/>
-                                        <field name="transport_plan_id"
-                                            attrs="{'required': [('transport_applicable', '=', True), ('state', 'in', ['assigned', 'sourced', 'quoted'])]}"
-                                            on_change="onchange_transport_plan_id(transport_plan_id)"
-                                            domain="['|', ('logistic_requisition_id', '=', False), ('logistic_requisition_id', '=', requisition_id)]"
-                                            context="{'default_to_address_id': consignee_shipping_id, 'default_from_address_id': (procurement_method == 'wh_dispatch' and location_partner_id) or (procurement_method != 'wh_dispatch' and supplier_partner_id)}"
-                                            />
-                                        <field name="date_etd"/>
-                                        <field name="date_eta"/>
-                                    </group>
-                                </group>
+                              <field name="source_ids" nolabel="1"
+                                options='{"reload_on_button": true}'
+                                context="{'default_requisition_line_id': active_id,
+                                          'default_proposed_product_id': product_id,
+                                          'default_proposed_uom_id': requested_uom_id}">
+                                    <tree string="Sourcing Lines">
+                                        <field name="state" invisible="1"/>
+                                        <field name="name"/>
+                                        <field name="procurement_method"/>
+                                        <field name="proposed_product_id"/>
+                                        <field name="proposed_uom_id"/>
+                                        <field name="proposed_qty" sum="Total Proposed"/>
+                                        <field name="unit_cost"/>
+                                        <field name="total_cost" sum="Total Budget"/>
+                                        <field name="po_requisition_id" invisible="1"/>
+                                        <button name="action_create_po_requisition" icon="gtk-execute"
+                                            string="Purchase Requisition" type="object"
+                                            attrs="{'invisible': ['|', '|', ('procurement_method', 'not in', ['procurement', 'fw_agreement']), ('state', '!=', 'assigned'), ('po_requisition_id', '!=', False)]}" />
+                                        <button name="action_open_po_requisition" icon="terp-stock_zoom"
+                                            string="Purchase Requisition" type="object"
+                                            attrs="{'invisible': [('po_requisition_id', '=', False)]}" />
+                                    </tree>
+                                </field>
                             </group>
-                        </page>
-                        <page string="Offers">
-                            <field name="offer_ids"/>
                         </page>
                     </notebook>
                     <group>
@@ -490,16 +447,15 @@
                 <filter name="quoted" string="Quoted"
                     domain="[('state','=','quoted')]"/>
                 <separator/>
-                <filter string="My Requisition Line"
+                <filter name="my_lines" string="My Requisition Line"
                     domain="[('logistic_user_id','=', uid)]"
                     help="Your assigned Requisition Line"/>
-                <filter string="Unassigned"
+                <filter name="unassigned" string="Unassigned"
                     domain="[('logistic_user_id','=', False)]"
                     help="Unassigned Requisition"/>
                 <separator/>
-                <filter string="Cost Estimate Only"  domain="[('cost_estimate_only','=', True)]" help="Show cost estimate only"/>
-                <filter string="Internal (Federation)"  domain="[('requester_type','=', 'internal')]" help="Requestor is the Federation"/>
-                <filter string="External (NS, Others)"  domain="[('requester_type','&lt;&gt;', 'internal')]" help="Requestor is External or National Societe"/>
+                <filter name="cost_estimate_only" string="Cost Estimate Only"
+                    domain="[('cost_estimate_only','=', True)]" help="Show cost estimate only"/>
                 <separator/>
                 <field name="requisition_id" />
                 <field name="name"/>
@@ -507,14 +463,18 @@
                 <field name="logistic_user_id" />
 
                 <group expand="0" string="Group By...">
-                    <filter string="Assigned Specialist" domain="[]" context="{'group_by':'logistic_user_id'}"/>
-                    <filter string="Logistic Requisition" domain="[]" context="{'group_by':'requisition_id'}"/>
+                    <filter name="groupby_logistic_user_id" string="Assigned Specialist"
+                        domain="[]" context="{'group_by':'logistic_user_id'}"/>
+                    <filter name="groupby_requisition_id" string="Logistic Requisition"
+                        domain="[]" context="{'group_by':'requisition_id'}"/>
                     <separator/>
-                    <filter string="State" domain="[]" context="{'group_by':'state'}"/>
-                     <filter string="Type of Requestor" domain="[]" context="{'group_by':'requester_type'}"/>
-                     <separator/>
-                    <filter string="Product" domain="[]" context="{'group_by':'product_id'}"/>
-                    <filter string="Country" domain="[]" context="{'group_by':'country_id'}"/>
+                    <filter name="groupby_state" string="State"
+                        domain="[]" context="{'group_by':'state'}"/>
+                    <separator/>
+                    <filter name="groupby_product_id" string="Product"
+                        domain="[]" context="{'group_by':'product_id'}"/>
+                    <filter name="groupby_country_id" string="Country"
+                        domain="[]" context="{'group_by':'country_id'}"/>
                 </group>
             </search>
         </field>
@@ -536,6 +496,138 @@
         sequence="10"
         parent="menu_logistic_requisition_base"
         action="action_logistic_requisition_line"/>
+
+    <record model="ir.ui.view" id="view_logistic_requisition_source_tree">
+        <field name="name">logistic.requisition.source.tree</field>
+        <field name="model">logistic.requisition.source</field>
+        <field name="arch" type="xml">
+           <tree string="Logistic Requisition Source" create="false">
+               <field name="state" invisible="1"/>
+               <field name="requisition_line_id"/>
+               <field name="name"/>
+               <field name="procurement_method"/>
+               <field name="proposed_product_id"/>
+               <field name="proposed_qty"/>
+               <field name="proposed_uom_id"/>
+               <field name="total_cost" sum="Total Budget"/>
+               <field name="po_requisition_id"/>
+               <button name="action_create_po_requisition" icon="gtk-execute"
+                   string="Purchase Requisition" type="object"
+                   attrs="{'invisible': ['|', '|', ('procurement_method', 'not in', ['procurement', 'fw_agreement']), ('state', '!=', 'assigned'), ('po_requisition_id', '!=', False)]}" />
+           </tree>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="view_logistic_requisition_source_form">
+        <field name="name">logistic.requisition.source.form</field>
+        <field name="model">logistic.requisition.source</field>
+        <field name="arch" type="xml">
+            <form string="Logistic Requisition Sourcing Lines" create="false" version="7.0">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <label string="Requisition Line"/>
+                            <field name="requisition_id"
+                                class="oe_inline" invisible="1"/>
+                            <field name="requisition_line_id"
+                                class="oe_inline" readonly="1"/> /
+                            <label string="Sourcing Line N° "/>
+                            <field name="name" class="oe_inline"/>
+                        </h1>
+                    </div>
+                    <notebook>
+                        <page string="Sourcing">
+                            <group>
+                                <field name="state" invisible="1"/>
+                                <field name="procurement_method"/>
+                                <field name="proposed_product_id"/>
+                                <label for="proposed_qty"/>
+                                <div>
+                                    <field name="proposed_qty" class="oe_inline"/>
+                                    <field name="proposed_uom_id" class="oe_inline"/>
+                                </div>
+                                <field name="unit_cost" widget="monetary"
+                                    options="{'currency_field': 'currency_id'}"/>
+                                <field name="total_cost" widget="monetary"
+                                    options="{'currency_field': 'currency_id'}"/>
+                                <field name="price_is"/>
+                                <field name="transport_applicable"/>
+                            </group>
+                            <group>
+                                <group string="Purchase Requisition"
+                                    attrs="{'invisible': [('procurement_method', 'not in', ['procurement', 'fw_agreement'])]}"
+                                    colspan="4">
+                                    <label for="po_requisition_id"/>
+                                    <div>
+                                        <field name="po_requisition_id" class="oe_inline"/>
+                                        <button name="action_create_po_requisition"
+                                            string="Purchase Requisition" type="object"
+                                            attrs="{'invisible': [('po_requisition_id', '!=', False)]}" />
+                                    </div>
+                                    <field name="selected_bid_id"
+                                        on_change="onchange_selected_bid_id(selected_bid_id)"/>
+                                </group>
+                                <group string="Warehouse Dispatch"
+                                    colspan="4"
+                                    attrs="{'invisible': [('procurement_method', '!=', 'wh_dispatch')]}">
+                                    <field name="dispatch_location_id"
+                                        on_change="onchange_dispatch_location_id(dispatch_location_id)" 
+                                        attrs="{'required': [('procurement_method', '=', 'wh_dispatch')]}" 
+                                        domain="[('usage', '!=', 'view')]"/>
+                                    <field name="stock_owner" />
+                                </group>
+                                <group string="Transport Plan"
+                                    attrs="{'invisible': [('transport_applicable', '!=', True)]}"
+                                    colspan="4">
+                                    <field name="consignee_shipping_id" invisible="1"/>
+                                    <field name="supplier_partner_id" invisible="1"/>
+                                    <field name="location_partner_id" invisible="1"/>
+                                    <field name="transport_plan_id"
+                                        attrs="{'required': [('transport_applicable', '=', True)]}"
+                                        on_change="onchange_transport_plan_id(transport_plan_id)"
+                                        domain="['|', ('logistic_requisition_id', '=', False), ('logistic_requisition_id', '=', requisition_id)]"
+                                        context="{'default_to_address_id': consignee_shipping_id, 'default_from_address_id': (procurement_method == 'wh_dispatch' and location_partner_id) or (procurement_method != 'wh_dispatch' and supplier_partner_id)}"
+                                        />
+                                    <field name="date_etd"/>
+                                    <field name="date_eta"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="offers">
+                            <field name="offer_ids"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_logistic_requisition_source_filter" model="ir.ui.view">
+        <field name="name">logistic.requisition.source.list.select</field>
+        <field name="model">logistic.requisition.source</field>
+        <field name="arch" type="xml">
+            <search string="Search Logistic Requisition Sourcing">
+                <field name="name"/>
+                <group expand="0" string="Group By...">
+                    <filter string="Requisition Line" name="groupby_requisition_line_id"
+                      domain="[]" context="{'group_by': 'requisition_line_id'}"/>
+                    <filter string="Procurement Method" name="groupby_procurement_method"
+                       domain="[]" context="{'group_by': 'procurement_method'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record model="ir.actions.act_window" id="action_logistic_requisition_source">
+        <field name="name">Requisitions Sourcing Lines</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">logistic.requisition.source</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context">{"search_default_groupby_procurement_method" : True}</field>
+        <field name="search_view_id" ref="view_logistic_requisition_source_filter"/>
+        <field name="help"></field>
+    </record>
 
     <record id="purchase.purchase_waiting" model="ir.actions.act_window">
         <field name="name">Cost Estimate Waiting Approval</field>
