@@ -749,6 +749,38 @@ class logistic_requisition_source(orm.Model):
                       'quoted': [('readonly', True)]
                       }
 
+    def _purchase_line_id(self, cr, uid, ids, field_name, arg, context=None):
+        """ For each line, returns the generated purchase line from the
+        purchase requisition.
+        """
+        result = {}
+        for line in self.browse(cr, uid, ids, context=context):
+            result[line.id] = False
+            bid_line = line.bid_line_id
+            if not bid_line:
+                continue
+            po_lines = bid_line.po_line_from_bid_ids
+            if not po_lines:
+                continue
+            assert len(po_lines) == 1, (
+                "We should not have several purchase order lines "
+                "for a logistic requisition line")
+            result[line.id] = po_lines[0].id if po_lines else False
+        return result
+
+    def _default_source_address(self, cr, uid, ids, field_name, arg, context=None):
+        """Return the default source address depending of the procurment method"""
+        res = {}
+        for line in self.browse(cr, uid, ids, context=context):
+            res[line.id] = False
+            if line.procurement_method == 'wh_dispatch':
+                loc_id = line.location_partner_id.id if line.location_partner_id else False
+                res[line.id] = loc_id
+            else:
+                sup_id = line.supplier_partner_id.id if line.supplier_partner_id else False
+                res[line.id] = sup_id
+            return res
+
     _columns = {
         'name': fields.char('Source Name', readonly=True),
         'requisition_line_id': fields.many2one(
@@ -801,12 +833,18 @@ class logistic_requisition_source(orm.Model):
             string='Stock Owner',
             readonly=True),
         # NOTE: date that should be used for the stock move reservation
-        'date_etd': fields.date('ETD',
-                                states=SOURCED_STATES,
-                                help="Estimated Date of Departure"),
-        'date_eta': fields.date('ETA',
-                                states=SOURCED_STATES,
-                                help="Estimated Date of Arrival"),
+        'date_etd': fields.related('transport_plan_id',
+                                   'date_etd',
+                                   readonly=True,
+                                   type='date',
+                                   string='ETD',
+                                   help="Estimated Date of Departure"),
+        'date_eta': fields.related('transport_plan_id',
+                                   'date_eta',
+                                   readonly=True,
+                                   type='date',
+                                   string='ETA',
+                                   help="Estimated Date of Arrival"),
         'offer_ids': fields.one2many('sale.order.line',
                                      'logistic_requisition_source_id',
                                      'Sales Quotation Lines',
@@ -880,6 +918,11 @@ class logistic_requisition_source(orm.Model):
             'dispatch_location_id', 'partner_id',
             type='many2one', relation='res.partner',
             string='Location Address', readonly=True),
+        'default_source_address': fields.function(_default_source_address,
+                                                  type='many2one',
+                                                  relation='res.partner',
+                                                  string='Default source',
+                                                  readonly=True)
     }
     _defaults = {
         'transport_applicable': False,
@@ -1127,6 +1170,7 @@ class logistic_requisition_source(orm.Model):
             cr, uid, id, default=std_default, context=context)
 
     def onchange_transport_plan_id(self, cr, uid, ids, transport_plan_id, context=None):
+        # Even if date fields are related we want to have immediate visual feedback
         value = {'date_eta': False,
                  'date_etd': False}
         if transport_plan_id:

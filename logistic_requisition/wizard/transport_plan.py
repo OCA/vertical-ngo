@@ -57,34 +57,70 @@ class logistic_requisition_source_transport_plan(orm.TransientModel):
         'note': fields.text('Remarks/Description'),
     }
 
-    def _get_default_transport_mode(self, cr, uid, context):
+    def _get_default_lines(self, cr, uid, context=None):
+        active_ids = context.get('active_ids')
+        if not active_ids:
+            return []
+        req_source_obj = self.pool['logistic.requisition.source']
+        lines = req_source_obj.browse(cr, uid, active_ids, context=context)
+        return lines
+
+    def _get_default_transport_mode(self, cr, uid, context=None):
         """ Set the default value for transport mode using
         preffered LR mode, if lines came from differents
         requisitions nothing is set"""
-        active_ids = context.get('active_ids')
-        if context is None or not active_ids:
+        if context is None:
             return False
-        req_source_obj = self.pool['logistic.requisition.source']
-        lines = req_source_obj.browse(cr, uid, active_ids, context=context)
+        lines = self._get_default_lines(cr, uid, context=context)
         if any(lines[0].requisition_id != x.requisition_id for x in lines):
             return False
-        else:
-            return lines[0].requisition_id.preferred_transport.id
+        return lines[0].requisition_id.preferred_transport.id
 
-    _defaults = {'transport_mode_id': _get_default_transport_mode}
+    def _get_default_date_eta_from_lines(self, cr, uid, context=None):
+        """ Set the default eta_date value"""
+        if context is None:
+            return False
+        lines = self._get_default_lines(cr, uid, context=context)
+        if any(lines[0].requisition_line_id != x.requisition_line_id for x in lines):
+            return False
+        return lines[0].requisition_line_id.date_delivery
+
+    def _get_default_from_address(self, cr, uid, context=None):
+        """ Set the default source address,
+        if lines came from differents
+        requisitions nothing is set"""
+        if context is None:
+            return False
+        lines = self._get_default_lines(cr, uid, context=context)
+        if any(lines[0].requisition_id != x.requisition_id for x in lines):
+            return False
+        if any(lines[0].default_source_address != x.default_source_address
+                for x in lines):
+            return False
+        return lines[0].default_source_address.id
+
+    def _get_default_to_address(self, cr, uid, context=None):
+        """ Set the default destination address,
+        if lines came from differents
+        requisitions nothing is set"""
+        if context is None:
+            return False
+        lines = self._get_default_lines(cr, uid, context=context)
+        if any(lines[0].requisition_id != x.requisition_id for x in lines):
+            return False
+        return lines[0].requisition_id.consignee_shipping_id.id
+
+    _defaults = {'transport_mode_id': _get_default_transport_mode,
+                 'date_eta': _get_default_date_eta_from_lines,
+                 'from_address_id': _get_default_from_address,
+                 'to_address_id': _get_default_to_address}
 
     def _prepare_transport_plan(self, cr, uid, form,
                                 line_brs, context=None):
         """ Prepare the values for the creation of a transport plan
         from a selection of requisition lines.
         """
-        date_eta = False
-        if form.date_eta:
-            date_eta = form.date_eta
-        else:
-            date_eta = self._get_date_eta_from_lines(cr, uid, line_brs,
-                                                     context=context)
-        vals = {'date_eta': date_eta,
+        vals = {'date_eta': form.date_eta,
                 'date_etd': form.date_etd,
                 'from_address_id': form.from_address_id.id,
                 'to_address_id': form.to_address_id.id,
@@ -93,11 +129,6 @@ class logistic_requisition_source_transport_plan(orm.TransientModel):
                 'note': form.note,
                 }
         return vals
-
-    def _get_date_eta_from_lines(self, cr, uid, line_brs, context=None):
-        if len(line_brs) != 1:
-            return False
-        return line_brs[0].date_eta
 
     def create_and_affect(self, cr, uid, ids, context=None):
         if context is None:
@@ -113,7 +144,8 @@ class logistic_requisition_source_transport_plan(orm.TransientModel):
         vals = self._prepare_transport_plan(cr, uid, form, lines, context=context)
         transport_id = transport_obj.create(cr, uid, vals, context=context)
         source_obj.write(cr, uid, source_ids,
-                         {'transport_plan_id': transport_id},
+                         {'transport_plan_id': transport_id,
+                          'transport_applicable': True},
                          context=context)
         return self._open_transport_plan(cr, uid, transport_id, context=context)
 
