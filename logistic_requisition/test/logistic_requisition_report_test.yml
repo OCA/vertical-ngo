@@ -14,7 +14,6 @@
         date_delivery: !eval "time.strftime('%Y-%m-%d')"
         budget_tot_price: 1000
         logistic_user_id: base.user_demo
-        transport_applicable: 0
         account_code: 'Shazam!'
 -
  I print the report

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    Author:  Joël Grand-Guillaume
+#    Author:  Joël Grand-Guillaume, Jacques-Etienne Baudoux, Guewen Baconnier
 #    Copyright 2013 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -36,15 +36,12 @@ A Logistic requisition express a need that is requested somewhere.
 """,
  "depends": ["transport_plan",
              "purchase",
-             "purchase_requisition",
+             "purchase_requisition_extended",
              "mail",
-             "sale_ownership",
              "logistic_order",
-             'stock_location_ownership',
              ],
  "demo": ['data/logistic_requisition_demo.xml'],
- "data": ["wizard/logistic_requisition_split_line_view.xml",
-          "wizard/logistic_line_create_requisition_view.xml",
+ "data": ["wizard/logistic_line_create_requisition_view.xml",
           "wizard/assign_line_view.xml",
           "wizard/transport_plan_view.xml",
           "wizard/cost_estimate_view.xml",
@@ -53,11 +50,11 @@ A Logistic requisition express a need that is requested somewhere.
           "security/ir.model.access.csv",
           "data/logistic_requisition_data.xml",
           "data/logistic_requisition_sequence.xml",
-          "view/logistic_requisition_view.xml",
+          "view/logistic_requisition.xml",
           "view/sale_order.xml",
           "view/transport_plan.xml",
-          "view/res_partner_view.xml",
           "view/cancel_reason.xml",
+          "view/purchase_requisition.xml",
           "report/logistic_requisition_report.xml",
           "data/logistic.requisition.cancel.reason.csv",
           ],
@@ -65,12 +62,11 @@ A Logistic requisition express a need that is requested somewhere.
  "test": ['test/line_assigned.yml',
           'test/requisition_create_cost_estimate.yml',
           'test/requisition_cancel_reason.yml',
-          'test/requisition_confirm_bid.yml',
           'test/transport_plan.yml',
           'test/transport_plan_to_cost_estimate.yml',
-          'test/logistic_requisition_onchange.yml',
           'test/transport_plan_from_lr_line_wizard.yml',
           'test/logistic_requisition_report_test.yml',
+          'test/test_picking_by_location_address.yml',
           ],
  "installable": True,
  }

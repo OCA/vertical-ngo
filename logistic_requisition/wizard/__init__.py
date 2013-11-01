@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from . import logistic_requisition_split_line
 from . import logistic_line_create_requisition
 from . import assign_line
 from . import cost_estimate

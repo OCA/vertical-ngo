@@ -19,22 +19,19 @@
 #
 ##############################################################################
 
-from openerp.osv.orm import TransientModel
-from openerp.osv import fields, osv
+from openerp.osv import orm
 from openerp.tools.translate import _
-import openerp.addons.decimal_precision as dp
 
-class LogisticRequisitionLineCreateRequisition(TransientModel):
-    _name = "logistic.requisition.line.create.requisition"
-    _description = "Create Purchase Requisition From Requisition Line"
+
+class LogisticRequisitionSourceCreateRequisition(orm.TransientModel):
+    _name = "logistic.requisition.source.create.requisition"
+    _description = "Create Purchase Requisition From Requisition Source"
 
     def create_po_requisition(self, cr, uid, ids, context=None):
-        line_obj = self.pool.get('logistic.requisition.line')
-        if context is None:
-            context = {}
-        requisition_id = line_obj._action_create_po_requisition(cr, uid, context.get('active_ids',[]), context)
+        source_obj = self.pool.get('logistic.requisition.source')
+        requisition_id = source_obj._action_create_po_requisition(
+            cr, uid, context.get('active_ids', []), context=context)
         return {
-            # 'domain': "[('id','=', "requisition_id")]",
             'name': _('Purchase Requisition'),
             'view_type': 'form',
             'view_mode': 'form',
@@ -43,5 +40,3 @@ class LogisticRequisitionLineCreateRequisition(TransientModel):
             'view_id': False,
             'type': 'ir.actions.act_window',
         }
-
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

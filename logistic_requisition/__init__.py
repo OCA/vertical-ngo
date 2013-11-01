@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    Author:  Joël Grand-Guillaume
+#    Author:  Joël Grand-Guillaume, Jacques-Etienne Baudoux, Guewen Baconnier
 #    Copyright 2013 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify

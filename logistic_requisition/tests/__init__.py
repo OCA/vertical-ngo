@@ -18,5 +18,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
+from . import test_purchase_split_requisition
+from . import test_sale_order_from_lr_confirm
+from . import test_mto_workflow
 from . import transport_plan_date
-checks = [transport_plan_date]
+
+
+fast_suite = [
+]
+
+checks = [
+    test_purchase_split_requisition,
+    test_sale_order_from_lr_confirm,
+    test_mto_workflow,
+    transport_plan_date,
+]
