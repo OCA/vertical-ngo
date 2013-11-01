@@ -33,10 +33,12 @@ def create(test, vals):
     cr, uid = test.cr, test.uid
     log_req_obj = test.registry('logistic.requisition')
     vals = vals.copy()
-    vals.update(
-        log_req_obj.onchange_requester_id(
-            cr, uid, [], vals.get('partner_id'))['value']
-    )
+    # Commented as the on_change method is in the IFRC specific
+    # addons currently
+    # vals.update(
+    #     log_req_obj.onchange_requester_id(
+    #         cr, uid, [], vals.get('partner_id'))['value']
+    # )
     vals.update(
         log_req_obj.onchange_consignee_id(
             cr, uid, [], vals.get('consignee_id'))['value']

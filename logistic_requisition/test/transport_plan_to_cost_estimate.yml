@@ -46,6 +46,7 @@
   !record {model: logistic.requisition.source, id: logistic_requisition_source_tpe_01}:
     requisition_line_id: logistic_requisition_line_tpe_01
     proposed_qty: 100
+    proposed_product_id: product.product_product_7
     unit_cost: 10
     transport_applicable: 1
     transport_plan_id: transport_plan_tpe_01
@@ -68,6 +69,7 @@
   !record {model: logistic.requisition.source, id: logistic_requisition_source_tpe_02}:
     requisition_line_id: logistic_requisition_line_tpe_02
     proposed_qty: 100
+    proposed_product_id: product.product_product_8
     unit_cost: 10
     transport_applicable: 1
     transport_plan_id: transport_plan_tpe_01
@@ -90,6 +92,7 @@
   !record {model: logistic.requisition.source, id: logistic_requisition_source_tpe_03}:
     requisition_line_id: logistic_requisition_line_tpe_03
     proposed_qty: 100
+    proposed_product_id: product.product_product_8
     unit_cost: 10
     transport_applicable: 1
     transport_plan_id: transport_plan_tpe_02
