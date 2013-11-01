@@ -44,7 +44,8 @@ class purchase_requisition(orm.Model):
                 continue
             source = pr_line.logistic_requisition_source_ids[0]
             set_sources = set()
-            for pr_bid_line in pr_line.bid_line_ids:
+            # Look for po lines of this purchase_requisition line
+            for pr_bid_line in pr_line.purchase_line_ids:
                 vals = {
                     'price_is': 'fixed',
                     'proposed_qty': pr_bid_line.quantity_bid,
