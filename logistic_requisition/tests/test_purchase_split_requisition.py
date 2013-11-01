@@ -88,6 +88,8 @@ class test_purchase_split_requisition(common.TransactionCase):
         }
         source = {
             'proposed_qty': 100,
+            'proposed_product_id': self.product_7,
+            'proposed_uom_id': self.product_uom_pce,
             'transport_applicable': 0,
             'procurement_method': 'procurement',
             'price_is': 'estimated',
@@ -120,13 +122,13 @@ class test_purchase_split_requisition(common.TransactionCase):
         req_line = self.log_req_line.browse(self.cr, self.uid, self.line_id)
         bid_line_ids = [line.id for line in bid_lines]
         sources = [source for source in req_line.source_ids
-                   if source.bid_line_id.id in bid_line_ids]
+                   if source.selected_bid_line_id.id in bid_line_ids]
         self.assertEquals(len(sources),
                           len(bid_lines),
                           "The requisition lines should be linked with the "
                           "purchase lines.")
         for source in sources:
-            bid_line = source.bid_line_id
+            bid_line = source.selected_bid_line_id
             self.assertEquals(source.price_is,
                               'fixed',
                               "The requisition line price should be fixed. ")

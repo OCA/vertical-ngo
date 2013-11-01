@@ -23,6 +23,7 @@
   !record {model: logistic.requisition.source, id: logistic_requisition_source_tpw_01}:
     requisition_line_id: logistic_requisition_line_tpw_01
     proposed_qty: 100
+    proposed_product_id: product.product_product_7
     transport_applicable: 1
     procurement_method: wh_dispatch
 -
@@ -41,6 +42,7 @@
   !record {model: logistic.requisition.source, id: logistic_requisition_source_tpw_02}:
     requisition_line_id: logistic_requisition_line_tpw_02
     proposed_qty: 100
+    proposed_product_id: product.product_product_8
     transport_applicable: 1
     procurement_method: wh_dispatch
 -
