@@ -555,7 +555,7 @@
                             </group>
                             <group>
                                 <group string="Purchase Requisition"
-                                    attrs="{'invisible': [('procurement_method', 'not in', ['procurement', 'fw_agreement'])]}"
+                                    attrs="{'invisible': [('procurement_method', '!=', 'procurement')]}"
                                     colspan="4">
                                     <label for="po_requisition_id"/>
                                     <div>
@@ -571,8 +571,8 @@
                                     colspan="4"
                                     attrs="{'invisible': [('procurement_method', '!=', 'wh_dispatch')]}">
                                     <field name="dispatch_location_id"
-                                        on_change="onchange_dispatch_location_id(dispatch_location_id)" 
-                                        attrs="{'required': [('procurement_method', '=', 'wh_dispatch')]}" 
+                                        on_change="onchange_dispatch_location_id(dispatch_location_id)"
+                                        attrs="{'required': [('procurement_method', '=', 'wh_dispatch')]}"
                                         domain="[('usage', '!=', 'view')]"/>
                                     <field name="stock_owner" />
                                 </group>
