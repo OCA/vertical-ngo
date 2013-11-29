@@ -99,6 +99,7 @@ class CommonSourcingSetUp(test_common.TransactionCase, BaseAgreementTestMixin):
                                               'product_id': self.product_id,
                                               'start_date': start_date,
                                               'end_date': end_date,
+                                              'draft': False,
                                               'delay': 5,
                                               'quantity': 2000})
 
@@ -123,6 +124,7 @@ class CommonSourcingSetUp(test_common.TransactionCase, BaseAgreementTestMixin):
                                               'product_id': self.product_id,
                                               'start_date': start_date,
                                               'end_date': end_date,
+                                              'draft': False,
                                               'delay': 5,
                                               'quantity': 1200})
 
