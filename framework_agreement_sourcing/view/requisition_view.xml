@@ -9,6 +9,7 @@
         <field name="unit_cost"
                position="before">
           <field name="framework_agreement_id"
+                 domain="[('draft', '=', False)]"
                  attrs="{'required': [('procurement_method', '=', 'fw_agreement')],
                         'invisible': [('procurement_method', '!=', 'fw_agreement')]}"
                  on_change="onchange_agreement(framework_agreement_id, requisition_line_id, proposed_qty, proposed_product_id, purchase_pricelist_id, context)"/>/>
