@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data noupdate="0">
+    <record model="ir.ui.view" id="view_purchase_requisition_form_agreement">
+      <field name="name">purchase.requisition.form.inherit.aggrement.button</field>
+      <field name="model">purchase.requisition</field>
+      <field name="inherit_id" ref="purchase_requisition.view_purchase_requisition_form"/>
+      <field name="arch" type="xml">
+        <field name="multiple_rfq_per_supplier"
+               position="after">
+          <field name="framework_agreement_tender"/>
+        </field>
+        <button name="cancel_requisition" position="after">
+          <button name="agreement_selected"
+                  type="object"
+                  class="po_buttons oe_form_buttons"
+                  attrs="{'invisible': ['|', ('framework_agreement_tender', '=', False), ('state', '!=', 'closed')]}"
+                  string="Framework agreement selected"/>
+        </button>
+      </field>
+    </record>
+
+    <record model="ir.ui.view" id="view_purchase_requisition_filter">
+      <field name="name">purchase.requisition.form.inherit.agreement.filter</field>
+      <field name="model">purchase.requisition</field>
+      <field name="inherit_id" ref="purchase_requisition.view_purchase_requisition_filter"/>
+      <field name="arch" type="xml">
+        <filter name="draft"
+                position="after">
+                  <filter icon="terp-document-new"
+                          name="framework_agreement"
+                          string="Framework Agreement?"
+                          domain="[(framework_agreement_tender,'=',True)]"/>
+        </filter>
+      </field>
+    </record>
+
+  </data>
+</openerp>
