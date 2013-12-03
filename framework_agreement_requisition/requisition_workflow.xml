@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+    <record id="act_agreement_selected" model="workflow.activity">
+      <field name="wkf_id" ref="purchase_requisition.purchase_requisition_workflow"/>
+      <field name="name">Agreement selected</field>
+      <field name="kind">function</field>
+      <field name="action">tender_agreement_selected()</field>
+      <field name="flow_stop">True</field>
+    </record>
+
+    <record id="trans_agreement_selected" model="workflow.transition">
+      <field name="act_from" ref="purchase_requisition_extended.act_closed"/>
+      <field name="act_to" ref="act_agreement_selected"/>
+      <field name="signal">select_agreement</field>
+    </record>
+  </data>
+</openerp>
