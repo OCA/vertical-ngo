@@ -22,6 +22,7 @@ from openerp import netsvc
 from openerp.osv import orm
 
 SELECTED_STATE = ('agreement_selected', 'Agreement selected')
+AGR_SELECT = 'agreement_selected'
 
 
 class purchase_order(orm.Model):
@@ -31,7 +32,8 @@ class purchase_order(orm.Model):
 
     def __init__(self, pool, cr):
         """Add a new state value using PO class property"""
-        super(purchase_order, self).STATE_SELECTION.append(SELECTED_STATE)
+        if SELECTED_STATE not in super(purchase_order, self).STATE_SELECTION:
+            super(purchase_order, self).STATE_SELECTION.append(SELECTED_STATE)
         return super(purchase_order, self).__init__(pool, cr)
 
     def select_agreement(self, cr, uid, agr_id, context=None):
@@ -45,7 +47,7 @@ class purchase_order(orm.Model):
 
     def po_tender_agreement_selected(self, cr, uid, ids, context=None):
         """Workflow function that write state 'Agreement selected'"""
-        return self.write(cr, uid, ids, {'state': 'agreement_selected'},
+        return self.write(cr, uid, ids, {'state': AGR_SELECT},
                           context=context)
 
 
