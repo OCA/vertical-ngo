@@ -36,9 +36,9 @@ Negociate framework agreement using tender process
           'purchase_workflow.xml',
           'view/purchase_requisition_view.xml'],
  'demo': [],
- 'test': [],
+ 'test': ['test/agreement_requisition.yml'],
  'installable': True,
  'auto_install': False,
  'license': 'AGPL-3',
  'application': False,
-  }
+ }

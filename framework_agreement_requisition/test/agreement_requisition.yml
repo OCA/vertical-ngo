@@ -1,0 +1,98 @@
+-
+  Standard flow of a Call for agreement Bids in mode open
+-
+  Create Call for Bids
+-
+  !record {model: purchase.requisition, id: purchase_requisition_agreement}:
+    date_start: '2013-08-02 00:00:00'
+    date_end: '2013-08-30 00:00:00'
+    bid_tendering_mode: 'open'
+    schedule_date: '2013-09-30'
+    req_validity: '2013-09-10'
+    framework_agreement_tender: True
+    line_ids:
+      - product_id: product.product_product_15
+        product_qty: 2500.0
+-
+  Confirm Call
+-
+  !python {model: purchase.requisition}: |
+    import netsvc
+    wf_service = netsvc.LocalService("workflow")
+    wf_service.trg_validate(uid, 'purchase.requisition', ref("purchase_requisition_agreement"), 'sent_suppliers', cr)
+-
+  Create RFQ1. I run the 'Request a quotation' wizard. I fill the supplier.
+-
+  !record {model: purchase.requisition.partner, id: purchase_requisition_agreement_partner1_create}:
+    partner_id: base.res_partner_2
+-
+  Create RFQ1. I confirm the wizard.
+-
+  !python {model: purchase.requisition.partner}: |
+    self.create_order(cr, uid, [ref("purchase_requisition_agreement_partner1_create")],{
+        'active_model': 'purchase.requisition',
+        'active_id': ref("purchase_requisition_agreement"),
+        'active_ids': [ref("purchase_requisition_agreement")],
+        })
+-
+  I encode the bid. I set a 300 price on the line.
+-
+  !python {model: purchase.requisition}: |
+    purchase_req = self.browse(cr, uid, ref("purchase_requisition_agreement"))
+    assert len(purchase_req.purchase_ids) == 1, "There must be 1 RFQs linked to this Call for bids"
+    price = 300
+    for rfq in purchase_req.purchase_ids:
+        for line in rfq.order_line:
+            self.pool.get('purchase.order.line').write(cr, uid, [line.id], {'price_unit': price})
+
+-
+  I send the RFQ. For this, I print the RFQ.
+-
+  !python {model: purchase.requisition}: |
+    purchase_req = self.browse(cr, uid, ref("purchase_requisition_agreement"))
+    for rfq in purchase_req.purchase_ids:
+        self.pool.get('purchase.order').print_quotation(cr, uid, [rfq.id])
+-
+  I run the 'Bid encoded' wizard of bid1. I fill the date.
+-
+  !record {model: purchase.action_modal_datetime, id: purchase_requisition_agreement_bid1_bidencoded}:
+    datetime: '2013-08-13 00:00:00'
+-
+ I launch wizard action.
+-
+  !python {model: purchase.action_modal_datetime}: |
+    purchase_req = self.pool['purchase.requisition'].browse(cr, uid, ref("purchase_requisition_agreement"))
+    po_id = purchase_req.purchase_ids[0].id
+    self.action(cr, uid, [ref('purchase_requisition_agreement_bid1_bidencoded')],
+                {'action': 'bid_received_ok',
+                'active_id': po_id,
+                'active_ids': [po_id],
+                'active_model': 'purchase.order',
+                'default_datetime': '2013-08-13 00:00:00',
+                'uid': 1})
+-
+  I close the Call for bids and move to bids selection
+-
+  !python {model: purchase.requisition}: |
+    import netsvc
+    wf_service = netsvc.LocalService("workflow")
+    wf_service.trg_validate(uid, 'purchase.requisition', ref("purchase_requisition_agreement"), 'open_bid', cr)
+
+-
+  In the bids selection, I confirm line 1 of bid 1
+-
+  !python {model: purchase.requisition}: |
+    purchase_req = self.browse(cr, uid, ref("purchase_requisition_agreement"))
+    self.pool.get('purchase.order.line').action_confirm(cr, uid, [purchase_req.purchase_ids[0].order_line[0].id])
+-
+  I close the call for bids
+-
+  !python {model: purchase.requisition}: |
+    self.close_callforbids(cr, uid, [ref("purchase_requisition_agreement")])
+-
+  I mark the tender as agreement selected
+-
+  !python {model: purchase.requisition}: |
+    self.agreement_selected(cr, uid, ref("purchase_requisition_agreement"))
+    purchase_req = self.browse(cr, uid, ref("purchase_requisition_agreement"))
+    assert purchase_req.state == 'agreement_selected'
