@@ -30,6 +30,15 @@
  'description': """
 Negociate framework agreement using tender process
 ==================================================
+
+Module add state "Agreement selected" on tender and PO.
+It also adds a button on tender "Agreement selected"
+That will close flow of tender and related PO accordingly.
+
+
+It also add an agreement check box on tender to allows
+agreement negociation using tender process.
+
 """,
  'website': 'http://www.camptocamp.com',
  'data': ['requisition_workflow.xml',
