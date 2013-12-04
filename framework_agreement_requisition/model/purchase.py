@@ -63,7 +63,7 @@ class purchase_order_line(orm.Model):
 
     _inherit = "purchase.order.line"
 
-    def _agreement_data(self, cr, uid, po_line, context=None):
+    def _agreement_data(self, cr, uid, po_line, origin, context=None):
         """Get agreement values from PO line
 
         :param po_line: Po line records
@@ -74,9 +74,10 @@ class purchase_order_line(orm.Model):
         vals['supplier_id'] = po_line.order_id.partner_id.id
         vals['product_id'] = po_line.product_id.id
         vals['quantity'] = po_line.product_qty
+        vals['origin'] = origin if origin else False
         return vals
 
-    def make_agreement(self, cr, uid, line_id, context=None):
+    def make_agreement(self, cr, uid, line_id, origin, context=None):
         """ generate a draft framework agreement
 
         :returns: a record of LTA
@@ -87,6 +88,6 @@ class purchase_order_line(orm.Model):
             assert len(line_id) == 1
             line_id = line_id[0]
         current = self.browse(cr, uid, line_id, context=context)
-        vals = self._agreement_data(cr, uid, current, context=context)
+        vals = self._agreement_data(cr, uid, current, origin, context=context)
         agr_id = agr_model.create(cr, uid, vals, context=context)
         return agr_model.browse(cr, uid, agr_id, context=context)
