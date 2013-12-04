@@ -77,7 +77,7 @@ class purchase_requisition(orm.Model):
                 raise orm.except_orm(_('No confirmed RFQ related to tender'),
                                      _('Please choose at least one'))
             for rfq in rfqs:
-                rfq.make_agreement()
+                rfq.make_agreement(req.name)
                 p_order = rfq.order_id
                 p_order.select_agreement()
                 p_order.refresh()
