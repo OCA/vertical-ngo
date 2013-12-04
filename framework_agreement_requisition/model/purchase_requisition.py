@@ -22,8 +22,10 @@ from itertools import chain
 from openerp import netsvc
 from openerp.osv import orm, fields
 from openerp.tools.translate import _
+from .purchase import AGR_SELECT as PO_AGR_SELECT
 
 SELECTED_STATE = ('agreement_selected', 'Agreement selected')
+AGR_SELECT = 'agreement_selected'
 
 
 class purchase_requisition(orm.Model):
@@ -36,11 +38,10 @@ class purchase_requisition(orm.Model):
         by other addons that are not in inheritance chain...
 
         """
-        res = super(purchase_requisition, self).__init__(pool, cr)
-        sel = pool['purchase.order']._columns['state']
+        sel = super(purchase_requisition, self)._columns['state']
         if SELECTED_STATE not in sel.selection:
             sel.selection.append(SELECTED_STATE)
-        return res
+        return super(purchase_requisition, self).__init__(pool, cr)
 
     _inherit = "purchase.requisition"
     _columns = {
@@ -49,7 +50,7 @@ class purchase_requisition(orm.Model):
 
     def tender_agreement_selected(self, cr, uid, ids, context=None):
         """Workflow function that write state 'Agreement selected'"""
-        return self.write(cr, uid, ids, {'state': 'agreement_selected'},
+        return self.write(cr, uid, ids, {'state': AGR_SELECT},
                           context=context)
 
     def select_agreement(self, cr, uid, agr_id, context=None):
@@ -71,7 +72,7 @@ class purchase_requisition(orm.Model):
                                      _('Request is not of type agreement'))
             self.select_agreement(cr, uid, req.id, context=context)
             req.refresh()
-            if req.state != 'agreement_selected':
+            if req.state != AGR_SELECT:
                 raise RuntimeError('requisiton %s does not pass to state'
                                    ' agreement_selected' %
                                    req.name)
@@ -86,8 +87,7 @@ class purchase_requisition(orm.Model):
                 p_order = rfq.order_id
                 p_order.select_agreement()
                 p_order.refresh()
-                if p_order.state != 'agreement_selected':
-                    raise RuntimeError('Purchase order %s does not pass to state'
-                                       ' agreement_selected' %
-                                       p_order.name)
+                if p_order.state != PO_AGR_SELECT:
+                    raise RuntimeError('Purchase order %s does not pass to %' %
+                                       (p_order.name, PO_AGR_SELECT))
         return True
