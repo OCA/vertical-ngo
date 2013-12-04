@@ -30,18 +30,9 @@ class purchase_order(orm.Model):
     _inherit = "purchase.order"
 
     def __init__(self, pool, cr):
-        """Nasty hack to add fields to select fields
-
-        We do this in order not to compromising other state added
-        by other addons that are not in inheritance chain...
-
-        """
-
-        res = super(purchase_order, self).__init__(pool, cr)
-        sel = pool['purchase.order']._columns['state']
-        if SELECTED_STATE not in sel.selection:
-            sel.selection.append(SELECTED_STATE)
-        return res
+        """Add a new state value using PO class property"""
+        super(purchase_order, self).STATE_SELECTION.append(SELECTED_STATE)
+        return super(purchase_order, self).__init__(pool, cr)
 
     def select_agreement(self, cr, uid, agr_id, context=None):
         """Pass PO in state 'Agreement selected'"""

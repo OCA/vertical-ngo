@@ -23,23 +23,28 @@ from openerp import netsvc
 from openerp.osv import orm, fields
 from openerp.tools.translate import _
 
+SELECTED_STATE = ('agreement_selected', 'Agreement selected')
+
 
 class purchase_requisition(orm.Model):
     """Add support to negociate LTA using tender process"""
 
+    def __init__(self, pool, cr):
+        """Nasty hack to add fields to select fields
+
+        We do this in order not to compromising other state added
+        by other addons that are not in inheritance chain...
+
+        """
+        res = super(purchase_requisition, self).__init__(pool, cr)
+        sel = pool['purchase.order']._columns['state']
+        if SELECTED_STATE not in sel.selection:
+            sel.selection.append(SELECTED_STATE)
+        return res
+
     _inherit = "purchase.requisition"
     _columns = {
         'framework_agreement_tender': fields.boolean('Negociate Agreement'),
-        'state': fields.selection([('draft', 'Draft'),
-                                   ('in_progress', 'Confirmed'),
-                                   ('open', 'Bids Selection'),
-                                   ('closed', 'Bids Selected'),
-                                   ('done', 'PO Created'),
-                                   ('agreement_selected', 'Agreement selected'),
-                                   ('cancel', 'Canceled')],
-                                  'Status',
-                                  track_visibility='onchange',
-                                  required=True),
     }
 
     def tender_agreement_selected(self, cr, uid, ids, context=None):
