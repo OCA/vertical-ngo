@@ -19,7 +19,7 @@
 #
 ##############################################################################
 from openerp.osv import orm
-from . adapter_util import BrowseAdapterMixin
+from .adapter_util import BrowseAdapterMixin
 
 
 class purchase_order(orm.Model, BrowseAdapterMixin):
