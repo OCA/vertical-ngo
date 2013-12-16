@@ -102,6 +102,21 @@
     </record>
 
 
+<!-- Deactivate button on tree to ensure choose of the sourcing method before calling action -->
+    <record id="hide_button_on_soure_line in req line tree" model="ir.ui.view">
+      <field name="name">hide button on soure line in req line tree</field>
+      <field name="model">logistic.requisition.line</field>
+      <field name="inherit_id" ref="logistic_requisition.view_logistic_requisition_line_form" />
+      <field name="arch" type="xml">
+        <button name="action_create_po_requisition" position="attributes">
+          <attribute name="attrs">{}</attribute>
+          <attribute name="invisible">1</attribute>
+        </button>
+      </field>
+    </record>
+
+
+
     <!-- <record id="add_supplier_and_agreement_on_source_line_embeeded" model="ir.ui.view"> -->
     <!--      <field name="name">add supplier and agrement on source line</field> -->
     <!--      <field name="model">logistic.requisition.line</field> -->
