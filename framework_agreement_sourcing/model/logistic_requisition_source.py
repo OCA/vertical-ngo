@@ -154,12 +154,15 @@ class logistic_requisition_source(orm.Model, BrowseAdapterMixin,
         :returns: generated PO id
 
         """
-
+        if context is None:
+            context = {}
+        context['draft_po'] = True
         po_obj = self.pool['purchase.order']
         pid = po_obj._make_purchase_order_from_origin(cr, uid, source_line,
                                                       self._map_source_to_po,
                                                       self._map_source_to_po_line,
                                                       context=context)
+
         return pid
 
     def make_purchase_order(self, cr, uid, ids, context=None):

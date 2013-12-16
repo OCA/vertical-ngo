@@ -61,6 +61,7 @@ class TestSourceToPo(CommonSourcingSetUp):
         self.assertEqual(po.date_order, date_order)
         self.assertEqual(po.dest_address_id, add)
         self.assertEqual(po.consignee_id, consignee)
+        self.assertEqual(po.state, 'draftpo')
 
         self.assertEqual(len(po.order_line), 1)
         po_line = po.order_line[0]
