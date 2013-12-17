@@ -135,13 +135,16 @@ class logistic_requisition_source(orm.Model, BrowseAdapterMixin,
                                     taxes_ids)
         currency = line.purchase_pricelist_id.currency_id
         price = line.framework_agreement_id.get_price(line.proposed_qty, currency=currency)
+        lead_time = line.framework_agreement_id.delay
         data = {}
         direct_map = {'product_qty': 'proposed_qty',
                       'product_id': 'proposed_product_id',
                       'product_uom': 'proposed_uom_id',
-                      'lr_source_line_id': 'id'}
+                      'lr_source_line_id': 'id',
+                      }
 
         data.update(self._direct_map(line, direct_map))
+        data['product_lead_time'] = lead_time
         data['price_unit'] = price
         data['name'] = line.proposed_product_id.name
         data['date_planned'] = line.requisition_id.date_delivery
