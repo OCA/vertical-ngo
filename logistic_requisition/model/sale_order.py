@@ -133,6 +133,14 @@ class sale_order(orm.Model):
                 cr, uid, order, list(lines), picking_id=False, context=context)
         return True
 
+    def copy(self, cr, uid, id, default=None, context=None):
+        if not default:
+            default = {}
+        default['invoice_ids'] = False
+        default['requisition_id'] = False
+        return super(sale_order, self).copy(cr, uid, id,
+                                            default=default, context=context)
+
 
 class sale_order_line(orm.Model):
     _inherit = "sale.order.line"
