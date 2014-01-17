@@ -25,7 +25,25 @@
  'category': 'NGO',
  'complexity': 'normal',
  'depends': ['framework_agreement', 'logistic_requisition'],
- 'description': """Add the possibility to have a framework agreement as a source.
+ 'description': """
+Automatically source logistic order from framework agreement
+============================================================
+
+If you have a framework agreement negociated for the current product in
+your logistic requisition. If the date and state of agreement are OK,
+agreement will be used as source for the concerned source lines
+of your request.
+
+In this case tender flow is byassed and confirmed PO will be generated
+when logistic requisition is confirmed.
+
+By default the sourcing process will look in all agreements for a product
+and use them one after the other as long as possible sorted by price.
+
+You can prevent this behavior by forcing only one agreement per product at
+the same time in company.
+
+"""
 
 it will do auto completion and warning and create PO from source line""",
  'website': 'http://www.camptocamp.com',
