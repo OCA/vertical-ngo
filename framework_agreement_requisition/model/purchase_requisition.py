@@ -91,3 +91,27 @@ class purchase_requisition(orm.Model):
                     raise RuntimeError('Purchase order %s does not pass to %' %
                                        (p_order.name, PO_AGR_SELECT))
         return True
+
+
+class purchase_requisition_line(orm.Model):
+
+    _inherit = 'purchase.requisition.line'
+
+    # Did you know a good way to supress SQL constraint to add
+    # Python constraint...
+    _sql_constraints = [
+        ('quantity_bid', 'CHECK(true)',
+         'Selected quantity must be less or equal than the quantity in the bid'),
+    ]
+
+    def _check_quantity_bid(self, cr, uid, ids, context=None):
+        for line in self.browse(cr, uid, ids, context=context):
+            if line.product_id.type == 'product' and line.product_qty > line.quantity_bid:
+                return False
+        return True
+
+    _constraints = [
+        (_check_quantity_bid,
+         'Selected quantity must be less or equal than the quantity in the bid',
+         [])
+    ]
