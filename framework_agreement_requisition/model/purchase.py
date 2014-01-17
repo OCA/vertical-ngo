@@ -56,6 +56,26 @@ class purchase_order_line(orm.Model):
 
     _inherit = "purchase.order.line"
 
+    # Did you know a good way to supress SQL constraint to add
+    # Python constraint...
+    _sql_constraints = [
+        ('quantity_bid', 'CHECK(true)',
+         'Selected quantity must be less or equal than the quantity in the bid'),
+    ]
+
+    def _check_quantity_bid(self, cr, uid, ids, context=None):
+        for line in self.browse(cr, uid, ids, context=context):
+            if line.order_id.framework_agreement_id:
+                continue
+            if line.product_id.type == 'product' and line.product_qty > line.quantity_bid:
+                return False
+        return True
+
+    _constraints = [
+        (_check_quantity_bid,
+         'Selected quantity must be less or equal than the quantity in the bid',
+         [])
+    ]
     def _agreement_data(self, cr, uid, po_line, origin, context=None):
         """Get agreement values from PO line
 
