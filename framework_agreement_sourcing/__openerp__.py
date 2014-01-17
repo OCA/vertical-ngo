@@ -43,9 +43,7 @@ and use them one after the other as long as possible sorted by price.
 You can prevent this behavior by forcing only one agreement per product at
 the same time in company.
 
-"""
-
-it will do auto completion and warning and create PO from source line""",
+""",
  'website': 'http://www.camptocamp.com',
  'data': ['view/requisition_view.xml'],
  'demo': [],
