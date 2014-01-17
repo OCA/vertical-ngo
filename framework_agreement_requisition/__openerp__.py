@@ -31,13 +31,19 @@
 Negociate framework agreement using tender process
 ==================================================
 
-Module add state "Agreement selected" on tender and PO.
-It also adds a button on tender "Agreement selected"
+This will allows you to use "The calls for Bids" model
+ to negociate agreement.
+
+To to so you have too check the box "Negociate Agreement".
+
+The module add a state "Agreement selected" on tender and PO.
+
+
+These will be the final state once you have choosen
+the agreement that fit your needs the best.
+
+Once the selection is done juste use the button "Agreement selected" on tender
 That will close flow of tender and related PO accordingly.
-
-
-It also add an agreement check box on tender to allows
-agreement negociation using tender process.
 
 """,
  'website': 'http://www.camptocamp.com',
