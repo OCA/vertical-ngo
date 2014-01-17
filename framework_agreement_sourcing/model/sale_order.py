@@ -38,7 +38,6 @@ class sale_order_line(orm.Model):
             if source and source.procurement_method == AGR_PROC:
                 return True
             return False
-
         result = super(sale_order_line, self).button_confirm(cr, uid, ids,
                                                              context=context)
         po_line_model = self.pool['purchase.order.line']

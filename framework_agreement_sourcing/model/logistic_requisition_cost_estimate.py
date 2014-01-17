@@ -64,6 +64,40 @@ class logistic_requisition_cost_estimate(orm.Model):
 
         """
         self._update_agreement_source(cr, uid, sourcing, context=context)
-        return super(logistic_requisition_cost_estimate,
-                     self)._prepare_cost_estimate_line(cr, uid, sourcing,
-                                                       context=context)
+        res = super(logistic_requisition_cost_estimate,
+                    self)._prepare_cost_estimate_line(cr, uid, sourcing,
+                                                      context=context)
+
+        if sourcing.procurement_method == AGR_PROC:
+            res['type'] = 'make_to_order'
+            res['sale_flow'] = 'direct_delivery'
+        return res
+
+    def cost_estimate(self, cr, uid, ids, context=None):
+        """Override to link PO to cost_estimate
+
+        We have to do this because when we source with agreement we do
+        not copy the PO it is meaningless has we have no choice to make.
+        But in tender flow you first cancel PO then the sale order mark
+        canceled PO as dropshipping and then copy them.
+
+        With agreement PO is confirmed before be marked as dropshipping.
+
+        So we have to link it first"""
+        so_model = self.pool['sale.order']
+        po_model = self.pool['purchase.order']
+        res = super(logistic_requisition_cost_estimate,
+                    self).cost_estimate(cr, uid, ids, context=context)
+        so_id = res['res_id']
+        order = so_model.browse(cr, uid, so_id, context=context)
+        # Can be optimized with a SQL or a search but
+        # gain of perfo will not worth readability loss
+        # for such small data set
+        sources = [x.logistic_requisition_source_id for x in order.order_line
+                   if x and x.logistic_requisition_source_id.procurement_method == AGR_PROC]
+        po_ids = set(x.purchase_line_id.order_id.id for x in sources
+                     if x.purchase_line_id)
+        po_model.write(cr, uid, list(po_ids),
+                       {'sale_id': so_id,
+                        'sale_flow': 'direct_delivery'})
+        return res
