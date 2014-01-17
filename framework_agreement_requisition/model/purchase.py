@@ -67,7 +67,7 @@ class purchase_order_line(orm.Model):
         for line in self.browse(cr, uid, ids, context=context):
             if line.order_id.framework_agreement_id:
                 continue
-            if line.product_id.type == 'product' and line.product_qty > line.quantity_bid:
+            if line.product_id.type == 'product' and  not line.quantity_bid <= line.product_qty:
                 return False
         return True
 
