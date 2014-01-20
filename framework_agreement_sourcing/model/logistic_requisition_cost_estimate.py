@@ -19,6 +19,7 @@
 #
 ##############################################################################
 from openerp.osv import orm
+from openerp.tools.translate import _
 from .logistic_requisition_source import AGR_PROC
 
 
@@ -45,11 +46,13 @@ class logistic_requisition_cost_estimate(orm.Model):
              ('order_id.partner_id', '=', agr.supplier_id.id)],
             context=context)
         lines = po_l_obj.browse(cr, uid, line_ids, context=context)
-        po_ids = ([line.order_id.id for line in lines])
+        po_ids = ([line.order_id.id for line in lines
+                   if line.product_id and line.product_id.type == 'product'])
 
         all_line_ids = po_l_obj.search(
             cr, uid,
-            [('order_id', 'in', po_ids)],
+            [('order_id', 'in', po_ids),
+             ('product_id.type', '=', 'product')],
             context=context)
 
         po_l_obj.write(cr, uid, all_line_ids,
@@ -73,6 +76,31 @@ class logistic_requisition_cost_estimate(orm.Model):
             res['sale_flow'] = 'direct_delivery'
         return res
 
+    def _link_po_lines_to_so_lines(self, cr, uid, so, sources, context=None):
+        """Naive implementation to link all PO lines to SO lines.
+
+        For our actuall need we want to link all service line
+        to SO real product lines.
+
+        There should not be twice the same product on differents
+        Agreement PO line so this case in not handled
+
+        """
+
+        so_lines = [x for x in so.order_line]
+        po_lines = set(x.purchase_line_id for x in sources
+                       if x.purchase_line_id and
+                          x.purchase_line_id.product_id.type == 'product')
+        product_dict = dict((x.product_id.id, x.id) for x in so_lines
+                            if x.product_id and x.product_id.type == 'product')
+        default = product_dict[product_dict.keys()[0]]
+        if not product_dict:
+            raise orm.except_orm(_('No stockable product in related PO'),
+                                 _('Please add one'))
+        for po_line in po_lines:
+            key = po_line.product_id.id if po_line.product_id else False
+            po_line.write({'sale_order_line_id': product_dict.get(key, default)})
+
     def cost_estimate(self, cr, uid, ids, context=None):
         """Override to link PO to cost_estimate
 
@@ -80,6 +108,10 @@ class logistic_requisition_cost_estimate(orm.Model):
         not copy the PO it is meaningless has we have no choice to make.
         But in tender flow you first cancel PO then the sale order mark
         canceled PO as dropshipping and then copy them.
+
+        So you have to create link between SO and PO/PO line that are
+        normally done when SO procurement generate PO and picking
+
 
         With agreement PO is confirmed before be marked as dropshipping.
 
@@ -100,4 +132,5 @@ class logistic_requisition_cost_estimate(orm.Model):
         po_model.write(cr, uid, list(po_ids),
                        {'sale_id': so_id,
                         'sale_flow': 'direct_delivery'})
+        self._link_po_lines_to_so_lines(cr, uid, order, sources, context=context)
         return res
