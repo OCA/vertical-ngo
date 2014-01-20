@@ -41,16 +41,19 @@ class sale_order_line(orm.Model):
         result = super(sale_order_line, self).button_confirm(cr, uid, ids,
                                                              context=context)
         po_line_model = self.pool['purchase.order.line']
+        po_model = self.pool['purchase.order']
+
         lines = self.browse(cr, uid, ids, context=context)
         source_ids = [x.logistic_requisition_source_id.id for x in lines
                            if source_valid(x.logistic_requisition_source_id)]
         po_line_ids = po_line_model.search(cr, uid,
                                            [('lr_source_line_id', 'in', source_ids)],
                                            context=context)
-        po_lines = po_line_model.read(cr, uid, po_line_ids, ['order_id'], load='_classic_write')
+        po_lines = po_line_model.read(cr, uid, po_line_ids, ['order_id'],
+                                      load='_classic_write')
         po_ids = set(x['order_id'] for x in po_lines)
         wf_service = netsvc.LocalService("workflow")
-        for po_id in po_ids:
-            wf_service.trg_validate(uid, 'purchase.order', po_id, 'draft_po', cr)
-            wf_service.trg_validate(uid, 'purchase.order', po_id, 'purchase_confirm', cr)
+        for po in po_model.browse(cr, uid, list(po_ids), context=context):
+            wf_service.trg_validate(uid, 'purchase.order', po.id,
+                                    'draft_po', cr)
         return result
