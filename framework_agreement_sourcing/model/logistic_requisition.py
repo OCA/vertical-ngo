@@ -76,7 +76,10 @@ class logistic_requisition_line(orm.Model, BrowseAdapterSourceMixin):
         res['unit_cost'] = 0.0
         res['proposed_qty'] = qty
         res['framework_agreement_id'] = False
-        res['procurement_method'] = 'procurement'
+        if line.product_id.type == 'product':
+            res['procurement_method'] = 'procurement'
+        else:
+            res['procurement_method'] = 'other'
         res.update(self._direct_map(line, direct_map))
         return res
 
