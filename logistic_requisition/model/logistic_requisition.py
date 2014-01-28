@@ -176,7 +176,12 @@ class logistic_requisition(orm.Model):
             type='float'
         ),
         'allowed_budget': fields.boolean('Allowed Budget'),
-        'currency_id': fields.related('company_id',
+        'pricelist_id': fields.many2one('product.pricelist', 
+            'Pricelist',
+            required=True,
+            states=REQ_STATES,
+            help="Pricelist that represent the currency for current logistic request."),
+        'currency_id': fields.related('pricelist_id',
                                       'currency_id',
                                       type='many2one',
                                       relation='res.currency',
@@ -302,6 +307,21 @@ class logistic_requisition(orm.Model):
             'date_finance_officer': False,
         })
         return super(logistic_requisition, self).copy(cr, uid, id, default=default, context=context)
+
+    def onchange_partner_id(self, cr, uid, ids, part, context=None):
+        """We take the pricelist of the chosen partner"""
+        values = {'pricelist_id': False}
+        if not part:
+            return {'value': values}
+
+        part = self.pool.get('res.partner').browse(cr, uid, part,
+                                                   context=context)
+        pricelist = part.property_product_pricelist
+        pricelist = pricelist.id if pricelist else False
+        values = {}
+        if pricelist:
+            values['pricelist_id'] = pricelist
+        return {'value': values}
 
     def onchange_consignee_id(self, cr, uid, ids, consignee_id, context=None):
         values = {'consignee_shipping_id': False}
@@ -432,6 +452,12 @@ class logistic_requisition_line(orm.Model):
         'budget_unit_price': fields.function(
             lambda self, *args, **kwargs: self._get_unit_amount_line(*args, **kwargs),
             string='Budget Unit Price',
+            type="float",
+            digits_compute=dp.get_precision('Account'),
+            store=True),
+        'amount_total': fields.function(
+            lambda self, *args, **kwargs: self._get_total_cost(*args, **kwargs),
+            string='Total Amount',
             type="float",
             digits_compute=dp.get_precision('Account'),
             store=True),
@@ -571,6 +597,15 @@ class logistic_requisition_line(orm.Model):
         reqs = self.read(cr, uid, ids, ['requisition_id'],
                          context=context, load='_classic_write')
         return list(set([x['requisition_id'] for x in reqs]))
+
+    def _get_total_cost(self, cr, uid, ids, name, args, context=None):
+        res = {}
+        for i in ids:
+            res[i] = 0.0
+        for line in self.browse(cr, uid, ids, context=context):
+            for source_line in line.source_ids:
+                res[line.id] += source_line.total_cost
+        return res
 
     def _get_unit_amount_line(self, cr, uid, ids, prop, unknow_none, unknow_dict, context=None):
         res = {}
