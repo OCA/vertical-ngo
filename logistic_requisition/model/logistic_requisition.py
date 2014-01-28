@@ -818,6 +818,7 @@ class logistic_requisition_source(orm.Model):
             [('procurement', 'Procurement'),
              ('wh_dispatch', 'Warehouse Dispatch'),
              ('fw_agreement', 'Framework Agreement'),
+             ('other', 'Other'),
              ],
             string='Procurement Method',
             required=True,
