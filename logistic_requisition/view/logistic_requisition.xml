@@ -560,9 +560,6 @@
                                     <label for="po_requisition_id"/>
                                     <div>
                                         <field name="po_requisition_id" class="oe_inline"/>
-                                        <button name="action_create_po_requisition"
-                                            string="Purchase Requisition" type="object"
-                                            attrs="{'invisible': [('po_requisition_id', '!=', False)]}" />
                                     </div>
                                     <field name="selected_bid_id"
                                         on_change="onchange_selected_bid_id(selected_bid_id)"/>
