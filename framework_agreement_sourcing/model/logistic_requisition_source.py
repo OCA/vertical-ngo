@@ -106,7 +106,7 @@ class logistic_requisition_source(orm.Model, BrowseAdapterMixin,
         data['framework_agreement_id'] = line.framework_agreement_id.id
         data['partner_id'] = supplier.id
         data['company_id'] = self._company(cr, uid, context)
-        data['pricelist_id'] = line.purchase_pricelist_id.id
+        data['pricelist_id'] = line.po_pricelist.id
         data['dest_address_id'] = add.id
         data['location_id'] = add.property_stock_customer.id
         data['payment_term_id'] = term
@@ -129,13 +129,30 @@ class logistic_requisition_source(orm.Model, BrowseAdapterMixin,
 
         """
         acc_pos_obj = self.pool['account.fiscal.position']
-        supplier = line.framework_agreement_id.supplier_id
+        pl_model = self.pool['product.pricelist']
+
+        if line.framework_agreement_id:
+            currency = line.purchase_pricelist_id.currency_id
+            price = line.framework_agreement_id.get_price(line.proposed_qty, currency=currency)
+            lead_time = line.framework_agreement_id.delay
+            supplier = line.framework_agreement_id.supplier_id
+        else:
+            supplier = line.po_supplier
+            lead_time = 0
+            price = 0.0
+            if line.po_pricelist:
+                price = pl_model.price_get(cr, uid,
+                                           [line.po_pricelist.id],
+                                           line.proposed_product_id.id,
+                                           line.proposed_qty or 1.0,
+                                           line.po_supplier.id,
+                                           {'uom': line.proposed_uom_id.id})[line.po_pricelist.id]
+
+            if not price:
+                price = line.proposed_product_id.standard_price or 1.00
         taxes_ids = line.proposed_product_id.supplier_taxes_id
         taxes = acc_pos_obj.map_tax(cr, uid, supplier.property_account_position,
                                     taxes_ids)
-        currency = line.purchase_pricelist_id.currency_id
-        price = line.framework_agreement_id.get_price(line.proposed_qty, currency=currency)
-        lead_time = line.framework_agreement_id.delay
         data = {}
         direct_map = {'product_qty': 'proposed_qty',
                       'product_id': 'proposed_product_id',
@@ -151,7 +168,8 @@ class logistic_requisition_source(orm.Model, BrowseAdapterMixin,
         data['taxes_id'] = [(6, 0, taxes)]
         return data
 
-    def _make_po_from_source_line(self, cr, uid, source_line, context=None):
+    def _make_po_from_source_lines(self, cr, uid, main_source, source_lines,
+                                   pricelist, context=None):
         """adapt a source line to purchase order
 
         :returns: generated PO id
@@ -161,37 +179,49 @@ class logistic_requisition_source(orm.Model, BrowseAdapterMixin,
             context = {}
         context['draft_po'] = True
         po_obj = self.pool['purchase.order']
-        pid = po_obj._make_purchase_order_from_origin(cr, uid, source_line,
+        supplier = main_source.framework_agreement_id.supplier_id
+        pid = po_obj._make_purchase_order_from_origin(cr, uid, main_source,
+                                                      pricelist,
                                                       self._map_source_to_po,
                                                       self._map_source_to_po_line,
+                                                      other_origin=source_lines,
+                                                      forced_supplier=supplier,
                                                       context=context)
 
         return pid
 
-    def make_purchase_order(self, cr, uid, ids, context=None):
+    def make_purchase_order(self, cr, uid, ids, pricelist, context=None):
         """ adapt each source line to purchase order
 
         :returns: generated PO ids
 
         """
         po_ids = []
-        for source_line in self.browse(cr, uid, ids, context=context):
-            po_id = self._make_po_from_source_line(cr, uid, source_line, context=None)
-            po_ids.append(po_id)
-        return po_ids
+        sources = self.browse(cr, uid, ids, context=context)
+        agreement_sources = []
+        other_sources =  []
+        for source in sources:
+            if source.procurement_method == AGR_PROC:
+                agreement_sources.append(source)
+            elif source.procurement_method == 'other':
+                other_sources.append(source)
+            else:
+                raise orm.except_orm(_('Source line must be of type other or agreement'),
+                                     _('Please correct selection'))
 
-    def action_create_agreement_po_requisition(self, cr, uid, ids, context=None):
-        """ Implement buttons that create PO from selected source lines"""
-        # We force empty context
-        act_obj = self.pool.get('ir.actions.act_window')
-        po_ids = self.make_purchase_order(cr, uid, ids, context=context)
-        res = act_obj.for_xml_id(cr, uid,
-                                 'purchase', 'purchase_rfq', context=context)
-        res.update({'domain': [('id', 'in', po_ids)],
-                    'res_id': False,
-                    'context': '{}',
-                    })
-        return res
+        main_source = agreement_sources[0] if agreement_sources else False
+        if len(agreement_sources) > 1:
+            raise orm.except_orm(_('There should be only one agreement line'),
+                                 _('Please correct selection'))
+        if not main_source:
+            raise orm.except_orm(_('There should be at least one agreement line'),
+                                 _('Please correct selection'))
+        fback = main_source.framework_agreement_id.supplier_id.property_product_pricelist_purchase
+        pricelist = pricelist if pricelist else fback
+        po_id = self._make_po_from_source_lines(cr, uid, main_source,
+                                                other_sources, pricelist, context=None)
+        po_ids.append(po_id)
+        return po_ids
 
     def _is_sourced_fw_agreement(self, cr, uid, source, context=None):
         """Predicate that tells if source line of type agreement are sourced
@@ -200,7 +230,8 @@ class logistic_requisition_source(orm.Model, BrowseAdapterMixin,
 
         """
         po_line_obj = self.pool['purchase.order.line']
-        sources_ids = po_line_obj.search(cr, uid, [('lr_source_line_id', '=', source.id)],
+        sources_ids = po_line_obj.search(cr, uid,
+                                         [('lr_source_line_id', '=', source.id)],
                                          context=context)
         # predicate
         return bool(sources_ids)
@@ -300,7 +331,8 @@ class logistic_requisition_source(orm.Model, BrowseAdapterMixin,
         if not enough_qty:
             msg = _("You have ask for a quantity of %s \n"
                     " but there is only %s available"
-                    " for current agreement") % (proposed_qty, agreement.available_quantity)
+                    " for current agreement") % (proposed_qty,
+                                                 agreement.available_quantity)
             res['warning'] = msg
         return res
 
@@ -367,3 +399,24 @@ class logistic_requisition_source(orm.Model, BrowseAdapterMixin,
         return self.onchange_agreement_obs(cr, uid, source_id, agreement_id, qty,
                                            date, proposed_product_id,
                                            currency=currency, price_field='dummy')
+
+
+class logistic_requisition_source_po_creator(orm.TransientModel):
+
+    _name = 'logistic.requisition.source.create.agr.po'
+    def action_create_agreement_po_requisition(self, cr, uid, ids, context=None):
+        """ Implement buttons that create PO from selected source lines"""
+        # We force empty context
+        lr_model = self.pool['logistic.requisition.source']
+        act_obj = self.pool['ir.actions.act_window']
+        source_ids = context['active_ids']
+        pricelist = None # place holder for Joel pl browse record
+        po_ids = lr_model.make_purchase_order(cr, uid, source_ids,
+                                              pricelist, context=context)
+        res = act_obj.for_xml_id(cr, uid,
+                                 'purchase', 'purchase_rfq', context=context)
+        res.update({'domain': [('id', 'in', po_ids)],
+                    'res_id': False,
+                    'context': '{}',
+                    })
+        return res
