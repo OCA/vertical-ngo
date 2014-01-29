@@ -37,10 +37,11 @@ class purchase_order(orm.Model):
         """
         wf_service = netsvc.LocalService("workflow")
         proc_obj = self.pool.get('procurement.order')
-        # Proc product of type service should be confirm at this 
+        # Proc product of type service should be confirm at this
         # stage, otherwise, when picking of related PO is created
         # then done, it stay blocked at running stage
-        proc_ids = proc_obj.search(cr, uid, [('purchase_id','in', ids)], context=context)
+        proc_ids = proc_obj.search(cr, uid, [('purchase_id', 'in', ids)],
+                                   context=context)
         for proc in proc_obj.browse(cr, uid, proc_ids, context=context):
             if proc.product_id.type == 'service':
                 wf_service.trg_validate(uid, 'procurement.order',
@@ -109,18 +110,15 @@ class purchase_order_line(orm.Model):
             readonly=True),
     }
 
-
 # Here we should implement something to allow the update of LRS when price or
 # quantity are changed in PO line. It should be possible to do it when :
 # PO is still in draft
-# LRL is not marked as sourced, once done, nobody should be able to change the 
+# LRL is not marked as sourced, once done, nobody should be able to change the
 # PO line qty or price
     def write(self, cr, uid, ids, vals, context=None):
-
-
 # WRANING, WE CAN CHANGE MORE THAN PRICE OR QUANTITY HERE, PRODUCT FOR EXAMPLe,
 # CHECK ALL CASES !!
-# MOREOVER, when confirming the PO, we may have changed that as well, take care and 
+# MOREOVER, when confirming the PO, we may have changed that as well, take care and
 # # report the changes to LRS
 # 'proposed_qty': pr_bid_line.quantity_bid,
 # 'proposed_product_id': pr_bid_line.product_id.id,
@@ -138,18 +136,23 @@ class purchase_order_line(orm.Model):
         if vals.get('product_qty') or vals.get('price_unit'):
             for line in self.browse(cr, uid, ids, context=context):
                 if ((line.lr_source_line_id) and
-                    line.lr_source_line_id.requisition_line_id in 
-                    ('sourced','quoted')
-                    ):
-                    raise osv.except_osv(_('UserError'), _(
-                    "You cannot change the price or quantity because this line "
-                    "is already linked to a Logistic Requsition Line %s marked "
-                    "as sourced or quoted." (%line.lr_source_line_id.name)))
+                    line.lr_source_line_id.requisition_line_id in ('sourced', 'quoted')):
+                    raise osv.except_osv(
+                        _('UserError'),
+                        _(
+                            "You cannot change the price or quantity because this line "
+                            "is already linked to a Logistic Requsition Line %s marked "
+                            "as sourced or quoted." % (line.lr_source_line_id.name)
+                        )
+                    )
                 # In case the LRL is not sourced or qupted, we update it
                 # accordingly
                 else:
-                    lrs_obj.write(cr, uid, line.lr_source_line_id.id, {'proposed_qty':,'unit_cost'}, context=context)
-        return super(purchase_order_line, self).write(cr, uid, ids, vals, context=context)
+                    unit_cost = 0.0  # Joel TODO
+                    lrs_obj.write(cr, uid, line.lr_source_line_id.id,
+                                  {'proposed_qty': unit_cost}, context=context)
+        return super(purchase_order_line, self).write(cr, uid, ids, vals,
+                                                      context=context)
 
     def unlink(self, cr, uid, ids, context=None):
         self._check_moves(cr, uid, ids, "unlink", context=context)
