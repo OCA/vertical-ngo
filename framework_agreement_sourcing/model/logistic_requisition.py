@@ -21,17 +21,17 @@
 from collections import namedtuple
 from openerp.tools.translate import _
 from openerp.osv import orm
-from .adapter_util import BrowseAdapterSourceMixin
 from .logistic_requisition_source import AGR_PROC
 
 
-class logistic_requisition_line(orm.Model, BrowseAdapterSourceMixin):
+class logistic_requisition_line(orm.Model):
     """Override to enable generation of source line"""
 
     _inherit = "logistic.requisition.line"
 
-    def _map_agr_requisiton_to_source(self, cr, uid, line, context=None,
-                                      qty=0, agreement=None, **kwargs):
+    def _map_agr_requisiton_to_source(self, cr, uid, line,
+                                      qty=0, agreement=None,
+                                      context=None):
         """Prepare data dict for source line using agreement as source
 
         :params line: browse record of origin requistion.line
@@ -42,10 +42,9 @@ class logistic_requisition_line(orm.Model, BrowseAdapterSourceMixin):
 
         """
         res = {}
-        direct_map = {
-            'proposed_product_id': 'product_id',
-            'requisition_line_id': 'id',
-            'proposed_uom_id': 'requested_uom_id'}
+        res['proposed_product_id'] = line.product_id.id
+        res['requisition_line_id'] = line.id
+        res['proposed_uom_id'] = line.requested_uom_id.id
 
         if not agreement:
             raise ValueError("Missing agreement")
@@ -55,11 +54,11 @@ class logistic_requisition_line(orm.Model, BrowseAdapterSourceMixin):
         res['proposed_qty'] = qty
         res['framework_agreement_id'] = agreement.id
         res['procurement_method'] = AGR_PROC
-        res.update(self._direct_map(line, direct_map))
         return res
 
-    def _map_requisition_to_source(self, cr, uid, line, context=None,
-                                   qty=0, **kwargs):
+    def _map_requisition_to_source(self, cr, uid, line,
+                                   qty=0,
+                                   context=None):
         """Prepare data dict to generate source line using requisition as source
 
         :params line: browse record of origin requistion.line
@@ -69,9 +68,9 @@ class logistic_requisition_line(orm.Model, BrowseAdapterSourceMixin):
 
         """
         res = {}
-        direct_map = {'proposed_product_id': 'product_id',
-                      'requisition_line_id': 'id',
-                      'proposed_uom_id': 'requested_uom_id'}
+        res['proposed_product_id'] = line.product_id.id
+        res['requisition_line_id'] = line.id
+        res['proposed_uom_id'] = line.requested_uom_id.id
         res['unit_cost'] = 0.0
         res['proposed_qty'] = qty
         res['framework_agreement_id'] = False
@@ -79,7 +78,6 @@ class logistic_requisition_line(orm.Model, BrowseAdapterSourceMixin):
             res['procurement_method'] = 'procurement'
         else:
             res['procurement_method'] = 'other'
-        res.update(self._direct_map(line, direct_map))
         return res
 
     def _generate_lines_from_agreements(self, cr, uid, container, line,
@@ -100,6 +98,7 @@ class logistic_requisition_line(orm.Model, BrowseAdapterSourceMixin):
         """
         agreements = agreements if agreements is not None else []
         if currency:
+            import pdb; pdb.set_trace()
             agreements = [x for x in agreements if x.has_currency(currency)]
         if not agreements:
             return qty
@@ -153,14 +152,16 @@ class logistic_requisition_line(orm.Model, BrowseAdapterSourceMixin):
         qty = force_qty if force_qty else line.requested_qty
         src_obj = self.pool['logistic.requisition.source']
         if agreement:
-            return src_obj._make_source_line_from_origin(cr, uid, line,
-                                                         self._map_agr_requisiton_to_source,
-                                                         context=context, qty=qty,
-                                                         agreement=agreement)
+            vals = self._map_agr_requisiton_to_source(cr, uid, line,
+                                                      qty=force_qty,
+                                                      agreement=agreement,
+                                                      context=None)
         else:
-            return src_obj._make_source_line_from_origin(cr, uid, line,
-                                                         self._map_requisition_to_source,
-                                                         context=context, qty=qty)
+             vals = self._map_requisition_to_source(cr, uid, line,
+                                                    qty=force_qty,
+                                                    context=None)
+
+        return src_obj.create(cr, uid, vals, context=context)
 
     def _generate_source_line(self, cr, uid, line, context=None):
         """Generate one or n source line(s) per requisition line.

@@ -18,19 +18,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
+from itertools import chain
 from openerp.osv import orm, fields
 from openerp.tools.translate import _
 from openerp.addons.framework_agreement.model.framework_agreement import\
     FrameworkAgreementObservable
 from openerp.addons.framework_agreement.utils import id_boilerplate
 
-from .adapter_util import BrowseAdapterMixin, BrowseAdapterSourceMixin
 
 AGR_PROC = 'fw_agreement'
 
 
-class logistic_requisition_source(orm.Model, BrowseAdapterMixin,
-                                  BrowseAdapterSourceMixin, FrameworkAgreementObservable):
+class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
     """Adds support of framework agreement to source line"""
 
     _inherit = "logistic.requisition.source"
@@ -75,11 +74,19 @@ class logistic_requisition_source(orm.Model, BrowseAdapterMixin,
         return res
 
     #------------------ adapting source line to po -----------------------------
+    def _company(self, cr, uid, context):
+        """Return company id
 
-    def _map_source_to_po(self, cr, uid, line, context=None, **kwargs):
+        :returns: company id
+
+        """
+        return self.pool['res.company']._company_default_get(cr, uid, self._name,
+                                                             context=context)
+
+    def _map_source_to_po(self, cr, uid, line, po_pricelist, context=None):
         """Map source line to dict to be used by PO create defaults are optional
 
-        :returns: data dict to be used by adapter
+        :returns: data dict to be used by orm.Model.create
 
         """
         supplier = line.framework_agreement_id.supplier_id
@@ -93,7 +100,7 @@ class logistic_requisition_source(orm.Model, BrowseAdapterMixin,
         data['framework_agreement_id'] = line.framework_agreement_id.id
         data['partner_id'] = supplier.id
         data['company_id'] = self._company(cr, uid, context)
-        data['pricelist_id'] = line.po_pricelist.id
+        data['pricelist_id'] = po_pricelist.id
         data['dest_address_id'] = add.id
         data['location_id'] = add.property_stock_customer.id
         data['payment_term_id'] = term
@@ -107,47 +114,48 @@ class logistic_requisition_source(orm.Model, BrowseAdapterMixin,
         data['type'] = 'purchase'
         return data
 
-    def _map_source_to_po_line(self, cr, uid, line, context=None, **kwargs):
+    def _map_source_to_po_line(self, cr, uid, po_id, line,
+                               po_supplier, po_pricelist, context=None):
         """Map source line to dict to be used by PO line create
         Map source line to dict to be used by PO create
         defaults are optional
 
-        :returns: data dict to be used by adapter
+        :returns: data dict to be used by orm.Model.create
 
         """
         acc_pos_obj = self.pool['account.fiscal.position']
         pl_model = self.pool['product.pricelist']
 
         if line.framework_agreement_id:
-            currency = line.currency_id
-            price = line.framework_agreement_id.get_price(line.proposed_qty, currency=currency)
+            # currency = line.currency_id Joel TOFIX
+            # price = line.framework_agreement_id.get_price(line.proposed_qty, currency=currency)
+            # Joel to fix
+            price = 9999.00
             lead_time = line.framework_agreement_id.delay
             supplier = line.framework_agreement_id.supplier_id
         else:
-            supplier = line.po_supplier
+            supplier = po_supplier
             lead_time = 0
             price = 0.0
-            if line.po_pricelist:
+            if po_pricelist:
                 price = pl_model.price_get(cr, uid,
-                                           [line.po_pricelist.id],
+                                           [po_pricelist.id],
                                            line.proposed_product_id.id,
                                            line.proposed_qty or 1.0,
-                                           line.po_supplier.id,
-                                           {'uom': line.proposed_uom_id.id})[line.po_pricelist.id]
+                                           po_supplier.id,
+                                           {'uom': line.proposed_uom_id.id})[po_pricelist.id]
 
-            if not price:
-                price = line.proposed_product_id.standard_price or 1.00
+        if not price:
+            price = line.proposed_product_id.standard_price or 1.00
         taxes_ids = line.proposed_product_id.supplier_taxes_id
         taxes = acc_pos_obj.map_tax(cr, uid, supplier.property_account_position,
                                     taxes_ids)
         data = {}
-        direct_map = {'product_qty': 'proposed_qty',
-                      'product_id': 'proposed_product_id',
-                      'product_uom': 'proposed_uom_id',
-                      'lr_source_line_id': 'id',
-                      }
-
-        data.update(self._direct_map(line, direct_map))
+        data['order_id'] = po_id
+        data['product_qty'] = line.proposed_qty
+        data['product_id'] = line.proposed_product_id.id
+        data['product_uom'] = line.proposed_uom_id.id
+        data['lr_source_line_id']= line.id,
         data['product_lead_time'] = lead_time
         data['price_unit'] = price
         data['name'] = line.proposed_product_id.name
@@ -155,7 +163,7 @@ class logistic_requisition_source(orm.Model, BrowseAdapterMixin,
         data['taxes_id'] = [(6, 0, taxes)]
         return data
 
-    def _make_po_from_source_lines(self, cr, uid, main_source, source_lines,
+    def _make_po_from_source_lines(self, cr, uid, main_source, other_sources,
                                    pricelist, context=None):
         """adapt a source line to purchase order
 
@@ -166,16 +174,20 @@ class logistic_requisition_source(orm.Model, BrowseAdapterMixin,
             context = {}
         context['draft_po'] = True
         po_obj = self.pool['purchase.order']
-        supplier = main_source.framework_agreement_id.supplier_id
-        pid = po_obj._make_purchase_order_from_origin(cr, uid, main_source,
-                                                      pricelist,
-                                                      self._map_source_to_po,
-                                                      self._map_source_to_po_line,
-                                                      other_origin=source_lines,
-                                                      forced_supplier=supplier,
-                                                      context=context)
+        po_l_obj = self.pool['purchase.order.line']
 
-        return pid
+        supplier = main_source.framework_agreement_id.supplier_id
+        po_vals = self._map_source_to_po(cr, uid, main_source,
+                                         pricelist, context=context)
+        po_id = po_obj.create(cr, uid, po_vals, context=context)
+        other_sources = other_sources if other_sources else []
+        for source in chain([main_source], other_sources):
+            line_vals = self._map_source_to_po_line(cr, uid, po_id,
+                                                    source, supplier,
+                                                    pricelist, context=context)
+
+            po_l_obj.create(cr, uid, line_vals, context=context)
+        return po_id
 
     def make_purchase_order(self, cr, uid, ids, pricelist, context=None):
         """ adapt each source line to purchase order
@@ -254,19 +266,6 @@ class logistic_requisition_source(orm.Model, BrowseAdapterMixin,
             to_curr = current.requisition_id.currency_id.id
             price = currency_obj.compute(cr, uid, from_curr, to_curr, price, False)
         return price
-
-    #---------------------- provide adapter middleware -------------------------
-
-    def _make_source_line_from_origin(self, cr, uid, origin, map_fun,
-                                      post_fun=None, context=None, **kwargs):
-        model = self.pool['logistic.requisition.source']
-        data = self._adapt_origin(cr, uid, model, origin, map_fun,
-                                  post_fun=post_fun, context=context, **kwargs)
-        self._validate_adapted_data(cr, uid, model, data, context=context)
-        s_id = self.create(cr, uid, data, context=context)
-        if callable(post_fun):
-            post_fun(cr, uid, s_id, origin, context=context, **kwargs)
-        return s_id
 
     #---------------OpenERP tedious onchange management ------------------------
 
@@ -374,6 +373,7 @@ class logistic_requisition_source(orm.Model, BrowseAdapterMixin,
 class logistic_requisition_source_po_creator(orm.TransientModel):
 
     _name = 'logistic.requisition.source.create.agr.po'
+
     def action_create_agreement_po_requisition(self, cr, uid, ids, context=None):
         """ Implement buttons that create PO from selected source lines"""
         # We force empty context
