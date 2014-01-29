@@ -249,6 +249,7 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
         onchange_vals = sale_obj.onchange_partner_id(
             cr, uid, [], partner_id, context=context).get('value', {})
         vals.update(onchange_vals)
+        vals.update({'pricelist_id':requisition.pricelist_id.id})
         return vals
 
     def cost_estimate(self, cr, uid, ids, context=None):

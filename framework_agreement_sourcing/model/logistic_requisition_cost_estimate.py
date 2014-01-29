@@ -28,6 +28,11 @@ class logistic_requisition_cost_estimate(orm.Model):
 
     _inherit = "logistic.requisition.cost.estimate"
 
+    # We do not want that anymore. We should complete the correct price
+    # in the PO directly. Updating the PO price should update the LRS price
+    # Then you create a cost estimate from there. So, creating the cost estimate
+    # should NOT update anything. It should have been done before. This is the
+    # correct process...
     def _update_agreement_source(self, cr, uid, source, context=None):
         """Update price of source line using related confirmed PO"""
         if source.procurement_method == AGR_PROC:
@@ -102,20 +107,18 @@ class logistic_requisition_cost_estimate(orm.Model):
             po_line.write({'sale_order_line_id': product_dict.get(key, default)})
 
     def cost_estimate(self, cr, uid, ids, context=None):
-        """Override to link PO to cost_estimate
+        """Override to link PO to cost_estimate$
 
-        We have to do this because when we source with agreement we do
-        not copy the PO it is meaningless has we have no choice to make.
-        But in tender flow you first cancel PO then the sale order mark
-        canceled PO as dropshipping and then copy them.
+        In a normal flow, when you chose a bid as the winning one, the bid is
+        dupplicated to generate the draft PO. On this action, it link the LRS
+        to the generated PO line.
 
-        So you have to create link between SO and PO/PO line that are
-        normally done when SO procurement generate PO and picking
-
-
-        With agreement PO is confirmed before be marked as dropshipping.
-
-        So we have to link it first"""
+        In a tender flow, we don't dupplicate the bid, it's only a PO. The link
+        between the LRS and the PO line should then be created here.
+        
+        This is for the drop shipping to work propely cause in that case, SO
+        and PO are linked together.
+        """
         so_model = self.pool['sale.order']
         po_model = self.pool['purchase.order']
         res = super(logistic_requisition_cost_estimate,

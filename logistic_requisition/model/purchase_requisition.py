@@ -31,6 +31,7 @@ class purchase_requisition(orm.Model):
         For each selected bid line, we ensure there is a corresponding source
         (one2one relation) and we update the source data with the bid line data.
         """
+        currency_obj = self.pool['res.currency']
         if isinstance(id, (tuple, list)):
             assert len(id) == 1, (
                 "_split_requisition_source_lines() accepts only 1 ID, "
@@ -43,16 +44,21 @@ class purchase_requisition(orm.Model):
                 # this call for bid line has been added manually
                 continue
             source = pr_line.logistic_requisition_source_ids[0]
+            from_curr = source.requisition_id.currency_id.id
             set_sources = set()
             # Look for po lines of this purchase_requisition line
             for pr_bid_line in pr_line.purchase_line_ids:
+                # Compute from bid currency to LRS currency
+                to_curr = pr_bid_line.order_id.pricelist_id.currency_id.id
+                price = currency_obj.compute(cr, uid, from_curr, to_curr,
+                    pr_bid_line.price_unit, False)
                 vals = {
                     'price_is': 'fixed',
                     'proposed_qty': pr_bid_line.quantity_bid,
                     'proposed_product_id': pr_bid_line.product_id.id,
                     'proposed_uom_id': pr_bid_line.product_uom.id,
                     'selected_bid_line_id': pr_bid_line.id,
-                    'unit_cost': pr_bid_line.price_unit,
+                    'unit_cost': price,
                     #FIXME: we need to take care of the scheduled date
                     # set eta or etd depending if transport is included
                     }

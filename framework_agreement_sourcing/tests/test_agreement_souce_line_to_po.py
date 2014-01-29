@@ -44,8 +44,6 @@ class TestSourceToPo(CommonSourcingSetUp):
         """Test transformation of an agreement source line into PO"""
         cr, uid = self.cr, self.uid
         self.assertTrue(self.source_line)
-        plist = self.source_line.framework_agreement_id.supplier_id.property_product_pricelist_purchase
-        self.source_line.write({'purchase_pricelist_id': plist.id})
         self.source_line.refresh()
         po_id = self.source_line_model._make_po_from_source_line(cr, uid,
                                                                  self.source_line)

@@ -141,7 +141,8 @@ class test_purchase_split_requisition(common.TransactionCase):
             self.assertEquals(source.unit_cost,
                               bid_line.price_unit,
                               "The requisition line should have the price "
-                              "proposed on the purchase order line. ")
+                              "proposed on the purchase order line as long as "
+                              "their currency are the same ")
 
     def test_split_1_line_selected(self):
         """ Create a call for bids from the logistic requisition, 1 po line choosed """
