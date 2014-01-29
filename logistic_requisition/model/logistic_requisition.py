@@ -1082,11 +1082,22 @@ class logistic_requisition_source(orm.Model):
         return super(logistic_requisition_source, self).create(cr, uid, vals,
                                                                context=context)
 
+    def _get_purchase_pricelist_from_currency(self, cr, uid, currency_id, context=None):
+        """ This method will look for a pricelist of type 'purchase' using 
+        the same currency than than the given one.
+        return : ID of product.pricelist type Integer
+        """
+        pricelist_obj = self.pool.get('product.pricelist')
+        pricelist_id = pricelist_obj.search(cr, uid, 
+            [('currency_id','=',currency_id),('type','=','purchase')], limit=1)
+        return pricelist_id
+
     def _prepare_po_requisition(self, cr, uid, sources, purch_req_lines, context=None):
         company_id = None
         user_id = None
         consignee_id = None
         dest_address_id = None
+        pricelist_id = None
         origin = []
         for line in sources:
             origin.append(line.name)
@@ -1120,6 +1131,19 @@ class logistic_requisition_source(orm.Model):
                     _('Error'),
                     _('The sourcing lines do not have the '
                       'same delivery address.'))
+            line_pricelist_id = self._get_purchase_pricelist_from_currency(
+                cr,
+                uid,
+                line.requisition_id.pricelist_id.currency_id.id,
+                context=context
+                )
+            if pricelist_id is None:
+                pricelist_id = line_pricelist_id
+            elif pricelist_id != line_pricelist_id:
+                raise orm.except_orm(
+                    _('Error'),
+                    _('The sourcing lines do not have the '
+                      'same pricelist.'))
         return {'user_id': user_id or uid,
                 'company_id': company_id,
                 'consignee_id': consignee_id,
@@ -1128,6 +1152,7 @@ class logistic_requisition_source(orm.Model):
                 'origin': ", ".join(origin),
                 'req_incoterm_id': line.requisition_id.incoterm_id.id,
                 'req_incoterm_address': line.requisition_id.incoterm_address,
+                'pricelist_id': pricelist_id,
                 }
 
     def _prepare_po_requisition_line(self, cr, uid, line, context=None):

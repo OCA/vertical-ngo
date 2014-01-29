@@ -51,7 +51,6 @@ class logistic_requisition_line(orm.Model, BrowseAdapterSourceMixin):
             raise ValueError("Missing agreement")
         if not agreement.product_id.id == line.product_id.id:
             raise ValueError("Product mismatch for agreement and requisition line")
-        # currency = self._get_source_currency(cr, uid, line, context=context)
         res['unit_cost'] = 0.0
         res['proposed_qty'] = qty
         res['framework_agreement_id'] = agreement.id
@@ -163,16 +162,6 @@ class logistic_requisition_line(orm.Model, BrowseAdapterSourceMixin):
                                                          self._map_requisition_to_source,
                                                          context=context, qty=qty)
 
-    def _get_source_currency(self, cr, uid, line, context=None):
-        agr_obj = self.pool['framework.agreement']
-        comp_obj = self.pool['res.company']
-        currency = line.requisition_id.get_pricelist().currency_id
-        company_id = agr_obj._company_get(cr, uid, context=context)
-        comp_currency = comp_obj.browse(cr, uid, company_id, context=context).currency_id
-        if currency == comp_currency:
-            return None
-        return currency
-
     def _generate_source_line(self, cr, uid, line, context=None):
         """Generate one or n source line(s) per requisition line.
 
@@ -189,7 +178,7 @@ class logistic_requisition_line(orm.Model, BrowseAdapterSourceMixin):
             return None
         agr_obj = self.pool['framework.agreement']
         date = line.requisition_id.date
-        currency = self._get_source_currency(cr, uid, line, context=context)
+        currency = line.currency_id
         product_id = line.product_id.id
         agreements = agr_obj.get_all_product_agreements(cr, uid, product_id, date,
                                                         context=context)
@@ -223,24 +212,27 @@ class logistic_requisition_line(orm.Model, BrowseAdapterSourceMixin):
         return res
 
 
-class logistic_requisition(orm.Model):
-    """Add get pricelist function"""
+# Removed cuause we use here currency, no more pricelist
 
-    _inherit = "logistic.requisition"
 
-    def get_pricelist(self, cr, uid, requisition_id, context=None):
-        """Retrive pricelist id to use in sourcing by agreement process
+# class logistic_requisition(orm.Model):
+#     """Add get pricelist function"""
 
-        :returns: pricelist record
+#     _inherit = "logistic.requisition"
 
-        """
-        if isinstance(requisition_id, (list, tuple)):
-            assert len(requisition_id) == 1
-            requisition_id = requisition_id[0]
-        requisiton = self.browse(cr, uid, requisition_id, context=context)
-        plist = requisiton.partner_id.property_product_pricelist
-        if not plist:
-            raise orm.except_orm(_('No price list on customer'),
-                                 _('Please set sale price list on %s partner') %
-                                 requisiton.partner_id.name)
-        return plist
+#     def get_pricelist(self, cr, uid, requisition_id, context=None):
+#         """Retrive pricelist id to use in sourcing by agreement process
+
+#         :returns: pricelist record
+
+#         """
+#         if isinstance(requisition_id, (list, tuple)):
+#             assert len(requisition_id) == 1
+#             requisition_id = requisition_id[0]
+#         requisiton = self.browse(cr, uid, requisition_id, context=context)
+#         plist = requisiton.partner_id.property_product_pricelist
+#         if not plist:
+#             raise orm.except_orm(_('No price list on customer'),
+#                                  _('Please set sale price list on %s partner') %
+#                                  requisiton.partner_id.name)
+#         return plist
