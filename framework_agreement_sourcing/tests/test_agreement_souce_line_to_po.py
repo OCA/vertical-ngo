@@ -37,11 +37,18 @@ class TestSourceToPo(CommonSourcingSetUp):
         self.assertTrue(agr_line)
         agr_line.write({'requested_qty': 400})
         agr_line.refresh()
-        source_ids = self.requisition_line_model._generate_source_line(cr, uid, agr_line)
-        self.assertTrue(len(source_ids) == 1)
+        source_ids = []
+        for line in lines:
+            if (line.product_id.id == self.product_id or
+                    line.product_id.type == 'service'):
+                lid = self.requisition_line_model._generate_source_line(cr, uid, line)
+                source_ids += lid
+        self.assertTrue(len(source_ids) == 2)
         self.source_lines = self.source_line_model.browse(cr, uid, source_ids)
         self.lta_source = next(x for x in self.source_lines
                                if x.procurement_method == 'fw_agreement')
+        self.other_source = next(x for x in self.source_lines
+                                 if x.procurement_method == 'other')
 
     def test_01_transform_source_to_agreement(self):
         """Test transformation of an agreement source line into PO"""
@@ -70,13 +77,23 @@ class TestSourceToPo(CommonSourcingSetUp):
         self.assertEqual(po.consignee_id, consignee)
         self.assertEqual(po.state, 'draftpo')
 
-        self.assertEqual(len(po.order_line), 1)
+        self.assertEqual(len(po.order_line), 2)
+
         po_line = next(x for x in po.order_line
                        if x.product_id == self.lta_source.framework_agreement_id.product_id)
         self.assertEqual(po_line.product_qty, self.lta_source.proposed_qty)
         self.assertEqual(po_line.product_id, self.lta_source.proposed_product_id)
         self.assertEqual(po_line.product_qty, self.lta_source.proposed_qty)
         self.assertEqual(po_line.product_uom, self.lta_source.proposed_uom_id)
-        self.assertEqual(po_line.price_unit, 50.0)
+        self.assertAlmostEqual(po_line.price_unit, 50.0)
         self.assertEqual(po_line.lr_source_line_id, self.lta_source)
         self.assertEqual(po_line.date_planned, date_delivery)
+
+        po_line = next(x for x in po.order_line
+                       if x.product_id == self.other_source.proposed_product_id)
+        self.assertEqual(po_line.product_qty, self.other_source.proposed_qty)
+        self.assertEqual(po_line.product_id, self.other_source.proposed_product_id)
+        self.assertEqual(po_line.product_qty, self.other_source.proposed_qty)
+        self.assertEqual(po_line.product_uom, self.other_source.proposed_uom_id)
+        self.assertAlmostEqual(po_line.price_unit, 1.0)
+        self.assertEqual(po_line.lr_source_line_id, self.other_source)
