@@ -40,7 +40,7 @@ class TestTransformation(CommonSourcingSetUp):
         self.assertTrue(len(to_validate_ids) == 1)
         to_validate = self.source_line_model.browse(cr, uid, to_validate_ids[0])
         self.assertEqual(to_validate.procurement_method, AGR_PROC)
-        self.assertEqual(to_validate.unit_cost, 0.0)
+        self.assertAlmostEqual(to_validate.unit_cost, 0.0)
         self.assertEqual(to_validate.proposed_qty, 400)
 
     def test_02_enough_qty_on_high_agr(self):
@@ -59,7 +59,7 @@ class TestTransformation(CommonSourcingSetUp):
         self.assertTrue(len(to_validate_ids) == 1)
         to_validate = self.source_line_model.browse(cr, uid, to_validate_ids[0])
         self.assertEqual(to_validate.procurement_method, AGR_PROC)
-        self.assertEqual(to_validate.unit_cost, 0.0)
+        self.assertAlmostEqual(to_validate.unit_cost, 0.0)
         self.assertEqual(to_validate.proposed_qty, 1500)
 
     def test_03_not_enough_qty_on_high_agreement(self):
@@ -85,7 +85,7 @@ class TestTransformation(CommonSourcingSetUp):
         self.assertTrue(high_line, msg="High agreement was not used")
         self.assertEqual(high_line.procurement_method, AGR_PROC)
         self.assertEqual(high_line.proposed_qty, 2000)
-        self.assertEqual(high_line.unit_cost, 0.0)
+        self.assertAlmostEqual(high_line.unit_cost, 0.0)
 
         # low_line
         low_line = next((x for x in to_validates
@@ -93,7 +93,7 @@ class TestTransformation(CommonSourcingSetUp):
         self.assertTrue(low_line, msg="Low agreement was not used")
         self.assertEqual(low_line.procurement_method, AGR_PROC)
         self.assertEqual(low_line.proposed_qty, 400)
-        self.assertEqual(low_line.unit_cost, 0.0)
+        self.assertAlmostEqual(low_line.unit_cost, 0.0)
 
     def test_03_not_enough_qty_on_all_agreemenst(self):
         """Test that we """
@@ -118,7 +118,7 @@ class TestTransformation(CommonSourcingSetUp):
         self.assertTrue(high_line, msg="High agreement was not used")
         self.assertEqual(high_line.procurement_method, AGR_PROC)
         self.assertEqual(high_line.proposed_qty, 2000)
-        self.assertEqual(high_line.unit_cost, 0.0)
+        self.assertAlmostEqual(high_line.unit_cost, 0.0)
 
         # low_line
         low_line = next((x for x in to_validates
@@ -126,7 +126,7 @@ class TestTransformation(CommonSourcingSetUp):
         self.assertTrue(low_line, msg="Low agreement was not used")
         self.assertEqual(low_line.procurement_method, AGR_PROC)
         self.assertEqual(low_line.proposed_qty, 1200)
-        self.assertEqual(low_line.unit_cost, 0.0)
+        self.assertAlmostEqual(low_line.unit_cost, 0.0)
 
         # Tender line
         tender_line = next((x for x in to_validates
