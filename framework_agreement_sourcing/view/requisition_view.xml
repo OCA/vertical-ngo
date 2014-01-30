@@ -69,6 +69,7 @@
       <field name="model">logistic.requisition.source.create.agr.po</field>
       <field name="arch" type="xml">
         <form string="Create Purchase Order" version="7.0">
+          <field name="pricelist_id" domain="[('type','=','purchase')]"/>
           <group>
             <separator string="Are you sure you want to create a Purchase Order from those lines ?"/>
             <label string="
@@ -81,7 +82,6 @@
                            &#10; &#10;
                            " colspan="4"/>
           </group>
-
           <footer>
             <button name="action_create_agreement_po_requisition"
                     string="Create Purchase Order"
