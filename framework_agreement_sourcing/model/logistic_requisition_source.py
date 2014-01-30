@@ -225,6 +225,15 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
         po_ids.append(po_id)
         return po_ids
 
+    def _is_sourced_other(self, cr, uid, source, context=None):
+        """Predicate function to test if line on other
+        method are sourced"""
+        tender_ok = self._is_sourced_procurement(cr, uid, source,
+                                                 context=context)
+        agr_ok = self._is_sourced_fw_agreement(cr, uid, source,
+                                                 context=context)
+        return (tender_ok or agr_ok)
+
     def _is_sourced_fw_agreement(self, cr, uid, source, context=None):
         """Predicate that tells if source line of type agreement are sourced
 

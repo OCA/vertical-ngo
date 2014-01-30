@@ -176,7 +176,7 @@ class logistic_requisition(orm.Model):
             type='float'
         ),
         'allowed_budget': fields.boolean('Allowed Budget'),
-        'pricelist_id': fields.many2one('product.pricelist', 
+        'pricelist_id': fields.many2one('product.pricelist',
             'Pricelist',
             required=True,
             states=REQ_STATES,
@@ -991,10 +991,16 @@ class logistic_requisition_source(orm.Model):
             return False
         return True
 
+    def _is_sourced_other(self, cr, uid, source, context=None):
+        """Predicate function to test if line on other
+        method are sourced"""
+        return self._is_sourced_procurement(cr, uid, source,
+                                            context=context)
+
     def _is_sourced_wh_dispatch(self, cr, uid, source, context=None):
-       """Predicate function to test if line on warehouse
-       method are sourced"""
-       return True
+        """Predicate function to test if line on warehouse
+        method are sourced"""
+        return True
 
     def _is_sourced(self, cr, uid, source_id, context=None):
         """ check if line is source using predicate function
@@ -1083,12 +1089,12 @@ class logistic_requisition_source(orm.Model):
                                                                context=context)
 
     def _get_purchase_pricelist_from_currency(self, cr, uid, currency_id, context=None):
-        """ This method will look for a pricelist of type 'purchase' using 
+        """ This method will look for a pricelist of type 'purchase' using
         the same currency than than the given one.
         return : ID of product.pricelist type Integer
         """
         pricelist_obj = self.pool.get('product.pricelist')
-        pricelist_id = pricelist_obj.search(cr, uid, 
+        pricelist_id = pricelist_obj.search(cr, uid,
             [('currency_id','=',currency_id),('type','=','purchase')], limit=1)
         return pricelist_id
 
@@ -1178,7 +1184,16 @@ class logistic_requisition_source(orm.Model):
         purch_req_obj = self.pool.get('purchase.requisition')
         purch_req_lines = []
         lines = self.browse(cr, uid, ids, context=context)
+        if not next((x for x in lines
+                     if x.procurement_method != 'procurement'), None):
+            raise orm.except_orm(_('There should be at least one selected'
+                                   'line with procurement method Procurement'),
+                                 _('Please correct selection'))
         for line in lines:
+            if line.procurement_method not in ('other', 'procurement'):
+                raise orm.except_orm(_('Selected line procurement method should'
+                                       ' be procurement or other'),
+                                     _('Please correct selection'))
             vals = self._prepare_po_requisition_line(cr, uid, line,
                                                      context=context)
             purch_req_lines.append(vals)
