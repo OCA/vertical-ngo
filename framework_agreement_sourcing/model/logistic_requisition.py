@@ -98,7 +98,6 @@ class logistic_requisition_line(orm.Model):
         """
         agreements = agreements if agreements is not None else []
         if currency:
-            import pdb; pdb.set_trace()
             agreements = [x for x in agreements if x.has_currency(currency)]
         if not agreements:
             return qty
