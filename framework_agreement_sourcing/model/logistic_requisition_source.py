@@ -86,8 +86,11 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
                                                              context=context)
 
     def _prepare_purchase_order(self, cr, uid, line, po_pricelist, context=None):
-        """Map source line to dict to be used by PO create defaults are optional
+        """Prepare the dict of values to create the PO from a
+           source line.
 
+        :param browse_record line: logistic.requisition.source
+        :param browse_record pricelist: product.pricelist
         :returns: data dict to be used by orm.Model.create
 
         """
@@ -118,10 +121,12 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
 
     def _prepare_purchase_order_line(self, cr, uid, po_id, line,
                                po_supplier, po_pricelist, context=None):
-        """Map source line to dict to be used by PO line create
-        Map source line to dict to be used by PO create
-        defaults are optional
-
+        """Prepare the dict of values to create the PO Line from args.
+           
+        :param integer po_id: ids of purchase.order
+        :param browse_record line: logistic.requisition.source
+        :param browse_record po_supplier: res.partner
+        :param browse_record po_pricelist: product.pricelist
         :returns: data dict to be used by orm.Model.create
 
         """
@@ -169,7 +174,14 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
                                    pricelist, context=None):
         """adapt a source line to purchase order
 
-        :returns: generated PO id
+        
+        :param browse_record main_source: logistic.requisition.source of 
+            type LTA from which you want to generate to PO
+        :param browse_record other_sources: logistic.requisition.source of
+            type other to indlue in the PO
+        :param browse_record pricelist: product.pricelist to be used in PO to
+            know the currency mainly (as the prices will be computed from LTA)
+        :returns integer : generated PO id
 
         """
         if context is None:
@@ -193,14 +205,25 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
         return po_id
 
     def make_purchase_order(self, cr, uid, ids, pricelist, context=None):
-        """ adapt each source line to purchase order
+        """Create a purchase order from the LRS ids list. This method will
+        create one PO with all lines. Between them, you'll have line of type
+        LTA (framewrok agreement) and line of type other. 
+        Currently, only one line of type LTA is accepted at a time.
 
-        :returns: generated PO ids
+        We'll raise an error if other types are selected here.
+        We accept line of type other here to include products not included 
+        in the LTA for example : you order Product A under LTA + the transport
+        as a LRS of type other.
+        
+        :param integer list ids: ids of logistic.requisition.source
+        :param browse_record pricelist: product.pricelist
+        :returns integer : generated PO id
 
         """
-        po_ids = []
         sources = self.browse(cr, uid, ids, context=context)
+        # LRS of type LTA (framework agreement)
         agreement_sources = []
+        # LRS of type other
         other_sources =  []
         for source in sources:
             if source.procurement_method == AGR_PROC:
@@ -222,8 +245,7 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
         pricelist = pricelist if pricelist else fback
         po_id = self._make_po_from_source_lines(cr, uid, main_source,
                                                 other_sources, pricelist, context=None)
-        po_ids.append(po_id)
-        return po_ids
+        return po_id
 
     def _is_sourced_other(self, cr, uid, source, context=None):
         """Predicate function to test if line on other
@@ -389,23 +411,23 @@ class logistic_requisition_source_po_creator(orm.TransientModel):
     def _make_purchase_order(self, cr, uid, pricelist, source_ids, context=None):
         """Create PO from source line ids"""
         lr_model = self.pool['logistic.requisition.source']
-        po_ids = lr_model.make_purchase_order(cr, uid, source_ids,
+        po_id = lr_model.make_purchase_order(cr, uid, source_ids,
                                               pricelist, context=context)
-        return po_ids
+        return po_id
 
     def action_create_agreement_po_requisition(self, cr, uid, ids, context=None):
         """ Implement buttons that create PO from selected source lines"""
         act_obj = self.pool['ir.actions.act_window']
         source_ids = context['active_ids']
         pricelist = None # place holder for Joel pl browse record
-        po_ids = self._make_purchase_order(cr, uid, pricelist, source_ids,
+        po_id = self._make_purchase_order(cr, uid, pricelist, source_ids,
                                            context=context)
         # TODO : update LRS price from PO depending on the chosen currency
         
         res = act_obj.for_xml_id(cr, uid,
                                  'purchase', 'purchase_rfq', context=context)
-        res.update({'domain': [('id', 'in', po_ids)],
-                    'res_id': po_ids[0],
+        res.update({'domain': [('id', '=', po_id)],
+                    'res_id': po_id,
                     'context': '{}',
                     'search_view_id': False,
                     })
