@@ -210,29 +210,3 @@ class logistic_requisition_line(orm.Model):
         for line_br in self.browse(cr, uid, ids, context=context):
             self._generate_source_line(cr, uid, line_br, context=context)
         return res
-
-
-# Removed cuause we use here currency, no more pricelist
-
-
-# class logistic_requisition(orm.Model):
-#     """Add get pricelist function"""
-
-#     _inherit = "logistic.requisition"
-
-#     def get_pricelist(self, cr, uid, requisition_id, context=None):
-#         """Retrive pricelist id to use in sourcing by agreement process
-
-#         :returns: pricelist record
-
-#         """
-#         if isinstance(requisition_id, (list, tuple)):
-#             assert len(requisition_id) == 1
-#             requisition_id = requisition_id[0]
-#         requisiton = self.browse(cr, uid, requisition_id, context=context)
-#         plist = requisiton.partner_id.property_product_pricelist
-#         if not plist:
-#             raise orm.except_orm(_('No price list on customer'),
-#                                  _('Please set sale price list on %s partner') %
-#                                  requisiton.partner_id.name)
-#         return plist
