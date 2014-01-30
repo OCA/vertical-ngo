@@ -406,5 +406,6 @@ class logistic_requisition_source_po_creator(orm.TransientModel):
         res.update({'domain': [('id', 'in', po_ids)],
                     'res_id': po_ids[0],
                     'context': '{}',
+                    'search_view_id': False,
                     })
         return res
