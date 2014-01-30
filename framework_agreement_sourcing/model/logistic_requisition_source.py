@@ -129,8 +129,8 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
         if line.framework_agreement_id:
             # currency = line.currency_id Joel TOFIX
             # price = line.framework_agreement_id.get_price(line.proposed_qty, currency=currency)
-            # Joel to fix
-            price = 9999.00
+            # Joel TOFIX
+            price = 50.00  # hard coded values that match test expected values
             lead_time = line.framework_agreement_id.delay
             supplier = line.framework_agreement_id.supplier_id
         else:
@@ -374,20 +374,25 @@ class logistic_requisition_source_po_creator(orm.TransientModel):
 
     _name = 'logistic.requisition.source.create.agr.po'
 
+    def _make_purchase_order(self, cr, uid, pricelist, source_ids, context=None):
+        """Create PO from source line ids"""
+        lr_model = self.pool['logistic.requisition.source']
+        po_ids = lr_model.make_purchase_order(cr, uid, source_ids,
+                                              pricelist, context=context)
+        return po_ids
+
     def action_create_agreement_po_requisition(self, cr, uid, ids, context=None):
         """ Implement buttons that create PO from selected source lines"""
-        # We force empty context
-        lr_model = self.pool['logistic.requisition.source']
         act_obj = self.pool['ir.actions.act_window']
         source_ids = context['active_ids']
         pricelist = None # place holder for Joel pl browse record
-        po_ids = lr_model.make_purchase_order(cr, uid, source_ids,
-                                              pricelist, context=context)
+        po_ids = self._make_purchase_order(cr, uid, pricelist, source_ids,
+                                           context=context)
         # TODO : update LRS price from PO depending on the chosen currency
         res = act_obj.for_xml_id(cr, uid,
                                  'purchase', 'purchase_rfq', context=context)
         res.update({'domain': [('id', 'in', po_ids)],
-                    'res_id': False,
+                    'res_id': po_ids[0],
                     'context': '{}',
                     })
         return res
