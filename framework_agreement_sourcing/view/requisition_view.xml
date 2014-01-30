@@ -104,7 +104,7 @@
         target="new"
         multi="True"
         key2="client_action_multi"
-        id="action_view_create_requisition_from_source"/>
+        id="action_view_create_agr_po_from_source"/>
 
   </data>
 </openerp>
