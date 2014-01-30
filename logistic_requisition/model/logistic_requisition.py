@@ -784,24 +784,24 @@ class logistic_requisition_source(orm.Model):
                       'quoted': [('readonly', True)]
                       }
 
-    def _purchase_line_id(self, cr, uid, ids, field_name, arg, context=None):
-        """ For each line, returns the generated purchase line from the
-        purchase requisition.
-        """
-        result = {}
-        for line in self.browse(cr, uid, ids, context=context):
-            result[line.id] = False
-            bid_line = line.bid_line_id
-            if not bid_line:
-                continue
-            po_lines = bid_line.po_line_from_bid_ids
-            if not po_lines:
-                continue
-            assert len(po_lines) == 1, (
-                "We should not have several purchase order lines "
-                "for a logistic requisition line")
-            result[line.id] = po_lines[0].id if po_lines else False
-        return result
+    # def _purchase_line_id(self, cr, uid, ids, field_name, arg, context=None):
+    #     """ For each line, returns the generated purchase line from the
+    #     purchase requisition.
+    #     """
+    #     result = {}
+    #     for line in self.browse(cr, uid, ids, context=context):
+    #         result[line.id] = False
+    #         bid_line = line.bid_line_id
+    #         if not bid_line:
+    #             continue
+    #         po_lines = bid_line.po_line_from_bid_ids
+    #         if not po_lines:
+    #             continue
+    #         assert len(po_lines) == 1, (
+    #             "We should not have several purchase order lines "
+    #             "for a logistic requisition line")
+    #         result[line.id] = po_lines[0].id if po_lines else False
+    #     return result
 
     def _default_source_address(self, cr, uid, ids, field_name, arg, context=None):
         """Return the default source address depending of the procurment method"""
@@ -1067,18 +1067,26 @@ class logistic_requisition_source(orm.Model):
         purchase requisition.
         """
         result = {}
+        po_line_model = self.pool['purchase.order.line']
         for line in self.browse(cr, uid, ids, context=context):
             result[line.id] = False
-            bid_line = line.selected_bid_line_id
-            if not bid_line:
-                continue
-            po_lines = bid_line.po_line_from_bid_ids
-            if not po_lines:
-                continue
+            if line.selected_bid_line_id:
+                bid_line = line.selected_bid_line_id
+                if not bid_line:
+                    continue
+                    po_lines = [x.id for x in bid_line.po_line_from_bid_ids]
+                if not po_lines:
+                    continue
+            else:
+                po_lines = po_line_model.search(cr, uid,
+                                                [('lr_source_line_id', '=', line.id),
+                                                 ('state', '!=', 'cancel')],
+                                                context=context)
             assert len(po_lines) == 1, (
                 "We should not have several purchase order lines "
                 "for a logistic requisition line")
-            result[line.id] = po_lines[0].id if po_lines else False
+            result[line.id] = po_lines[0] if po_lines else False
+
         return result
 
     def create(self, cr, uid, vals, context=None):
