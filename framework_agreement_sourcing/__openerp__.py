@@ -45,7 +45,10 @@ the same time in company.
 
 """,
  'website': 'http://www.camptocamp.com',
- 'data': ['view/requisition_view.xml'],
+ 'data': [
+    'view/requisition_view.xml',
+    'logistic_requisition_source_create_po_view.xml',
+ ],
  'demo': [],
  'test': [],
  'installable': True,

@@ -132,12 +132,10 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
         """
         acc_pos_obj = self.pool['account.fiscal.position']
         pl_model = self.pool['product.pricelist']
+        currency = po_pricelist.currency_id
 
         if line.framework_agreement_id:
-            # currency = line.currency_id Joel TOFIX
-            # price = line.framework_agreement_id.get_price(line.proposed_qty, currency=currency)
-            # Joel TOFIX
-            price = 50.00  # hard coded values that match test expected values
+            price = line.framework_agreement_id.get_price(line.proposed_qty, currency=currency)
             lead_time = line.framework_agreement_id.delay
             supplier = line.framework_agreement_id.supplier_id
         else:
@@ -407,6 +405,12 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
 class logistic_requisition_source_po_creator(orm.TransientModel):
 
     _name = 'logistic.requisition.source.create.agr.po'
+
+
+    _columns = {
+        'pricelist_id': fields.many2one('product.pricelist',
+                                          string='Pricelist / Currency'),
+    }
 
     def _make_purchase_order(self, cr, uid, pricelist, source_ids, context=None):
         """Create PO from source line ids"""
