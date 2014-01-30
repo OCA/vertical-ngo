@@ -85,7 +85,7 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
         return self.pool['res.company']._company_default_get(cr, uid, self._name,
                                                              context=context)
 
-    def _map_source_to_po(self, cr, uid, line, po_pricelist, context=None):
+    def _prepare_purchase_order(self, cr, uid, line, po_pricelist, context=None):
         """Map source line to dict to be used by PO create defaults are optional
 
         :returns: data dict to be used by orm.Model.create
@@ -116,7 +116,7 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
         data['type'] = 'purchase'
         return data
 
-    def _map_source_to_po_line(self, cr, uid, po_id, line,
+    def _prepare_purchase_order_line(self, cr, uid, po_id, line,
                                po_supplier, po_pricelist, context=None):
         """Map source line to dict to be used by PO line create
         Map source line to dict to be used by PO create
@@ -179,12 +179,12 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
         po_l_obj = self.pool['purchase.order.line']
 
         supplier = main_source.framework_agreement_id.supplier_id
-        po_vals = self._map_source_to_po(cr, uid, main_source,
+        po_vals = self._prepare_purchase_order(cr, uid, main_source,
                                          pricelist, context=context)
         po_id = po_obj.create(cr, uid, po_vals, context=context)
         other_sources = other_sources if other_sources else []
         for source in chain([main_source], other_sources):
-            line_vals = self._map_source_to_po_line(cr, uid, po_id,
+            line_vals = self._prepare_purchase_order_line(cr, uid, po_id,
                                                     source, supplier,
                                                     pricelist, context=context)
 
@@ -401,6 +401,7 @@ class logistic_requisition_source_po_creator(orm.TransientModel):
         po_ids = self._make_purchase_order(cr, uid, pricelist, source_ids,
                                            context=context)
         # TODO : update LRS price from PO depending on the chosen currency
+        
         res = act_obj.for_xml_id(cr, uid,
                                  'purchase', 'purchase_rfq', context=context)
         res.update({'domain': [('id', 'in', po_ids)],
