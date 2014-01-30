@@ -36,6 +36,8 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
 
     _columns = {'framework_agreement_id': fields.many2one('framework.agreement',
                                                           'Agreement'),
+                'framework_agreement_po_id': fields.many2one('purchase.order',
+                                                             'Agreement Purchase'),
                 'supplier_id': fields.related('framework_agreement_id', 'supplier_id',
                                               type='many2one',  relation='res.partner',
                                               string='Agreement Supplier')}
@@ -187,6 +189,7 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
                                                     pricelist, context=context)
 
             po_l_obj.create(cr, uid, line_vals, context=context)
+            source.write({'framework_agreement_po_id': po_id})
         return po_id
 
     def make_purchase_order(self, cr, uid, ids, pricelist, context=None):
