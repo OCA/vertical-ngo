@@ -30,7 +30,7 @@ class logistic_requisition_line(orm.Model):
     _inherit = "logistic.requisition.line"
 
     def _map_agr_requisiton_to_source(self, cr, uid, line,
-                                      qty=0, agreement=None,
+                                      qty=None, agreement=None,
                                       context=None):
         """Prepare data dict for source line using agreement as source
 
@@ -152,12 +152,12 @@ class logistic_requisition_line(orm.Model):
         src_obj = self.pool['logistic.requisition.source']
         if agreement:
             vals = self._map_agr_requisiton_to_source(cr, uid, line,
-                                                      qty=force_qty,
+                                                      qty=qty,
                                                       agreement=agreement,
                                                       context=None)
         else:
              vals = self._map_requisition_to_source(cr, uid, line,
-                                                    qty=force_qty,
+                                                    qty=qty,
                                                     context=None)
 
         return src_obj.create(cr, uid, vals, context=context)
