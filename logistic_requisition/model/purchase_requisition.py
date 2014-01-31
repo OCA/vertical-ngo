@@ -125,19 +125,6 @@ class purchase_requisition(orm.Model):
         vals['from_bid_line_id'] = line.id
         return vals
 
-    #FIXME: we should not do that, the location must be known from the beginning of the RFQ-Bid process
-    #def _prepare_purchase_order(self, cr, uid, requisition, supplier, context=None):
-    #    vals = super(purchase_requisition, self)._prepare_purchase_order(
-    #        cr, uid, requisition, supplier, context=context)
-    #    if requisition.logistic_requisition_source_ids:
-    #        # comes from a logistic.requisition -> generate direct
-    #        # delivery purchases, so we put the location customer
-    #        # of the first consignee_id (same consignee on all lines)
-    #        source = requisition.logistic_requisition_source_ids[0]
-    #        req = source.requisition_id
-    #        vals['location_id'] = req.consignee_id.property_stock_customer.id
-    #    return vals
-
 
 class purchase_requisition_line(orm.Model):
     _inherit = 'purchase.requisition.line'
