@@ -784,25 +784,6 @@ class logistic_requisition_source(orm.Model):
                       'quoted': [('readonly', True)]
                       }
 
-    # def _purchase_line_id(self, cr, uid, ids, field_name, arg, context=None):
-    #     """ For each line, returns the generated purchase line from the
-    #     purchase requisition.
-    #     """
-    #     result = {}
-    #     for line in self.browse(cr, uid, ids, context=context):
-    #         result[line.id] = False
-    #         bid_line = line.bid_line_id
-    #         if not bid_line:
-    #             continue
-    #         po_lines = bid_line.po_line_from_bid_ids
-    #         if not po_lines:
-    #             continue
-    #         assert len(po_lines) == 1, (
-    #             "We should not have several purchase order lines "
-    #             "for a logistic requisition line")
-    #         result[line.id] = po_lines[0].id if po_lines else False
-    #     return result
-
     def _default_source_address(self, cr, uid, ids, field_name, arg, context=None):
         """Return the default source address depending of the procurment method"""
         res = {}
@@ -895,6 +876,12 @@ class logistic_requisition_source(orm.Model):
             type='float',
             digits_compute=dp.get_precision('Account'),
             store=True),
+        'currency_id': fields.related('requisition_id',
+                                      'currency_id',
+                                      type='many2one',
+                                      relation='res.currency',
+                                      string='Currency',
+                                      readonly=True),
         'transport_applicable': fields.boolean(
             'Transport Applicable',
             states=SOURCED_STATES),

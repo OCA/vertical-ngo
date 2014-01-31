@@ -110,7 +110,8 @@ class purchase_order_line(orm.Model):
             readonly=True),
     }
 
-    def _prepare_lrs_update_from_po_line(self, cr, uid, vals, po_line,context=None):
+    def _prepare_lrs_update_from_po_line(self, cr, uid, vals, 
+            po_line, context=None):
         """ Take the vals dict from po line and return a vals dict for LRS
 
         :param dict vals: value of to be written in new po line
@@ -144,54 +145,54 @@ class purchase_order_line(orm.Model):
             else:
                 lrs_vals['date_etd'] = vals.get('date_planned') 
                 lrs_vals['date_eta'] = vals.get('date_planned')
+        return lrs_vals
 
-    # def write(self, cr, uid, ids, vals, context=None):
-    #     """ Here we implement something to allow the update of LRS when some 
-    #     information are changed in PO line. It should be possible to do it when :
-    #     PO is still in draft
-    #     LRL is not marked as sourced
-    #     Once done, nobody should be able to change the PO line infos
-    #     """
-    #     if context is None:
-    #         context = {}
-    #     if not ids:
-    #         return True
-    #     if (vals.get('product_qty') or vals.get('product_id') 
-    #                                 or vals.get('product_uom') 
-    #                                 or vals.get('price_unit') 
-    #                                 or vals.get('date_planned')):
-    #         lrs_obj = self.pool.get('logistic.requisition.source')
-    #         for line in self.browse(cr, uid, ids, context=context):
-    #             if line.lr_source_line_id:
-    #                 if (line.lr_source_line_id.requisition_line_id in 
-    #                                             ('sourced', 'quoted')):
-    #                     raise osv.except_osv(
-    #                         _('UserError'),
-    #                         _(
-    #                             "You cannot change the informations because this PO line "
-    #                             "is already linked to a Logistic Requsition Line %s marked "
-    #                             "as sourced or quoted." % (line.lr_source_line_id.name)
-    #                         )
-    #                 )
-    #                 else:
-    #                     lrs_vals = self._prepare_lrs_update_from_po_line(cr, 
-    #                         uid, vals, context=context)
-    #                     lrs_obj.write(cr, uid, line.lr_source_line_id.id,
-    #                         lrs_vals, context=context)
-    #     return super(purchase_order_line, self).write(cr, uid, ids, vals,
-    #                                                   context=context)
-
-    # def unlink(self, cr, uid, ids, context=None):
-    #     for line in self.browse(cr, uid, ids, context=context):
-    #         if line.lr_source_line_id:
-    #             if (line.lr_source_line_id.requisition_line_id in 
-    #                                         ('sourced', 'quoted')):
-    #                 raise osv.except_osv(
-    #                     _('UserError'),
-    #                     _(
-    #                         "You cannot delete this PO line because it is "
-    #                         "already linked to a Logistic Requsition Line %s marked "
-    #                         "as sourced or quoted." % (line.lr_source_line_id.name)
-    #                     )
-    #             )
-    #     return super(purchase_order_line, self).unlink(cr, uid, ids, context=context)
+    def write(self, cr, uid, ids, vals, context=None):
+        """ Here we implement something to allow the update of LRS when some 
+        information are changed in PO line. It should be possible to do it when :
+        PO is still in draft
+        LRL is not marked as sourced
+        Once done, nobody should be able to change the PO line infos
+        """
+        if context is None:
+            context = {}
+        if not ids:
+            return True
+        if (vals.get('product_qty') or vals.get('product_id') 
+                                    or vals.get('product_uom') 
+                                    or vals.get('price_unit') 
+                                    or vals.get('date_planned')):
+            lrs_obj = self.pool.get('logistic.requisition.source')
+            for line in self.browse(cr, uid, ids, context=context):
+                if line.lr_source_line_id:
+                    if (line.lr_source_line_id.requisition_line_id in 
+                                                ('sourced', 'quoted')):
+                        raise osv.except_osv(
+                            _('UserError'),
+                            _(
+                                "You cannot change the informations because this PO line "
+                                "is already linked to a Logistic Requsition Line %s marked "
+                                "as sourced or quoted." % (line.lr_source_line_id.name)
+                            )
+                    )
+                    else:
+                        lrs_vals = self._prepare_lrs_update_from_po_line(cr, 
+                            uid, vals, line, context=context)
+                        lrs_obj.write(cr, uid, line.lr_source_line_id.id,
+                            lrs_vals, context=context)
+        return super(purchase_order_line, self).write(cr, uid, ids, vals,
+                                                      context=context)
+    def unlink(self, cr, uid, ids, context=None):
+        for line in self.browse(cr, uid, ids, context=context):
+            if line.lr_source_line_id:
+                if (line.lr_source_line_id.requisition_line_id in 
+                                            ('sourced', 'quoted')):
+                    raise osv.except_osv(
+                        _('UserError'),
+                        _(
+                            "You cannot delete this PO line because it is "
+                            "already linked to a Logistic Requsition Line %s marked "
+                            "as sourced or quoted." % (line.lr_source_line_id.name)
+                        )
+                )
+        return super(purchase_order_line, self).unlink(cr, uid, ids, context=context)

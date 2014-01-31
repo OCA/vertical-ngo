@@ -33,3 +33,4 @@ class purchase_order(orm.Model):
             if not element.quantity_bid and not element.framework_agreement_id:
                 self.write(cr, uid, ids, {'quantity_bid': element.product_qty}, context=context)
         return True
+

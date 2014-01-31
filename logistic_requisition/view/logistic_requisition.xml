@@ -522,6 +522,7 @@
                <field name="proposed_qty"/>
                <field name="proposed_uom_id"/>
                <field name="total_cost" sum="Total Budget"/>
+               <field name="currency_id"/>
                <field name="po_requisition_id"/>
                <button name="action_create_po_requisition" icon="gtk-execute"
                    string="Purchase Requisition" type="object"
@@ -558,6 +559,7 @@
                                     <field name="proposed_qty" class="oe_inline"/>
                                     <field name="proposed_uom_id" class="oe_inline"/>
                                 </div>
+                                <field name="currency_id"/>
                                 <field name="unit_cost" widget="monetary"
                                     options="{'currency_field': 'currency_id'}"/>
                                 <field name="total_cost" widget="monetary"
@@ -567,7 +569,7 @@
                             </group>
                             <group>
                                 <group string="Purchase Requisition"
-                                    attrs="{'invisible': [('procurement_method', '!=', 'procurement')]}"
+                                    attrs="{'invisible': [('procurement_method', 'not in', ['procurement','other'])]}"
                                     colspan="4">
                                     <label for="po_requisition_id"/>
                                     <div>
