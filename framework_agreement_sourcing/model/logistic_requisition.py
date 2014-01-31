@@ -29,10 +29,15 @@ class logistic_requisition_line(orm.Model):
 
     _inherit = "logistic.requisition.line"
 
-    def _map_agr_requisiton_to_source(self, cr, uid, line,
+    def _prepare_line_source(self, cr, uid, line,
                                       qty=None, agreement=None,
                                       context=None):
-        """Prepare data dict for source line using agreement as source
+        """Prepare data dict for source line creation. If an agreement
+        is given, the procurement_method will be an LTA (AGR_PROC).
+        Otherwise, if it's a stockable product we'll go to tender
+        by setting procurement_method as 'procurement'. Finally marke the
+        rest as 'other'. Those are default value that can be changed afterward
+        by the user.
 
         :params line: browse record of origin requistion.line
         :params agreement: browse record of origin agreement
@@ -45,39 +50,19 @@ class logistic_requisition_line(orm.Model):
         res['proposed_product_id'] = line.product_id.id
         res['requisition_line_id'] = line.id
         res['proposed_uom_id'] = line.requested_uom_id.id
-
-        if not agreement:
-            raise ValueError("Missing agreement")
-        if not agreement.product_id.id == line.product_id.id:
-            raise ValueError("Product mismatch for agreement and requisition line")
-        res['unit_cost'] = 0.0
-        res['proposed_qty'] = qty
-        res['framework_agreement_id'] = agreement.id
-        res['procurement_method'] = AGR_PROC
-        return res
-
-    def _map_requisition_to_source(self, cr, uid, line,
-                                   qty=0,
-                                   context=None):
-        """Prepare data dict to generate source line using requisition as source
-
-        :params line: browse record of origin requistion.line
-        :params qty: quantity to be set on source line
-
-        :returns: dict to be used by Model.create
-
-        """
-        res = {}
-        res['proposed_product_id'] = line.product_id.id
-        res['requisition_line_id'] = line.id
-        res['proposed_uom_id'] = line.requested_uom_id.id
         res['unit_cost'] = 0.0
         res['proposed_qty'] = qty
         res['framework_agreement_id'] = False
-        if line.product_id.type == 'product':
-            res['procurement_method'] = 'procurement'
+        if agreement:
+            if not agreement.product_id.id == line.product_id.id:
+                raise ValueError("Product mismatch for agreement and requisition line")
+            res['framework_agreement_id'] = agreement.id
+            res['procurement_method'] = AGR_PROC
         else:
-            res['procurement_method'] = 'other'
+            if line.product_id.type == 'product':
+               res['procurement_method'] = 'procurement'
+            else:
+                res['procurement_method'] = 'other'
         return res
 
     def _generate_lines_from_agreements(self, cr, uid, container, line,
@@ -150,16 +135,10 @@ class logistic_requisition_line(orm.Model):
         """
         qty = force_qty if force_qty else line.requested_qty
         src_obj = self.pool['logistic.requisition.source']
-        if agreement:
-            vals = self._map_agr_requisiton_to_source(cr, uid, line,
-                                                      qty=qty,
-                                                      agreement=agreement,
-                                                      context=None)
-        else:
-             vals = self._map_requisition_to_source(cr, uid, line,
+        vals = self._prepare_line_source(cr, uid, line,
                                                     qty=qty,
+                                                    agreement=agreement,
                                                     context=None)
-
         return src_obj.create(cr, uid, vals, context=context)
 
     def _generate_source_line(self, cr, uid, line, context=None):
