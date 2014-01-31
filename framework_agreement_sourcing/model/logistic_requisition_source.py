@@ -341,7 +341,7 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
             return {}
         currency = line_source.currency_id
         date = self._get_date(cr, uid, req_line_id, context=context)
-        return self.onchange_quantity_obs(cr, uid, source_id, qty, date,
+        return self.onchange_quantity_obs(cr, uid, ids, qty, date,
                                           proposed_product_id,
                                           currency=currency,
                                           price_field='dummy',
@@ -361,7 +361,7 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
         if (method != AGR_PROC or not proposed_product_id):
             return {}
 
-        return self.onchange_sourcing_method(cr, uid, source_id, method, req_line_id,
+        return self.onchange_sourcing_method(cr, uid, ids, method, req_line_id,
                                              proposed_product_id,
                                              proposed_qty=proposed_qty,
                                              context=context)
@@ -370,11 +370,11 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
     def onchange_agreement(self, cr, uid, ids, agreement_id, req_line_id, qty,
                            proposed_product_id, context=None):
         line_source = self.browse(cr, uid, ids, context=context)
-        if not proposed_product_id or not pricelist_id or not agreement_id:
+        if not proposed_product_id or not agreement_id:
             return {}
         currency = line_source.currency_id
         date = self._get_date(cr, uid, req_line_id, context=context)
-        return self.onchange_agreement_obs(cr, uid, source_id, agreement_id, qty,
+        return self.onchange_agreement_obs(cr, uid, ids, agreement_id, qty,
                                            date, proposed_product_id,
                                            currency=currency, price_field='dummy')
 

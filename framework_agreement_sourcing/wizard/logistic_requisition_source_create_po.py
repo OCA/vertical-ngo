@@ -20,7 +20,7 @@
 ##############################################################################
 
 from openerp.osv import orm, fields
-
+from openerp.tools.translate import _
 
 class logistic_requisition_source_po_creator(orm.TransientModel):
 
@@ -30,7 +30,40 @@ class logistic_requisition_source_po_creator(orm.TransientModel):
         'pricelist_id': fields.many2one('product.pricelist',
                                           string='Pricelist / Currency',
                                           required=True),
+        'framework_currency_ids': fields.one2many('framework.agreement.pricelist',
+                                                    'framework_agreement_id',
+                                                    'Available Currency',
+                                                    readonly=True)
     }
+
+    def default_get(self, cr, uid, fields_list, context=None):
+        """ Take the pricelist of the lrs by default. Show the
+        available choice for the user.
+        """
+        if context is None:
+            context = {}
+        defaults = super(logistic_requisition_source_po_creator, self).\
+            default_get(cr, uid, fields_list, context=context)
+        line_obj = self.pool.get('logistic.requisition.source')
+        fmwk_price_obj = self.pool.get('framework.agreement.pricelist')
+        line_ids = context['active_ids']
+        pricelist_id = None
+        # line = line_obj.browse(cr, uid, line_ids, context=context)[0]
+        for l in line_obj.browse(cr, uid, line_ids, context=context):
+            if l.framework_agreement_id:
+                line = l
+        pricelist_id = line_obj._get_purchase_pricelist_from_currency(
+                cr,
+                uid,
+                line.requisition_id.pricelist_id.currency_id.id,
+                context=context
+                )
+        defaults['pricelist_id'] = pricelist_id
+
+        frwk_ids = fmwk_price_obj.search(cr, uid, 
+            [('framework_agreement_id', '=', line.framework_agreement_id.id)], context=context)
+        defaults['framework_currency_ids'] = frwk_ids
+        return defaults
 
     def _make_purchase_order(self, cr, uid, pricelist, source_ids, context=None):
         """Create PO from source line ids"""
@@ -41,9 +74,16 @@ class logistic_requisition_source_po_creator(orm.TransientModel):
 
     def action_create_agreement_po_requisition(self, cr, uid, ids, context=None):
         """ Implement buttons that create PO from selected source lines"""
-        act_obj = self.pool['ir.actions.act_window']
+        act_obj = self.pool.get['ir.actions.act_window']
         source_ids = context['active_ids']
-        pricelist = None # place holder for Joel pl browse record
+        form = self.browse(cr, uid, ids, context=context)[0]
+        pricelist=form.pricelist_id
+        
+        available_currency = [x.currency_id for x in form.framework_currency_ids]
+        if available_currency and pricelist.currency_id not in available_currency:
+            raise orm.except_orm(_('User Error'), _(
+                'You must chose a pricelist that is in the same currency '
+                'than one of the available in the framework agreement.'))
         po_id = self._make_purchase_order(cr, uid, pricelist, source_ids,
                                            context=context)
         # TODO : update LRS price from PO depending on the chosen currency
