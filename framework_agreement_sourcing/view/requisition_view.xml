@@ -15,7 +15,8 @@
                  on_change="onchange_agreement(framework_agreement_id, requisition_line_id, proposed_qty, proposed_product_id, context)"/>
           <field name="framework_agreement_po_id"
                  readonly="1"
-                 attrs="{'invisible': [('procurement_method', '!=', 'fw_agreement')]}"
+                 attrs="{'invisible': [('procurement_method', 'not in', ['fw_agreement','other'])]}"
+                                  
                  />
 
           <field name="supplier_id"
