@@ -8,7 +8,11 @@
       <field name="arch" type="xml">
         <form string="Create Purchase Order" version="7.0">
           <separator string="Which pricelist / currency you want ?"/>
+          <label string="You can only chose a pricelist with a currency that is included
+            in the framewrok agreement you have chosen." colspan="4"/>
+          <field name="framework_currency_ids"/>
           <field name="pricelist_id" domain="[('type','=','purchase')]"/>
+
           <group>
             <separator string="Are you sure you want to create a Purchase Order from those lines ?"/>
             <label string="
