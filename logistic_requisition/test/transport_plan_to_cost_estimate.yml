@@ -29,6 +29,7 @@
     user_id: base.user_demo
     budget_holder_id: base.user_demo
     finance_officer_id: base.user_demo
+    pricelist_id: product.list0
 -
   And I add a line 1
 -

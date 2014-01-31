@@ -80,6 +80,7 @@ class test_mto_workflow(common.TransactionCase):
         self.product_7 = self.ref('product.product_product_7')
         self.product_8 = self.ref('product.product_product_8')
         self.product_uom_pce = self.ref('product.product_uom_unit')
+        self.pricelist_sale = self.ref('product.list0')
         self.vals = {
             'partner_id': self.partner_4,
             'consignee_id': self.partner_3,
@@ -87,6 +88,7 @@ class test_mto_workflow(common.TransactionCase):
             'user_id': self.user_demo,
             'budget_holder_id': self.user_demo,
             'finance_officer_id': self.user_demo,
+            'pricelist_id' : self.pricelist_sale,
         }
         self.line = {
             'product_id': self.product_7,

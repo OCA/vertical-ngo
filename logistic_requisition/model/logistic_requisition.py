@@ -1104,14 +1104,14 @@ class logistic_requisition_source(orm.Model):
         pricelist_obj = self.pool.get('product.pricelist')
         pricelist_id = pricelist_obj.search(cr, uid,
             [('currency_id','=',currency_id),('type','=','purchase')], limit=1)
-        return pricelist_id
+        return pricelist_id[0]
 
-    def _prepare_po_requisition(self, cr, uid, sources, purch_req_lines, context=None):
+    def _prepare_po_requisition(self, cr, uid, sources, purch_req_lines, 
+            pricelist=None, context=None):
         company_id = None
         user_id = None
         consignee_id = None
         dest_address_id = None
-        pricelist_id = None
         origin = []
         for line in sources:
             origin.append(line.name)
@@ -1151,13 +1151,8 @@ class logistic_requisition_source(orm.Model):
                 line.requisition_id.pricelist_id.currency_id.id,
                 context=context
                 )
-            if pricelist_id is None:
-                pricelist_id = line_pricelist_id
-            elif pricelist_id != line_pricelist_id:
-                raise orm.except_orm(
-                    _('Error'),
-                    _('The sourcing lines do not have the '
-                      'same pricelist.'))
+            if pricelist is None:
+                pricelist = line_pricelist_id
         return {'user_id': user_id or uid,
                 'company_id': company_id,
                 'consignee_id': consignee_id,
@@ -1166,7 +1161,7 @@ class logistic_requisition_source(orm.Model):
                 'origin': ", ".join(origin),
                 'req_incoterm_id': line.requisition_id.incoterm_id.id,
                 'req_incoterm_address': line.requisition_id.incoterm_address,
-                'pricelist_id': pricelist_id,
+                'pricelist_id': pricelist,
                 }
 
     def _prepare_po_requisition_line(self, cr, uid, line, context=None):
@@ -1188,7 +1183,7 @@ class logistic_requisition_source(orm.Model):
                 'logistic_requisition_source_ids': [(4, line.id)],
                 }
 
-    def _action_create_po_requisition(self, cr, uid, ids, context=None):
+    def _action_create_po_requisition(self, cr, uid, ids, pricelist=None, context=None):
         purch_req_obj = self.pool.get('purchase.requisition')
         purch_req_lines = []
         lines = self.browse(cr, uid, ids, context=context)
@@ -1208,6 +1203,7 @@ class logistic_requisition_source(orm.Model):
         vals = self._prepare_po_requisition(cr, uid,
                                             lines,
                                             purch_req_lines,
+                                            pricelist=pricelist,
                                             context=context)
         purch_req_id = purch_req_obj.create(cr, uid, vals, context=context)
         self.write(cr, uid, ids,
@@ -1215,8 +1211,10 @@ class logistic_requisition_source(orm.Model):
                    context=context)
         return purch_req_id
 
-    def action_create_po_requisition(self, cr, uid, ids, context=None):
-        self._action_create_po_requisition(cr, uid, ids, context=context)
+    def action_create_po_requisition(self, cr, uid, ids, 
+            pricelist=None, context=None):
+        self._action_create_po_requisition(cr, uid, ids, 
+                pricelist=pricelist, context=context)
         return self.action_open_po_requisition(cr, uid, ids, context=context)
 
     def action_open_po_requisition(self, cr, uid, ids, context=None):

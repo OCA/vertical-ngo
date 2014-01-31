@@ -28,7 +28,8 @@ class logistic_requisition_source_po_creator(orm.TransientModel):
 
     _columns = {
         'pricelist_id': fields.many2one('product.pricelist',
-                                          string='Pricelist / Currency'),
+                                          string='Pricelist / Currency',
+                                          required=True),
     }
 
     def _make_purchase_order(self, cr, uid, pricelist, source_ids, context=None):
