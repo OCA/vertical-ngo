@@ -7,6 +7,7 @@
     consignee_id: base.res_partner_3
     date_delivery: !eval "time.strftime('%Y-%m-%d')"
     user_id: base.user_demo
+    pricelist_id: product.list0
 -
   And I add a first line with an assignee
 -

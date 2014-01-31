@@ -55,6 +55,7 @@ class test_sale_order_from_lr_confirm(common.TransactionCase):
         # Computer Case: make_to_order
         __, self.product_16 = self.get_ref('product', 'product_product_16')
         __, self.product_uom_pce = self.get_ref('product', 'product_uom_unit')
+        __, self.pricelist_sale = self.get_ref('product', 'list0')
         self.vals = {
             'partner_id': self.partner_4,
             'consignee_id': self.partner_3,
@@ -62,6 +63,7 @@ class test_sale_order_from_lr_confirm(common.TransactionCase):
             'user_id': self.user_demo,
             'budget_holder_id': self.user_demo,
             'finance_officer_id': self.user_demo,
+            'pricelist_id': self.pricelist_sale,
         }
 
         self.line1 = {

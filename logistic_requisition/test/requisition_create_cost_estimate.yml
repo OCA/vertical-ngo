@@ -9,6 +9,7 @@
     incoterm_id: stock.incoterm_FCA
     incoterm_address: incoterm address as text
     analytic_id: account.analytic_consultancy
+    pricelist_id: product.list0
 -
   And I add a line 1
 -

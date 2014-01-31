@@ -45,6 +45,12 @@ def bids_selected(test, purchase_requisition_id):
     purch_req_obj.close_callforbids_ok(test.cr, test.uid,
                                        [purchase_requisition_id])
 
+def change_pricelist(test, purchase_requisition_id, pricelist_id):
+    """ Change the pricelist """
+    purch_req_obj = test.registry('purchase.requisition')
+    purch_req_obj.write(test.cr, test.uid, [purchase_requisition_id],
+        {'pricelist_id': pricelist_id})
+
 
 def create_draft_purchase_order(test, purchase_requisition_id, partner_id):
     """ Create a draft purchase order for a purchase requisition.
