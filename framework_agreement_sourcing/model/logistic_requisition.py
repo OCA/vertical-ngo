@@ -125,7 +125,8 @@ class logistic_requisition_line(orm.Model):
         return Sourced(generated, remaining_qty)
 
     def make_source_line(self, cr, uid, line, force_qty=None, agreement=None, context=None):
-        """Generate a source line for a tender from a requisition line
+        """Generate a source line from a requisition line, see 
+        _prepare_line_source for details.
 
         :param line: browse record of origin logistic.request
         :param force_qty: if set this quantity will be used instead

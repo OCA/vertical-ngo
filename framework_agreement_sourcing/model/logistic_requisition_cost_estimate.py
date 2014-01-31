@@ -28,50 +28,11 @@ class logistic_requisition_cost_estimate(orm.Model):
 
     _inherit = "logistic.requisition.cost.estimate"
 
-    # We do not want that anymore. We should complete the correct price
-    # in the PO directly. Updating the PO price should update the LRS price
-    # Then you create a cost estimate from there. So, creating the cost estimate
-    # should NOT update anything. It should have been done before. This is the
-    # correct process...
-    def _update_agreement_source(self, cr, uid, source, context=None):
-        """Update price of source line using related confirmed PO"""
-        if source.procurement_method == AGR_PROC:
-            self._link_po_lines_to_source(cr, uid, source, context=context)
-            price = source.get_agreement_price_from_po()
-            source.write({'unit_cost': price})
-            source.refresh()
-
-    def _link_po_lines_to_source(self, cr, uid, source, context=None):
-        po_l_obj = self.pool['purchase.order.line']
-        agr = source.framework_agreement_id
-        line_ids = po_l_obj.search(
-            cr, uid,
-            [('order_id.framework_agreement_id', '=', agr.id),
-             ('lr_source_line_id', '=', source.id),
-             ('order_id.partner_id', '=', agr.supplier_id.id)],
-            context=context)
-        lines = po_l_obj.browse(cr, uid, line_ids, context=context)
-        po_ids = ([line.order_id.id for line in lines
-                   if line.product_id and line.product_id.type == 'product'])
-
-        all_line_ids = po_l_obj.search(
-            cr, uid,
-            [('order_id', 'in', po_ids),
-             ('product_id.type', '=', 'product')],
-            context=context)
-
-        po_l_obj.write(cr, uid, all_line_ids,
-                       {'lr_source_line_id': source.id},
-                       context=context)
-        source.refresh()
 
     def _prepare_cost_estimate_line(self, cr, uid, sourcing, context=None):
         """Override in order to update agreement source line
 
-        We update the price of source line that will be used in cost estimate
-
         """
-        self._update_agreement_source(cr, uid, sourcing, context=context)
         res = super(logistic_requisition_cost_estimate,
                     self)._prepare_cost_estimate_line(cr, uid, sourcing,
                                                       context=context)
