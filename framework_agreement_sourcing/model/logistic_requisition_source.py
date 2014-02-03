@@ -122,7 +122,7 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
     def _prepare_purchase_order_line(self, cr, uid, po_id, line,
                                po_supplier, po_pricelist, context=None):
         """Prepare the dict of values to create the PO Line from args.
-           
+
         :param integer po_id: ids of purchase.order
         :param browse_record line: logistic.requisition.source
         :param browse_record po_supplier: res.partner
@@ -160,7 +160,7 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
         data['product_qty'] = line.proposed_qty
         data['product_id'] = line.proposed_product_id.id
         data['product_uom'] = line.proposed_uom_id.id
-        data['lr_source_line_id']= line.id,
+        data['lr_source_line_id']= line.id
         data['product_lead_time'] = lead_time
         data['price_unit'] = price
         data['name'] = line.proposed_product_id.name
@@ -175,8 +175,8 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
         price. We do this because the currency of the PO may not be the same
         than the LRS so it may happends that value vary because of exchange
         rate.
-        
-        :param browse_record main_source: logistic.requisition.source of 
+
+        :param browse_record main_source: logistic.requisition.source of
             type LTA from which you want to generate to PO
         :param browse_record other_sources: logistic.requisition.source of
             type other to indlue in the PO
@@ -201,7 +201,6 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
             line_vals = self._prepare_purchase_order_line(cr, uid, po_id,
                                                     source, supplier,
                                                     pricelist, context=context)
-
             po_l_obj.create(cr, uid, line_vals, context=context)
             # TODO: Update LRS unit_cost from po line, with currency conversion
             from_curr = source.requisition_id.currency_id.id
@@ -214,14 +213,14 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
     def make_purchase_order(self, cr, uid, ids, pricelist, context=None):
         """Create a purchase order from the LRS ids list. This method will
         create one PO with all lines. Between them, you'll have line of type
-        LTA (framewrok agreement) and line of type other. 
+        LTA (framewrok agreement) and line of type other.
         Currently, only one line of type LTA is accepted at a time.
 
         We'll raise an error if other types are selected here.
-        We accept line of type other here to include products not included 
+        We accept line of type other here to include products not included
         in the LTA for example : you order Product A under LTA + the transport
         as a LRS of type other.
-        
+
         :param integer list ids: ids of logistic.requisition.source
         :param browse_record pricelist: product.pricelist
         :returns integer : generated PO id
@@ -377,5 +376,3 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
         return self.onchange_agreement_obs(cr, uid, ids, agreement_id, qty,
                                            date, proposed_product_id,
                                            currency=currency, price_field='dummy')
-
-

@@ -110,7 +110,7 @@ class purchase_order_line(orm.Model):
             readonly=True),
     }
 
-    def _prepare_lrs_update_from_po_line(self, cr, uid, vals, 
+    def _prepare_lrs_update_from_po_line(self, cr, uid, vals,
             po_line, context=None):
         """ Take the vals dict from po line and return a vals dict for LRS
 
@@ -136,19 +136,19 @@ class purchase_order_line(orm.Model):
         if vals.get('date_planned'):
             if po_line.lr_source_line_id.transport_applicable:
                 if pr_bid_line.order_id.transport == 'included':
-                    lrs_vals['date_etd'] = False 
+                    lrs_vals['date_etd'] = False
                     lrs_vals['date_eta'] = vals.get('date_planned')
 
                 else:
-                    lrs_vals['date_etd'] = vals.get('date_planned') 
+                    lrs_vals['date_etd'] = vals.get('date_planned')
                     lrs_vals['date_eta'] = False
             else:
-                lrs_vals['date_etd'] = vals.get('date_planned') 
+                lrs_vals['date_etd'] = vals.get('date_planned')
                 lrs_vals['date_eta'] = vals.get('date_planned')
         return lrs_vals
 
     def write(self, cr, uid, ids, vals, context=None):
-        """ Here we implement something to allow the update of LRS when some 
+        """ Here we implement something to allow the update of LRS when some
         information are changed in PO line. It should be possible to do it when :
         PO is still in draft
         LRL is not marked as sourced
@@ -158,14 +158,17 @@ class purchase_order_line(orm.Model):
             context = {}
         if not ids:
             return True
-        if (vals.get('product_qty') or vals.get('product_id') 
-                                    or vals.get('product_uom') 
-                                    or vals.get('price_unit') 
+        #We have to enforce list as it is called by function_inv
+        if not isinstance(ids, list):
+            ids = [ids]
+        if (vals.get('product_qty') or vals.get('product_id')
+                                    or vals.get('product_uom')
+                                    or vals.get('price_unit')
                                     or vals.get('date_planned')):
             lrs_obj = self.pool.get('logistic.requisition.source')
             for line in self.browse(cr, uid, ids, context=context):
                 if line.lr_source_line_id:
-                    if (line.lr_source_line_id.requisition_line_id in 
+                    if (line.lr_source_line_id.requisition_line_id in
                                                 ('sourced', 'quoted')):
                         raise osv.except_osv(
                             _('UserError'),
@@ -176,16 +179,16 @@ class purchase_order_line(orm.Model):
                             )
                     )
                     else:
-                        lrs_vals = self._prepare_lrs_update_from_po_line(cr, 
+                        lrs_vals = self._prepare_lrs_update_from_po_line(cr,
                             uid, vals, line, context=context)
-                        lrs_obj.write(cr, uid, line.lr_source_line_id.id,
+                        lrs_obj.write(cr, uid, [line.lr_source_line_id.id],
                             lrs_vals, context=context)
         return super(purchase_order_line, self).write(cr, uid, ids, vals,
                                                       context=context)
     def unlink(self, cr, uid, ids, context=None):
         for line in self.browse(cr, uid, ids, context=context):
             if line.lr_source_line_id:
-                if (line.lr_source_line_id.requisition_line_id in 
+                if (line.lr_source_line_id.requisition_line_id in
                                             ('sourced', 'quoted')):
                     raise osv.except_osv(
                         _('UserError'),

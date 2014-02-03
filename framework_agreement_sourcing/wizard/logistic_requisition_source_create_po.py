@@ -30,10 +30,10 @@ class logistic_requisition_source_po_creator(orm.TransientModel):
         'pricelist_id': fields.many2one('product.pricelist',
                                           string='Pricelist / Currency',
                                           required=True),
-        'framework_currency_ids': fields.one2many('framework.agreement.pricelist',
-                                                    'framework_agreement_id',
-                                                    'Available Currency',
-                                                    readonly=True)
+        'framework_currency_ids': fields.many2many('framework.agreement.pricelist',
+                                                   rel='framework_agr_id_po_create_rel',
+                                                   string='Available Currency',
+                                                   readonly=True)
     }
 
     def default_get(self, cr, uid, fields_list, context=None):
@@ -60,8 +60,9 @@ class logistic_requisition_source_po_creator(orm.TransientModel):
                 )
         defaults['pricelist_id'] = pricelist_id
 
-        frwk_ids = fmwk_price_obj.search(cr, uid, 
+        frwk_ids = fmwk_price_obj.search(cr, uid,
             [('framework_agreement_id', '=', line.framework_agreement_id.id)], context=context)
+#        defaults['framework_currency_ids'] = [(6, 0, frwk_ids)]
         defaults['framework_currency_ids'] = frwk_ids
         return defaults
 
@@ -74,11 +75,11 @@ class logistic_requisition_source_po_creator(orm.TransientModel):
 
     def action_create_agreement_po_requisition(self, cr, uid, ids, context=None):
         """ Implement buttons that create PO from selected source lines"""
-        act_obj = self.pool.get['ir.actions.act_window']
+        act_obj = self.pool['ir.actions.act_window']
         source_ids = context['active_ids']
         form = self.browse(cr, uid, ids, context=context)[0]
         pricelist=form.pricelist_id
-        
+
         available_currency = [x.currency_id for x in form.framework_currency_ids]
         if available_currency and pricelist.currency_id not in available_currency:
             raise orm.except_orm(_('User Error'), _(
@@ -87,7 +88,7 @@ class logistic_requisition_source_po_creator(orm.TransientModel):
         po_id = self._make_purchase_order(cr, uid, pricelist, source_ids,
                                            context=context)
         # TODO : update LRS price from PO depending on the chosen currency
-        
+
         res = act_obj.for_xml_id(cr, uid,
                                  'purchase', 'purchase_rfq', context=context)
         res.update({'domain': [('id', '=', po_id)],

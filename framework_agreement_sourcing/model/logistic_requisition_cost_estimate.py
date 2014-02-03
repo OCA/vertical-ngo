@@ -53,12 +53,11 @@ class logistic_requisition_cost_estimate(orm.Model):
 
         """
 
-        so_lines = [x for x in so.order_line]
+        so_lines = [x for x in so.order_line if x.product_id]
         po_lines = set(x.purchase_line_id for x in sources
-                       if x.purchase_line_id and
-                          x.purchase_line_id.product_id.type == 'product')
+                       if x.purchase_line_id)
         product_dict = dict((x.product_id.id, x.id) for x in so_lines
-                            if x.product_id and x.product_id.type == 'product')
+                            if x.product_id)
         default = product_dict[product_dict.keys()[0]]
         if not product_dict:
             raise orm.except_orm(_('No stockable product in related PO'),
@@ -76,7 +75,7 @@ class logistic_requisition_cost_estimate(orm.Model):
 
         In a tender flow, we don't dupplicate the bid, it's only a PO. The link
         between the LRS and the PO line should then be created here.
-        
+
         This is for the drop shipping to work propely cause in that case, SO
         and PO are linked together.
         """
