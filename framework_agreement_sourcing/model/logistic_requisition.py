@@ -65,14 +65,65 @@ class logistic_requisition_line(orm.Model):
                 res['procurement_method'] = 'other'
         return res
 
+    def _sort_agreements(self, cr, uid, agreements, qty, currency=None,
+                         context=None):
+        """Sort agreements to be proposed
+
+        Agreement with negociated currency will first be taken in account
+        then they will be choosen by price converted in currency company
+
+        :param agreements: list of agreements to be sorted
+        :param currency: prefered currrency
+
+        :returns: sorted agreements list
+
+        """
+        if not agreements:
+            return agreements
+
+        def _best_company_price(cr, uid, agreement, qty):
+            """Returns the best price in company currency
+
+            For given agreement and price
+
+            """
+            comp_id = self.pool['framework.agreement']._company_get(cr, uid)
+            comp_obj = self.pool['res.company']
+            currency_obj = self.pool['res.currency']
+            comp_currency = comp_obj.browse(cr, uid, comp_id,
+                                            context=context).currency_id
+            prices = []
+            for pl in agreement.framework_agreement_pricelist_ids:
+                price = agreement.get_price(qty, currency=pl.currency_id)
+                comp_price = currency_obj.compute(cr, uid,
+                                                  pl.currency_id.id,
+                                                  comp_currency.id,
+                                                  price, False)
+                prices.append(comp_price)
+            return min(prices)
+
+        firsts = []
+        if currency:
+            firsts = [x for x in agreements if x.has_currency(currency)]
+            lasts = [x for x in agreements if not x.has_currency(currency)]
+            firsts.sort(key=lambda x: x.get_price(qty, currency=currency))
+            lasts.sort(key=lambda x: _best_company_price(cr, uid, x, qty))
+            return firsts + lasts
+        else:
+            agreements.sort(key=lambda x: x._best_company_price(cr, uid, x, qty))
+            return agreements
+
     def _generate_lines_from_agreements(self, cr, uid, container, line,
                                         agreements, qty, currency=None, context=None):
         """Generate 1/n source line(s) for one requisition line.
 
         This is done using available agreements.
         We first look for cheapeast agreement.
-        Then if no more quantity are available and there is still remaining needs
-        we look for next cheapest agreement or return remaining qty
+        Then if no more quantity are available and there is still remaining
+        needs we look for next cheapest agreement or return remaining qty.
+        we prefer to use agreement with negociated currency first even
+        if they are cheaper in other currences. Then it will choose remaining
+        agreements ordered by price converted in company currency
 
         :param container: list of agreements browse
         :param qty: quantity to be sourced
@@ -82,11 +133,10 @@ class logistic_requisition_line(orm.Model):
 
         """
         agreements = agreements if agreements is not None else []
-        if currency:
-            agreements = [x for x in agreements if x.has_currency(currency)]
+        agreements = self._sort_agreements(cr, uid, agreements, qty,
+                                           currency=currency)
         if not agreements:
             return qty
-        agreements.sort(key=lambda x: x.get_price(qty, currency=currency))
         current_agr = agreements.pop(0)
         avail = current_agr.available_quantity
         if not avail:
@@ -100,7 +150,8 @@ class logistic_requisition_line(orm.Model):
         difference = qty - to_consume
         if difference:
             return self._generate_lines_from_agreements(cr, uid, container, line,
-                                                        agreements, difference, context=context)
+                                                        agreements, difference,
+                                                        context=context)
         else:
             return 0
 
@@ -125,7 +176,7 @@ class logistic_requisition_line(orm.Model):
         return Sourced(generated, remaining_qty)
 
     def make_source_line(self, cr, uid, line, force_qty=None, agreement=None, context=None):
-        """Generate a source line from a requisition line, see 
+        """Generate a source line from a requisition line, see
         _prepare_line_source for details.
 
         :param line: browse record of origin logistic.request
