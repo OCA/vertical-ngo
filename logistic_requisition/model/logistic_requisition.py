@@ -1055,13 +1055,14 @@ class logistic_requisition_source(orm.Model):
         """
         result = {}
         po_line_model = self.pool['purchase.order.line']
+        po_lines = None
         for line in self.browse(cr, uid, ids, context=context):
             result[line.id] = False
             if line.selected_bid_line_id:
                 bid_line = line.selected_bid_line_id
                 if not bid_line:
                     continue
-                    po_lines = [x.id for x in bid_line.po_line_from_bid_ids]
+                po_lines = [x.id for x in bid_line.po_line_from_bid_ids]
                 if not po_lines:
                     continue
             else:
@@ -1093,7 +1094,7 @@ class logistic_requisition_source(orm.Model):
             [('currency_id','=',currency_id),('type','=','purchase')], limit=1)
         return pricelist_id[0]
 
-    def _prepare_po_requisition(self, cr, uid, sources, purch_req_lines, 
+    def _prepare_po_requisition(self, cr, uid, sources, purch_req_lines,
             pricelist=None, context=None):
         company_id = None
         user_id = None
@@ -1198,9 +1199,9 @@ class logistic_requisition_source(orm.Model):
                    context=context)
         return purch_req_id
 
-    def action_create_po_requisition(self, cr, uid, ids, 
+    def action_create_po_requisition(self, cr, uid, ids,
             pricelist=None, context=None):
-        self._action_create_po_requisition(cr, uid, ids, 
+        self._action_create_po_requisition(cr, uid, ids,
                 pricelist=pricelist, context=context)
         return self.action_open_po_requisition(cr, uid, ids, context=context)
 
