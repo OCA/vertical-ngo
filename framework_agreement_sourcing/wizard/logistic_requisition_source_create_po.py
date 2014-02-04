@@ -48,10 +48,12 @@ class logistic_requisition_source_po_creator(orm.TransientModel):
         fmwk_price_obj = self.pool.get('framework.agreement.pricelist')
         line_ids = context['active_ids']
         pricelist_id = None
-        # line = line_obj.browse(cr, uid, line_ids, context=context)[0]
-        for l in line_obj.browse(cr, uid, line_ids, context=context):
-            if l.framework_agreement_id:
-                line = l
+        line = next((x for x in line_obj.browse(cr, uid, line_ids, context=context)
+                    if x.framework_agreement_id), None)
+        if not line:
+            raise orm.except_orm(_('No sourcing line with agreement selected'),
+                                 _('Please correct selection'))
+
         pricelist_id = line_obj._get_purchase_pricelist_from_currency(
                 cr,
                 uid,
@@ -60,9 +62,11 @@ class logistic_requisition_source_po_creator(orm.TransientModel):
                 )
         defaults['pricelist_id'] = pricelist_id
 
-        frwk_ids = fmwk_price_obj.search(cr, uid,
-            [('framework_agreement_id', '=', line.framework_agreement_id.id)], context=context)
-#        defaults['framework_currency_ids'] = [(6, 0, frwk_ids)]
+        frwk_ids = fmwk_price_obj.search(
+            cr, uid,
+            [('framework_agreement_id', '=', line.framework_agreement_id.id)],
+            context=context
+        )
         defaults['framework_currency_ids'] = frwk_ids
         return defaults
 
