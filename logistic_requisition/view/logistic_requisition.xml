@@ -93,45 +93,12 @@
                                     <field name="requested_qty" string="Quantity"/>
                                     <field name="requested_uom_id"/>
                                     <field name="date_delivery"/>
-                                    <field name="budget_unit_price"/>
-                                    <field name="budget_tot_price"/>
                                     <field name="account_id"/>
                                     <field name="account_code"/>
                                     <field name="state"/>
                                     <field name="logistic_user_id" string="Assigned To"/>
                                 </tree>
                             </field>
-                        <group class="oe_subtotal_footer oe_right">
-                            <field name="amount_total"
-                                class="oe_subtotal_footer_separator"
-                                widget="monetary"
-                                options="{'currency_field': 'currency_id'}"/>
-                        </group>
-                        <div class="oe_clear"/>
-                        <group string="Validation">
-                            <div colspan="4">
-                                <label for="budget_holder_id"/>
-                                <field name="budget_holder_id"
-                                    on_change="onchange_validate(budget_holder_id, date_budget_holder, 'date_budget_holder')"
-                                    class="oe_inline"/>
-                                <label string=" validated on "
-                                    attrs="{'invisible': [('budget_holder_id', '=', False)]}" />
-                                <field name="date_budget_holder"
-                                    attrs="{'invisible': [('budget_holder_id', '=', False)]}"
-                                    class="oe_inline"/>
-                            </div>
-                            <div colspan="4">
-                                <label for="finance_officer_id"/>
-                                <field name="finance_officer_id"
-                                    on_change="onchange_validate(finance_officer_id, date_finance_officer, 'date_finance_officer')"
-                                    class="oe_inline"/>
-                                <label string=" validated on "
-                                    attrs="{'invisible': [('finance_officer_id', '=', False)]}"/>
-                                <field name="date_finance_officer"
-                                    attrs="{'invisible': [('finance_officer_id', '=', False)]}"
-                                    class="oe_inline"/>
-                            </div>
-                        </group>
                     </page>
                     <page string="Transportation and Delivery">
                         <group>
@@ -173,7 +140,6 @@
                 <field name="date_delivery"/>
                 <field name="country_id"/>
                 <field name="analytic_id"/>
-                <field name="amount_total" sum="Total Budget"/>
                 <field name="currency_id"/>
                 <field name="state"/>
                 <field name="sourced" widget="progressbar"/>
@@ -257,7 +223,6 @@
              <field name="requested_qty"/>
              <field name="requested_uom_id"/>
              <field name="logistic_user_id"/>
-             <field name="budget_tot_price" sum="Total Budget"/>
              <field name="currency_id"/>
              <field name="state"/>
              <field name="country_id" invisible="1"/>
@@ -374,10 +339,6 @@
                             </div>
                             <field name="date_delivery"/>
                             <field name="currency_id" invisible="1"/>
-                            <field name="budget_unit_price" widget="monetary"
-                                options="{'currency_field': 'currency_id'}"/>
-                            <field name="budget_tot_price" widget="monetary"
-                                options="{'currency_field': 'currency_id'}"/>
                         </group>
                         <group>
                             <field name="cost_estimate_only"/>

@@ -43,20 +43,6 @@ def create(test, vals):
         log_req_obj.onchange_consignee_id(
             cr, uid, [], vals.get('consignee_id'))['value']
     )
-    vals.update(
-        log_req_obj.onchange_validate(
-            cr, uid, [],
-            vals.get('budget_holder_id'),
-            False,
-            'date_budget_holder')['value']
-    )
-    vals.update(
-        log_req_obj.onchange_validate(
-            cr, uid, [],
-            vals.get('finance_officer_id'),
-            False,
-            'date_finance_officer')['value']
-    )
     return log_req_obj.create(cr, uid, vals)
 
 

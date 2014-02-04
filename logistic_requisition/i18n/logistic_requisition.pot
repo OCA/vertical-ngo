@@ -26,11 +26,6 @@ msgid "Sales Quotation Lines"
 msgstr ""
 
 #. module: logistic_requisition
-#: field:logistic.requisition,finance_officer_id:0
-msgid "Finance Officer"
-msgstr ""
-
-#. module: logistic_requisition
 #: view:logistic.requisition:0
 #: view:logistic.requisition.line:0
 #: view:logistic.requisition.source:0
@@ -138,11 +133,6 @@ msgid "Delivery Address"
 msgstr ""
 
 #. module: logistic_requisition
-#: field:logistic.requisition.line,budget_unit_price:0
-msgid "Budget Unit Price"
-msgstr ""
-
-#. module: logistic_requisition
 #: view:logistic.requisition:0
 #: field:logistic.requisition,user_id:0
 msgid "Business Unit Officer"
@@ -159,11 +149,6 @@ msgstr ""
 #: field:logistic.requisition.line,message_ids:0
 #: field:logistic.requisition.source,message_ids:0
 msgid "Messages"
-msgstr ""
-
-#. module: logistic_requisition
-#: constraint:logistic.requisition.source:0
-msgid "The total cost cannot be more than the total budget."
 msgstr ""
 
 #. module: logistic_requisition
@@ -217,11 +202,6 @@ msgstr ""
 #. module: logistic_requisition
 #: field:logistic.requisition,incoterm_address:0
 msgid "Incoterm Place"
-msgstr ""
-
-#. module: logistic_requisition
-#: field:logistic.requisition,date_budget_holder:0
-msgid "Budget Holder Validation Date"
 msgstr ""
 
 #. module: logistic_requisition
@@ -559,11 +539,6 @@ msgid "Delivery Date"
 msgstr ""
 
 #. module: logistic_requisition
-#: field:logistic.requisition,budget_holder_id:0
-msgid "Budget Holder"
-msgstr ""
-
-#. module: logistic_requisition
 #: constraint:logistic.requisition.source:0
 msgid "A transport plan cannot be linked to lines of different logistic requisitions."
 msgstr ""
@@ -600,11 +575,6 @@ msgstr ""
 #: model:ir.actions.act_window,name:logistic_requisition.action_logistic_requisition
 #: model:ir.ui.menu,name:logistic_requisition.menu_logistic_requisition
 msgid "Requisitions"
-msgstr ""
-
-#. module: logistic_requisition
-#: field:logistic.requisition,date_finance_officer:0
-msgid "Finance Officer Validation Date"
 msgstr ""
 
 #. module: logistic_requisition
@@ -903,11 +873,6 @@ msgid "Assigned"
 msgstr ""
 
 #. module: logistic_requisition
-#: field:logistic.requisition.line,budget_tot_price:0
-msgid "Budget Total Price"
-msgstr ""
-
-#. module: logistic_requisition
 #: view:logistic.requisition:0
 #: view:logistic.requisition.line:0
 msgid "Unassigned"
@@ -1089,11 +1054,6 @@ msgstr ""
 #. module: logistic_requisition
 #: view:logistic.requisition.line:0
 msgid "My Requisition Line"
-msgstr ""
-
-#. module: logistic_requisition
-#: field:logistic.requisition,allowed_budget:0
-msgid "Allowed Budget"
 msgstr ""
 
 #. module: logistic_requisition

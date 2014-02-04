@@ -78,8 +78,6 @@ class test_purchase_split_requisition(common.TransactionCase):
             'consignee_id': self.partner_3,
             'date_delivery': time.strftime(D_FMT),
             'user_id': self.user_demo,
-            'budget_holder_id': self.user_demo,
-            'finance_officer_id': self.user_demo,
             'pricelist_id': self.pricelist_sale,
         }
         line = {
@@ -87,7 +85,6 @@ class test_purchase_split_requisition(common.TransactionCase):
             'requested_qty': 100,
             'requested_uom_id': self.product_uom_pce,
             'date_delivery': time.strftime(D_FMT),
-            'budget_tot_price': 1000,
         }
         source = {
             'proposed_qty': 100,

@@ -197,6 +197,29 @@ td.amount, th.amount {
             <td>&nbsp;</td>
         </tr>
     </table>
+    <p><b>${_("Budget")}</b></p>
+    <p>${_("Budget limit:")} ${formatLang(requisition.allowed_budget)}</p>
+    <table class="basic_table" width="100%">
+        <tr>
+            <td style="font-weight:bold;width:40%">${_("Budget/financial holder")}</td>
+            <td style="font-weight:bold;width:30%">${_("Validation date")}</td>
+            <td style="font-weight:bold;">${_("Signature")}</td>
+        </tr>
+        %if requisition.budget_holder_id:
+        <tr>
+            <td>${requisition.budget_holder_id.name}</td>
+            <td>${requisition.date_budget_holder if requisition.date_budget_holder else 'N/A'}</td>
+            <td>&nbsp;</td>
+        </tr>
+        %endif
+        %if requisition.finance_officer_id:
+        <tr>
+            <td>${requisition.finance_officer_id.name}</td>
+            <td>${requisition.date_finance_officer if requisition.date_finance_officer else 'N/A'}</td>
+            <td>&nbsp;</td>
+        </tr>
+        %endif
+    </table>
     <p style="page-break-after: always"/>
     %endfor
 </body>

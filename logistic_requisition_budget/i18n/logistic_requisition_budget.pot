@@ -1,0 +1,227 @@
+# Translation of OpenERP Server.
+# This file contains the translation of the following modules:
+#	* logistic_requisition_budget
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: OpenERP Server 7.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-02-04 09:22+0000\n"
+"PO-Revision-Date: 2014-02-04 09:22+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: logistic_requisition_budget
+#: report:addons/logistic_requisition_budget/report/logistic_requisition.mako:149
+msgid "No"
+msgstr ""
+
+#. module: logistic_requisition_budget
+#: report:addons/logistic_requisition_budget/report/logistic_requisition.mako:182
+msgid "General Remarks"
+msgstr ""
+
+#. module: logistic_requisition_budget
+#: report:addons/logistic_requisition_budget/report/logistic_requisition.mako:136
+msgid "Logistic requisition"
+msgstr ""
+
+#. module: logistic_requisition_budget
+#: report:addons/logistic_requisition_budget/report/logistic_requisition.mako:192
+#: report:addons/logistic_requisition_budget/report/logistic_requisition.mako:206
+msgid "Signature"
+msgstr ""
+
+#. module: logistic_requisition_budget
+#: field:logistic.requisition,finance_officer_id:0
+msgid "Finance Officer"
+msgstr ""
+
+#. module: logistic_requisition_budget
+#: report:addons/logistic_requisition_budget/report/logistic_requisition.mako:102
+msgid "Shipping address:"
+msgstr ""
+
+#. module: logistic_requisition_budget
+#: model:ir.model,name:logistic_requisition_budget.model_logistic_requisition_line
+msgid "Logistic Requisition Line"
+msgstr ""
+
+#. module: logistic_requisition_budget
+#: report:addons/logistic_requisition_budget/report/logistic_requisition.mako:140
+msgid "Preferred transport"
+msgstr ""
+
+#. module: logistic_requisition_budget
+#: model:ir.model,name:logistic_requisition_budget.model_logistic_requisition_cost_estimate
+msgid "Create cost estimate of logistic requisition lines"
+msgstr ""
+
+#. module: logistic_requisition_budget
+#: report:addons/logistic_requisition_budget/report/logistic_requisition.mako:119
+msgid "Consignee address:"
+msgstr ""
+
+#. module: logistic_requisition_budget
+#: report:addons/logistic_requisition_budget/report/logistic_requisition.mako:161
+msgid "Description"
+msgstr ""
+
+#. module: logistic_requisition_budget
+#: report:addons/logistic_requisition_budget/report/logistic_requisition.mako:139
+msgid "Desired delivery date"
+msgstr ""
+
+#. module: logistic_requisition_budget
+#: report:addons/logistic_requisition_budget/report/logistic_requisition.mako:205
+msgid "Validation date"
+msgstr ""
+
+#. module: logistic_requisition_budget
+#: report:addons/logistic_requisition_budget/report/logistic_requisition.mako:201
+msgid "Budget limit:"
+msgstr ""
+
+#. module: logistic_requisition_budget
+#: model:ir.actions.report.xml,name:logistic_requisition_budget.report_logistic_requisition
+#: model:ir.model,name:logistic_requisition_budget.model_logistic_requisition
+msgid "Logistic Requisition"
+msgstr ""
+
+#. module: logistic_requisition_budget
+#: code:addons/logistic_requisition_budget/wizard/cost_estimate.py:36
+#, python-format
+msgid "The requisition must be validated by the Budget Holder."
+msgstr ""
+
+#. module: logistic_requisition_budget
+#: view:logistic.requisition:0
+msgid " validated on "
+msgstr ""
+
+#. module: logistic_requisition_budget
+#: report:addons/logistic_requisition_budget/report/logistic_requisition.mako:141
+msgid "Cost estimate only"
+msgstr ""
+
+#. module: logistic_requisition_budget
+#: report:addons/logistic_requisition_budget/report/logistic_requisition.mako:187
+msgid "Approval"
+msgstr ""
+
+#. module: logistic_requisition_budget
+#: report:addons/logistic_requisition_budget/report/logistic_requisition.mako:191
+msgid "Requested date"
+msgstr ""
+
+#. module: logistic_requisition_budget
+#: field:logistic.requisition.line,budget_unit_price:0
+msgid "Budget Unit Price"
+msgstr ""
+
+#. module: logistic_requisition_budget
+#: report:addons/logistic_requisition_budget/report/logistic_requisition.mako:163
+msgid "UoM"
+msgstr ""
+
+#. module: logistic_requisition_budget
+#: report:addons/logistic_requisition_budget/report/logistic_requisition.mako:143
+msgid "Country"
+msgstr ""
+
+#. module: logistic_requisition_budget
+#: report:addons/logistic_requisition_budget/report/logistic_requisition.mako:200
+msgid "Budget"
+msgstr ""
+
+#. module: logistic_requisition_budget
+#: constraint:logistic.requisition.source:0
+msgid "The total cost cannot be more than the total budget."
+msgstr ""
+
+#. module: logistic_requisition_budget
+#: report:addons/logistic_requisition_budget/report/logistic_requisition.mako:142
+msgid "Project"
+msgstr ""
+
+#. module: logistic_requisition_budget
+#: report:addons/logistic_requisition_budget/report/logistic_requisition.mako:144
+msgid "Requisition Date"
+msgstr ""
+
+#. module: logistic_requisition_budget
+#: report:addons/logistic_requisition_budget/report/logistic_requisition.mako:190
+msgid "Requesting entity"
+msgstr ""
+
+#. module: logistic_requisition_budget
+#: model:ir.model,name:logistic_requisition_budget.model_logistic_requisition_source
+msgid "Logistic Requisition Source"
+msgstr ""
+
+#. module: logistic_requisition_budget
+#: view:logistic.requisition:0
+msgid "Validation"
+msgstr ""
+
+#. module: logistic_requisition_budget
+#: report:addons/logistic_requisition_budget/report/logistic_requisition.mako:162
+msgid "Quantity"
+msgstr ""
+
+#. module: logistic_requisition_budget
+#: field:logistic.requisition,date_budget_holder:0
+msgid "Budget Holder Validation Date"
+msgstr ""
+
+#. module: logistic_requisition_budget
+#: report:addons/logistic_requisition_budget/report/logistic_requisition.mako:204
+msgid "Budget/financial holder"
+msgstr ""
+
+#. module: logistic_requisition_budget
+#: report:addons/logistic_requisition_budget/report/logistic_requisition.mako:178
+msgid "Delivery Remarks"
+msgstr ""
+
+#. module: logistic_requisition_budget
+#: field:logistic.requisition.line,budget_tot_price:0
+msgid "Budget Total Price"
+msgstr ""
+
+#. module: logistic_requisition_budget
+#: field:logistic.requisition,budget_holder_id:0
+msgid "Budget Holder"
+msgstr ""
+
+#. module: logistic_requisition_budget
+#: report:addons/logistic_requisition_budget/report/logistic_requisition.mako:160
+msgid "Number"
+msgstr ""
+
+#. module: logistic_requisition_budget
+#: view:logistic.requisition:0
+#: field:logistic.requisition,amount_total:0
+#: view:logistic.requisition.line:0
+msgid "Total Budget"
+msgstr ""
+
+#. module: logistic_requisition_budget
+#: field:logistic.requisition,allowed_budget:0
+msgid "Allowed Budget"
+msgstr ""
+
+#. module: logistic_requisition_budget
+#: field:logistic.requisition,date_finance_officer:0
+msgid "Finance Officer Validation Date"
+msgstr ""
+
+#. module: logistic_requisition_budget
+#: report:addons/logistic_requisition_budget/report/logistic_requisition.mako:149
+msgid "Yes"
+msgstr ""
+
