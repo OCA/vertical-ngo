@@ -96,7 +96,10 @@ class TestTransformation(CommonSourcingSetUp):
         self.assertAlmostEqual(low_line.unit_cost, 0.0)
 
     def test_03_not_enough_qty_on_all_agreemenst(self):
-        """Test that we """
+        """Test that we have generate correct line when not enough qty on first agreements
+
+        That means last source line must be of type other or procurement
+        """
         cr, uid = self.cr, self.uid
         lines = self.requisition.line_ids
         agr_line = None
