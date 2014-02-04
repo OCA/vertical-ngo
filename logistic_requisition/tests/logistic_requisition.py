@@ -135,7 +135,7 @@ def source_lines(test, line_ids):
     log_req_line_obj.button_sourced(test.cr, test.uid, line_ids)
 
 
-def check_line_unit_cost(line_id, bid_price, bid_pricelist):
+def check_line_unit_cost(test, line_id, bid_price, bid_pricelist):
     cr, uid = test.cr, test.uid
     log_req_source_obj = test.registry('logistic.requisition.source')
     pricelist_obj = test.registry('product.pricelist')
