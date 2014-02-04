@@ -178,11 +178,6 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
         :returns: list of tuples ('message, 'error_code')
         """
         errors = []
-        if not requisition.budget_holder_id:
-            error = (_('The requisition must be validated '
-                       'by the Budget Holder.'),
-                     'NO_BUDGET_VALID')
-            errors.append(error)
         return errors
 
     def _check_line(self, cr, uid, line, context=None):

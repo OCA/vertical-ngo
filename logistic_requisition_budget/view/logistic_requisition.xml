@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+    <record model="ir.ui.view" id="view_logistic_requisition_budget_form">
+        <field name="name">logistic.requisition.budget.form</field>
+        <field name="model">logistic.requisition</field>
+        <field name="inherit_id" ref="logistic_requisition.view_logistic_requisition_form"/>
+        <field name="arch" type="xml">
+             <xpath expr="//page[@string='Requisition Lines']/field[@name='line_ids']/tree/field[@name='date_delivery']" position="after">
+                 <field name="budget_unit_price"/>
+                 <field name="budget_tot_price"/>
+             </xpath>
+             <xpath expr="//page[@string='Requisition Lines']/field[@name='line_ids']" position="after">
+                        <group class="oe_subtotal_footer oe_right">
+                            <field name="amount_total"
+                                class="oe_subtotal_footer_separator"
+                                widget="monetary"
+                                options="{'currency_field': 'currency_id'}"/>
+                        </group>
+                        <div class="oe_clear"/>
+                        <group string="Validation">
+                            <div colspan="4">
+                                <label for="budget_holder_id"/>
+                                <field name="budget_holder_id"
+                                    on_change="onchange_validate(budget_holder_id, date_budget_holder, 'date_budget_holder')"
+                                    class="oe_inline"/>
+                                <label string=" validated on "
+                                    attrs="{'invisible': [('budget_holder_id', '=', False)]}" />
+                                <field name="date_budget_holder"
+                                    attrs="{'invisible': [('budget_holder_id', '=', False)]}"
+                                    class="oe_inline"/>
+                            </div>
+                            <div colspan="4">
+                                <label for="finance_officer_id"/>
+                                <field name="finance_officer_id"
+                                    on_change="onchange_validate(finance_officer_id, date_finance_officer, 'date_finance_officer')"
+                                    class="oe_inline"/>
+                                <label string=" validated on "
+                                    attrs="{'invisible': [('finance_officer_id', '=', False)]}"/>
+                                <field name="date_finance_officer"
+                                    attrs="{'invisible': [('finance_officer_id', '=', False)]}"
+                                    class="oe_inline"/>
+                            </div>
+                        </group>
+             </xpath>
+        </field>
+       </record>
+
+    
+    <record model="ir.ui.view" id="view_logistic_requisition_budget_tree">
+        <field name="name">logistic.requisition.budget.tree</field>
+        <field name="model">logistic.requisition</field>
+        <field name="inherit_id" ref="logistic_requisition.view_logistic_requisition_tree"/>
+        <field name="arch" type="xml">
+             <xpath expr="//field[@name='analytic_id']" position="after">
+                <field name="amount_total" sum="Total Budget"/>
+             </xpath>
+        </field>
+       </record>
+
+    <record model="ir.ui.view" id="view_logistic_requisition_line_budget_tree">
+        <field name="name">logistic.requisition.line.budget.tree</field>
+        <field name="model">logistic.requisition.line</field>
+        <field name="inherit_id" ref="logistic_requisition.view_logistic_requisition_line_tree"/>
+        <field name="arch" type="xml">
+             <xpath expr="//field[@name='logistic_user_id']" position="after">
+                <field name="budget_tot_price" sum="Total Budget"/>
+             </xpath>
+        </field>
+       </record>
+
+    <record model="ir.ui.view" id="view_logistic_requisition_line_budget_form">
+        <field name="name">logistic.requisition.line.budget.form</field>
+        <field name="model">logistic.requisition.line</field>
+        <field name="inherit_id" ref="logistic_requisition.view_logistic_requisition_line_form"/>        
+        <field name="arch" type="xml">
+             <xpath expr="//form[@string='Logistic Requisition Line']/sheet/group/group/field[@name='currency_id']" position="after">
+                            <field name="budget_unit_price" widget="monetary"
+                                options="{'currency_field': 'currency_id'}"/>
+                            <field name="budget_tot_price" widget="monetary"
+                                options="{'currency_field': 'currency_id'}"/>
+             </xpath>
+        </field>
+       </record>                                
+
+
+    </data>
+</openerp>

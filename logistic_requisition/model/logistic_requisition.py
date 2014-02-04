@@ -158,24 +158,11 @@ class logistic_requisition(orm.Model):
             readonly=True,
             required=True
         ),
-        'amount_total': fields.function(
-            lambda self, *args, **kwargs: self._get_amount(*args, **kwargs),
-            digits_compute=dp.get_precision('Account'),
-            string='Total Budget',
-            store={
-                'logistic.requisition': (
-                    lambda self, cr, uid, ids, c=None: ids,
-                    ['line_ids'], 20),
-                'logistic.requisition.line': (
-                    lambda self, *a, **kw: self._store_get_requisition_ids(*a, **kw),
-                    ['requested_qty', 'budget_unit_price', 'budget_tot_price', 'requisition_id'], 20),
-            }),
         'sourced': fields.function(
             lambda self, *args, **kwargs: self._get_sourced(*args, **kwargs),
             string='Sourced',
             type='float'
         ),
-        'allowed_budget': fields.boolean('Allowed Budget'),
         'pricelist_id': fields.many2one('product.pricelist',
             'Pricelist',
             required=True,
@@ -187,16 +174,6 @@ class logistic_requisition(orm.Model):
                                       relation='res.currency',
                                       string='Currency',
                                       readonly=True),
-        'budget_holder_id': fields.many2one(
-            'res.users',
-            string='Budget Holder'),
-        'date_budget_holder': fields.datetime(
-            'Budget Holder Validation Date'),
-        'finance_officer_id': fields.many2one(
-            'res.users',
-            string='Finance Officer'),
-        'date_finance_officer': fields.datetime(
-            'Finance Officer Validation Date'),
         'cancel_reason_id': fields.many2one(
             'logistic.requisition.cancel.reason',
             string='Reason for Cancellation',
@@ -218,13 +195,6 @@ class logistic_requisition(orm.Model):
          'unique(name)',
          'Logistic Requisition Reference must be unique!'),
     ]
-
-    def _get_amount(self, cr, uid, ids, name, args, context=None):
-        res = {}
-        for requisition in self.browse(cr, uid, ids, context=context):
-            res[requisition.id] = sum(line.budget_tot_price for line
-                                      in requisition.line_ids)
-        return res
 
     def _get_sourced(self, cr, uid, ids, name, args, context=None):
         res = {}
@@ -273,10 +243,6 @@ class logistic_requisition(orm.Model):
             line_obj = self.pool.get('logistic.requisition.line')
             line_obj._do_draft(cr, uid, line_ids, context=context)
         vals = {'state': 'draft',
-                'budget_holder_id': False,
-                'date_budget_holder': False,
-                'finance_officer_id': False,
-                'date_finance_officer': False,
                 'cancel_reason_id': False,
                 }
         self.write(cr, uid, ids, vals, context=context)
@@ -301,10 +267,6 @@ class logistic_requisition(orm.Model):
         default.update({
             'state': 'draft',
             'name': '/',
-            'budget_holder_id': False,
-            'date_budget_holder': False,
-            'finance_officer_id': False,
-            'date_finance_officer': False,
         })
         return super(logistic_requisition, self).copy(cr, uid, id, default=default, context=context)
 
@@ -445,16 +407,6 @@ class logistic_requisition_line(orm.Model):
                                             'Product UoM',
                                             states=REQUEST_STATES,
                                             required=True),
-        'budget_tot_price': fields.float(
-            'Budget Total Price',
-            states=REQUEST_STATES,
-            digits_compute=dp.get_precision('Account')),
-        'budget_unit_price': fields.function(
-            lambda self, *args, **kwargs: self._get_unit_amount_line(*args, **kwargs),
-            string='Budget Unit Price',
-            type="float",
-            digits_compute=dp.get_precision('Account'),
-            store=True),
         'amount_total': fields.function(
             lambda self, *args, **kwargs: self._get_total_cost(*args, **kwargs),
             string='Total Amount',
@@ -605,13 +557,6 @@ class logistic_requisition_line(orm.Model):
         for line in self.browse(cr, uid, ids, context=context):
             for source_line in line.source_ids:
                 res[line.id] += source_line.total_cost
-        return res
-
-    def _get_unit_amount_line(self, cr, uid, ids, prop, unknow_none, unknow_dict, context=None):
-        res = {}
-        for line in self.browse(cr, uid, ids, context=context):
-            price = line.budget_tot_price / line.requested_qty
-            res[line.id] = price
         return res
 
     def view_stock_by_location(self, cr, uid, ids, context=None):
@@ -961,9 +906,6 @@ class logistic_requisition_source(orm.Model):
          "A transport plan cannot be linked to lines of different "
          "logistic requisitions.",
          ['transport_plan_id', 'requisition_id']),
-        (lambda self, *a, **kw: self._check_source_lines_total_amount(*a, **kw),
-         'The total cost cannot be more than the total budget.',
-         ['proposed_qty', 'unit_cost', 'requisition_line_id']),
         (lambda self, *a, **kw: self._check_purchase_requisition_unique(*a, **kw),
          "A call for bids cannot be linked to lines of different "
          "logistics requisitions.",
@@ -1038,15 +980,6 @@ class logistic_requisition_source(orm.Model):
                         requisition_id = source.requisition_line_id.requisition_id
                     elif requisition_id != source.requisition_line_id.requisition_id:
                         return False
-        return True
-
-    def _check_source_lines_total_amount(self, cr, uid, ids, context=None):
-        for source in self.browse(cr, uid, ids, context=context):
-            line = source.requisition_line_id
-            total = sum(source.unit_cost * source.proposed_qty
-                        for source in line.source_ids)
-            if total > line.budget_tot_price:
-                return False
         return True
 
     def _get_purchase_line_id(self, cr, uid, ids, field_name, arg, context=None):
