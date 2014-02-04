@@ -110,7 +110,7 @@ class logistic_requisition_line(orm.Model):
             lasts.sort(key=lambda x: _best_company_price(cr, uid, x, qty))
             return firsts + lasts
         else:
-            agreements.sort(key=lambda x: x._best_company_price(cr, uid, x, qty))
+            agreements.sort(key=lambda x: _best_company_price(cr, uid, x, qty))
             return agreements
 
     def _generate_lines_from_agreements(self, cr, uid, container, line,
