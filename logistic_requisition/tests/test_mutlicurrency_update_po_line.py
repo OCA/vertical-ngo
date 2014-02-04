@@ -103,7 +103,7 @@ class test_sale_order_from_lr_confirm(common.TransactionCase):
         logistic_requisition.assign_lines(self, [line_id], self.user_demo)
         purch_req_id = logistic_requisition.create_purchase_requisition(
             self, source_id)
-        purchase_requisition.change_pricelist(self, purch_req_id, 
+        purchase_requisition.change_pricelist(self, purch_req_id,
             self.purchase_pricelist_eur)
         purchase_requisition.confirm_call(self, purch_req_id)
         bid, bid_line = purchase_requisition.create_draft_purchase_order(
@@ -114,12 +114,12 @@ class test_sale_order_from_lr_confirm(common.TransactionCase):
         purchase_requisition.close_call(self, purch_req_id)
         purchase_requisition.bids_selected(self, purch_req_id)
 
-        logistic_requisition.check_line_unit_cost(self, source_id, 10, 
+        logistic_requisition.check_line_unit_cost(self, source_id, 10,
             self.purchase_pricelist_eur)
         # Change po value to check
 
         logistic_requisition.source_lines(self, [line_id])
-        
+
         # Try to change again
         sale_id, __ = logistic_requisition.create_quotation(
             self, requisition_id, [line_id])
@@ -132,4 +132,3 @@ class test_sale_order_from_lr_confirm(common.TransactionCase):
                           "The purchase requisition should be in 'done' state.")
         self.assertEquals(len(purch_req.purchase_ids), 1,
                           "We should have only 1 purchase order.")
-

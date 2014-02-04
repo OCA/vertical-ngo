@@ -1176,9 +1176,9 @@ class logistic_requisition_source(orm.Model):
         purch_req_lines = []
         lines = self.browse(cr, uid, ids, context=context)
         if not next((x for x in lines
-                     if x.procurement_method != 'procurement'), None):
+                     if x.procurement_method == 'procurement'), None):
             raise orm.except_orm(_('There should be at least one selected'
-                                   'line with procurement method Procurement'),
+                                   ' line with procurement method Procurement'),
                                  _('Please correct selection'))
         for line in lines:
             if line.procurement_method not in ('other', 'procurement'):
