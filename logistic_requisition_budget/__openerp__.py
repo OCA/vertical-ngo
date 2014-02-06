@@ -28,16 +28,16 @@
  "images": [],
  "website": "http://www.camptocamp.com",
  "description": """
-This module isolates budget dimension about Logistic Requisitions.
-===================================================================
+This logisitc requisiton budget
+===============================
 
-A Logistic requisition express a need that is requested somewhere. It allows to 
-manage the sourcing of the needs before making a cost estimate to the requestor.
+This module add a notion of budget on logistic requisition.
+Each requisition lines have now a budget holder and a budget Value.
 
-This invert the logic that is in standard in OpenERP in the way that the sourcing 
-of the procuremnt is made before the order confirmation and we built the link incase 
-of validation. In standard, th SO confirmation generate the procurement then it
-generate the needed procurement.
+Requisiton must be approves by budget manager.
+
+If budget is exceeded requisiton flow is block unitl adaptation of price
+or budget.
 
 """,
  "depends": ["logistic_requisition",
