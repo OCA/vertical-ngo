@@ -61,8 +61,6 @@ class test_sale_order_from_lr_confirm(common.TransactionCase):
             'consignee_id': self.partner_3,
             'date_delivery': time.strftime(D_FMT),
             'user_id': self.user_demo,
-            'budget_holder_id': self.user_demo,
-            'finance_officer_id': self.user_demo,
             'currency_id': self.lr_currency_usd,
             'pricelist_id': self.pricelist_sale,
         }
@@ -72,7 +70,6 @@ class test_sale_order_from_lr_confirm(common.TransactionCase):
             'requested_qty': 100,
             'requested_uom_id': self.product_uom_pce,
             'date_delivery': time.strftime(D_FMT),
-            'budget_tot_price': 10000,
             'account_code': '1234',
         }
         self.source1 = {
