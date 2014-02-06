@@ -81,7 +81,7 @@ class logistic_requisition(orm.Model):
                  "in charge of the Logistic Requisition"
         ),
         'partner_id': fields.many2one(
-            'res.partner', 'Customer', required=True,
+            'res.partner', 'Customer', required=True, domain=[('customer', '=', True)],
             states=REQ_STATES
         ),
         'consignee_id': fields.many2one(
