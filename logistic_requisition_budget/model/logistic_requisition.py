@@ -20,11 +20,8 @@
 ##############################################################################
 
 import logging
-import time
 
 from openerp.osv import fields, orm
-from openerp.tools.translate import _
-from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DT_FORMAT
 import openerp.addons.decimal_precision as dp
 
 _logger = logging.getLogger(__name__)
@@ -64,6 +61,7 @@ class logistic_requisition(orm.Model):
     }
 
     def _get_amount(self, cr, uid, ids, name, args, context=None):
+        """Compute the requisiton total budget"""
         res = {}
         for requisition in self.browse(cr, uid, ids, context=context):
             res[requisition.id] = sum(line.budget_tot_price for line
@@ -71,11 +69,10 @@ class logistic_requisition(orm.Model):
         return res
 
     def _do_draft(self, cr, uid, ids, context=None):
-        reqs = self.read(cr, uid, ids, ['line_ids'], context=context)
-        line_ids = [lids for req in reqs for lids in req['line_ids']]
-        if line_ids:
-            line_obj = self.pool.get('logistic.requisition.line')
-            line_obj._do_draft(cr, uid, line_ids, context=context)
+        """Cancel LR and related budget"""
+        super(logistic_requisition, self)._do_draft(cr, uid, ids,
+                                                    context=context)
+
         vals = {'state': 'draft',
                 'budget_holder_id': False,
                 'date_budget_holder': False,
@@ -83,7 +80,7 @@ class logistic_requisition(orm.Model):
                 'date_finance_officer': False,
                 'cancel_reason_id': False,
                 }
-        self.write(cr, uid, ids, vals, context=context)        
+        self.write(cr, uid, ids, vals, context=context)
 
     def copy(self, cr, uid, id, default=None, context=None):
         if not default:
@@ -94,7 +91,7 @@ class logistic_requisition(orm.Model):
             'finance_officer_id': False,
             'date_finance_officer': False,
         })
-        return super(logistic_requisition, self).copy(cr, uid, id, default=default, context=context)        
+        return super(logistic_requisition, self).copy(cr, uid, id, default=default, context=context)
 
 
 class logistic_requisition_line(orm.Model):
