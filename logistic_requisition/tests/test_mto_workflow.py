@@ -86,8 +86,6 @@ class test_mto_workflow(common.TransactionCase):
             'consignee_id': self.partner_3,
             'date_delivery': time.strftime(D_FMT),
             'user_id': self.user_demo,
-            'budget_holder_id': self.user_demo,
-            'finance_officer_id': self.user_demo,
             'pricelist_id' : self.pricelist_sale,
         }
         self.line = {
@@ -95,7 +93,6 @@ class test_mto_workflow(common.TransactionCase):
             'requested_qty': 100,
             'requested_uom_id': self.product_uom_pce,
             'date_delivery': time.strftime(D_FMT),
-            'budget_tot_price': 1000,
             'account_code': 'a code',
             'source_ids': [{'proposed_qty': 100,
                             'proposed_product_id': self.product_7,
@@ -225,7 +222,6 @@ class test_mto_workflow(common.TransactionCase):
             'requested_qty': 200,
             'requested_uom_id': self.product_uom_pce,
             'date_delivery': time.strftime(D_FMT),
-            'budget_tot_price': 4000,
             'account_code': 'a code',
             'source_ids': [{'proposed_qty': 200,
                             'proposed_product_id': self.product_8,

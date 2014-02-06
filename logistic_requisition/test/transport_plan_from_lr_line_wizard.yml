@@ -16,7 +16,6 @@
     product_id: product.product_product_7
     requested_qty: 100
     date_delivery: !eval "time.strftime('%Y-%m-%d')"
-    budget_tot_price: 1000
     logistic_user_id: base.user_demo
 -
   And I add a first source line
@@ -35,7 +34,6 @@
     product_id: product.product_product_8
     requested_qty: 100
     date_delivery: !eval "time.strftime('%Y-%m-%d')"
-    budget_tot_price: 1000
     logistic_user_id: base.user_demo
 -
   And I add a second source line
