@@ -72,7 +72,6 @@ class logistic_requisition(orm.Model):
         """Cancel LR and related budget"""
         super(logistic_requisition, self)._do_draft(cr, uid, ids,
                                                     context=context)
-
         vals = {'state': 'draft',
                 'budget_holder_id': False,
                 'date_budget_holder': False,
@@ -122,7 +121,8 @@ class logistic_requisition_line(orm.Model):
             store=True),
     }
 
-    def _get_unit_amount_line(self, cr, uid, ids, prop, unknow_none, unknow_dict, context=None):
+    def _get_unit_amount_line(self, cr, uid, ids, prop, unknow_none,
+                              unknow_dict, context=None):
         res = {}
         for line in self.browse(cr, uid, ids, context=context):
             price = line.budget_tot_price / line.requested_qty
