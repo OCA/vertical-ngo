@@ -44,12 +44,12 @@ class purchase_requisition(orm.Model):
                 # this call for bid line has been added manually
                 continue
             source = pr_line.logistic_requisition_source_ids[0]
-            from_curr = source.requisition_id.currency_id.id
+            to_curr = source.requisition_id.currency_id.id
             set_sources = set()
             # Look for po lines of this purchase_requisition line
             for pr_bid_line in pr_line.purchase_line_ids:
                 # Compute from bid currency to LRS currency
-                to_curr = pr_bid_line.order_id.pricelist_id.currency_id.id
+                from_curr = pr_bid_line.order_id.pricelist_id.currency_id.id
                 price = currency_obj.compute(cr, uid, from_curr, to_curr,
                     pr_bid_line.price_unit, False)
                 vals = {
