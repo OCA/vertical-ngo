@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+ # -*- coding: utf-8 -*-
 ##############################################################################
 #
 #    Author: Nicolas Bessi
@@ -130,6 +130,7 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
         :returns: data dict to be used by orm.Model.create
 
         """
+        data = {}
         acc_pos_obj = self.pool['account.fiscal.position']
         pl_model = self.pool['product.pricelist']
         currency = po_pricelist.currency_id
@@ -138,6 +139,7 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
             price = line.framework_agreement_id.get_price(line.proposed_qty, currency=currency)
             lead_time = line.framework_agreement_id.delay
             supplier = line.framework_agreement_id.supplier_id
+            data['framework_agreement_id'] = line.framework_agreement_id.id
         else:
             supplier = po_supplier
             lead_time = 0
@@ -155,7 +157,7 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
         taxes_ids = line.proposed_product_id.supplier_taxes_id
         taxes = acc_pos_obj.map_tax(cr, uid, supplier.property_account_position,
                                     taxes_ids)
-        data = {}
+
         data['order_id'] = po_id
         data['product_qty'] = line.proposed_qty
         data['product_id'] = line.proposed_product_id.id
