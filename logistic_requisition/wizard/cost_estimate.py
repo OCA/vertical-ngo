@@ -149,7 +149,7 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
                 }
         if sourcing.dispatch_location_id:
             vals['location_id'] = sourcing.dispatch_location_id.id
-        if sourcing.procurement_method == 'wh_dispatch':
+        if sourcing.procurement_method in ('wh_dispatch', 'other'):
             vals['type'] = 'make_to_stock'
         else:
             vals['type'] = 'make_to_order'
