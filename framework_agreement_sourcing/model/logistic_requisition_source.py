@@ -359,7 +359,7 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
         and raise quantity warning.
 
         """
-        if (method != AGR_PROC or not proposed_product_id):
+        if method != AGR_PROC:
             if proposed_product_id:
                 value = {'proposed_uom_id': ''}
                 if proposed_product_id:
