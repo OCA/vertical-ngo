@@ -360,6 +360,15 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
 
         """
         if (method != AGR_PROC or not proposed_product_id):
+            if proposed_product_id:
+                value = {'proposed_uom_id': ''}
+                if proposed_product_id:
+                    prod_obj = self.pool.get('product.product')
+                    prod = prod_obj.browse(cr, uid, proposed_product_id, context=context)
+                    value = {
+                        'proposed_uom_id': prod.uom_id.id,
+                    }
+                return {'value': value}
             return {}
 
         return self.onchange_sourcing_method(cr, uid, ids, method, req_line_id,
