@@ -44,6 +44,9 @@ class purchase_requisition(orm.Model):
                 # this call for bid line has been added manually
                 continue
             source = pr_line.logistic_requisition_source_ids[0]
+            has_requisition = source.requisition_id
+            if not has_requisition:
+                continue
             to_curr = source.requisition_id.currency_id.id
             set_sources = set()
             # Look for po lines of this purchase_requisition line
