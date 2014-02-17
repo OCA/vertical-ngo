@@ -215,38 +215,6 @@ class test_purchase_split_requisition(common.TransactionCase):
                           "We should have 2 lines linked with the purchase "
                           "lines and no remaining line.")
 
-    def test_split_too_many_products_selected_budget_exceeded(self):
-        """ Create a call for bids from the logistic requisition, 2 po line choosed (budget exceeded)
-
-        30 items in a first purchase order and 80 items in a second one,
-        for a total of 110 items. That means 110 products have been ordered
-        but 100 only have been ordered at the origin.
-
-        The total cost is greater than the requested budget.
-        We should not be able to propose more than requested financially.
-        """
-        # create a first draft bid and select a part of the line
-        purchase1, bid_line1 = purchase_requisition.create_draft_purchase_order(
-            self, self.purchase_requisition.id, self.partner_1)
-        bid_line1.write({'price_unit': 15})
-        purchase_order.select_line(self, bid_line1.id, 30)
-        purchase_order.bid_encoded(self, purchase1.id)
-
-        # create a second draft bid and select a part of the line
-        purchase2, bid_line2 = purchase_requisition.create_draft_purchase_order(
-            self, self.purchase_requisition.id, self.partner_12)
-        bid_line2.write({'price_unit': 13})
-        purchase_order.select_line(self, bid_line2.id, 80)
-        purchase_order.bid_encoded(self, purchase2.id)
-
-        # close the call for bids
-        purchase_requisition.close_call(self, self.purchase_requisition.id)
-        # selection of bids will trigger the split of lines
-        # the generation of po fails because the budget is exceeded
-        with self.assertRaises(orm.except_orm):
-            purchase_requisition.bids_selected(self,
-                                               self.purchase_requisition.id)
-
     def test_split_too_many_products_selected(self):
         """ Create a call for bids from the logistic requisition, 2 po line choosed (too many)
 
