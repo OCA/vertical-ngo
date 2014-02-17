@@ -94,9 +94,6 @@
 -
   I set some data to fulfill the business rules
 -
-  !record {model: logistic.requisition, id: logistic_requisition_cost_estimate_01}:
-    budget_holder_id: base.user_demo
--
   !record {model: logistic.requisition.line, id: logistic_requisition_line_cost_estimate_01}:
     account_code: 'XXXX'
 -
