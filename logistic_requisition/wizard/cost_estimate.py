@@ -159,7 +159,7 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
         onchange_vals = sale_line_obj.product_id_change(
             cr, uid, [],
             requisition.consignee_id.property_product_pricelist.id,
-            sourcing.requisition_line_id.product_id.id,
+            sourcing.proposed_product_id.id,
             partner_id=requisition.consignee_id.id,
             qty=sourcing.proposed_qty,
             uom=sourcing.proposed_uom_id.id).get('value', {})
