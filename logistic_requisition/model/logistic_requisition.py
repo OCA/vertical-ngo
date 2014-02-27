@@ -896,6 +896,8 @@ class logistic_requisition_source(orm.Model):
         'transport_applicable': False,
         'price_is': 'fixed',
         'name': '/',
+        'procurement_method': 'other',
+        'proposed_qty': 1
     }
     _constraints = [
         (lambda self, *a, **kw: self._check_transport_plan(*a, **kw),
