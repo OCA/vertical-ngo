@@ -1085,6 +1085,7 @@ class logistic_requisition_source(orm.Model):
                 'req_incoterm_id': line.requisition_id.incoterm_id.id,
                 'req_incoterm_address': line.requisition_id.incoterm_address,
                 'pricelist_id': pricelist,
+                'schedule_date': line.requisition_id.date_delivery,
                 }
 
     def _prepare_po_requisition_line(self, cr, uid, line, context=None):
