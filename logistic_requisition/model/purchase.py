@@ -26,6 +26,28 @@ from openerp import netsvc
 class purchase_order(orm.Model):
     _inherit = 'purchase.order'
 
+    def validate_service_product_procurement(self, cr, uid, ids, context=None):
+        """ As action_picking_create only take care of non-service product
+        by looping on the moves, we need then to pass through all line with
+        product of type service and confirm them.
+        This way all procurements will reach the done state once the picking
+        related to the PO will be done and in the mean while the SO will be
+        then marked as delivered.
+        """
+        wf_service = netsvc.LocalService("workflow")
+        proc_obj = self.pool.get('procurement.order')
+        # Proc product of type service should be confirm at this 
+        # stage, otherwise, when picking of related PO is created
+        # then done, it stay blocked at running stage
+        proc_ids = proc_obj.search(cr, uid, [('purchase_id','in', ids)], context=context)
+        for proc in proc_obj.browse(cr, uid, proc_ids, context=context):
+            if proc.product_id.type == 'service':
+                wf_service.trg_validate(uid, 'procurement.order',
+                                        proc.id, 'button_confirm', cr)
+                wf_service.trg_validate(uid, 'procurement.order',
+                                        proc.id, 'button_check', cr)
+        return True
+
     def action_picking_create(self, cr, uid, ids, context=None):
         """ When the picking is created, we'll:
 
@@ -62,7 +84,7 @@ class purchase_order(orm.Model):
                 if purchase_line is not None:
                     wf_service.trg_validate(uid, 'procurement.order',
                                             procurement.id, 'button_check', cr)
-
+        self.validate_service_product_procurement(cr, uid, ids, context)
         return picking_id
 
 

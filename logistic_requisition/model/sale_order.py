@@ -72,7 +72,6 @@ class sale_order(orm.Model):
             # with it
             vals['purchase_id'] = purchase_line.order_id.id
             proc_id = proc_obj.create(cr, uid, vals, context=context)
-
             sale_line.write({'procurement_id': proc_id})
             # We do not confirm the procurement. It will stay in 'draft'
             # without reservation move. At the moment when the picking
@@ -80,6 +79,8 @@ class sale_order(orm.Model):
             # the id of the picking's move in this procurement and
             # confirm the procurement
             # (see in purchase_order.action_picking_create())
+            # In there, we'll also take care and confirm all procurements
+            # with product of type service.
 
         # set the purchases to direct delivery
         purchase_obj = self.pool.get('purchase.order')
@@ -132,6 +133,14 @@ class sale_order(orm.Model):
             super(sale_order, self)._create_pickings_and_procurements(
                 cr, uid, order, list(lines), picking_id=False, context=context)
         return True
+
+    def copy(self, cr, uid, id, default=None, context=None):
+        if not default:
+            default = {}
+        default['invoice_ids'] = False
+        default['requisition_id'] = False
+        return super(sale_order, self).copy(cr, uid, id,
+                                            default=default, context=context)
 
 
 class sale_order_line(orm.Model):
