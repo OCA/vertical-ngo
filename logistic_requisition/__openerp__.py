@@ -20,7 +20,7 @@
 ##############################################################################
 
 {"name": "Logistic Requisition",
- "version": "0.1",
+ "version": "0.2",
  "author": "Camptocamp",
  "license": "AGPL-3",
  "category": "Purchase Management",

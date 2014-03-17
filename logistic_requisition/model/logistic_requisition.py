@@ -81,7 +81,7 @@ class logistic_requisition(orm.Model):
                  "in charge of the Logistic Requisition"
         ),
         'partner_id': fields.many2one(
-            'res.partner', 'Customer', required=True,
+            'res.partner', 'Customer', required=True, domain=[('customer', '=', True)],
             states=REQ_STATES
         ),
         'consignee_id': fields.many2one(
@@ -1090,6 +1090,8 @@ class logistic_requisition_source(orm.Model):
                 'dest_address_id': dest_address_id,
                 'line_ids': [(0, 0, rline) for rline in purch_req_lines],
                 'origin': ", ".join(origin),
+                'req_incoterm_id': line.requisition_id.incoterm_id.id,
+                'req_incoterm_address': line.requisition_id.incoterm_address,
                 }
 
     def _prepare_po_requisition_line(self, cr, uid, line, context=None):

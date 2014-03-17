@@ -243,9 +243,9 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
                 'incoterm': requisition.incoterm_id.id,
                 'incoterm_address': requisition.incoterm_address,
                 'requisition_id': requisition.id,
+                'origin': requisition.name,
                 'project_id': requisition.analytic_id.id if requisition.analytic_id else False,
                 }
-
         onchange_vals = sale_obj.onchange_partner_id(
             cr, uid, [], partner_id, context=context).get('value', {})
         vals.update(onchange_vals)
