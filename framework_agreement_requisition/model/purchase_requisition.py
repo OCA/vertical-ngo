@@ -79,19 +79,30 @@ class purchase_requisition(orm.Model):
                                    req.name)
             rfqs = chain.from_iterable(req_line.purchase_line_ids
                                        for req_line in req.line_ids)
-            rfqs = [rfq for rfq in rfqs if rfq.state == 'confirmed']
-            if not rfqs:
+            po_to_select = []
+            po_to_cancel = []
+            for rfq in rfqs:
+                if rfq.state == 'confirmed':
+                    agr_record = rfq.make_agreement(req.name)
+                    generated.append(agr_record)
+                    po_to_select.append(rfq.order_id)
+                else:
+                    po_to_cancel.append(rfq.order_id)
+
+            if not po_to_select:
                 raise orm.except_orm(_('No confirmed RFQ related to tender'),
                                      _('Please choose at least one'))
-            for rfq in rfqs:
-                agr_record = rfq.make_agreement(req.name)
-                p_order = rfq.order_id
+
+            for p_order in set(po_to_select):
                 p_order.select_agreement()
                 p_order.refresh()
                 if p_order.state != PO_AGR_SELECT:
                     raise RuntimeError('Purchase order %s does not pass to %s' %
                                        (p_order.name, PO_AGR_SELECT))
-                generated.append(agr_record)
+            wf_service = netsvc.LocalService("workflow")
+            for p_order in set(po_to_cancel):
+                wf_service.trg_validate(uid, 'purchase.order', p_order.id,
+                                        'purchase_cancel', cr)
         return generated
 
     def agreement_selected(self, cr, uid, ids, context=None):
