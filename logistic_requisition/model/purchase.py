@@ -76,7 +76,7 @@ class purchase_order(orm.Model):
                     and sale_line.sale_flow == 'direct_delivery'):
                 continue
             procurement = sale_line.procurement_id
-            if not procurement.move_id:
+            if procurement and not procurement.move_id:
                 # the procurement for the sales and purchase is the same!
                 # So when the move will be done, the sales order and the
                 # purchase order will be shipped at the same time
