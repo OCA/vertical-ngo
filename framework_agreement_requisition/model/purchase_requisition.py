@@ -74,7 +74,7 @@ class purchase_requisition(orm.Model):
             self.select_agreement(cr, uid, req.id, context=context)
             req.refresh()
             if req.state != AGR_SELECT:
-                raise RuntimeError('requisiton %s does not pass to state'
+                raise RuntimeError('requisition %s does not pass to state'
                                    ' agreement_selected' %
                                    req.name)
             rfqs = chain.from_iterable(req_line.purchase_line_ids
