@@ -36,7 +36,7 @@ Each requisition lines have now a budget holder and a budget Value.
 
 Requisiton must be approves by budget manager.
 
-If budget is exceeded requisiton flow is block unitl adaptation of price
+If budget is exceeded requisition flow is block unitl adaptation of price
 or budget.
 
 """,
