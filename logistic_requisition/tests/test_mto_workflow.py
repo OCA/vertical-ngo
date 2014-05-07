@@ -78,7 +78,9 @@ class test_mto_workflow(common.TransactionCase):
         self.partner_12 = self.ref('base.res_partner_12')
         self.user_demo = self.ref('base.user_demo')
         self.product_7 = self.ref('product.product_product_7')
+        self.browse_ref('product.product_product_7').write({'procure_method': 'make_to_order'})
         self.product_8 = self.ref('product.product_product_8')
+        self.browse_ref('product.product_product_8').write({'procure_method': 'make_to_order'})
         self.product_uom_pce = self.ref('product.product_uom_unit')
         self.pricelist_sale = self.ref('product.list0')
         self.vals = {
@@ -204,6 +206,7 @@ class test_mto_workflow(common.TransactionCase):
 
         sale = self.sale_model.browse(cr, uid, sale_id)
         assert len(sale.order_line) == 1
+        assert sale.order_line[0].type == 'make_to_order'
         self._check_sale_line(sale.order_line[0])
 
         # the sale order should be delivered as well
