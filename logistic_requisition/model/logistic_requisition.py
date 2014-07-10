@@ -158,40 +158,22 @@ class logistic_requisition(orm.Model):
             readonly=True,
             required=True
         ),
-        'amount_total': fields.function(
-            lambda self, *args, **kwargs: self._get_amount(*args, **kwargs),
-            digits_compute=dp.get_precision('Account'),
-            string='Total Budget',
-            store={
-                'logistic.requisition': (
-                    lambda self, cr, uid, ids, c=None: ids,
-                    ['line_ids'], 20),
-                'logistic.requisition.line': (
-                    lambda self, *a, **kw: self._store_get_requisition_ids(*a, **kw),
-                    ['requested_qty', 'budget_unit_price', 'budget_tot_price', 'requisition_id'], 20),
-            }),
         'sourced': fields.function(
             lambda self, *args, **kwargs: self._get_sourced(*args, **kwargs),
             string='Sourced',
             type='float'
         ),
-        'allowed_budget': fields.boolean('Allowed Budget'),
-        'currency_id': fields.related('company_id',
+        'pricelist_id': fields.many2one('product.pricelist',
+            'Pricelist',
+            required=True,
+            states=REQ_STATES,
+            help="Pricelist that represent the currency for current logistic request."),
+        'currency_id': fields.related('pricelist_id',
                                       'currency_id',
                                       type='many2one',
                                       relation='res.currency',
                                       string='Currency',
                                       readonly=True),
-        'budget_holder_id': fields.many2one(
-            'res.users',
-            string='Budget Holder'),
-        'date_budget_holder': fields.datetime(
-            'Budget Holder Validation Date'),
-        'finance_officer_id': fields.many2one(
-            'res.users',
-            string='Finance Officer'),
-        'date_finance_officer': fields.datetime(
-            'Finance Officer Validation Date'),
         'cancel_reason_id': fields.many2one(
             'logistic.requisition.cancel.reason',
             string='Reason for Cancellation',
@@ -213,13 +195,6 @@ class logistic_requisition(orm.Model):
          'unique(name)',
          'Logistic Requisition Reference must be unique!'),
     ]
-
-    def _get_amount(self, cr, uid, ids, name, args, context=None):
-        res = {}
-        for requisition in self.browse(cr, uid, ids, context=context):
-            res[requisition.id] = sum(line.budget_tot_price for line
-                                      in requisition.line_ids)
-        return res
 
     def _get_sourced(self, cr, uid, ids, name, args, context=None):
         res = {}
@@ -268,10 +243,6 @@ class logistic_requisition(orm.Model):
             line_obj = self.pool.get('logistic.requisition.line')
             line_obj._do_draft(cr, uid, line_ids, context=context)
         vals = {'state': 'draft',
-                'budget_holder_id': False,
-                'date_budget_holder': False,
-                'finance_officer_id': False,
-                'date_finance_officer': False,
                 'cancel_reason_id': False,
                 }
         self.write(cr, uid, ids, vals, context=context)
@@ -296,12 +267,23 @@ class logistic_requisition(orm.Model):
         default.update({
             'state': 'draft',
             'name': '/',
-            'budget_holder_id': False,
-            'date_budget_holder': False,
-            'finance_officer_id': False,
-            'date_finance_officer': False,
         })
         return super(logistic_requisition, self).copy(cr, uid, id, default=default, context=context)
+
+    def onchange_partner_id(self, cr, uid, ids, part, context=None):
+        """We take the pricelist of the chosen partner"""
+        values = {'pricelist_id': False}
+        if not part:
+            return {'value': values}
+
+        part = self.pool.get('res.partner').browse(cr, uid, part,
+                                                   context=context)
+        pricelist = part.property_product_pricelist
+        pricelist = pricelist.id if pricelist else False
+        values = {}
+        if pricelist:
+            values['pricelist_id'] = pricelist
+        return {'value': values}
 
     def onchange_consignee_id(self, cr, uid, ids, consignee_id, context=None):
         values = {'consignee_shipping_id': False}
@@ -425,13 +407,9 @@ class logistic_requisition_line(orm.Model):
                                             'Product UoM',
                                             states=REQUEST_STATES,
                                             required=True),
-        'budget_tot_price': fields.float(
-            'Budget Total Price',
-            states=REQUEST_STATES,
-            digits_compute=dp.get_precision('Account')),
-        'budget_unit_price': fields.function(
-            lambda self, *args, **kwargs: self._get_unit_amount_line(*args, **kwargs),
-            string='Budget Unit Price',
+        'amount_total': fields.function(
+            lambda self, *args, **kwargs: self._get_total_cost(*args, **kwargs),
+            string='Total Amount',
             type="float",
             digits_compute=dp.get_precision('Account'),
             store=True),
@@ -572,11 +550,13 @@ class logistic_requisition_line(orm.Model):
                          context=context, load='_classic_write')
         return list(set([x['requisition_id'] for x in reqs]))
 
-    def _get_unit_amount_line(self, cr, uid, ids, prop, unknow_none, unknow_dict, context=None):
+    def _get_total_cost(self, cr, uid, ids, name, args, context=None):
         res = {}
+        for i in ids:
+            res[i] = 0.0
         for line in self.browse(cr, uid, ids, context=context):
-            price = line.budget_tot_price / line.requested_qty
-            res[line.id] = price
+            for source_line in line.source_ids:
+                res[line.id] += source_line.total_cost
         return res
 
     def view_stock_by_location(self, cr, uid, ids, context=None):
@@ -749,25 +729,6 @@ class logistic_requisition_source(orm.Model):
                       'quoted': [('readonly', True)]
                       }
 
-    def _purchase_line_id(self, cr, uid, ids, field_name, arg, context=None):
-        """ For each line, returns the generated purchase line from the
-        purchase requisition.
-        """
-        result = {}
-        for line in self.browse(cr, uid, ids, context=context):
-            result[line.id] = False
-            bid_line = line.bid_line_id
-            if not bid_line:
-                continue
-            po_lines = bid_line.po_line_from_bid_ids
-            if not po_lines:
-                continue
-            assert len(po_lines) == 1, (
-                "We should not have several purchase order lines "
-                "for a logistic requisition line")
-            result[line.id] = po_lines[0].id if po_lines else False
-        return result
-
     def _default_source_address(self, cr, uid, ids, field_name, arg, context=None):
         """Return the default source address depending of the procurment method"""
         res = {}
@@ -818,6 +779,7 @@ class logistic_requisition_source(orm.Model):
             [('procurement', 'Procurement'),
              ('wh_dispatch', 'Warehouse Dispatch'),
              ('fw_agreement', 'Framework Agreement'),
+             ('other', 'Other'),
              ],
             string='Procurement Method',
             required=True,
@@ -859,6 +821,12 @@ class logistic_requisition_source(orm.Model):
             type='float',
             digits_compute=dp.get_precision('Account'),
             store=True),
+        'currency_id': fields.related('requisition_id',
+                                      'currency_id',
+                                      type='many2one',
+                                      relation='res.currency',
+                                      string='Currency',
+                                      readonly=True),
         'transport_applicable': fields.boolean(
             'Transport Applicable',
             states=SOURCED_STATES),
@@ -928,6 +896,8 @@ class logistic_requisition_source(orm.Model):
         'transport_applicable': False,
         'price_is': 'fixed',
         'name': '/',
+        'procurement_method': 'other',
+        'proposed_qty': 1
     }
     _constraints = [
         (lambda self, *a, **kw: self._check_transport_plan(*a, **kw),
@@ -938,9 +908,6 @@ class logistic_requisition_source(orm.Model):
          "A transport plan cannot be linked to lines of different "
          "logistic requisitions.",
          ['transport_plan_id', 'requisition_id']),
-        (lambda self, *a, **kw: self._check_source_lines_total_amount(*a, **kw),
-         'The total cost cannot be more than the total budget.',
-         ['proposed_qty', 'unit_cost', 'requisition_line_id']),
         (lambda self, *a, **kw: self._check_purchase_requisition_unique(*a, **kw),
          "A call for bids cannot be linked to lines of different "
          "logistics requisitions.",
@@ -955,10 +922,16 @@ class logistic_requisition_source(orm.Model):
             return False
         return True
 
+    def _is_sourced_other(self, cr, uid, source, context=None):
+        """Predicate function to test if line on other
+        method are sourced"""
+        return self._is_sourced_procurement(cr, uid, source,
+                                            context=context)
+
     def _is_sourced_wh_dispatch(self, cr, uid, source, context=None):
-       """Predicate function to test if line on warehouse
-       method are sourced"""
-       return True
+        """Predicate function to test if line on warehouse
+        method are sourced"""
+        return True
 
     def _is_sourced(self, cr, uid, source_id, context=None):
         """ check if line is source using predicate function
@@ -1011,32 +984,32 @@ class logistic_requisition_source(orm.Model):
                         return False
         return True
 
-    def _check_source_lines_total_amount(self, cr, uid, ids, context=None):
-        for source in self.browse(cr, uid, ids, context=context):
-            line = source.requisition_line_id
-            total = sum(source.unit_cost * source.proposed_qty
-                        for source in line.source_ids)
-            if total > line.budget_tot_price:
-                return False
-        return True
-
     def _get_purchase_line_id(self, cr, uid, ids, field_name, arg, context=None):
         """ For each line, returns the generated purchase line from the
         purchase requisition.
         """
         result = {}
+        po_line_model = self.pool['purchase.order.line']
+        po_lines = None
         for line in self.browse(cr, uid, ids, context=context):
             result[line.id] = False
-            bid_line = line.selected_bid_line_id
-            if not bid_line:
-                continue
-            po_lines = bid_line.po_line_from_bid_ids
-            if not po_lines:
-                continue
+            if line.selected_bid_line_id:
+                bid_line = line.selected_bid_line_id
+                if not bid_line:
+                    continue
+                po_lines = [x.id for x in bid_line.po_line_from_bid_ids]
+                if not po_lines:
+                    continue
+            else:
+                po_lines = po_line_model.search(cr, uid,
+                                                [('lr_source_line_id', '=', line.id),
+                                                 ('state', '!=', 'cancel')],
+                                                context=context)
             assert len(po_lines) == 1, (
                 "We should not have several purchase order lines "
                 "for a logistic requisition line")
-            result[line.id] = po_lines[0].id if po_lines else False
+            result[line.id] = po_lines[0] if po_lines else False
+
         return result
 
     def create(self, cr, uid, vals, context=None):
@@ -1046,7 +1019,18 @@ class logistic_requisition_source(orm.Model):
         return super(logistic_requisition_source, self).create(cr, uid, vals,
                                                                context=context)
 
-    def _prepare_po_requisition(self, cr, uid, sources, purch_req_lines, context=None):
+    def _get_purchase_pricelist_from_currency(self, cr, uid, currency_id, context=None):
+        """ This method will look for a pricelist of type 'purchase' using
+        the same currency than than the given one.
+        return : ID of product.pricelist type Integer
+        """
+        pricelist_obj = self.pool.get('product.pricelist')
+        pricelist_id = pricelist_obj.search(cr, uid,
+            [('currency_id','=',currency_id),('type','=','purchase')], limit=1)
+        return pricelist_id[0]
+
+    def _prepare_po_requisition(self, cr, uid, sources, purch_req_lines,
+            pricelist=None, context=None):
         company_id = None
         user_id = None
         consignee_id = None
@@ -1084,6 +1068,14 @@ class logistic_requisition_source(orm.Model):
                     _('Error'),
                     _('The sourcing lines do not have the '
                       'same delivery address.'))
+            line_pricelist_id = self._get_purchase_pricelist_from_currency(
+                cr,
+                uid,
+                line.requisition_id.pricelist_id.currency_id.id,
+                context=context
+                )
+            if pricelist is None:
+                pricelist = line_pricelist_id
         return {'user_id': user_id or uid,
                 'company_id': company_id,
                 'consignee_id': consignee_id,
@@ -1092,6 +1084,8 @@ class logistic_requisition_source(orm.Model):
                 'origin': ", ".join(origin),
                 'req_incoterm_id': line.requisition_id.incoterm_id.id,
                 'req_incoterm_address': line.requisition_id.incoterm_address,
+                'pricelist_id': pricelist,
+                'schedule_date': line.requisition_id.date_delivery,
                 }
 
     def _prepare_po_requisition_line(self, cr, uid, line, context=None):
@@ -1113,17 +1107,27 @@ class logistic_requisition_source(orm.Model):
                 'logistic_requisition_source_ids': [(4, line.id)],
                 }
 
-    def _action_create_po_requisition(self, cr, uid, ids, context=None):
+    def _action_create_po_requisition(self, cr, uid, ids, pricelist=None, context=None):
         purch_req_obj = self.pool.get('purchase.requisition')
         purch_req_lines = []
         lines = self.browse(cr, uid, ids, context=context)
+        if not next((x for x in lines
+                     if x.procurement_method == 'procurement'), None):
+            raise orm.except_orm(_('There should be at least one selected'
+                                   ' line with procurement method Procurement'),
+                                 _('Please correct selection'))
         for line in lines:
+            if line.procurement_method not in ('other', 'procurement'):
+                raise orm.except_orm(_('Selected line procurement method should'
+                                       ' be procurement or other'),
+                                     _('Please correct selection'))
             vals = self._prepare_po_requisition_line(cr, uid, line,
                                                      context=context)
             purch_req_lines.append(vals)
         vals = self._prepare_po_requisition(cr, uid,
                                             lines,
                                             purch_req_lines,
+                                            pricelist=pricelist,
                                             context=context)
         purch_req_id = purch_req_obj.create(cr, uid, vals, context=context)
         self.write(cr, uid, ids,
@@ -1131,8 +1135,10 @@ class logistic_requisition_source(orm.Model):
                    context=context)
         return purch_req_id
 
-    def action_create_po_requisition(self, cr, uid, ids, context=None):
-        self._action_create_po_requisition(cr, uid, ids, context=context)
+    def action_create_po_requisition(self, cr, uid, ids,
+            pricelist=None, context=None):
+        self._action_create_po_requisition(cr, uid, ids,
+                pricelist=pricelist, context=context)
         return self.action_open_po_requisition(cr, uid, ids, context=context)
 
     def action_open_po_requisition(self, cr, uid, ids, context=None):

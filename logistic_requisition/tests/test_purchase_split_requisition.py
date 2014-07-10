@@ -71,20 +71,20 @@ class test_purchase_split_requisition(common.TransactionCase):
         __, self.user_demo = self.get_ref('base', 'user_demo')
         __, self.product_7 = self.get_ref('product', 'product_product_7')
         __, self.product_uom_pce = self.get_ref('product', 'product_uom_unit')
+        __, self.pricelist_sale = self.get_ref('product','list0')
+        
         vals = {
             'partner_id': self.partner_4,
             'consignee_id': self.partner_3,
             'date_delivery': time.strftime(D_FMT),
             'user_id': self.user_demo,
-            'budget_holder_id': self.user_demo,
-            'finance_officer_id': self.user_demo,
+            'pricelist_id': self.pricelist_sale,
         }
         line = {
             'product_id': self.product_7,
             'requested_qty': 100,
             'requested_uom_id': self.product_uom_pce,
             'date_delivery': time.strftime(D_FMT),
-            'budget_tot_price': 1000,
         }
         source = {
             'proposed_qty': 100,
@@ -141,7 +141,8 @@ class test_purchase_split_requisition(common.TransactionCase):
             self.assertEquals(source.unit_cost,
                               bid_line.price_unit,
                               "The requisition line should have the price "
-                              "proposed on the purchase order line. ")
+                              "proposed on the purchase order line as long as "
+                              "their currency are the same ")
 
     def test_split_1_line_selected(self):
         """ Create a call for bids from the logistic requisition, 1 po line choosed """
@@ -213,38 +214,6 @@ class test_purchase_split_requisition(common.TransactionCase):
         self.assertEquals(len(sources), 2,
                           "We should have 2 lines linked with the purchase "
                           "lines and no remaining line.")
-
-    def test_split_too_many_products_selected_budget_exceeded(self):
-        """ Create a call for bids from the logistic requisition, 2 po line choosed (budget exceeded)
-
-        30 items in a first purchase order and 80 items in a second one,
-        for a total of 110 items. That means 110 products have been ordered
-        but 100 only have been ordered at the origin.
-
-        The total cost is greater than the requested budget.
-        We should not be able to propose more than requested financially.
-        """
-        # create a first draft bid and select a part of the line
-        purchase1, bid_line1 = purchase_requisition.create_draft_purchase_order(
-            self, self.purchase_requisition.id, self.partner_1)
-        bid_line1.write({'price_unit': 15})
-        purchase_order.select_line(self, bid_line1.id, 30)
-        purchase_order.bid_encoded(self, purchase1.id)
-
-        # create a second draft bid and select a part of the line
-        purchase2, bid_line2 = purchase_requisition.create_draft_purchase_order(
-            self, self.purchase_requisition.id, self.partner_12)
-        bid_line2.write({'price_unit': 13})
-        purchase_order.select_line(self, bid_line2.id, 80)
-        purchase_order.bid_encoded(self, purchase2.id)
-
-        # close the call for bids
-        purchase_requisition.close_call(self, self.purchase_requisition.id)
-        # selection of bids will trigger the split of lines
-        # the generation of po fails because the budget is exceeded
-        with self.assertRaises(orm.except_orm):
-            purchase_requisition.bids_selected(self,
-                                               self.purchase_requisition.id)
 
     def test_split_too_many_products_selected(self):
         """ Create a call for bids from the logistic requisition, 2 po line choosed (too many)

@@ -31,6 +31,7 @@ class purchase_requisition(orm.Model):
         For each selected bid line, we ensure there is a corresponding source
         (one2one relation) and we update the source data with the bid line data.
         """
+        currency_obj = self.pool['res.currency']
         if isinstance(id, (tuple, list)):
             assert len(id) == 1, (
                 "_split_requisition_source_lines() accepts only 1 ID, "
@@ -43,16 +44,24 @@ class purchase_requisition(orm.Model):
                 # this call for bid line has been added manually
                 continue
             source = pr_line.logistic_requisition_source_ids[0]
+            has_requisition = source.requisition_id
+            if not has_requisition:
+                continue
+            to_curr = source.requisition_id.currency_id.id
             set_sources = set()
             # Look for po lines of this purchase_requisition line
             for pr_bid_line in pr_line.purchase_line_ids:
+                # Compute from bid currency to LRS currency
+                from_curr = pr_bid_line.order_id.pricelist_id.currency_id.id
+                price = currency_obj.compute(cr, uid, from_curr, to_curr,
+                    pr_bid_line.price_unit, False)
                 vals = {
                     'price_is': 'fixed',
                     'proposed_qty': pr_bid_line.quantity_bid,
                     'proposed_product_id': pr_bid_line.product_id.id,
                     'proposed_uom_id': pr_bid_line.product_uom.id,
                     'selected_bid_line_id': pr_bid_line.id,
-                    'unit_cost': pr_bid_line.price_unit,
+                    'unit_cost': price,
                     #FIXME: we need to take care of the scheduled date
                     # set eta or etd depending if transport is included
                     }
@@ -118,19 +127,6 @@ class purchase_requisition(orm.Model):
             cr, uid, tender, line, purchase_id, context=context)
         vals['from_bid_line_id'] = line.id
         return vals
-
-    #FIXME: we should not do that, the location must be known from the beginning of the RFQ-Bid process
-    #def _prepare_purchase_order(self, cr, uid, requisition, supplier, context=None):
-    #    vals = super(purchase_requisition, self)._prepare_purchase_order(
-    #        cr, uid, requisition, supplier, context=context)
-    #    if requisition.logistic_requisition_source_ids:
-    #        # comes from a logistic.requisition -> generate direct
-    #        # delivery purchases, so we put the location customer
-    #        # of the first consignee_id (same consignee on all lines)
-    #        source = requisition.logistic_requisition_source_ids[0]
-    #        req = source.requisition_id
-    #        vals['location_id'] = req.consignee_id.property_stock_customer.id
-    #    return vals
 
 
 class purchase_requisition_line(orm.Model):

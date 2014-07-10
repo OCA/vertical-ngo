@@ -9,6 +9,7 @@
     incoterm_id: stock.incoterm_FCA
     incoterm_address: incoterm address as text
     analytic_id: account.analytic_consultancy
+    pricelist_id: product.list0
 -
   And I add a line 1
 -
@@ -18,7 +19,6 @@
     requested_qty: 100
     requested_uom_id: product.product_uom_unit
     date_delivery: !eval "time.strftime('%Y-%m-%d')"
-    budget_tot_price: 1000
     logistic_user_id: base.user_demo
 -
   And I add a source line to the line 1
@@ -42,7 +42,6 @@
     requested_qty: 100
     requested_uom_id: product.product_uom_unit
     date_delivery: !eval "time.strftime('%Y-%m-%d')"
-    budget_tot_price: 1000
     logistic_user_id: base.user_demo
 -
   And I add a source line to the line 2
@@ -88,17 +87,12 @@
     try:
         self.cost_estimate(cr, uid, wizard_id)
     except orm.except_orm as err:
-        assert 'NO_BUDGET_VALID' in err.error_codes, (
-                'Expected an error because the budget holder is missing')
         assert 'NO_ACCOUNT_CODE' in err.error_codes, (
                 'Expected an error because the account code is missing')
     else:
         raise AssertionError('Expected an orm.except_orm error, got nothing')
 -
   I set some data to fulfill the business rules
--
-  !record {model: logistic.requisition, id: logistic_requisition_cost_estimate_01}:
-    budget_holder_id: base.user_demo
 -
   !record {model: logistic.requisition.line, id: logistic_requisition_line_cost_estimate_01}:
     account_code: 'XXXX'

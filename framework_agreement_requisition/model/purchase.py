@@ -87,6 +87,7 @@ class purchase_order_line(orm.Model):
         vals['supplier_id'] = po_line.order_id.partner_id.id
         vals['product_id'] = po_line.product_id.id
         vals['quantity'] = po_line.product_qty
+        vals['delay'] = po_line.product_lead_time
         vals['origin'] = origin if origin else False
         return vals
 

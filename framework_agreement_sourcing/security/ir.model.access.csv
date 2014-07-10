@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_po_creator,po_creator,model_logistic_requisition_source_create_agr_po,purchase.group_purchase_user,1,1,1,1

@@ -149,17 +149,17 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
                 }
         if sourcing.dispatch_location_id:
             vals['location_id'] = sourcing.dispatch_location_id.id
-        if sourcing.procurement_method == 'wh_dispatch':
+        if sourcing.procurement_method in ('wh_dispatch'):
             vals['type'] = 'make_to_stock'
         else:
-            vals['type'] = 'make_to_order'
+            vals['type'] = sourcing.proposed_product_id.procure_method
             vals['sale_flow'] = 'direct_delivery'
 
         requisition = sourcing.requisition_line_id.requisition_id
         onchange_vals = sale_line_obj.product_id_change(
             cr, uid, [],
             requisition.consignee_id.property_product_pricelist.id,
-            sourcing.requisition_line_id.product_id.id,
+            sourcing.proposed_product_id.id,
             partner_id=requisition.consignee_id.id,
             qty=sourcing.proposed_qty,
             uom=sourcing.proposed_uom_id.id).get('value', {})
@@ -178,11 +178,6 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
         :returns: list of tuples ('message, 'error_code')
         """
         errors = []
-        if not requisition.budget_holder_id:
-            error = (_('The requisition must be validated '
-                       'by the Budget Holder.'),
-                     'NO_BUDGET_VALID')
-            errors.append(error)
         return errors
 
     def _check_line(self, cr, uid, line, context=None):
@@ -249,6 +244,7 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
         onchange_vals = sale_obj.onchange_partner_id(
             cr, uid, [], partner_id, context=context).get('value', {})
         vals.update(onchange_vals)
+        vals.update({'pricelist_id':requisition.pricelist_id.id})
         return vals
 
     def cost_estimate(self, cr, uid, ids, context=None):

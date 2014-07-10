@@ -19,18 +19,46 @@
 #
 ##############################################################################
 
-from openerp.osv import orm
 from openerp.tools.translate import _
+from openerp.osv import fields, orm
 
 
 class LogisticRequisitionSourceCreateRequisition(orm.TransientModel):
     _name = "logistic.requisition.source.create.requisition"
     _description = "Create Purchase Requisition From Requisition Source"
 
+
+    _columns = {
+        'pricelist_id': fields.many2one('product.pricelist',
+                                          string='Pricelist / Currency',
+                                          required=True),
+    }
+
+    def default_get(self, cr, uid, fields_list, context=None):
+        """Take the first line pricelist as default"""
+        if context is None:
+            context = {}
+        defaults = super(LogisticRequisitionSourceCreateRequisition, self).\
+            default_get(cr, uid, fields_list, context=context)
+        line_obj = self.pool.get('logistic.requisition.source')
+        line_ids = context['active_ids']
+        pricelist_id = None
+        line = line_obj.browse(cr, uid, line_ids, context=context)[0]
+        pricelist_id = line_obj._get_purchase_pricelist_from_currency(
+                cr,
+                uid,
+                line.requisition_id.pricelist_id.currency_id.id,
+                context=context
+                )
+        defaults['pricelist_id'] = pricelist_id
+        return defaults
+
     def create_po_requisition(self, cr, uid, ids, context=None):
+        form = self.browse(cr, uid, ids, context=context)[0]
         source_obj = self.pool.get('logistic.requisition.source')
         requisition_id = source_obj._action_create_po_requisition(
-            cr, uid, context.get('active_ids', []), context=context)
+            cr, uid, context.get('active_ids', []), 
+            pricelist=form.pricelist_id.id, context=context)
         return {
             'name': _('Purchase Requisition'),
             'view_type': 'form',

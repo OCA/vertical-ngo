@@ -78,22 +78,23 @@ class test_mto_workflow(common.TransactionCase):
         self.partner_12 = self.ref('base.res_partner_12')
         self.user_demo = self.ref('base.user_demo')
         self.product_7 = self.ref('product.product_product_7')
+        self.browse_ref('product.product_product_7').write({'procure_method': 'make_to_order'})
         self.product_8 = self.ref('product.product_product_8')
+        self.browse_ref('product.product_product_8').write({'procure_method': 'make_to_order'})
         self.product_uom_pce = self.ref('product.product_uom_unit')
+        self.pricelist_sale = self.ref('product.list0')
         self.vals = {
             'partner_id': self.partner_4,
             'consignee_id': self.partner_3,
             'date_delivery': time.strftime(D_FMT),
             'user_id': self.user_demo,
-            'budget_holder_id': self.user_demo,
-            'finance_officer_id': self.user_demo,
+            'pricelist_id' : self.pricelist_sale,
         }
         self.line = {
             'product_id': self.product_7,
             'requested_qty': 100,
             'requested_uom_id': self.product_uom_pce,
             'date_delivery': time.strftime(D_FMT),
-            'budget_tot_price': 1000,
             'account_code': 'a code',
             'source_ids': [{'proposed_qty': 100,
                             'proposed_product_id': self.product_7,
@@ -205,6 +206,7 @@ class test_mto_workflow(common.TransactionCase):
 
         sale = self.sale_model.browse(cr, uid, sale_id)
         assert len(sale.order_line) == 1
+        assert sale.order_line[0].type == 'make_to_order'
         self._check_sale_line(sale.order_line[0])
 
         # the sale order should be delivered as well
@@ -223,7 +225,6 @@ class test_mto_workflow(common.TransactionCase):
             'requested_qty': 200,
             'requested_uom_id': self.product_uom_pce,
             'date_delivery': time.strftime(D_FMT),
-            'budget_tot_price': 4000,
             'account_code': 'a code',
             'source_ids': [{'proposed_qty': 200,
                             'proposed_product_id': self.product_8,
