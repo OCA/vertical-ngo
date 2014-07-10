@@ -48,5 +48,5 @@ This module customizes the Sales Orders to disguise them in Logistic Orders
  "auto_install": False,
  "test": ['test/test_report.yml',
           ],
- "installable": True,
+ 'installable': False,
  }

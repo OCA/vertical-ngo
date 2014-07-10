@@ -98,5 +98,5 @@ The simple process is the following:
           'test/logistic_requisition_report_test.yml',
           'test/test_picking_by_location_address.yml',
           ],
- "installable": True,
+ 'installable': False,
  }

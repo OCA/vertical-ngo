@@ -52,7 +52,7 @@ That will close flow of tender and related PO accordingly.
           'view/purchase_requisition_view.xml'],
  'demo': [],
  'test': ['test/agreement_requisition.yml'],
- 'installable': True,
+ 'installable': False,
  'auto_install': False,
  'license': 'AGPL-3',
  'application': False,
