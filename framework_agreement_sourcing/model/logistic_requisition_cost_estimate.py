@@ -28,45 +28,11 @@ class logistic_requisition_cost_estimate(orm.Model):
 
     _inherit = "logistic.requisition.cost.estimate"
 
-    def _update_agreement_source(self, cr, uid, source, context=None):
-        """Update price of source line using related confirmed PO"""
-        if source.procurement_method == AGR_PROC:
-            self._link_po_lines_to_source(cr, uid, source, context=context)
-            price = source.get_agreement_price_from_po()
-            source.write({'unit_cost': price})
-            source.refresh()
-
-    def _link_po_lines_to_source(self, cr, uid, source, context=None):
-        po_l_obj = self.pool['purchase.order.line']
-        agr = source.framework_agreement_id
-        line_ids = po_l_obj.search(
-            cr, uid,
-            [('order_id.framework_agreement_id', '=', agr.id),
-             ('lr_source_line_id', '=', source.id),
-             ('order_id.partner_id', '=', agr.supplier_id.id)],
-            context=context)
-        lines = po_l_obj.browse(cr, uid, line_ids, context=context)
-        po_ids = ([line.order_id.id for line in lines
-                   if line.product_id and line.product_id.type == 'product'])
-
-        all_line_ids = po_l_obj.search(
-            cr, uid,
-            [('order_id', 'in', po_ids),
-             ('product_id.type', '=', 'product')],
-            context=context)
-
-        po_l_obj.write(cr, uid, all_line_ids,
-                       {'lr_source_line_id': source.id},
-                       context=context)
-        source.refresh()
 
     def _prepare_cost_estimate_line(self, cr, uid, sourcing, context=None):
         """Override in order to update agreement source line
 
-        We update the price of source line that will be used in cost estimate
-
         """
-        self._update_agreement_source(cr, uid, sourcing, context=context)
         res = super(logistic_requisition_cost_estimate,
                     self)._prepare_cost_estimate_line(cr, uid, sourcing,
                                                       context=context)
@@ -87,12 +53,11 @@ class logistic_requisition_cost_estimate(orm.Model):
 
         """
 
-        so_lines = [x for x in so.order_line]
+        so_lines = [x for x in so.order_line if x.product_id]
         po_lines = set(x.purchase_line_id for x in sources
-                       if x.purchase_line_id and
-                          x.purchase_line_id.product_id.type == 'product')
+                       if x.purchase_line_id)
         product_dict = dict((x.product_id.id, x.id) for x in so_lines
-                            if x.product_id and x.product_id.type == 'product')
+                            if x.product_id)
         default = product_dict[product_dict.keys()[0]]
         if not product_dict:
             raise orm.except_orm(_('No stockable product in related PO'),
@@ -102,20 +67,18 @@ class logistic_requisition_cost_estimate(orm.Model):
             po_line.write({'sale_order_line_id': product_dict.get(key, default)})
 
     def cost_estimate(self, cr, uid, ids, context=None):
-        """Override to link PO to cost_estimate
+        """Override to link PO to cost_estimate$
 
-        We have to do this because when we source with agreement we do
-        not copy the PO it is meaningless has we have no choice to make.
-        But in tender flow you first cancel PO then the sale order mark
-        canceled PO as dropshipping and then copy them.
+        In a normal flow, when you chose a bid as the winning one, the bid is
+        dupplicated to generate the draft PO. On this action, it link the LRS
+        to the generated PO line.
 
-        So you have to create link between SO and PO/PO line that are
-        normally done when SO procurement generate PO and picking
+        In a tender flow, we don't dupplicate the bid, it's only a PO. The link
+        between the LRS and the PO line should then be created here.
 
-
-        With agreement PO is confirmed before be marked as dropshipping.
-
-        So we have to link it first"""
+        This is for the drop shipping to work propely cause in that case, SO
+        and PO are linked together.
+        """
         so_model = self.pool['sale.order']
         po_model = self.pool['purchase.order']
         res = super(logistic_requisition_cost_estimate,

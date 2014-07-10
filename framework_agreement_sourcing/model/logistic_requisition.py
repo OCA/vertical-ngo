@@ -21,18 +21,23 @@
 from collections import namedtuple
 from openerp.tools.translate import _
 from openerp.osv import orm
-from .adapter_util import BrowseAdapterSourceMixin
 from .logistic_requisition_source import AGR_PROC
 
 
-class logistic_requisition_line(orm.Model, BrowseAdapterSourceMixin):
+class logistic_requisition_line(orm.Model):
     """Override to enable generation of source line"""
 
     _inherit = "logistic.requisition.line"
 
-    def _map_agr_requisiton_to_source(self, cr, uid, line, context=None,
-                                      qty=0, agreement=None, **kwargs):
-        """Prepare data dict for source line using agreement as source
+    def _prepare_line_source(self, cr, uid, line,
+                                      qty=None, agreement=None,
+                                      context=None):
+        """Prepare data dict for source line creation. If an agreement
+        is given, the procurement_method will be an LTA (AGR_PROC).
+        Otherwise, if it's a stockable product we'll go to tender
+        by setting procurement_method as 'procurement'. Finally marke the
+        rest as 'other'. Those are default value that can be changed afterward
+        by the user.
 
         :params line: browse record of origin requistion.line
         :params agreement: browse record of origin agreement
@@ -42,43 +47,71 @@ class logistic_requisition_line(orm.Model, BrowseAdapterSourceMixin):
 
         """
         res = {}
-        direct_map = {
-            'proposed_product_id': 'product_id',
-            'requisition_line_id': 'id',
-            'proposed_uom_id': 'requested_uom_id'}
-
-        if not agreement:
-            raise ValueError("Missing agreement")
-        if not agreement.product_id.id == line.product_id.id:
-            raise ValueError("Product mismatch for agreement and requisition line")
-        # currency = self._get_source_currency(cr, uid, line, context=context)
-        res['unit_cost'] = 0.0
-        res['proposed_qty'] = qty
-        res['framework_agreement_id'] = agreement.id
-        res['procurement_method'] = AGR_PROC
-        res.update(self._direct_map(line, direct_map))
-        return res
-
-    def _map_requisition_to_source(self, cr, uid, line, context=None,
-                                   qty=0, **kwargs):
-        """Prepare data dict to generate source line using requisition as source
-
-        :params line: browse record of origin requistion.line
-        :params qty: quantity to be set on source line
-
-        :returns: dict to be used by Model.create
-
-        """
-        res = {}
-        direct_map = {'proposed_product_id': 'product_id',
-                      'requisition_line_id': 'id',
-                      'proposed_uom_id': 'requested_uom_id'}
+        res['proposed_product_id'] = line.product_id.id
+        res['requisition_line_id'] = line.id
+        res['proposed_uom_id'] = line.requested_uom_id.id
         res['unit_cost'] = 0.0
         res['proposed_qty'] = qty
         res['framework_agreement_id'] = False
-        res['procurement_method'] = 'procurement'
-        res.update(self._direct_map(line, direct_map))
+        if agreement:
+            if not agreement.product_id.id == line.product_id.id:
+                raise ValueError("Product mismatch for agreement and requisition line")
+            res['framework_agreement_id'] = agreement.id
+            res['procurement_method'] = AGR_PROC
+        else:
+            if line.product_id.type == 'product':
+               res['procurement_method'] = 'procurement'
+            else:
+                res['procurement_method'] = 'other'
         return res
+
+    def _sort_agreements(self, cr, uid, agreements, qty, currency=None,
+                         context=None):
+        """Sort agreements to be proposed
+
+        Agreement with negociated currency will first be taken in account
+        then they will be choosen by price converted in currency company
+
+        :param agreements: list of agreements to be sorted
+        :param currency: prefered currrency
+
+        :returns: sorted agreements list
+
+        """
+        if not agreements:
+            return agreements
+
+        def _best_company_price(cr, uid, agreement, qty):
+            """Returns the best price in company currency
+
+            For given agreement and price
+
+            """
+            comp_id = self.pool['framework.agreement']._company_get(cr, uid)
+            comp_obj = self.pool['res.company']
+            currency_obj = self.pool['res.currency']
+            comp_currency = comp_obj.browse(cr, uid, comp_id,
+                                            context=context).currency_id
+            prices = []
+            for pl in agreement.framework_agreement_pricelist_ids:
+                price = agreement.get_price(qty, currency=pl.currency_id)
+                comp_price = currency_obj.compute(cr, uid,
+                                                  pl.currency_id.id,
+                                                  comp_currency.id,
+                                                  price, False)
+                prices.append(comp_price)
+            return min(prices)
+
+        firsts = []
+        if currency:
+            firsts = [x for x in agreements if x.has_currency(currency)]
+            lasts = [x for x in agreements if not x.has_currency(currency)]
+            firsts.sort(key=lambda x: x.get_price(qty, currency=currency))
+            lasts.sort(key=lambda x: _best_company_price(cr, uid, x, qty))
+            return firsts + lasts
+        else:
+            agreements.sort(key=lambda x: _best_company_price(cr, uid, x, qty))
+            return agreements
 
     def _generate_lines_from_agreements(self, cr, uid, container, line,
                                         agreements, qty, currency=None, context=None):
@@ -86,8 +119,11 @@ class logistic_requisition_line(orm.Model, BrowseAdapterSourceMixin):
 
         This is done using available agreements.
         We first look for cheapeast agreement.
-        Then if no more quantity are available and there is still remaining needs
-        we look for next cheapest agreement or return remaining qty
+        Then if no more quantity are available and there is still remaining
+        needs we look for next cheapest agreement or return remaining qty.
+        we prefer to use agreement with negociated currency first even
+        if they are cheaper in other currences. Then it will choose remaining
+        agreements ordered by price converted in company currency
 
         :param container: list of agreements browse
         :param qty: quantity to be sourced
@@ -97,11 +133,10 @@ class logistic_requisition_line(orm.Model, BrowseAdapterSourceMixin):
 
         """
         agreements = agreements if agreements is not None else []
-        if currency:
-            agreements = [x for x in agreements if x.has_currency(currency)]
+        agreements = self._sort_agreements(cr, uid, agreements, qty,
+                                           currency=currency)
         if not agreements:
             return qty
-        agreements.sort(key=lambda x: x.get_price(qty, currency=currency))
         current_agr = agreements.pop(0)
         avail = current_agr.available_quantity
         if not avail:
@@ -115,7 +150,8 @@ class logistic_requisition_line(orm.Model, BrowseAdapterSourceMixin):
         difference = qty - to_consume
         if difference:
             return self._generate_lines_from_agreements(cr, uid, container, line,
-                                                        agreements, difference, context=context)
+                                                        agreements, difference,
+                                                        context=context)
         else:
             return 0
 
@@ -140,7 +176,8 @@ class logistic_requisition_line(orm.Model, BrowseAdapterSourceMixin):
         return Sourced(generated, remaining_qty)
 
     def make_source_line(self, cr, uid, line, force_qty=None, agreement=None, context=None):
-        """Generate a source line for a tender from a requisition line
+        """Generate a source line from a requisition line, see
+        _prepare_line_source for details.
 
         :param line: browse record of origin logistic.request
         :param force_qty: if set this quantity will be used instead
@@ -150,25 +187,11 @@ class logistic_requisition_line(orm.Model, BrowseAdapterSourceMixin):
         """
         qty = force_qty if force_qty else line.requested_qty
         src_obj = self.pool['logistic.requisition.source']
-        if agreement:
-            return src_obj._make_source_line_from_origin(cr, uid, line,
-                                                         self._map_agr_requisiton_to_source,
-                                                         context=context, qty=qty,
-                                                         agreement=agreement)
-        else:
-            return src_obj._make_source_line_from_origin(cr, uid, line,
-                                                         self._map_requisition_to_source,
-                                                         context=context, qty=qty)
-
-    def _get_source_currency(self, cr, uid, line, context=None):
-        agr_obj = self.pool['framework.agreement']
-        comp_obj = self.pool['res.company']
-        currency = line.requisition_id.get_pricelist().currency_id
-        company_id = agr_obj._company_get(cr, uid, context=context)
-        comp_currency = comp_obj.browse(cr, uid, company_id, context=context).currency_id
-        if currency == comp_currency:
-            return None
-        return currency
+        vals = self._prepare_line_source(cr, uid, line,
+                                                    qty=qty,
+                                                    agreement=agreement,
+                                                    context=None)
+        return src_obj.create(cr, uid, vals, context=context)
 
     def _generate_source_line(self, cr, uid, line, context=None):
         """Generate one or n source line(s) per requisition line.
@@ -186,7 +209,7 @@ class logistic_requisition_line(orm.Model, BrowseAdapterSourceMixin):
             return None
         agr_obj = self.pool['framework.agreement']
         date = line.requisition_id.date
-        currency = self._get_source_currency(cr, uid, line, context=context)
+        currency = line.currency_id
         product_id = line.product_id.id
         agreements = agr_obj.get_all_product_agreements(cr, uid, product_id, date,
                                                         context=context)
@@ -218,26 +241,3 @@ class logistic_requisition_line(orm.Model, BrowseAdapterSourceMixin):
         for line_br in self.browse(cr, uid, ids, context=context):
             self._generate_source_line(cr, uid, line_br, context=context)
         return res
-
-
-class logistic_requisition(orm.Model):
-    """Add get pricelist function"""
-
-    _inherit = "logistic.requisition"
-
-    def get_pricelist(self, cr, uid, requisition_id, context=None):
-        """Retrive pricelist id to use in sourcing by agreement process
-
-        :returns: pricelist record
-
-        """
-        if isinstance(requisition_id, (list, tuple)):
-            assert len(requisition_id) == 1
-            requisition_id = requisition_id[0]
-        requisiton = self.browse(cr, uid, requisition_id, context=context)
-        plist = requisiton.partner_id.property_product_pricelist
-        if not plist:
-            raise orm.except_orm(_('No price list on customer'),
-                                 _('Please set sale price list on %s partner') %
-                                 requisiton.partner_id.name)
-        return plist

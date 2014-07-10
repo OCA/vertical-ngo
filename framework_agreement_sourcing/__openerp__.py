@@ -37,15 +37,26 @@ of your request.
 In this case tender flow is byassed and confirmed PO will be generated
 when logistic requisition is confirmed.
 
-By default the sourcing process will look in all agreements for a product
-and use them one after the other as long as possible sorted by price.
+When confirming Logistic request sourcing lines are generating.
+Generation process will look up all agreements with remaining quantity
+and use them one after the other.
+
+We will first choose cheapest agreements with price in negociated currency even
+if they are cheaper in other currences.
+
+Then we will choose remaining agreements ordered
+by price converted in company currency.
 
 You can prevent this behavior by forcing only one agreement per product at
 the same time in company.
 
 """,
  'website': 'http://www.camptocamp.com',
- 'data': ['view/requisition_view.xml'],
+ 'data': [
+    'view/requisition_view.xml',
+    'wizard/logistic_requisition_source_create_po_view.xml',
+    'security/ir.model.access.csv'
+ ],
  'demo': [],
  'test': [],
  'installable': True,

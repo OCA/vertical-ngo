@@ -19,69 +19,13 @@
 #
 ##############################################################################
 from openerp.osv import orm
-from .adapter_util import BrowseAdapterMixin
 
-
-class purchase_order(orm.Model, BrowseAdapterMixin):
-    """Add function to create PO from source line.
-    It maybe goes against YAGNI principle.
-    The idea would be to propose a small design
-    to be ported back into purchase_requisition_extended module
-    or an other base modules.
-
-    Then we should extend it to propose an API
-    to generate PO from various sources
+class purchase_order(orm.Model):
+    """ Override action_confirm to set quantity bid if LTA
     """
 
     _inherit = "purchase.order"
 
-    #------ PO adapter middleware maybe to put in aside class but not easy in OpenERP context ----
-    def _make_purchase_order_from_origin(self, cr, uid, origin, map_fun, map_line_fun,
-                                         post_fun=None, post_line_fun=None, context=None):
-        """Create a PO browse record from any other record
-
-        :returns: created record ids
-
-        """
-        po_id = self._adapt_origin_to_po(cr, uid, origin, map_fun,
-                                         post_fun=post_fun, context=context)
-        self._adapt_origin_to_po_line(cr, uid, po_id, origin, map_line_fun,
-                                      post_fun=post_line_fun,
-                                      context=context)
-        return po_id
-
-    def _adapt_origin_to_po(self, cr, uid, origin, map_fun,
-                            post_fun=None, context=None):
-        """PO adapter function
-
-        :returns: created PO id
-
-        """
-        model = self.pool['purchase.order']
-        data = self._adapt_origin(cr, uid, model, origin, map_fun,
-                                  post_fun=post_fun, context=context)
-        self._validate_adapted_data(cr, uid, model, data, context=context)
-        po_id = self.create(cr, uid, data, context=context)
-        if callable(post_fun):
-            post_fun(cr, uid, po_id, origin, context=context)
-        return po_id
-
-    def _adapt_origin_to_po_line(self, cr, uid, po_id, origin, map_fun,
-                                 post_fun=None, context=None):
-        """PO line adapter
-
-        :returns: created PO line id
-
-        """
-        model = self.pool['purchase.order.line']
-        data = self._adapt_origin(cr, uid, model, origin, map_fun,
-                                  post_fun=post_fun, context=context)
-        data['order_id'] = po_id
-        self._validate_adapted_data(cr, uid, model, data, context=context)
-        l_id = model.create(cr, uid, data, context=context)
-        if callable(post_fun):
-            post_fun(cr, uid, l_id, origin, context=context)
-        return l_id
 
     def action_confirm(self, cr, uid, ids, context=None):
         super(purchase_order_line, self).action_confirm(cr, uid, ids, context=context)
@@ -89,3 +33,4 @@ class purchase_order(orm.Model, BrowseAdapterMixin):
             if not element.quantity_bid and not element.framework_agreement_id:
                 self.write(cr, uid, ids, {'quantity_bid': element.product_qty}, context=context)
         return True
+

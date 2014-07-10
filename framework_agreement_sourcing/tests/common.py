@@ -51,6 +51,7 @@ class CommonSourcingSetUp(test_common.TransactionCase, BaseAgreementTestMixin):
             'user_id': self.uid,
             'budget_holder_id': self.uid,
             'finance_officer_id': self.uid,
+            'pricelist_id': self.ref('product.list0'),
         }
         agr_line = {
             'product_id': self.product_id,
@@ -59,7 +60,7 @@ class CommonSourcingSetUp(test_common.TransactionCase, BaseAgreementTestMixin):
             'date_delivery': self.now.strftime(DEFAULT_SERVER_DATE_FORMAT),
             'budget_tot_price': 100000000,
         }
-        other_line = {
+        product_line = {
             'product_id': self.ref('product.product_product_7'),
             'requested_qty': 10,
             'requested_uom_id': self.ref('product.product_uom_unit'),
@@ -67,9 +68,20 @@ class CommonSourcingSetUp(test_common.TransactionCase, BaseAgreementTestMixin):
             'budget_tot_price': 100000000,
         }
 
+        other_line = {
+            'product_id': self.ref('logistic_requisition.product_transport'),
+            'requested_qty': 1,
+            'requested_uom_id': self.ref('product.product_uom_unit'),
+            'date_delivery': self.now.strftime(DEFAULT_SERVER_DATE_FORMAT),
+            'budget_tot_price': 100000000,
+        }
+
+
         requisition_id = logistic_requisition.create(self, req)
         logistic_requisition.add_line(self, requisition_id,
                                       agr_line)
+        logistic_requisition.add_line(self, requisition_id,
+                                      product_line)
         logistic_requisition.add_line(self, requisition_id,
                                       other_line)
         self.requisition = self.requisition_model.browse(self.cr, self.uid, requisition_id)

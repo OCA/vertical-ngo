@@ -57,7 +57,7 @@
                     </div>
                     <group>
                         <group>
-                            <field name="partner_id"/>
+                            <field name="partner_id" on_change="onchange_partner_id(partner_id)"/>
                             <field name="consignee_id"
                                    on_change="onchange_consignee_id(consignee_id)"
                                    attrs="{'required': [('cost_estimate_only', '=', False)]}"/>
@@ -66,6 +66,8 @@
                                    context="{'default_type':'delivery'}"
                                    attrs="{'required': [('cost_estimate_only', '=', False)]}"/>
                             <field name="analytic_id"/>
+                            <field name="pricelist_id" domain="[('type','=','sale')]"/>
+                            <field name="currency_id"/>
                         </group>
                         <group>
                             <field name="date"/>
@@ -91,46 +93,12 @@
                                     <field name="requested_qty" string="Quantity"/>
                                     <field name="requested_uom_id"/>
                                     <field name="date_delivery"/>
-                                    <field name="budget_unit_price"/>
-                                    <field name="budget_tot_price"/>
                                     <field name="account_id"/>
                                     <field name="account_code"/>
                                     <field name="state"/>
                                     <field name="logistic_user_id" string="Assigned To"/>
                                 </tree>
-                        </field>
-                        <group class="oe_subtotal_footer oe_right">
-                            <field name="currency_id" invisible="1"/>
-                            <field name="amount_total"
-                                class="oe_subtotal_footer_separator"
-                                widget="monetary"
-                                options="{'currency_field': 'currency_id'}"/>
-                        </group>
-                        <div class="oe_clear"/>
-                        <group string="Validation">
-                            <div colspan="4">
-                                <label for="budget_holder_id"/>
-                                <field name="budget_holder_id"
-                                    on_change="onchange_validate(budget_holder_id, date_budget_holder, 'date_budget_holder')"
-                                    class="oe_inline"/>
-                                <label string=" validated on "
-                                    attrs="{'invisible': [('budget_holder_id', '=', False)]}" />
-                                <field name="date_budget_holder"
-                                    attrs="{'invisible': [('budget_holder_id', '=', False)]}"
-                                    class="oe_inline"/>
-                            </div>
-                            <div colspan="4">
-                                <label for="finance_officer_id"/>
-                                <field name="finance_officer_id"
-                                    on_change="onchange_validate(finance_officer_id, date_finance_officer, 'date_finance_officer')"
-                                    class="oe_inline"/>
-                                <label string=" validated on "
-                                    attrs="{'invisible': [('finance_officer_id', '=', False)]}"/>
-                                <field name="date_finance_officer"
-                                    attrs="{'invisible': [('finance_officer_id', '=', False)]}"
-                                    class="oe_inline"/>
-                            </div>
-                        </group>
+                            </field>
                     </page>
                     <page string="Transportation and Delivery">
                         <group>
@@ -172,7 +140,6 @@
                 <field name="date_delivery"/>
                 <field name="country_id"/>
                 <field name="analytic_id"/>
-                <field name="amount_total" sum="Total Budget"/>
                 <field name="currency_id"/>
                 <field name="state"/>
                 <field name="sourced" widget="progressbar"/>
@@ -209,11 +176,13 @@
                 <field name="user_id" />
                 <field name="partner_id" />
                 <field name="analytic_id" />
+                <field name="currency_id" />
                 <group expand="0" string="Group By...">
                     <filter string="Business Unit Officer" domain="[]" context="{'group_by':'user_id'}"/>
                     <filter name="partner_id" string="Requesting Entity" domain="[]" context="{'group_by':'partner_id'}"/>
                     <filter string="Country" domain="[]" context="{'group_by':'country_id'}"/>
                     <filter string="Project" domain="[]" context="{'group_by':'analytic_id'}"/>
+                    <filter string="Currency" domain="[]" context="{'group_by':'currency_id'}"/>
                     <separator/>
                     <filter string="State" domain="[]" context="{'group_by':'state'}"/>
                     <separator/>
@@ -254,7 +223,7 @@
              <field name="requested_qty"/>
              <field name="requested_uom_id"/>
              <field name="logistic_user_id"/>
-             <field name="budget_tot_price" sum="Total Budget"/>
+             <field name="currency_id"/>
              <field name="state"/>
              <field name="country_id" invisible="1"/>
            </tree>
@@ -370,21 +339,17 @@
                             </div>
                             <field name="date_delivery"/>
                             <field name="currency_id" invisible="1"/>
-                            <field name="budget_unit_price" widget="monetary"
-                                options="{'currency_field': 'currency_id'}"/>
-                            <field name="budget_tot_price" widget="monetary"
-                                options="{'currency_field': 'currency_id'}"/>
                         </group>
                         <group>
                             <field name="cost_estimate_only"/>
                             <field name="logistic_user_id"/>
                             <field name="account_id"/>
                             <field name="account_code"/>
+                            <field name="currency_id"/>
                         </group>
                     </group>
                     <notebook>
                         <page string="Sourcing">
-                            <group>
                               <field name="source_ids" nolabel="1"
                                 options='{"reload_on_button": true}'
                                 context="{'default_requisition_line_id': active_id,
@@ -398,17 +363,22 @@
                                         <field name="proposed_uom_id"/>
                                         <field name="proposed_qty" sum="Total Proposed"/>
                                         <field name="unit_cost"/>
-                                        <field name="total_cost" sum="Total Budget"/>
+                                        <field name="total_cost" sum="Total Budget" 
+                                            class="oe_subtotal_footer_separator"
+                                            widget="monetary"
+                                            options="{'currency_field': 'parent.currency_id'}"/>
                                         <field name="po_requisition_id" invisible="1"/>
-                                        <button name="action_create_po_requisition" icon="gtk-execute"
-                                            string="Purchase Requisition" type="object"
-                                            attrs="{'invisible': ['|', '|', ('procurement_method', 'not in', ['procurement', 'fw_agreement']), ('state', '!=', 'assigned'), ('po_requisition_id', '!=', False)]}" />
                                         <button name="action_open_po_requisition" icon="terp-stock_zoom"
                                             string="Purchase Requisition" type="object"
                                             attrs="{'invisible': [('po_requisition_id', '=', False)]}" />
                                     </tree>
                                 </field>
-                            </group>
+                                 <group class="oe_subtotal_footer oe_right">
+                                    <field name="amount_total"
+                                        class="oe_subtotal_footer_separator"
+                                        widget="monetary"
+                                        options="{'currency_field': 'currency_id'}"/>
+                                </group>
                         </page>
                     </notebook>
                     <group>
@@ -461,6 +431,7 @@
                 <field name="name"/>
                 <field name="description" />
                 <field name="logistic_user_id" />
+                <field name="currency_id" />
 
                 <group expand="0" string="Group By...">
                     <filter name="groupby_logistic_user_id" string="Assigned Specialist"
@@ -475,6 +446,8 @@
                         domain="[]" context="{'group_by':'product_id'}"/>
                     <filter name="groupby_country_id" string="Country"
                         domain="[]" context="{'group_by':'country_id'}"/>
+                    <filter name="groupby_currency_id" string="Currency"
+                        domain="[]" context="{'group_by':'currency_id'}"/>
                 </group>
             </search>
         </field>
@@ -510,6 +483,7 @@
                <field name="proposed_qty"/>
                <field name="proposed_uom_id"/>
                <field name="total_cost" sum="Total Budget"/>
+               <field name="currency_id"/>
                <field name="po_requisition_id"/>
                <button name="action_create_po_requisition" icon="gtk-execute"
                    string="Purchase Requisition" type="object"
@@ -546,6 +520,7 @@
                                     <field name="proposed_qty" class="oe_inline"/>
                                     <field name="proposed_uom_id" class="oe_inline"/>
                                 </div>
+                                <field name="currency_id"/>
                                 <field name="unit_cost" widget="monetary"
                                     options="{'currency_field': 'currency_id'}"/>
                                 <field name="total_cost" widget="monetary"
@@ -555,14 +530,11 @@
                             </group>
                             <group>
                                 <group string="Purchase Requisition"
-                                    attrs="{'invisible': [('procurement_method', '!=', 'procurement')]}"
+                                    attrs="{'invisible': [('procurement_method', 'not in', ['procurement','other'])]}"
                                     colspan="4">
                                     <label for="po_requisition_id"/>
                                     <div>
                                         <field name="po_requisition_id" class="oe_inline"/>
-                                        <button name="action_create_po_requisition"
-                                            string="Purchase Requisition" type="object"
-                                            attrs="{'invisible': [('po_requisition_id', '!=', False)]}" />
                                     </div>
                                     <field name="selected_bid_id"
                                         on_change="onchange_selected_bid_id(selected_bid_id)"/>

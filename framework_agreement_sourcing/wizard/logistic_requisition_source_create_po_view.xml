@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+
+    <record id="view_create_agr_po_from_source" model="ir.ui.view">
+      <field name="name">Create Purchase Order From Requisition Source</field>
+      <field name="model">logistic.requisition.source.create.agr.po</field>
+      <field name="arch" type="xml">
+        <form string="Create Purchase Order" version="7.0">
+          <separator string="Which pricelist / currency you want ?"/>
+          <label string="You can only chose a pricelist with a currency that is included
+            in the framewrok agreement you have chosen." colspan="4"/>
+          <field name="framework_currency_ids"/>
+          <field name="pricelist_id" domain="[('type','=','purchase')]"/>
+
+          <group>
+            <separator string="Are you sure you want to create a Purchase Order from those lines ?"/>
+            <label string="
+                           Please note that: &#10; &#10;
+                           Requisition will only be created if: &#10;
+                           * Lines belong to the same company &#10;
+                           * There is only one agreement line in selection &#10;
+                           * Products are define on all selected lines &#10;
+                           * Non agreement line are of type other &#10;
+                           &#10; &#10;
+                           " colspan="4"/>
+          </group>
+          <footer>
+            <button name="action_create_agreement_po_requisition"
+                    string="Create Purchase Order"
+                    type="object" class="oe_highlight"/>
+            or
+            <button string="Cancel"
+                    class="oe_link"
+                    special="cancel" />
+          </footer>
+        </form>
+      </field>
+    </record>
+
+    <act_window
+        name="Create Agreement Purchase Order"
+        res_model="logistic.requisition.source.create.agr.po"
+        src_model="logistic.requisition.source"
+        view_mode="form"
+        target="new"
+        multi="True"
+        key2="client_action_multi"
+        id="action_view_create_agr_po_from_source"/>
+
+  </data>
+</openerp>

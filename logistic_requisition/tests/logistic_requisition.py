@@ -43,20 +43,6 @@ def create(test, vals):
         log_req_obj.onchange_consignee_id(
             cr, uid, [], vals.get('consignee_id'))['value']
     )
-    vals.update(
-        log_req_obj.onchange_validate(
-            cr, uid, [],
-            vals.get('budget_holder_id'),
-            False,
-            'date_budget_holder')['value']
-    )
-    vals.update(
-        log_req_obj.onchange_validate(
-            cr, uid, [],
-            vals.get('finance_officer_id'),
-            False,
-            'date_finance_officer')['value']
-    )
     return log_req_obj.create(cr, uid, vals)
 
 
@@ -135,6 +121,24 @@ def source_lines(test, line_ids):
     log_req_line_obj.button_sourced(test.cr, test.uid, line_ids)
 
 
+def check_line_unit_cost(test, line_id, bid_price, bid_pricelist):
+    cr, uid = test.cr, test.uid
+    log_req_source_obj = test.registry('logistic.requisition.source')
+    pricelist_obj = test.registry('product.pricelist')
+    currency_obj = test.registry('res.currency')
+    lrs = log_req_source_obj.browse(cr, uid, line_id)
+    pricelist = pricelist_obj.browse(cr, uid, bid_pricelist)
+    to_curr = lrs.requisition_id.currency_id.id
+    from_curr = pricelist.currency_id.id
+    price = currency_obj.compute(cr, uid, from_curr, to_curr,
+            bid_price, False)
+    test.assertEquals(lrs.unit_cost,
+                      price,
+                      "The unit cost of the LRS should be the selected "
+                      "bid value converted regarding the different currency")
+
+
+
 def create_quotation(test, requisition_id, line_ids):
     """ Create the quotation / cost estimate (sale.order)
 
@@ -174,10 +178,10 @@ def create_quotation(test, requisition_id, line_ids):
     return sale_id, sale_line_ids
 
 
-def create_purchase_requisition(test, source_id):
+def create_purchase_requisition(test, source_id, pricelist=None):
     """ Create a purchase requisition for a logistic requisition line """
     log_req_source_obj = test.registry('logistic.requisition.source')
     purch_req_id = log_req_source_obj._action_create_po_requisition(
-        test.cr, test.uid, [source_id])
+        test.cr, test.uid, [source_id], pricelist=pricelist)
     assert purch_req_id
     return purch_req_id

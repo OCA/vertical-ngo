@@ -8,11 +8,11 @@
     consignee_id: base.res_partner_3
     date_delivery: !eval "time.strftime('%Y-%m-%d')"
     user_id: base.user_demo
+    pricelist_id: product.list0
     line_ids:
       - product_id: product.product_product_7
         requested_qty: 100
         date_delivery: !eval "time.strftime('%Y-%m-%d')"
-        budget_tot_price: 1000
         logistic_user_id: base.user_demo
         account_code: 'Shazam!'
 -
