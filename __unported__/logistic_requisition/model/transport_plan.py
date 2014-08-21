@@ -21,7 +21,7 @@
 
 from openerp.osv import orm, fields
 
-
+# TODO : To remove
 class transport_plan(orm.Model):
     _inherit = 'transport.plan'
 

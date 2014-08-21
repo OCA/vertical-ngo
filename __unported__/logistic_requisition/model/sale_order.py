@@ -7,6 +7,11 @@ from openerp.tools.translate import _
 from .logistic_requisition import logistic_requisition_source
 
 
+# TODO: We want to deconnect the SO from the LR and LRS. The goal would be
+# to be able to create manually a SO (cost estimate) withou using the wizard
+# from an LRL. So, if I provide all the needed infos and link to other documents
+# it should work.
+
 class sale_order(orm.Model):
     _inherit = 'sale.order'
     _columns = {
@@ -15,6 +20,15 @@ class sale_order(orm.Model):
                                           ondelete='restrict'),
     }
 
+    # TODO: 
+    # sale_dropshipping allow to link the procurement created from a SO to 
+    # a purchase order. That means, we have a purchase_line_id on SO line 
+    # completed once the procurement is reunning.
+    # In our context, as we already have generated the PO, this method recreate 
+    # the link sale_dropshipping should have made.
+    # In version 8, it'll e different because of Routes but we'll STILL HAVE 
+    # ALREADY GENERATED THE PO => We want to be able to link the PO line
+    # manually with the SO Line.
     def _create_procurements_direct_mto(self, cr, uid, order, order_lines,
                                         context=None):
         """ Create procurement for the direct MTO lines.
@@ -90,6 +104,8 @@ class sale_order(orm.Model):
                             'sale_id': order.id},
                            context=context)
 
+    # TODO: I think we have in v 8.0 the procurement group that may help
+    # to split the deliveries properly. Try to use them.
     def _create_pickings_and_procurements(self, cr, uid, order, order_lines,
                                           picking_id=False, context=None):
         """ Instead of creating 1 picking for all the sale order lines, it creates:
@@ -162,6 +178,9 @@ class sale_order_line(orm.Model):
         'price_is': 'fixed',
     }
 
+    # TODO: The purchase_requisition from where to generate
+    # the draft PO should in v8 be taken from a link on the SO line.
+    # We should not get back to the LRS for that.
     def button_confirm(self, cr, uid, ids, context=None):
         """ When a sale order is confirmed, we'll also generate the
         purchase order on the purchase requisition of the logistic
@@ -182,6 +201,7 @@ class sale_order_line(orm.Model):
         for line in self.browse(cr, uid, ids, context=context):
             if not line.logistic_requisition_source_id:
                 continue
+            # TODO : Take that link from SO Line
             purchase_req = line.logistic_requisition_source_id.po_requisition_id
             if purchase_req:
                 purchase_requisitions.add(purchase_req)
