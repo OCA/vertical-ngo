@@ -88,7 +88,6 @@ The simple process is the following:
           "report/logistic_requisition_report.xml",
           "data/logistic.requisition.cancel.reason.csv",
           ],
- "auto_install": False,
  "test": ['test/line_assigned.yml',
           'test/requisition_create_cost_estimate.yml',
           'test/requisition_cancel_reason.yml',
@@ -98,5 +97,6 @@ The simple process is the following:
           'test/logistic_requisition_report_test.yml',
           'test/test_picking_by_location_address.yml',
           ],
- 'installable': False,
+ 'installable': True,
+ 'auto_install': False,
  }
