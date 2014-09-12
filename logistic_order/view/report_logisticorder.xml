@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+    <template id="report_logistic_order_document" inherit_id="sale.report_saleorder_document">
+      <div t-if="o.partner_shipping_id != o.partner_invoice_id" position="after">
+        <div t-if="o.partner_shipping_id != o.partner_invoice_id">
+          <p>Consignee address :</p>
+          <div t-field="o.consignee_id"
+            t-field-options='{"widget": "contact", "fields": ["address", "name", "phone", "fax"], "no_marker": true}'/>
+          <p t-if="o.partner_id.vat">VAT: <span t-field="o.partner_id.vat"/></p>
+        </div>
+      </div>
+      <xpath expr="//h2" position="replace">
+        <h2>
+          <span t-if="o.state not in ['progress','manual','done']">Cost Estimate N° </span>
+          <span t-if="o.state in ['progress','manual','done']">Logistic Order N° </span>
+          <span t-field="o.name"/>
+        </h2>
+      </xpath>
+
+      <div t-if="o.date_order" class="col-xs-3" position="replace">
+          <strong t-if="o.state not in ['progress','manual','done']">Date:</strong>
+          <strong t-if="o.state in ['progress','manual','done']">Order Date:</strong>
+          <p t-field="o.date_order"/>
+      </div>
+
+      <div t-if="o.payment_term" class="col-xs-3" position="after">
+        <div t-if="o.date_validity" class="col-xs-3">
+          <strong>Validity:</strong>
+          The pricing indications in this estimate are valid till:
+          <p t-field="o.date_validity"/>
+        </div>
+      </div>
+
+      <p t-field="o.note" position="before">
+        <table class="table table-condensed">
+          <tr class="border-black">
+            <td><strong>Delivery time</strong></td>
+            <td><strong>Payment term</strong></td>
+            <td><strong>Incoterm/Incoterm Place</strong></td>
+          </tr>
+          <tr>
+            <td>Item subjet to supplier availability.<br/>
+              Transit Time
+              <span t-if="o.delivery_time" t-field="o.delivery_time"/>
+              <span t-if="not o.delivery_time">N/A</span>
+            </td>
+            <td>
+              <p t-field="o.payment_term.note"/>
+            </td>
+            <td>
+              <p t-field="o.incoterm.name"/> <p t-field="o.incoterm_address"/> INCOTERMS 2010
+            </td>
+          </tr>
+        </table>
+      </p>
+
+    </template>
+
+  </data>
+</openerp>
