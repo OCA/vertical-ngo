@@ -1,109 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
-    <data noupdate="0">
+  <data noupdate="0">
 
     <menuitem id="menu_order_base" name="Order" parent="transport_plan.menu_order" sequence="2"/>
 
     <record id="view_sales_order_filter" model="ir.ui.view">
-        <field name="name">sale.order.list.select</field>
-        <field name="model">sale.order</field>
-        <field name="inherit_id" ref="sale.view_sales_order_filter"/>
-        <field name="arch" type="xml">
-             <search position="attributes">
-                 <attribute name="string">Search Order</attribute>
-             </search>
-             <field name="name" position="attributes">
-                 <attribute name="string">Order</attribute>
-             </field>
-             <filter name="draft" position="attributes">
-                 <attribute name="string">Cost Estimates</attribute>
-             </filter>
-             <filter name="sales" position="attributes">
-                 <attribute name="string">Logistic Orders</attribute>
-             </filter>
-             <filter name="my_sale_orders_filter" position="attributes">
-                 <attribute name="string">My Logistic Orders</attribute>
-             </filter>
+      <field name="name">sale.order.list.select</field>
+      <field name="model">sale.order</field>
+      <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+      <field name="arch" type="xml">
+        <search position="attributes">
+          <attribute name="string">Search Order</attribute>
+        </search>
+        <field name="name" position="attributes">
+          <attribute name="string">Order</attribute>
         </field>
+        <filter name="draft" position="attributes">
+          <attribute name="string">Cost Estimates</attribute>
+        </filter>
+        <filter name="sales" position="attributes">
+          <attribute name="string">Logistic Orders</attribute>
+        </filter>
+        <filter name="my_sale_orders_filter" position="attributes">
+          <attribute name="string">My Logistic Orders</attribute>
+        </filter>
+      </field>
     </record>
 
 
     <record id="action_cost_estimate" model="ir.actions.act_window">
-        <field name="name">Cost Estimates</field>
-        <field name="type">ir.actions.act_window</field>
-        <field name="res_model">sale.order</field>
-        <field name="view_type">form</field>
-        <field name="view_id" ref="sale.view_quotation_tree"/>
-        <field name="view_mode">tree,form,calendar,graph</field>
-        <field name="context">{}</field>
-        <field name="domain">[('state','in',('draft','sent','cancel'))]</field>
-        <field name="search_view_id" ref="sale.view_sales_order_filter"/>
+      <field name="name">Cost Estimates</field>
+      <field name="type">ir.actions.act_window</field>
+      <field name="res_model">sale.order</field>
+      <field name="view_type">form</field>
+      <field name="view_id" ref="sale.view_quotation_tree"/>
+      <field name="view_mode">tree,form,calendar,graph</field>
+      <field name="context">{}</field>
+      <field name="domain">[('state','in',('draft','sent','cancel'))]</field>
+      <field name="search_view_id" ref="sale.view_sales_order_filter"/>
     </record>
 
     <menuitem id="menu_cost_estimate"
-    action="action_cost_estimate" parent="menu_order_base"
-    sequence="4"/>
+      action="action_cost_estimate" parent="menu_order_base"
+      sequence="4"/>
 
     <record id="action_orders" model="ir.actions.act_window">
-        <field name="name">Logistic Orders</field>
-        <field name="type">ir.actions.act_window</field>
-        <field name="res_model">sale.order</field>
-        <field name="view_type">form</field>
-        <field name="view_mode">tree,form,calendar,graph</field>
-        <field name="search_view_id" ref="sale.view_sales_order_filter"/>
-        <field name="context">{}</field>
-        <field name="domain">[('state','not in',('draft','sent','cancel'))]</field>
+      <field name="name">Logistic Orders</field>
+      <field name="type">ir.actions.act_window</field>
+      <field name="res_model">sale.order</field>
+      <field name="view_type">form</field>
+      <field name="view_mode">tree,form,calendar,graph</field>
+      <field name="search_view_id" ref="sale.view_sales_order_filter"/>
+      <field name="context">{}</field>
+      <field name="domain">[('state','not in',('draft','sent','cancel'))]</field>
     </record>
     <menuitem action="action_orders" id="menu_logistic_order" parent="menu_order_base" sequence="5" />
 
     <record id="view_order_form" model="ir.ui.view">
-        <field name="name">sale.order.form</field>
-        <field name="model">sale.order</field>
-        <field name="inherit_id" ref="sale_stock.view_order_form_inherit"/>
-        <field name="arch" type="xml">
-            <xpath expr="//label[@string='Quotation ']" position="attributes">
-                <attribute name="string">Cost Estimate </attribute>
-            </xpath>
-            <xpath expr="//label[@string='Sales Order ']" position="attributes">
-                <attribute name="string">Logistic Order </attribute>
-            </xpath>
-            <field name="partner_shipping_id" position="before">
-                <field name="consignee_id"/>
-            </field>
-            <field name="incoterm" position="after">
-                <field name="incoterm_address"/>
-            </field>
-
-            <button name="action_button_confirm" position="attributes">
-              <attribute name="string">Confirm Cost Estimate</attribute>
-            </button>
+      <field name="name">sale.order.form</field>
+      <field name="model">sale.order</field>
+      <field name="inherit_id" ref="sale_stock.view_order_form_inherit"/>
+      <field name="arch" type="xml">
+        <xpath expr="//label[@string='Quotation ']" position="attributes">
+          <attribute name="string">Cost Estimate </attribute>
+        </xpath>
+        <xpath expr="//label[@string='Sales Order ']" position="attributes">
+          <attribute name="string">Logistic Order </attribute>
+        </xpath>
+        <field name="partner_shipping_id" position="before">
+          <field name="consignee_id"/>
         </field>
-    </record>
-        <record id="view_order_form_delivery_time" model="ir.ui.view">
-            <field name="name">delivery time</field>
-            <field name="model">sale.order</field>
-            <field name="inherit_id" ref="sale.view_order_form"/>
-            <field name="arch" type="xml">
-                <xpath expr="//group[@name='sale_total']" position="after">
-                  <group>
-                  <field name="delivery_time" class="oe_inline"/>
-                  </group>
-                </xpath>
-            </field>
-        </record>
+        <field name="incoterm" position="after">
+          <field name="incoterm_address"/>
+        </field>
 
-        <record id="view_quotation_tree" model="ir.ui.view">
-            <field name="name">sale.order.tree</field>
-            <field name="model">sale.order</field>
-            <field name="inherit_id" ref="sale.view_quotation_tree"/>
-            <field name="arch" type="xml">
-                <tree position="attributes">
-                    <attribute name="string">Cost Estimate</attribute>
-                </tree>
-                <field name="name" position="attributes">
-                    <attribute name="string">Cost Estimate Number</attribute>
-                </field>
-            </field>
-        </record>
-    </data>
+        <button name="action_button_confirm" position="attributes">
+          <attribute name="string">Confirm Cost Estimate</attribute>
+        </button>
+      </field>
+    </record>
+
+    <record id="view_order_form_delivery_time" model="ir.ui.view">
+      <field name="name">delivery time</field>
+      <field name="model">sale.order</field>
+      <field name="inherit_id" ref="sale.view_order_form"/>
+      <field name="arch" type="xml">
+        <xpath expr="//group[@name='sale_total']" position="after">
+          <group>
+            <field name="delivery_time" class="oe_inline"/>
+          </group>
+        </xpath>
+      </field>
+    </record>
+
+    <record id="view_quotation_tree" model="ir.ui.view">
+      <field name="name">sale.order.tree</field>
+      <field name="model">sale.order</field>
+      <field name="inherit_id" ref="sale.view_quotation_tree"/>
+      <field name="arch" type="xml">
+        <tree position="attributes">
+          <attribute name="string">Cost Estimate</attribute>
+        </tree>
+        <field name="name" position="attributes">
+          <attribute name="string">Cost Estimate Number</attribute>
+        </field>
+      </field>
+    </record>
+
+  </data>
 </openerp>
