@@ -45,8 +45,8 @@ This module customizes the Sales Orders to disguise them in Logistic Orders
           'data/logistic_order_sequence.xml',
           'report/report.xml',
           ],
- "auto_install": False,
  "test": ['test/test_report.yml',
           ],
- 'installable': False,
+ 'installable': True,
+ "auto_install": False,
  }
