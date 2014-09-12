@@ -18,12 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #
-from openerp.osv import orm, fields
+from openerp import models, fields
 
 
-class logistic_requisition_cancel_reason(orm.Model):
+class LogisticRequisitionCancelReason(models.Model):
     _name = 'logistic.requisition.cancel.reason'
     _description = 'Logistic Requisition Cancel Reason'
-    _columns = {
-        'name': fields.char('Reason', required=True, translate=True),
-    }
+
+    name = fields.Char('Reason', required=True, translate=True)

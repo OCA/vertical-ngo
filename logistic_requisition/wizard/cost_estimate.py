@@ -18,39 +18,39 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #
-from openerp.osv import fields, orm
+from openerp import models, fields, api
+from openerp.exceptions import except_orm
 from openerp.tools.translate import _
 
 
-class logistic_requisition_cost_estimate(orm.TransientModel):
+class LogisticRequisitionCostEstimate(models.TransientModel):
     _name = 'logistic.requisition.cost.estimate'
     _description = 'Create cost estimate of logistic requisition lines'
 
-    _columns = {
-        'requisition_id': fields.many2one('logistic.requisition',
-                                          string='Logistic Requisition',
-                                          readonly=True,
-                                          required=True),
-        'line_ids': fields.many2many(
-            'logistic.requisition.line',
-            'requisition_cost_estimate_sourced_line',
-            'wizard_id',
-            'line_id',
-            string='Sourced Lines',
-            readonly=True),
-        'skipped_line_ids': fields.many2many(
-            'logistic.requisition.line',
-            'requisition_cost_estimate_skipped_line',
-            'wizard_id',
-            'line_id',
-            string='Skipped Lines',
-            readonly=True),
-    }
+    requisition_id = fields.Many2one(
+        'logistic.requisition',
+        string='Logistic Requisition',
+        readonly=True,
+        required=True)
+    line_ids = fields.Many2many(
+        'logistic.requisition.line',
+        'requisition_cost_estimate_sourced_line',
+        'wizard_id',
+        'line_id',
+        string='Sourced Lines',
+        readonly=True)
+    skipped_line_ids = fields.Many2many(
+        'logistic.requisition.line',
+        'requisition_cost_estimate_skipped_line',
+        'wizard_id',
+        'line_id',
+        string='Skipped Lines',
+        readonly=True)
 
-    def _check_requisition_uniq(self, cr, uid, ids, context=None):
-        form = self.browse(cr, uid, ids[0], context=context)
-        if any(line.requisition_id != form.requisition_id
-               for line in form.line_ids):
+    @api.multi
+    def _check_requisition_uniq(self):
+        if any(line.requisition_id.id != self.requisition_id.id
+               for line in self.line_ids):
             return False
         return True
 
@@ -60,49 +60,46 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
          ['line_ids']),
     ]
 
-    def _filter_cost_estimate_lines(self, cr, uid, lines, context=None):
+    @api.model
+    def _filter_cost_estimate_lines(self, lines):
         sourced = [line for line in lines
                    if line.state == 'sourced' and
                    not line.cost_estimate_id]
         skipped = [line for line in lines if line not in sourced]
         return sourced, skipped
 
-    def default_get(self, cr, uid, fields_list, context=None):
-        if context is None:
-            context = {}
-        defaults = super(logistic_requisition_cost_estimate, self).\
-            default_get(cr, uid, fields_list, context=context)
-        req_obj = self.pool.get('logistic.requisition')
-        line_obj = self.pool.get('logistic.requisition.line')
-        req_id = False
+    @api.model
+    def default_get(self, fields_list):
+        defaults = super(LogisticRequisitionCostEstimate, self
+                         ).default_get(fields_list)
+        req_obj = self.env['logistic.requisition']
+        line_obj = self.env['logistic.requisition.line']
         line_ids = []
-        if context['active_model'] == 'logistic.requisition':
+        if self.env.context['active_model'] == 'logistic.requisition':
             # when we create the cost estimate from the requisition,
             # we'll select all the lines
-            assert len(context['active_ids']) == 1, "Only 1 ID accepted"
-            req_id = context['active_ids'][0]
-            line_ids = req_obj.read(cr, uid, req_id,
-                                    ['line_ids'], context=context)['line_ids']
+            req = req_obj.browse(self.env.context['active_ids']).ensure_one()
+            lines = req.line_ids
 
-        elif context['active_model'] == 'logistic.requisition.line':
+        elif self.env.context['active_model'] == 'logistic.requisition.line':
             # we are coming from the selection of lines (ir.values)
             # or from the button on a line
-            line_ids = context['active_ids']
+            line_ids = self.env.context['active_ids']
+            lines = line_obj.browse(line_ids)
             # take the first requisition found, constraint
             # will check afterwards if all the lines are linked to the same
-            line = line_obj.browse(cr, uid, line_ids[0], context=context)
-            req_id = line.requisition_id.id
-        if line_ids:
-            lines = line_obj.browse(cr, uid, line_ids, context=context)
-            sourced, skipped = self._filter_cost_estimate_lines(
-                cr, uid, lines, context=context)
+            line = line_obj.browse(line_ids[0])
+            req = line.requisition_id
+        if lines:
+            sourced, skipped = self._filter_cost_estimate_lines(lines)
             defaults['line_ids'] = [s_line.id for s_line in sourced]
             defaults['skipped_line_ids'] = [s_line.id for s_line in skipped]
-        defaults['requisition_id'] = req_id
+        defaults['requisition_id'] = req.id
         return defaults
 
-    def _prepare_cost_estimate_line(self, cr, uid, sourcing, context=None):
-        sale_line_obj = self.pool.get('sale.order.line')
+    @api.model
+    def _prepare_cost_estimate_line(self, sourcing):
+        sale_line_obj = self.env['sale.order.line']
         vals = {'logistic_requisition_source_id': sourcing.id,
                 'product_id': sourcing.proposed_product_id.id,
                 'name': sourcing.requisition_line_id.description,
@@ -112,17 +109,19 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
                 'product_uom': sourcing.proposed_uom_id.id,
                 'account_code': sourcing.requisition_line_id.account_code,
                 }
-        if sourcing.dispatch_location_id:
-            vals['location_id'] = sourcing.dispatch_location_id.id
-        if sourcing.procurement_method in ('wh_dispatch'):
-            vals['type'] = 'make_to_stock'
-        else:
-            vals['type'] = sourcing.proposed_product_id.procure_method
-            vals['sale_flow'] = 'direct_delivery'
+        # XXX location_id type and sale_flow do not exist anymore
+        # if we want to know from which location we get product
+        # this might be taken from route
+        #if sourcing.dispatch_location_id:
+            #vals['location_id'] = sourcing.dispatch_location_id.id
+        #if sourcing.procurement_method in ('wh_dispatch'):
+            #vals['type'] = 'make_to_stock'
+        #else:
+            #vals['type'] = sourcing.proposed_product_id.procure_method
+            #vals['sale_flow'] = 'direct_delivery'
 
         requisition = sourcing.requisition_line_id.requisition_id
         onchange_vals = sale_line_obj.product_id_change(
-            cr, uid, [],
             requisition.consignee_id.property_product_pricelist.id,
             sourcing.proposed_product_id.id,
             partner_id=requisition.consignee_id.id,
@@ -131,12 +130,13 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
         #  price_unit and type of the requisition line must be kept
         if 'price_unit' in onchange_vals:
             del onchange_vals['price_unit']
-        if 'type' in onchange_vals:
-            del onchange_vals['type']
+        #if 'type' in onchange_vals:
+            #del onchange_vals['type']
         vals.update(onchange_vals)
         return vals
 
-    def _check_requisition(self, cr, uid, requisition, context=None):
+    @api.model
+    def _check_requisition(self, requisition):
         """ Check the rules to create a cost estimate from the
         requisition
 
@@ -145,7 +145,8 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
         errors = []
         return errors
 
-    def _check_line(self, cr, uid, line, context=None):
+    @api.model
+    def _check_line(self, line):
         """ Check the rules to create a cost estimate from the
         requisition line
 
@@ -158,12 +159,14 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
                      'NO_QTY')
             errors.append(error)
         if not line.requisition_line_id.account_code:
-            error = (_('Sourcing %s: no account code has been stored') % line.name,
+            error = (_('Sourcing %s: no account code has been stored')
+                     % line.name,
                      'NO_ACCOUNT_CODE')
             errors.append(error)
         return errors
 
-    def _check_rules(self, cr, uid, requisition, source_lines, context=None):
+    @api.model
+    def _check_rules(self, requisition, source_lines):
         """ Check all the business rules which must be valid in order to
         create a cost estimate.
 
@@ -173,27 +176,27 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
         """
         # each item of the error list contains the error message and an
         # error code
-        errors = self._check_requisition(cr, uid, requisition, context=context)
+        errors = self._check_requisition(requisition)
         for line in source_lines:
-            errors += self._check_line(cr, uid, line, context=context)
+            errors += self._check_line(line)
         if not errors:
             return
         msg = '\n\n'.join([' * %s' % error for error, __ in errors])
         codes = [code for __, code in errors]
-        exception = orm.except_orm(
+        exception = except_orm(
             _('Cannot create a cost estimate because:'), msg)
         # attach a list of error codes so we can test them
         exception.error_codes = codes
         raise exception
 
-    def _prepare_cost_estimate(self, cr, uid, requisition,
-                               source_lines, estimate_lines,
-                               context=None):
+    @api.model
+    def _prepare_cost_estimate(self, requisition,
+                               source_lines, estimate_lines):
         """ Prepare the values for the creation of a cost estimate
         from a selection of requisition lines.
         A cost estimate is a sale.order record.
         """
-        sale_obj = self.pool.get('sale.order')
+        sale_obj = self.env['sale.order']
         partner_id = requisition.partner_id.id
         vals = {'partner_id': partner_id,
                 'partner_invoice_id': partner_id,
@@ -204,54 +207,46 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
                 'incoterm_address': requisition.incoterm_address,
                 'requisition_id': requisition.id,
                 'origin': requisition.name,
-                'project_id': requisition.analytic_id.id if requisition.analytic_id else False,
+                'project_id': requisition.analytic_id.id,
                 }
-        onchange_vals = sale_obj.onchange_partner_id(
-            cr, uid, [], partner_id, context=context).get('value', {})
+        onchange_vals = (sale_obj.onchange_partner_id(partner_id)
+                         .get('value', {}))
         vals.update(onchange_vals)
-        vals.update({'pricelist_id':requisition.pricelist_id.id})
+        vals.update({'pricelist_id': requisition.pricelist_id.id})
         return vals
 
-    def cost_estimate(self, cr, uid, ids, context=None):
-        if isinstance(ids, (tuple, list)):
-            assert len(ids) == 1, "Only 1 ID accepted"
-            ids = ids[0]
-        line_obj = self.pool.get('logistic.requisition.line')
-        source_obj = self.pool.get('logistic.requisition.source')
-        sale_obj = self.pool.get('sale.order')
-        form = self.browse(cr, uid, ids, context=context)
-        requisition = form.requisition_id
-        lines = form.line_ids
+    @api.multi
+    def cost_estimate(self):
+        self.ensure_one()
+        sale_obj = self.env['sale.order']
+        requisition = self.requisition_id
+        lines = self.line_ids
         if not lines:
-            raise orm.except_orm(_('Error'),
-                                 _('The cost estimate cannot be created, '
-                                   'because no lines are sourced.'))
+            raise except_orm(_('Error'),
+                             _('The cost estimate cannot be created, '
+                               'because no lines are sourced.'))
         source_lines = [source for line in lines for source in line.source_ids]
-        self._check_rules(cr, uid, requisition, source_lines, context=context)
+        self._check_rules(requisition, source_lines)
         estimate_lines = []
         for line in source_lines:
-            vals = self._prepare_cost_estimate_line(cr, uid, line,
-                                                    context=context)
+            vals = self._prepare_cost_estimate_line(line)
             estimate_lines.append(vals)
-        order_id = self._prepare_cost_estimate(cr, uid,
-                                               requisition,
-                                               source_lines,
-                                               estimate_lines,
-                                               context=context)
-        sale_id = sale_obj.create(cr, uid, order_id, context=context)
-        line_ids = [line.id for line in lines]
-        line_obj.write(cr, uid, line_ids,
-                       {'cost_estimate_id': sale_id},
-                       context=context)
-        line_obj._do_quoted(cr, uid, line_ids, context=context)
-        return self._open_cost_estimate(cr, uid, sale_id, context=context)
+        order_vals = self._prepare_cost_estimate(requisition,
+                                                 source_lines,
+                                                 estimate_lines)
+        sale_id = sale_obj.create(order_vals)
+        for line in lines:
+            line.cost_estimate_id = sale_id
+        lines._do_quoted()
+        return self._open_cost_estimate(sale_id)
 
-    def _open_cost_estimate(self, cr, uid, estimate_id, context=None):
+    @api.model
+    def _open_cost_estimate(self, estimate_id):
         return {
             'name': _('Cost Estimate'),
             'view_mode': 'form',
             'res_model': 'sale.order',
-            'res_id': estimate_id,
+            'res_id': estimate_id.id,
             'target': 'current',
             'view_id': False,
             'context': {},

@@ -17,31 +17,26 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #
-from openerp.osv import fields, orm
+from openerp import models, fields, api
 
 
-class logistic_requisition_line_assign(orm.TransientModel):
+class LogisticRequisitionLineAssign(models.TransientModel):
     _name = 'logistic.requisition.line.assign'
     _description = 'Assign a logistic requisition line'
 
-    _columns = {
-        'logistic_user_id': fields.many2one(
-            'res.users',
-            'Logistic Specialist',
-            required=True,
-            help="Logistic Specialist in charge of the "
-                 "Logistic Requisition Line"),
-    }
+    logistic_user_id = fields.Many2one(
+        'res.users',
+        'Logistic Specialist',
+        required=True,
+        help="Logistic Specialist in charge of the "
+             "Logistic Requisition Line")
 
-    def assign(self, cr, uid, ids, context=None):
-        if context is None:
-            context = {}
-        line_ids = context.get('active_ids')
+    @api.multi
+    def assign(self):
+        self.ensure_one()
+        line_ids = self.env.context.get('active_ids')
         if not line_ids:
             return
-        form = self.browse(cr, uid, ids[0], context=context)
-        line_obj = self.pool.get('logistic.requisition.line')
-        line_obj.write(cr, uid, line_ids,
-                       {'logistic_user_id': form.logistic_user_id.id},
-                       context=context)
+        lines = self.env['logistic.requisition.line'].browse(line_ids)
+        lines.logistic_user_id = self.logistic_user_id.id
         return {'type': 'ir.actions.act_window_close'}

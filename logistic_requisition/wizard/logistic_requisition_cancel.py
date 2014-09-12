@@ -18,35 +18,25 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #
-from openerp.osv import orm, fields
-from ..model.logistic_requisition import logistic_requisition as base_requisition
+from openerp import models, fields, api
 
 
-class logistic_requisition_cancel(orm.TransientModel):
+class LogisticRequisitionCancel(models.TransientModel):
     """ Ask a reason for the logistic requisition cancellation."""
     _name = 'logistic.requisition.cancel'
     _description = __doc__
 
-    _columns = {
-        'reason_id': fields.many2one('logistic.requisition.cancel.reason',
-                                     string='Reason',
-                                     required=True),
-    }
+    reason_id = fields.Many2one('logistic.requisition.cancel.reason',
+                                string='Reason',
+                                required=True)
 
-    def confirm_cancel(self, cr, uid, ids, context=None):
-        if context is None:
-            context = {}
-        if isinstance(ids, (list, tuple)):
-            assert len(ids) == 1, "1 ID expected"
-            ids = ids[0]
+    @api.multi
+    def confirm_cancel(self):
+        self.ensure_one()
         act_close = {'type': 'ir.actions.act_window_close'}
-        requisition_ids = context.get('active_ids')
+        requisition_ids = self.env.context.get('active_ids')
         if requisition_ids is None:
             return act_close
-        form = self.browse(cr, uid, ids, context=context)
-        req_obj = self.pool.get('logistic.requisition')
-        req_obj._do_cancel(cr, uid,
-                           requisition_ids,
-                           form.reason_id.id,
-                           context=context)
+        reqs = self.env['logistic.requisition'].browse(requisition_ids)
+        reqs._do_cancel(self.reason_id.id)
         return act_close

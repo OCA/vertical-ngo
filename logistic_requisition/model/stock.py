@@ -33,7 +33,7 @@ class stock_incoterms(orm.Model):
         @param ids: list of ids for which name should be read
         @param context: context arguments, like lang, time zone
 
-        @return: Returns a list of tupples containing id, name 
+        @return: Returns a list of tupples containing id, name
                  composed by code + name
         """
         if not ids:

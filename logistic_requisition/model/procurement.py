@@ -18,13 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #
-from openerp.osv import orm
+from openerp import models
 
 
-class procurement_order(orm.Model):
+class ProcurementOrder(models.Model):
     _inherit = 'procurement.order'
 
-    def action_po_assign(self, cr, uid, ids, context=None):
+    def action_po_assign(self):
         """ Called from the workflow to assign the purchase order to a
         procurement.
 
@@ -36,11 +36,8 @@ class procurement_order(orm.Model):
         already a `purchase.order`.
 
         """
-        assert len(ids) == 1, "Expected only 1 ID, got: %r" % ids
-        procurement = self.read(cr, uid, ids[0], ['purchase_id', 'state'],
-                                context=context, load='_classic_write')
-        if procurement['purchase_id']:
-            self.write(cr, uid, ids, {'state': 'running'}, context=context)
-            return procurement['purchase_id']
-        return super(procurement_order, self).action_po_assign(
-            cr, uid, ids, context=context)
+        self.ensure_one()
+        if self.purchase_id:
+            self.state = 'running'
+            return self.purchase_id.id
+        return super(ProcurementOrder, self).action_po_assign()

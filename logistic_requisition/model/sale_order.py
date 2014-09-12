@@ -18,10 +18,11 @@
 #
 #
 from itertools import groupby
-from openerp.osv import orm, fields
-from openerp import netsvc
+
+from openerp import models, fields, api
+from openerp.exceptions import except_orm
 from openerp.tools.translate import _
-from .logistic_requisition import logistic_requisition_source
+from .logistic_requisition import LogisticRequisitionSource
 
 
 # TODO: We want to deconnect the SO from the LR and LRS. The goal would be
@@ -29,13 +30,13 @@ from .logistic_requisition import logistic_requisition_source
 # from an LRL. So, if I provide all the needed infos and link to other documents
 # it should work.
 
-class sale_order(orm.Model):
+class SaleOrder(models.Model):
     _inherit = 'sale.order'
-    _columns = {
-        'requisition_id': fields.many2one('logistic.requisition',
-                                          'Logistic Requisition',
-                                          ondelete='restrict'),
-    }
+
+    requisition_id = fields.Many2one('logistic.requisition',
+                                     'Logistic Requisition',
+                                     ondelete='restrict',
+                                     copy=False)
 
     # TODO: 
     # sale_dropshipping allow to link the procurement created from a SO to 
@@ -46,8 +47,8 @@ class sale_order(orm.Model):
     # In version 8, it'll e different because of Routes but we'll STILL HAVE 
     # ALREADY GENERATED THE PO => We want to be able to link the PO line
     # manually with the SO Line.
-    def _create_procurements_direct_mto(self, cr, uid, order, order_lines,
-                                        context=None):
+    @api.model
+    def _create_procurements_direct_mto(self, order, order_lines):
         """ Create procurement for the direct MTO lines.
 
         No picking or move is created for those lines because the
@@ -63,26 +64,25 @@ class sale_order(orm.Model):
         and sale lines because this is how the ``sale_dropshipping``
         does.
         """
-        proc_obj = self.pool.get('procurement.order')
-        # wf_service = netsvc.LocalService("workflow")
-        purchase_ids = set()
+        proc_obj = self.env['procurement.order']
+        purchases = self.env['purchase.order'].browse()
         for sale_line in order_lines:
             purchase_line = None
             logistic_req_source = sale_line.logistic_requisition_source_id
             if logistic_req_source:
                 if not logistic_req_source.purchase_line_id:
-                    raise orm.except_orm(
+                    raise except_orm(
                         _('Error'),
                         _('The logistic requisition line %s has no '
                           'purchase order line.') % logistic_req_source.name)
                 purchase_line = logistic_req_source.purchase_line_id
-                purchase_ids.add(purchase_line.order_id.id)
+                purchases |= purchase_line.order_id
 
             else:  # no logistic requisition line
                 # The sales line has been created manually as a mto and
                 # dropshipping, pass it to the normal flow
-                super(sale_order, self)._create_procurements_direct_mto(
-                    cr, uid, order, [sale_line], context=context)
+                super(SaleOrder, self
+                      )._create_procurements_direct_mto(order, [sale_line])
                 continue
 
             # reconnect with the purchase line created previously
@@ -90,20 +90,18 @@ class sale_order(orm.Model):
             # as needed by the sale_dropshipping module
             purchase_line.write({'sale_order_line_id': sale_line.id})
 
-            date_planned = self._get_date_planned(cr, uid, order, sale_line,
-                                                  order.date_order,
-                                                  context=context)
-            vals = self._prepare_order_line_procurement(cr, uid, order,
+            date_planned = self._get_date_planned(order, sale_line,
+                                                  order.date_order)
+            vals = self._prepare_order_line_procurement(order,
                                                         sale_line, False,
-                                                        date_planned,
-                                                        context=context)
+                                                        date_planned)
             vals['sale_order_line_id'] = sale_line.id
             # the purchase order for this procurement as already
             # been created from the purchase requisition, reconnect
             # with it
             vals['purchase_id'] = purchase_line.order_id.id
-            proc_id = proc_obj.create(cr, uid, vals, context=context)
-            sale_line.write({'procurement_id': proc_id})
+            proc_id = proc_obj.create(vals)
+            sale_line.procurement_id = proc_id
             # We do not confirm the procurement. It will stay in 'draft'
             # without reservation move. At the moment when the picking
             # (in) of the purchase order will be created, we'll write
@@ -114,20 +112,20 @@ class sale_order(orm.Model):
             # with product of type service.
 
         # set the purchases to direct delivery
-        purchase_obj = self.pool.get('purchase.order')
-        purchase_obj.write(cr, uid, list(purchase_ids),
-                           {'invoice_method': 'order',
-                            'sale_flow': 'direct_delivery',
-                            'sale_id': order.id},
-                           context=context)
+        purchases.write({'invoice_method': 'order',
+                         'sale_flow': 'direct_delivery',
+                         'sale_id': order.id})
 
     # TODO: I think we have in v 8.0 the procurement group that may help
     # to split the deliveries properly. Try to use them.
-    def _create_pickings_and_procurements(self, cr, uid, order, order_lines,
-                                          picking_id=False, context=None):
-        """ Instead of creating 1 picking for all the sale order lines, it creates:
+    @api.model
+    def _create_pickings_and_procurements(self, order, order_lines,
+                                          picking_id=False):
+        """ Instead of creating 1 picking for all the sale order lines, it
+        creates:
 
-        * 1 delivery order per different source location (each line has its own)
+        * 1 delivery order per different source location (each line has its
+        own)
 
         At end, only the MTS / not drop shipping lines will be part
         of the delivery orders, because the sale_dropshipping module
@@ -136,9 +134,11 @@ class sale_order(orm.Model):
         picking).
 
         :param browse_record order: sales order to which the order lines belong
-        :param list(browse_record) order_lines: sales order line records to procure
-        :param int picking_id: optional ID of a stock picking to which the created stock moves
-                               will be added. A new picking will be created if ommitted.
+        :param list(browse_record) order_lines: sales order line records to
+                                                procure
+        :param int picking_id: optional ID of a stock picking to which the
+                               created stock moves will be added. A new
+                               picking will be created if ommitted.
         :return: True
         """
 
@@ -151,8 +151,7 @@ class sale_order(orm.Model):
             else:
                 other_lines.append(line)
 
-        self._create_procurements_direct_mto(cr, uid, order, direct_mto_lines,
-                                             context=context)
+        self._create_procurements_direct_mto(order, direct_mto_lines)
 
         def get_location_address(line):
             if line.location_id and line.location_id.partner_id:
@@ -163,42 +162,40 @@ class sale_order(orm.Model):
         sorted_lines = sorted(other_lines, key=get_location_address)
         for _unused_location, lines in groupby(sorted_lines,
                                                key=get_location_address):
-            super(sale_order, self)._create_pickings_and_procurements(
-                cr, uid, order, list(lines), picking_id=False, context=context)
+            super(SaleOrder, self
+                  )._create_pickings_and_procurements(order,
+                                                      list(lines),
+                                                      picking_id=False)
         return True
 
     def copy(self, cr, uid, id, default=None, context=None):
         if not default:
             default = {}
         default['invoice_ids'] = False
-        default['requisition_id'] = False
-        return super(sale_order, self).copy(cr, uid, id,
-                                            default=default, context=context)
+        return super(SaleOrder, self
+                     ).copy(cr, uid, id, default=default, context=context)
 
 
-class sale_order_line(orm.Model):
+class SaleOrderLine(models.Model):
     _inherit = "sale.order.line"
-    _columns = {
-        'logistic_requisition_source_id': fields.many2one(
-            'logistic.requisition.source',
-            'Requisition Source',
-            ondelete='restrict'),
-        'price_is': fields.selection(
-            logistic_requisition_source.PRICE_IS_SELECTION,
-            string='Price is',
-            help="When the price is an estimation, the final price may change. "
-                 "I.e. it is not based on a request for quotation."),
-        'account_code': fields.char('Account Code', size=32)
-    }
 
-    _defaults = {
-        'price_is': 'fixed',
-    }
+    logistic_requisition_source_id = fields.Many2one(
+        'logistic.requisition.source',
+        'Requisition Source',
+        ondelete='restrict')
+    price_is = fields.Selection(
+        LogisticRequisitionSource.PRICE_IS_SELECTION,
+        string='Price is',
+        help="When the price is an estimation, the final price may change. "
+             "I.e. it is not based on a request for quotation.",
+        default='fixed')
+    account_code = fields.Char('Account Code', size=32)
 
     # TODO: The purchase_requisition from where to generate
     # the draft PO should in v8 be taken from a link on the SO line.
     # We should not get back to the LRS for that.
-    def button_confirm(self, cr, uid, ids, context=None):
+    @api.multi
+    def button_confirm(self):
         """ When a sale order is confirmed, we'll also generate the
         purchase order on the purchase requisition of the logistic
         requisition which has created the sales order lines.
@@ -213,13 +210,14 @@ class sale_order_line(orm.Model):
         back to the logistic requisition line, and generate the purchase
         order for the purchase requisition.
         """
-        result = super(sale_order_line, self).button_confirm(cr, uid, ids, context=context)
+        result = super(SaleOrderLine, self).button_confirm()
         purchase_requisitions = set()
-        for line in self.browse(cr, uid, ids, context=context):
-            if not line.logistic_requisition_source_id:
+        for line in self:
+            source = line.logistic_requisition_source_id
+            if not source:
                 continue
             # TODO : Take that link from SO Line
-            purchase_req = line.logistic_requisition_source_id.po_requisition_id
+            purchase_req = source.po_requisition_id
             if purchase_req:
                 purchase_requisitions.add(purchase_req)
         # Beware! generate_po() accepts a list of ids, but discards the
