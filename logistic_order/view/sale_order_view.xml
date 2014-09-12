@@ -2,7 +2,11 @@
 <openerp>
   <data noupdate="0">
 
-    <menuitem id="menu_order_base" name="Order" parent="transport_plan.menu_order" sequence="2"/>
+    <menuitem name="Order Management"
+          id="menu_order"
+          sequence="25"/>
+
+    <menuitem id="menu_order_base" name="Order" parent="menu_order" sequence="2"/>
 
     <record id="view_sales_order_filter" model="ir.ui.view">
       <field name="name">sale.order.list.select</field>
