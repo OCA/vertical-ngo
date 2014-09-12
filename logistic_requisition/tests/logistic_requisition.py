@@ -81,11 +81,6 @@ def add_source(test, requisition_line_id, vals):
     log_req_source_obj = test.registry('logistic.requisition.source')
     vals = vals.copy()
     vals['requisition_line_id'] = requisition_line_id
-    vals.update(
-        log_req_source_obj.onchange_transport_plan_id(
-            cr, uid, [],
-            vals.get('transport_plan_id'))['value']
-    )
     return log_req_source_obj.create(cr, uid, vals)
 
 

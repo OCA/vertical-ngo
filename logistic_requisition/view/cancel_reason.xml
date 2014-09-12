@@ -30,7 +30,7 @@
         </record>
 
         <menuitem id="menu_logistic_requisition_cancel_reason"
-          parent="transport_plan.menu_order_configuration"
+          parent="menu_order_configuration"
           name="Logistic Requisition Cancel Reasons"
           action="action_logistic_requisition_cancel_reason"
           sequence="150"

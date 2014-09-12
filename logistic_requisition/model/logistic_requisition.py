@@ -121,11 +121,6 @@ class logistic_requisition(orm.Model):
             'Cost Estimate Only',
             states=REQ_STATES
         ),
-        'preferred_transport': fields.many2one(
-            'transport.mode',
-            string='Preferred Transport',
-            states=REQ_STATES
-        ),
         'note': fields.text('Remarks/Description'),
         'shipping_note': fields.text('Delivery / Shipping Remarks'),
         'incoterm_id': fields.many2one(
@@ -793,19 +788,6 @@ class logistic_requisition_source(orm.Model):
             relation='res.partner',
             string='Stock Owner',
             readonly=True),
-        # NOTE: date that should be used for the stock move reservation
-        'date_etd': fields.related('transport_plan_id',
-                                   'date_etd',
-                                   readonly=True,
-                                   type='date',
-                                   string='ETD',
-                                   help="Estimated Date of Departure"),
-        'date_eta': fields.related('transport_plan_id',
-                                   'date_eta',
-                                   readonly=True,
-                                   type='date',
-                                   string='ETA',
-                                   help="Estimated Date of Arrival"),
         'offer_ids': fields.one2many('sale.order.line',
                                      'logistic_requisition_source_id',
                                      'Sales Quotation Lines',
@@ -826,13 +808,6 @@ class logistic_requisition_source(orm.Model):
                                       relation='res.currency',
                                       string='Currency',
                                       readonly=True),
-        'transport_applicable': fields.boolean(
-            'Transport Applicable',
-            states=SOURCED_STATES),
-        'transport_plan_id': fields.many2one(
-            'transport.plan',
-            string='Transport Plan',
-            states=SOURCED_STATES),
         'price_is': fields.selection(
             PRICE_IS_SELECTION,
             string='Price is',
@@ -892,7 +867,6 @@ class logistic_requisition_source(orm.Model):
                                                   readonly=True)
     }
     _defaults = {
-        'transport_applicable': False,
         'price_is': 'fixed',
         'name': '/',
         'procurement_method': 'other',
@@ -901,14 +875,6 @@ class logistic_requisition_source(orm.Model):
 
     # TODO: The first 2 should be removed from this module !
     _constraints = [
-        (lambda self, *a, **kw: self._check_transport_plan(*a, **kw),
-         'Transport plan is mandatory for sourced requisition lines '
-         'when the transport is applicable.',
-         ['transport_plan_id']),
-        (lambda self, *a, **kw: self._check_transport_plan_unique(*a, **kw),
-         "A transport plan cannot be linked to lines of different "
-         "logistic requisitions.",
-         ['transport_plan_id', 'requisition_id']),
         (lambda self, *a, **kw: self._check_purchase_requisition_unique(*a, **kw),
          "A call for bids cannot be linked to lines of different "
          "logistics requisitions.",
@@ -947,30 +913,6 @@ class logistic_requisition_source(orm.Model):
             raise NotImplementedError(callable_name)
         callable_fun =  getattr(self, callable_name)
         return callable_fun(cr, uid, source, context=context)
-
-    def _check_transport_plan(self, cr, uid, ids, context=None):
-        lines = self.browse(cr, uid, ids, context=context)
-        states = ('sourced', 'quoted')
-        for line in lines:
-            if (line.transport_applicable and
-                    line.state in states and
-                    not line.transport_plan_id):
-                return False
-        return True
-
-    def _check_transport_plan_unique(self, cr, uid, ids, context=None):
-        for line in self.browse(cr, uid, ids, context=context):
-            if not line.transport_plan_id:
-                continue
-            plan = line.transport_plan_id
-            if not plan.logistic_requisition_source_ids:
-                continue
-            first_source = plan.logistic_requisition_source_ids[0]
-            requisition_id = first_source.requisition_line_id.requisition_id
-            for oline in plan.logistic_requisition_source_ids:
-                if oline.requisition_line_id.requisition_id != requisition_id:
-                    return False
-        return True
 
     def _check_purchase_requisition_unique(self, cr, uid, ids, context=None):
         for line in self.browse(cr, uid, ids, context=context):
@@ -1166,7 +1108,6 @@ class logistic_requisition_source(orm.Model):
         if default is None:
             default = {}
         std_default = {
-            'transport_plan_id': False,
             'date_etd': False,
             'date_eta': False,
             'purchase_requisition_line_id': False,
@@ -1177,17 +1118,6 @@ class logistic_requisition_source(orm.Model):
         std_default.update(default)
         return super(logistic_requisition_source, self).copy_data(
             cr, uid, id, default=std_default, context=context)
-
-    def onchange_transport_plan_id(self, cr, uid, ids, transport_plan_id, context=None):
-        # Even if date fields are related we want to have immediate visual feedback
-        value = {'date_eta': False,
-                 'date_etd': False}
-        if transport_plan_id:
-            plan_obj = self.pool.get('transport.plan')
-            plan = plan_obj.browse(cr, uid, transport_plan_id, context=context)
-            value['date_eta'] = plan.date_eta
-            value['date_etd'] = plan.date_etd
-        return {'value': value}
 
     def onchange_dispatch_location_id(self, cr, uid, ids, dispatch_location_id, context=None):
         """ Get the address of the location and write it in the

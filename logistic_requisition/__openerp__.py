@@ -65,7 +65,7 @@ The simple process is the following:
    * Lines sourced as a dispatch will create a delivery order. 
    * Lines sourced a LTA will create a PO of type LTA
 """,
- "depends": ["transport_plan",
+ "depends": [
              "purchase",
              "purchase_requisition_extended",
              "mail",
@@ -74,7 +74,6 @@ The simple process is the following:
  "demo": ['data/logistic_requisition_demo.xml'],
  "data": ["wizard/logistic_line_create_requisition_view.xml",
           "wizard/assign_line_view.xml",
-          "wizard/transport_plan_view.xml",
           "wizard/cost_estimate_view.xml",
           "wizard/logistic_requisition_cancel_view.xml",
           "security/logistic_requisition.xml",
@@ -83,7 +82,6 @@ The simple process is the following:
           "data/logistic_requisition_sequence.xml",
           "view/logistic_requisition.xml",
           "view/sale_order.xml",
-          "view/transport_plan.xml",
           "view/cancel_reason.xml",
           "view/purchase_requisition.xml",
           "report/logistic_requisition_report.xml",
@@ -92,9 +90,6 @@ The simple process is the following:
  "test": ['test/line_assigned.yml',
           'test/requisition_create_cost_estimate.yml',
           'test/requisition_cancel_reason.yml',
-          'test/transport_plan.yml',
-          'test/transport_plan_to_cost_estimate.yml',
-          'test/transport_plan_from_lr_line_wizard.yml',
           'test/logistic_requisition_report_test.yml',
           'test/test_picking_by_location_address.yml',
           ],

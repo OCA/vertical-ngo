@@ -22,4 +22,3 @@ from . import logistic_line_create_requisition
 from . import assign_line
 from . import cost_estimate
 from . import logistic_requisition_cancel
-from . import transport_plan

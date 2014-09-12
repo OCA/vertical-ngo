@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
-
-    <menuitem id="menu_logistic_requisition_base" name="Logistic Requisition" parent="transport_plan.menu_order" sequence="1"/>
+     <menuitem name="Order Management"
+      id="menu_order"
+      sequence="25"/>
+    <menuitem name="Configuration"
+      id="menu_order_configuration"
+      parent="menu_order"
+      groups="purchase.group_purchase_manager"
+      sequence="100"/>
+    <menuitem id="menu_logistic_requisition_base" name="Logistic Requisition" parent="menu_order" sequence="1"/>
 
     <record model="ir.ui.view" id="view_logistic_requisition_form">
         <field name="name">logistic.requisition.form</field>
@@ -73,7 +80,6 @@
                             <field name="date"/>
                             <field name="date_delivery"/>
                             <field name="cost_estimate_only"/>
-                            <field name="preferred_transport"/>
                             <field name="source_document"/>
                             <field name="user_id"/>
                         </group>
@@ -554,12 +560,6 @@
                                     <field name="consignee_shipping_id" invisible="1"/>
                                     <field name="supplier_partner_id" invisible="1"/>
                                     <field name="location_partner_id" invisible="1"/>
-                                    <field name="transport_plan_id"
-                                        attrs="{'required': [('transport_applicable', '=', True)]}"
-                                        on_change="onchange_transport_plan_id(transport_plan_id)"
-                                        domain="['|', ('logistic_requisition_id', '=', False), ('logistic_requisition_id', '=', requisition_id)]"
-                                        context="{'default_to_address_id': consignee_shipping_id, 'default_from_address_id': (procurement_method == 'wh_dispatch' and location_partner_id) or (procurement_method != 'wh_dispatch' and supplier_partner_id)}"
-                                        />
                                     <field name="date_etd"/>
                                     <field name="date_eta"/>
                                 </group>

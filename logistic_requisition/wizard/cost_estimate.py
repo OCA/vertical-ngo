@@ -101,41 +101,6 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
         defaults['requisition_id'] = req_id
         return defaults
 
-    def _get_name_transport_line(self, cr, uid, transport_plan, context=None):
-        name = _('Transport from %s to %s by %s (Ref. %s)') % (
-            transport_plan.from_address_id.name,
-            transport_plan.to_address_id.name,
-            transport_plan.transport_mode_id.name,
-            transport_plan.name
-        )
-        return name
-
-    def _prepare_transport_line(self, cr, uid, transport_plan, context=None):
-        """ Prepare the values to write the transport plan lines.
-
-        One ``sale.order.line`` is created for each transport plan
-        used in the requisition lines.
-
-        :param transport_plan: transport plan for the lines
-        """
-        sale_line_obj = self.pool.get('sale.order.line')
-        requisition = transport_plan.logistic_requisition_id
-        vals = sale_line_obj.product_id_change(
-            cr, uid, [],
-            requisition.consignee_id.property_product_pricelist.id,
-            transport_plan.product_id.id,
-            partner_id=requisition.consignee_id.id,
-            qty=1).get('value', {})
-        vals.update({
-            'product_id': transport_plan.product_id.id,
-            'price_unit': transport_plan.transport_estimated_cost,
-            'name': self._get_name_transport_line(cr, uid,
-                                                  transport_plan,
-                                                  context=context
-                                                  )
-        })
-        return vals
-
     def _prepare_cost_estimate_line(self, cr, uid, sourcing, context=None):
         sale_line_obj = self.pool.get('sale.order.line')
         vals = {'logistic_requisition_source_id': sourcing.id,
@@ -264,16 +229,9 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
         source_lines = [source for line in lines for source in line.source_ids]
         self._check_rules(cr, uid, requisition, source_lines, context=context)
         estimate_lines = []
-        transport_plans = set()
         for line in source_lines:
-            if line.transport_applicable and line.transport_plan_id:
-                transport_plans.add(line.transport_plan_id)
             vals = self._prepare_cost_estimate_line(cr, uid, line,
                                                     context=context)
-            estimate_lines.append(vals)
-        for transport_plan in transport_plans:
-            vals = self._prepare_transport_line(cr, uid, transport_plan,
-                                                context=context)
             estimate_lines.append(vals)
         order_id = self._prepare_cost_estimate(cr, uid,
                                                requisition,

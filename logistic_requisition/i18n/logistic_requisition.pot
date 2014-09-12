@@ -54,12 +54,6 @@ msgid "Preferred transport"
 msgstr ""
 
 #. module: logistic_requisition
-#: model:ir.actions.act_window,name:logistic_requisition.act_window_requisition_source_transport
-#: model:ir.actions.act_window,name:logistic_requisition.action_requisition_source_transport
-msgid "Create Transport Plan"
-msgstr ""
-
-#. module: logistic_requisition
 #: field:sale.order.line,logistic_requisition_source_id:0
 msgid "Requisition Source"
 msgstr ""
@@ -131,20 +125,6 @@ msgstr ""
 #. module: logistic_requisition
 #: model:logistic.requisition.cancel.reason,name:logistic_requisition.cancel_reason_only_quotation
 msgid "Just for Quotation"
-msgstr ""
-
-#. module: logistic_requisition
-#: code:addons/logistic_requisition/wizard/transport_plan.py:154
-#: model:ir.model,name:logistic_requisition.model_transport_plan
-#: view:logistic.requisition.source:0
-#: field:logistic.requisition.source,transport_plan_id:0
-#, python-format
-msgid "Transport Plan"
-msgstr ""
-
-#. module: logistic_requisition
-#: field:logistic.requisition,preferred_transport:0
-msgid "Preferred Transport"
 msgstr ""
 
 #. module: logistic_requisition
@@ -319,7 +299,6 @@ msgstr ""
 
 #. module: logistic_requisition
 #: field:logistic.requisition.source,date_eta:0
-#: field:logistic.requisition.source.transport.plan,date_eta:0
 msgid "ETA"
 msgstr ""
 
@@ -370,7 +349,6 @@ msgstr ""
 
 #. module: logistic_requisition
 #: field:logistic.requisition,note:0
-#: field:logistic.requisition.source.transport.plan,note:0
 msgid "Remarks/Description"
 msgstr ""
 
@@ -383,11 +361,6 @@ msgstr ""
 #: view:logistic.requisition:0
 #: view:logistic.requisition.cancel:0
 msgid "Confirm"
-msgstr ""
-
-#. module: logistic_requisition
-#: field:logistic.requisition.source.transport.plan,to_address_id:0
-msgid "To Address"
 msgstr ""
 
 #. module: logistic_requisition
@@ -680,11 +653,6 @@ msgid "Reason for the cancellation"
 msgstr ""
 
 #. module: logistic_requisition
-#: constraint:logistic.requisition.source:0
-msgid "A transport plan cannot be linked to lines of different logistic requisitions."
-msgstr ""
-
-#. module: logistic_requisition
 #: view:logistic.requisition.source:0
 msgid "Logistic Requisition Sourcing Lines"
 msgstr ""
@@ -782,11 +750,6 @@ msgid "line %s is not sourced"
 msgstr ""
 
 #. module: logistic_requisition
-#: model:ir.model,name:logistic_requisition.model_logistic_requisition_source_transport_plan
-msgid "Create a transport plan for logistic requisition source lines"
-msgstr ""
-
-#. module: logistic_requisition
 #: selection:logistic.requisition,state:0
 #: selection:logistic.requisition.line,state:0
 #: selection:logistic.requisition.source,state:0
@@ -800,7 +763,6 @@ msgstr ""
 
 #. module: logistic_requisition
 #: field:logistic.requisition.source,date_etd:0
-#: field:logistic.requisition.source.transport.plan,date_etd:0
 msgid "ETD"
 msgstr ""
 
@@ -837,17 +799,9 @@ msgstr ""
 
 #. module: logistic_requisition
 #: field:purchase.requisition.line,logistic_requisition_source_ids:0
-#: view:transport.plan:0
-#: field:transport.plan,logistic_requisition_source_ids:0
 msgid "Logistic Requisition Source Lines"
 msgstr ""
 
-#. module: logistic_requisition
-#: field:logistic.requisition.source.transport.plan,transport_estimated_cost:0
-msgid "Transportation Estimated Costs"
-msgstr ""
-
-#. module: logistic_requisition
 #: model:ir.actions.act_window,name:logistic_requisition.logistic_requisition
 #: model:ir.actions.report.xml,name:logistic_requisition.report_logistic_requisition
 #: model:ir.model,name:logistic_requisition.model_logistic_requisition
@@ -857,7 +811,6 @@ msgstr ""
 #: view:logistic.requisition.line:0
 #: field:logistic.requisition.source,requisition_id:0
 #: field:sale.order,requisition_id:0
-#: field:transport.plan,logistic_requisition_id:0
 msgid "Logistic Requisition"
 msgstr ""
 
@@ -875,11 +828,6 @@ msgstr ""
 #. module: logistic_requisition
 #: view:logistic.requisition.source:0
 msgid "offers"
-msgstr ""
-
-#. module: logistic_requisition
-#: help:logistic.requisition.source.transport.plan,date_eta:0
-msgid "Estimated Date of Arrival if not set requisition ETA will be used"
 msgstr ""
 
 #. module: logistic_requisition
@@ -902,7 +850,6 @@ msgstr ""
 
 #. module: logistic_requisition
 #: help:logistic.requisition.source,date_etd:0
-#: help:logistic.requisition.source.transport.plan,date_etd:0
 msgid "Estimated Date of Departure"
 msgstr ""
 
@@ -930,7 +877,6 @@ msgstr ""
 #. module: logistic_requisition
 #: view:logistic.requisition:0
 #: view:logistic.requisition.line:0
-#: view:logistic.requisition.source.transport.plan:0
 msgid "Additional notes..."
 msgstr ""
 
@@ -1016,68 +962,6 @@ msgid "Requisition Line"
 msgstr ""
 
 #. module: logistic_requisition
-#: view:logistic.requisition.source.transport.plan:0
-msgid "Create and Affect"
-msgstr ""
-
-#. module: logistic_requisition
-#: view:logistic.requisition.line:0
-msgid "Line Sourced"
-msgstr ""
-
-#. module: logistic_requisition
-#: report:addons/logistic_requisition/report/logistic_requisition.mako:160
-msgid "Number"
-msgstr ""
-
-#. module: logistic_requisition
-#: view:logistic.requisition.source.create.requisition:0
-msgid "Create Requisition"
-msgstr ""
-
-#. module: logistic_requisition
-#: code:addons/logistic_requisition/model/logistic_requisition.py:1091
-#, python-format
-msgid "Existing"
-msgstr ""
-
-#. module: logistic_requisition
-#: view:logistic.requisition.line:0
-#: selection:logistic.requisition.line,state:0
-#: selection:logistic.requisition.source,state:0
-msgid "Assigned"
-msgstr ""
-
-#. module: logistic_requisition
-#: view:logistic.requisition.line:0
-#: view:logistic.requisition.source:0
-msgid "Total Budget"
-msgstr ""
-
-#. module: logistic_requisition
-#: view:logistic.requisition:0
-#: view:logistic.requisition.line:0
-msgid "Unassigned"
-msgstr ""
-
-#. module: logistic_requisition
-#: view:logistic.requisition:0
-#: selection:logistic.requisition,state:0
-msgid "Done"
-msgstr ""
-
-#. module: logistic_requisition
-#: view:logistic.requisition:0
-#: view:logistic.requisition.cancel:0
-#: view:logistic.requisition.cost.estimate:0
-#: view:logistic.requisition.line:0
-#: view:logistic.requisition.line.assign:0
-#: view:logistic.requisition.source.create.requisition:0
-#: view:logistic.requisition.source.transport.plan:0
-msgid "Cancel"
-msgstr ""
-
-#. module: logistic_requisition
 #: model:ir.actions.act_window,name:logistic_requisition.action_logistic_requisition_cost_estimate
 #: view:logistic.requisition:0
 #: view:logistic.requisition.cost.estimate:0
@@ -1134,11 +1018,6 @@ msgid "Transport plan is mandatory for sourced requisition lines when the transp
 msgstr ""
 
 #. module: logistic_requisition
-#: view:logistic.requisition.source.transport.plan:0
-msgid "Transport Plan Infos"
-msgstr ""
-
-#. module: logistic_requisition
 #: field:logistic.requisition.source,supplier_partner_id:0
 msgid "Supplier Address"
 msgstr ""
@@ -1166,11 +1045,6 @@ msgid "Logistic Requisition Line number must be unique!"
 msgstr ""
 
 #. module: logistic_requisition
-#: field:logistic.requisition.source.transport.plan,from_address_id:0
-msgid "From Address"
-msgstr ""
-
-#. module: logistic_requisition
 #: model:ir.model,name:logistic_requisition.model_purchase_requisition_line
 #: field:logistic.requisition.source,purchase_requisition_line_id:0
 msgid "Purchase Requisition Line"
@@ -1184,7 +1058,6 @@ msgstr ""
 #. module: logistic_requisition
 #: view:logistic.requisition.line:0
 #: field:logistic.requisition.line,product_id:0
-#: field:transport.plan,product_id:0
 msgid "Product"
 msgstr ""
 
@@ -1207,19 +1080,9 @@ msgid "The sourcing lines do not belong to the same company."
 msgstr ""
 
 #. module: logistic_requisition
-#: help:transport.plan,product_id:0
-msgid "Product used for the transport, will be used in the cost estimate"
-msgstr ""
-
-#. module: logistic_requisition
 #: code:addons/logistic_requisition/model/logistic_requisition.py:1097
 #, python-format
 msgid "The sourcing line %d does not have any product defined, please choose one."
-msgstr ""
-
-#. module: logistic_requisition
-#: field:logistic.requisition.source.transport.plan,transport_mode_id:0
-msgid "Transport by"
 msgstr ""
 
 #. module: logistic_requisition
@@ -1397,7 +1260,6 @@ msgstr ""
 #: view:logistic.requisition.cost.estimate:0
 #: view:logistic.requisition.line.assign:0
 #: view:logistic.requisition.source.create.requisition:0
-#: view:logistic.requisition.source.transport.plan:0
 msgid "or"
 msgstr ""
 
