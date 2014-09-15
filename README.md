@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/OCA/vertical-ngo.svg?branch=8.0)](https://travis-ci.org/OCA/vertical-ngo)
+[![Coverage Status](https://coveralls.io/repos/OCA/vertical-ngo/badge.png?branch=8.0)](https://coveralls.io/r/OCA/vertical-ngo?branch=8.0)
 
 /!\ Under migration currently this is a copy paste of the Launchpad project !
 
