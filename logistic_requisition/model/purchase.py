@@ -35,7 +35,6 @@ class PurchaseOrder(models.Model):
         related to the PO will be done and in the mean while the SO will be
         then marked as delivered.
         """
-        wf_service = netsvc.LocalService("workflow")
         proc_obj = self.pool.get('procurement.order')
         # Proc product of type service should be confirm at this
         # stage, otherwise, when picking of related PO is created
@@ -43,11 +42,8 @@ class PurchaseOrder(models.Model):
         procs = proc_obj.search([('purchase_id', 'in', self.env.ids)])
         for proc in procs:
             if proc.product_id.type == 'service':
-                # workflow
-                wf_service.trg_validate('procurement.order',
-                                        proc.id, 'button_confirm')
-                wf_service.trg_validate('procurement.order',
-                                        proc.id, 'button_check')
+                proc.signal_workflow('button_confirm')
+                proc.signal_workflow('button_check')
         return True
 
     # TODO In version 8.0, we should replace such a feature by 
@@ -64,8 +60,6 @@ class PurchaseOrder(models.Model):
         picking_id = super(PurchaseOrder, self).action_picking_create()
         if not picking_id:
             return picking_id
-        # XXX workflow
-        wf_service = netsvc.LocalService("workflow")
         picking_obj = self.env['stock.picking']
         picking = picking_obj.browse(picking_id)
         for move in picking.move_lines:
@@ -84,12 +78,9 @@ class PurchaseOrder(models.Model):
                 # So when the move will be done, the sales order and the
                 # purchase order will be shipped at the same time
                 procurement.write({'move_id': move.id})
-                # workflow
-                wf_service.trg_validate('procurement.order',
-                                        procurement.id, 'button_confirm')
+                procurement.signal_workflow('button_confirm')
                 if purchase_line is not None:
-                    wf_service.trg_validate('procurement.order',
-                                            procurement.id, 'button_check')
+                    procurement.signal_workflow('button_check')
         self.validate_service_product_procurement()
         return picking_id
 
