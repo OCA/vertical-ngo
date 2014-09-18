@@ -126,19 +126,6 @@ class PurchaseOrderLine(models.Model):
             price = from_curr.compute(vals.get('price_unit'), to_curr,
                                       round=False)
             lrs_vals['unit_cost'] = price
-        if vals.get('date_planned'):
-            if po_line.lr_source_line_id.transport_applicable:
-                # XXX FIXME unknown variable
-                if pr_bid_line.order_id.transport == 'included':
-                    lrs_vals['date_etd'] = False
-                    lrs_vals['date_eta'] = vals.get('date_planned')
-
-                else:
-                    lrs_vals['date_etd'] = vals.get('date_planned')
-                    lrs_vals['date_eta'] = False
-            else:
-                lrs_vals['date_etd'] = vals.get('date_planned')
-                lrs_vals['date_eta'] = vals.get('date_planned')
         return lrs_vals
 
     @api.multi
@@ -153,8 +140,7 @@ class PurchaseOrderLine(models.Model):
         if (vals.get('product_qty')
                 or vals.get('product_id')
                 or vals.get('product_uom')
-                or vals.get('price_unit')
-                or vals.get('date_planned')):
+                or vals.get('price_unit')):
             for line in self:
                 source_line = line.lr_source_line_id
                 if source_line:
