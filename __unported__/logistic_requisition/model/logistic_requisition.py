@@ -899,6 +899,8 @@ class logistic_requisition_source(orm.Model):
         'procurement_method': 'other',
         'proposed_qty': 1
     }
+
+    # TODO: The first 2 should be removed from this module !
     _constraints = [
         (lambda self, *a, **kw: self._check_transport_plan(*a, **kw),
          'Transport plan is mandatory for sourced requisition lines '

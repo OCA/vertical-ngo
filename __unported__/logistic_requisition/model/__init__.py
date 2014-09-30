@@ -21,8 +21,10 @@
 
 from . import sale_order
 from . import logistic_requisition
+# TODO Will probably move to logistic_order module
 from . import purchase_requisition
 from . import stock
+# TODO: Remove transport plan
 from . import transport_plan
 from . import requisition_cancel
 from . import procurement
