@@ -35,6 +35,7 @@ This module customizes the Sales Orders to disguise them in Logistic Orders
              "sale_validity",
              "delivery",
              "stock_location_ownership",
+             "sale_quotation_sourcing",
              ],
  "demo": [],
  "data": ['view/sale_order_view.xml',
