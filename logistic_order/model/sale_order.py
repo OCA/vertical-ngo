@@ -17,7 +17,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from openerp import models, fields
+from openerp import models, fields, api
+from openerp import SUPERUSER_ID
 
 
 class SaleOrder(models.Model):
@@ -67,3 +68,15 @@ class SaleOrder(models.Model):
              "invoice is confirmed but waiting for the scheduler to run on the"
              "order date.",
         select=True)
+
+    @api.cr
+    def init(self, cr):
+        """set SUPERUSER_ID as consignee_id for existing sale orders
+        """
+        cr.execute('SELECT COUNT(id) FROM sale_order WHERE consignee_id IS NULL')
+        count = cr.fetchone()[0]
+        if count:
+            cr.execute('UPDATE sale_order SET consignee_id=%s WHERE consignee_id IS NULL', (SUPERUSER_ID,))
+            cr.execute('ALTER TABLE sale_order ALTER COLUMN consignee_id SET NOT NULL')
+
+
