@@ -23,68 +23,6 @@ from openerp.exceptions import Warning
 from openerp.tools.translate import _
 
 
-class PurchaseOrder(models.Model):
-    _inherit = 'purchase.order'
-
-    @api.multi
-    def validate_service_product_procurement(self):
-        """ As action_picking_create only take care of non-service product
-        by looping on the moves, we need then to pass through all line with
-        product of type service and confirm them.
-        This way all procurements will reach the done state once the picking
-        related to the PO will be done and in the mean while the SO will be
-        then marked as delivered.
-        """
-        proc_obj = self.pool.get('procurement.order')
-        # Proc product of type service should be confirm at this
-        # stage, otherwise, when picking of related PO is created
-        # then done, it stay blocked at running stage
-        procs = proc_obj.search([('purchase_id', 'in', self.env.ids)])
-        for proc in procs:
-            if proc.product_id.type == 'service':
-                proc.signal_workflow('button_confirm')
-                proc.signal_workflow('button_check')
-        return True
-
-    # TODO In version 8.0, we should replace such a feature by 
-    # giving each SO Line a route_id "drop shipping"
-    @api.multi
-    def action_picking_create(self):
-        """ When the picking is created, we'll:
-
-        Only for the sales order lines mto + drop shipping:
-        Link the moves with the procurement of the sale order lines
-        which generated the purchase and confirm the procurement.
-        """
-        self.ensure_one()
-        picking_id = super(PurchaseOrder, self).action_picking_create()
-        if not picking_id:
-            return picking_id
-        picking_obj = self.env['stock.picking']
-        picking = picking_obj.browse(picking_id)
-        for move in picking.move_lines:
-            purchase_line = move.purchase_line_id
-            if not purchase_line:
-                continue
-            sale_line = purchase_line.sale_order_line_id
-            if not sale_line:
-                continue
-            if not (sale_line.type == 'make_to_order'
-                    and sale_line.sale_flow == 'direct_delivery'):
-                continue
-            procurement = sale_line.procurement_id
-            if procurement and not procurement.move_id:
-                # the procurement for the sales and purchase is the same!
-                # So when the move will be done, the sales order and the
-                # purchase order will be shipped at the same time
-                procurement.write({'move_id': move.id})
-                procurement.signal_workflow('button_confirm')
-                if purchase_line is not None:
-                    procurement.signal_workflow('button_check')
-        self.validate_service_product_procurement()
-        return picking_id
-
-
 class PurchaseOrderLine(models.Model):
     _inherit = 'purchase.order.line'
 
