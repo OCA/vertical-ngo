@@ -67,8 +67,8 @@ class LogisticRequisition(models.Model):
     date = fields.Date(
         'Requisition Date',
         states=REQ_STATES,
-        required=True)
-        #XXX 'date': fields.date.context_today,
+        required=True,
+        default=fields.Date.context_today)
     date_delivery = fields.Date(
         'Desired Delivery Date',
         states=REQ_STATES,
@@ -79,8 +79,8 @@ class LogisticRequisition(models.Model):
         required=True,
         states=REQ_STATES,
         help="Mobilization Officer or Logistic Coordinator "
-             "in charge of the Logistic Requisition")
-        # XXX 'user_id': lambda self, cr, uid, ctx: uid,
+             "in charge of the Logistic Requisition",
+        default=lambda self: self.env.uid)
     partner_id = fields.Many2one(
         'res.partner',
         'Customer',
@@ -103,10 +103,9 @@ class LogisticRequisition(models.Model):
     company_id = fields.Many2one(
         'res.company',
         'Company',
-        readonly=True)
-        #XXX 'company_id': lambda self, cr, uid, c:
-        # self.env['res.company']._company_default_get(
-        # cr, uid, 'logistic.request', context=c),
+        readonly=True,
+        default=lambda self: self.env['res.company']._company_default_get(
+            'logistic.request'))
 
     analytic_id = fields.Many2one(
         'account.analytic.account',
