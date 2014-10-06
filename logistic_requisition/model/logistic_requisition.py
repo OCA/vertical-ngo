@@ -254,17 +254,16 @@ class LogisticRequisition(models.Model):
         self.pricelist_id = pricelist
 
     @api.onchange('consignee_id')
-    def onchange_consignee_id(self, consignee_id):
-        if not consignee_id:
+    def onchange_consignee_id(self):
+        if not self.consignee_id:
             self.consignee_shipping_id = False
             return
 
-        partner_obj = self.env['res.partner']
-        partner = partner_obj.browse(consignee_id)
-        addr = partner_obj.address_get([partner.id], ['delivery'])
+        addr = self.consignee_id.address_get(['delivery'])
         self.consignee_shipping_id = addr['delivery']
 
     # XXX port onchange
+    @api.onchange('date_validate')
     def onchange_validate(self, cr, uid, ids, validate_id,
                           date_validate, date_field_name, context=None):
         values = {}
@@ -615,7 +614,6 @@ class LogisticRequisitionLine(models.Model):
             self._do_assign()
         return res
 
-    # XXX onchange
     @api.onchange('product_id')
     def onchange_product_id(self):
         """ Changes UoM and name if product_id changes.
@@ -1076,23 +1074,22 @@ class LogisticRequisitionSource(models.Model):
         return super(LogisticRequisitionSource, self).copy_data(
             cr, uid, id, default=std_default, context=context)
 
-    # XXX onchange
-    def onchange_dispatch_location_id(self, dispatch_location_id):
+    @api.onchange('dispatch_location_id')
+    def onchange_dispatch_location_id(self):
         """ Get the address of the location and write it in the
         location_partner_id field, this field is a related read-only, so
         this change will never be submitted to the server. But it is
         necessary to set the default "from address" of the transport
         plan in the context.
         """
-        value = {'location_partner_id': False}
-        if dispatch_location_id:
-            location_obj = self.env['stock.location']
-            location = location_obj.browse(dispatch_location_id)
-            value['location_partner_id'] = location.partner_id.id
-        return {'value': value}
+        location_partner_id = False
+        if self.dispatch_location_id:
+            location = self.dispatch_location_id
+            location_partner_id = location.partner_id.id
+        self.location_partner_id = location_partner_id
 
-    # XXX onchange
-    def onchange_selected_bid_id(self, selected_bid_id):
+    @api.onchange('selected_bid_id')
+    def onchange_selected_bid_id(self):
         # FIXME: don't understand
         """ Get the address of the supplier and write it in the
         supplier_partner_id field, this field is a related read-only, so
