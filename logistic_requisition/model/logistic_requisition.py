@@ -19,12 +19,10 @@
 #
 #
 import logging
-import time
 
 from openerp import models, fields, api
 from openerp.exceptions import except_orm
 from openerp.tools.translate import _
-from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DT_FORMAT
 import openerp.addons.decimal_precision as dp
 
 _logger = logging.getLogger(__name__)
@@ -261,15 +259,6 @@ class LogisticRequisition(models.Model):
 
         addr = self.consignee_id.address_get(['delivery'])
         self.consignee_shipping_id = addr['delivery']
-
-    # XXX port onchange
-    @api.onchange('date_validate')
-    def onchange_validate(self, cr, uid, ids, validate_id,
-                          date_validate, date_field_name, context=None):
-        values = {}
-        if validate_id and not date_validate:
-            values[date_field_name] = time.strftime(DT_FORMAT)
-        return {'value': values}
 
     @api.multi
     def button_confirm(self):

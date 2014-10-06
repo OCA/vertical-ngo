@@ -20,9 +20,11 @@
 ##############################################################################
 
 import logging
+import time
 
 from openerp.osv import fields, orm
 import openerp.addons.decimal_precision as dp
+from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DT_FORMAT
 
 _logger = logging.getLogger(__name__)
 
@@ -91,6 +93,13 @@ class logistic_requisition(orm.Model):
             'date_finance_officer': False,
         })
         return super(logistic_requisition, self).copy(cr, uid, id, default=default, context=context)
+
+    def onchange_validate(self, cr, uid, ids, validate_id,
+                          date_validate, date_field_name, context=None):
+        values = {}
+        if validate_id and not date_validate:
+            values[date_field_name] = time.strftime(DT_FORMAT)
+        return {'value': values}
 
 
 class logistic_requisition_line(orm.Model):
