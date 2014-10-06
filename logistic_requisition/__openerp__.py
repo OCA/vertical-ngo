@@ -66,6 +66,7 @@ The simple process is the following:
    * Lines sourced a LTA will create a PO of type LTA
 """,
  "depends": [
+             "stock_dropshipping",
              "purchase",
              "purchase_requisition_extended",
              "mail",
