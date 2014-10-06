@@ -267,16 +267,11 @@ class LogisticRequisition(models.Model):
 
     @api.multi
     def button_create_cost_estimate(self):
-        data_obj = self.env['ir.model.data']
-        act_obj = self.env['ir.actions.act_window']
-        try:
-            #XXX get ref
-            __, action_id = data_obj.get_object_reference(
-                'logistic_requisition',
-                'action_logistic_requisition_cost_estimate')
-        except ValueError:
-            action_id = False
-        return act_obj.read(action_id)
+        ref = 'logistic_requisition.action_logistic_requisition_cost_estimate'
+        action = self.env['ir.model.data'].xmlid_to_object(ref)
+        if action is None:
+            action = self.env['ir.actions.act_window'].browse()
+        return action.read()
 
     @api.multi
     def button_reset(self):
@@ -288,31 +283,23 @@ class LogisticRequisition(models.Model):
         """
         This function returns an action that display related lines.
         """
-        mod_obj = self.env['ir.model.data']
-        act_obj = self.env['ir.actions.act_window']
-        #XXX get ref
-        ref = mod_obj.get_object_reference('logistic_requisition',
-                                           'action_logistic_requisition_line')
-        action_id = ref[1] if ref else False
-        action = act_obj.read([action_id])[0]
-        action['domain'] = str([('requisition_id', 'in', self.env.ids)])
-        return action
+        ref = 'logistic_requisition.action_logistic_requisition_line'
+
+        action = self.env['ir.model.data'].xmlid_to_object(ref)
+        action_dict = action.read()[0]
+        action_dict['domain'] = str([('requisition_id', 'in', self.ids)])
+        return action_dict
 
     @api.multi
     def button_view_source_lines(self):
         """
         This function returns an action that display related sourcing lines.
         """
-        mod_obj = self.env['ir.model.data']
-        act_obj = self.env['ir.actions.act_window']
-        #XXX get ref
-        ref = mod_obj.get_object_reference(
-            'logistic_requisition',
-            'action_logistic_requisition_source')
-        action_id = ref[1] if ref else False
-        action = act_obj.read([action_id])[0]
-        action['domain'] = str([('requisition_id', 'in')])
-        return action
+        ref = 'logistic_requisition.action_logistic_requisition_source'
+        action = self.env['ir.model.data'].xmlid_to_object(ref)
+        action_dict = action.read()[0]
+        action_dict['domain'] = str([('requisition_id', 'in', self.ids)])
+        return action_dict
 
 
 class LogisticRequisitionLine(models.Model):
@@ -618,16 +605,11 @@ class LogisticRequisitionLine(models.Model):
 
     @api.multi
     def button_create_cost_estimate(self):
-        data_obj = self.env['ir.model.data']
-        act_obj = self.env['ir.actions.act_window']
-        try:
-        # XXX ref
-            __, action_id = data_obj.get_object_reference(
-                'logistic_requisition',
-                'action_logistic_requisition_cost_estimate')
-        except ValueError:
-            action_id = False
-        return act_obj.read(action_id)
+        ref = 'logistic_requisition.action_logistic_requisition_cost_estimate'
+        action = self.env['ir.model.data'].xmlid_to_object(ref)
+        if action is None:
+            action = self.env['ir.actions.act_window'].browse()
+        return action.read()
 
     @api.multi
     def button_sourced(self):
