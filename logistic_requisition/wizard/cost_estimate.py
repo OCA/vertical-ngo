@@ -98,27 +98,30 @@ class LogisticRequisitionCostEstimate(models.TransientModel):
         return defaults
 
     @api.model
+    def _get_route_drop_shipping(self):
+        """ Return route_id of dropshipping route """
+        ref = 'stock_drop_shipping'
+        self.env['ir.model.data'].xmlid_to_res_id(ref)
+
+    @api.model
     def _prepare_cost_estimate_line(self, sourcing):
         sale_line_obj = self.env['sale.order.line']
-        vals = {'logistic_requisition_source_id': sourcing.id,
-                'product_id': sourcing.proposed_product_id.id,
+        vals = {'product_id': sourcing.proposed_product_id.id,
                 'name': sourcing.requisition_line_id.description,
                 'price_unit': sourcing.unit_cost,
                 'price_is': sourcing.price_is,
                 'product_uom_qty': sourcing.proposed_qty,
                 'product_uom': sourcing.proposed_uom_id.id,
                 'account_code': sourcing.requisition_line_id.account_code,
+                # line must be sourced
+                'manually_sourced': True,
                 }
-        # XXX location_id type and sale_flow do not exist anymore
-        # if we want to know from which location we get product
-        # this might be taken from route
-        #if sourcing.dispatch_location_id:
-            #vals['location_id'] = sourcing.dispatch_location_id.id
-        #if sourcing.procurement_method in ('wh_dispatch'):
-            #vals['type'] = 'make_to_stock'
-        #else:
-            #vals['type'] = sourcing.proposed_product_id.procure_method
-            #vals['sale_flow'] = 'direct_delivery'
+        if sourcing.dispatch_location_id:
+            warehouse_id = self.env['stock.location'].get_warehouse(
+                sourcing.dispatch_location_id)
+            vals['warehouse_id'] = warehouse_id
+        elif sourcing.procurement_method not in ('wh_dispatch'):
+            vals['route_id'] = self._get_route_drop_shipping()
 
         requisition = sourcing.requisition_line_id.requisition_id
         onchange_vals = sale_line_obj.product_id_change(
@@ -130,8 +133,6 @@ class LogisticRequisitionCostEstimate(models.TransientModel):
         #  price_unit and type of the requisition line must be kept
         if 'price_unit' in onchange_vals:
             del onchange_vals['price_unit']
-        #if 'type' in onchange_vals:
-            #del onchange_vals['type']
         vals.update(onchange_vals)
         return vals
 

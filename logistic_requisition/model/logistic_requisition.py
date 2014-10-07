@@ -725,12 +725,6 @@ class LogisticRequisitionSource(models.Model):
         'stock.location',
         string='Dispatch From',
         states=SOURCED_STATES)
-    offer_ids = fields.One2many(
-        'sale.order.line',
-        'logistic_requisition_source_id',
-        string='Sales Quotation Lines',
-        readonly=True,
-        copy=False)
     unit_cost = fields.Float(
         'Unit Cost',
         states=SOURCED_STATES,

@@ -554,9 +554,6 @@
                                 </group>
                             </group>
                         </page>
-                        <page string="offers">
-                            <field name="offer_ids"/>
-                        </page>
                     </notebook>
                 </sheet>
             </form>
