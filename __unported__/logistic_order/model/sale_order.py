@@ -47,6 +47,7 @@ class sale_order(orm.Model):
                  "predefined commercial terms used in "
                  "international transactions."),
         'delivery_time': fields.char('Delivery time'),
+        # TODO Move this in translation, as all others stuff like it !
         'state': fields.selection([
             ('draft', 'Draft Cost Estimate'),
             ('sent', 'Cost Estimate Sent'),

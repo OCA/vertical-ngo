@@ -50,6 +50,8 @@ class purchase_order(orm.Model):
                                         proc.id, 'button_check', cr)
         return True
 
+    # TODO In version 8.0, we should replace such a feature by 
+    # giving each SO Line a route_id "drop shipping"
     def action_picking_create(self, cr, uid, ids, context=None):
         """ When the picking is created, we'll:
 

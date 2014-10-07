@@ -26,6 +26,8 @@ from openerp.tools.translate import _
 class purchase_requisition(orm.Model):
     _inherit = 'purchase.requisition'
 
+    # TODO : Remove transport plan things (ETA, ETD)
+    # CAlled by the "Chose products" buton in the call for bid process
     def _split_requisition_sources(self, cr, uid, id, context=None):
         """ Effectively split the logistic requisition sources.
         For each selected bid line, we ensure there is a corresponding source
