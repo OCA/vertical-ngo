@@ -73,10 +73,11 @@ class SaleOrder(models.Model):
     def init(self, cr):
         """set SUPERUSER_ID as consignee_id for existing sale orders
         """
-        cr.execute('SELECT COUNT(id) FROM sale_order WHERE consignee_id IS NULL')
+        cr.execute('SELECT COUNT(id) FROM sale_order'
+                   ' WHERE consignee_id IS NULL')
         count = cr.fetchone()[0]
         if count:
-            cr.execute('UPDATE sale_order SET consignee_id=%s WHERE consignee_id IS NULL', (SUPERUSER_ID,))
-            cr.execute('ALTER TABLE sale_order ALTER COLUMN consignee_id SET NOT NULL')
-
-
+            cr.execute('UPDATE sale_order SET consignee_id=%s'
+                       ' WHERE consignee_id IS NULL', (SUPERUSER_ID,))
+            cr.execute('ALTER TABLE sale_order ALTER COLUMN consignee_id'
+                       ' SET NOT NULL')
