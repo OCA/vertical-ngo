@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
-     <menuitem name="Order Management"
-      id="menu_order"
-      sequence="25"/>
+
     <menuitem name="Configuration"
       id="menu_order_configuration"
-      parent="menu_order"
+      parent="logistic_order.menu_order"
       groups="purchase.group_purchase_manager"
       sequence="100"/>
-    <menuitem id="menu_logistic_requisition_base" name="Logistic Requisition" parent="menu_order" sequence="1"/>
+    <menuitem id="menu_logistic_requisition_base" name="Logistic Requisition" parent="logistic_order.menu_order" sequence="1"/>
 
     <record model="ir.ui.view" id="view_logistic_requisition_form">
         <field name="name">logistic.requisition.form</field>
