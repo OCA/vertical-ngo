@@ -605,24 +605,5 @@
         <field name="domain">[]</field>
     </record>
 
-    <record id="purchase.board_purchase_form" model="ir.ui.view">
-        <field name="name">board.purchase.form</field>
-        <field name="model">board.board</field>
-        <field name="arch" type="xml">
-            <form string="Purchase Dashboard">
-                <board style="2-1">
-                    <column>
-                        <action name="%(logistic_requisition)d" string="Logistic Requisition" creatable="true"/>
-                        <action name="%(purchase.purchase_draft)d" string="Request for Quotations" creatable="true"/>
-                        <action name="%(purchase.purchase_waiting)d" string="Cost Estimate Waiting Approval" creatable="true"/>
-                    </column>
-                    <column>
-                        <action name="%(purchase.action_purchase_order_monthly_categ_graph)d" string="Monthly Purchases by Category"/>
-                    </column>
-                </board>
-            </form>
-        </field>
-    </record>
-
     </data>
 </openerp>
