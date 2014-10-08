@@ -547,7 +547,6 @@
                                     <field name="dispatch_location_id"
                                         attrs="{'required': [('procurement_method', '=', 'wh_dispatch')]}"
                                         domain="[('usage', '!=', 'view')]"/>
-                                    <field name="stock_owner" />
                                 </group>
                                 <group string="Transport Plan"
                                     colspan="4">

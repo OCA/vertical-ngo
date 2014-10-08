@@ -725,11 +725,6 @@ class LogisticRequisitionSource(models.Model):
         'stock.location',
         string='Dispatch From',
         states=SOURCED_STATES)
-    stock_owner = fields.Many2one(
-        related='dispatch_location_id.owner_id',
-        relation='res.partner',
-        string='Stock Owner',
-        readonly=True)
     offer_ids = fields.One2many(
         'sale.order.line',
         'logistic_requisition_source_id',
