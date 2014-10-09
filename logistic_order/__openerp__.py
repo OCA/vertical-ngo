@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    Copyright 2013 Camptocamp SA
+#    Copyright 2013-2014 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -19,6 +19,7 @@
 ##############################################################################
 
 {"name": "Logistic Order",
+ "summary": "Sales Order as Logistic Order",
  "version": "0.1",
  "author": "Camptocamp",
  "license": "AGPL-3",
@@ -27,26 +28,39 @@
  "images": [],
  "website": "http://www.camptocamp.com",
  "description": """
+Logistic Order
+==============
+
 This module customizes the Sales Orders to disguise them in Logistic Orders
-===========================================================================
+
+A draft Sale order is now a Cost Estimate
+An opened Sale order is now a Logistic Order
+
+* Adds Consignee, Incoterm Address and Delivery time on the Logistic Order
+* Adds a main menu entry `Order Management`
+
+
+Contributors
+------------
+
+* Guewen Baconnier <guewen.baconnier@camptocamp.com>
+* Nicolas Bessi <nicolas.bessi@camptocamp.com>
+* Yannick Vaucher <yannick.vaucher@camptocamp.com>
+* Alexandre Fayolle <alexandre.fayolle@camptocamp.com>
 
 """,
  "depends": ["sale_stock",
              "sale_validity",
-             "transport_plan",
              "delivery",
-             "stock_location_ownership",
-             "sale_sourced_by_line",
-             "sale_dropshipping",
-             "sale_order_webkit",
+             "sale_quotation_sourcing",
              ],
  "demo": [],
  "data": ['view/sale_order_view.xml',
+          'view/report_logisticorder.xml',
           'data/logistic_order_sequence.xml',
-          'report/report.xml',
           ],
- "auto_install": False,
  "test": ['test/test_report.yml',
           ],
- 'installable': False,
+ 'installable': True,
+ "auto_install": False,
  }
