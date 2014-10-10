@@ -79,7 +79,7 @@ Contributors
 """,
  "depends": ["stock_dropshipping",
              "purchase",
-             "purchase_requisition_extended",
+             "purchase_requisition_bid_selection",
              "mail",
              "logistic_order",
              ],
