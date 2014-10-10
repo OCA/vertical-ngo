@@ -22,25 +22,19 @@
 """ Helpers for the tests for the purchase order model
 """
 
-def select_line(test, purchase_line_id, quantity):
+def select_line(test, purchase_line, quantity):
     """ Select a quantity of products the BID """
-    cr, uid = test.cr, test.uid
-    purch_line_obj = test.registry('purchase.order.line')
-    purch_line_obj.write(cr, uid, [purchase_line_id],
-                         {'quantity_bid': quantity})
-    purch_line_obj.action_confirm(cr, uid, [purchase_line_id])
+    purchase_line.quantity_bid = quantity
+    purchase_line.action_confirm()
 
 
-def bid_encoded(test, purchase_order_id):
+def bid_encoded(test, purchase_order):
     """ Declare that BIDs are encoded for a purchase order """
-    cr, uid = test.cr, test.uid
-    wizard_obj = test.registry('purchase.action_modal_datetime')
-    purch_order_obj = test.registry('purchase.order')
-    context = {'active_id': purchase_order_id,
-               'active_ids': [purchase_order_id],
+    wizard_obj = test.env['purchase.action_modal.datetime']
+    context = {'active_id': purchase_order.id,
+               'active_ids': [purchase_order.id],
                'active_model': 'purchase.order'}
-    res = purch_order_obj.bid_received(cr, uid, [purchase_order_id],
-                                      context=context)
+    res = purchase_order.bid_received()
     context.update(res['context'])
-    wizard_id = wizard_obj.create(cr, uid, {}, context=context)
-    res = wizard_obj.action(cr, uid, [wizard_id], context=context)
+    wizard = wizard_obj.with_context(context).create({})
+    res = wizard.action()

@@ -10,8 +10,10 @@
     user_id: base.user_demo
     pricelist_id: product.list0
     line_ids:
-      - product_id: product.product_product_7
+      - product_id: product.product_product_32
+        description: HEAD Headset standard
         requested_qty: 100
+        requested_uom_id: product.product_uom_unit
         date_delivery: !eval "time.strftime('%Y-%m-%d')"
         logistic_user_id: base.user_demo
         account_code: 'Shazam!'
@@ -19,8 +21,11 @@
  I print the report
 -
   !python {model: logistic.requisition}: |
-    import netsvc, tools, os
-    (data, format) = netsvc.LocalService('report.logistic.requisition').create(cr, uid, [ref('logistic_requisition_test_report')], {}, {})
+    import os
+    import openerp.report
+    from openerp import tools
+    data, format = openerp.report.render_report(cr, uid, [ref('logistic_requisition_test_report')], 'logistic_requisition.report_logistic_requisition', {}, {})
     if tools.config['test_report_directory']:
         path = os.path.join(tools.config['test_report_directory'], 'logistic_requisition_report.%s' % format)
-        file(path, 'wb+').write(data)
+        with open(path, 'wb+') as fobj:
+            fobj.write(data)

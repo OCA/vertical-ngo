@@ -38,46 +38,44 @@ class test_sale_order_from_lr_confirm(common.TransactionCase):
 
     def setUp(self):
         super(test_sale_order_from_lr_confirm, self).setUp()
-        self.purch_req_model = self.registry('purchase.requisition')
-        self.log_req_model = self.registry('logistic.requisition')
-        self.log_req_line_model = self.registry('logistic.requisition.line')
-        self.sale_model = self.registry('sale.order')
-        self.purchase_model = self.registry('purchase.order')
-        data_model = self.registry('ir.model.data')
-        self.get_ref = partial(data_model.get_object_reference,
-                               self.cr, self.uid)
-        __, self.partner_1 = self.get_ref('base', 'res_partner_1')
-        __, self.partner_3 = self.get_ref('base', 'res_partner_3')
-        __, self.partner_4 = self.get_ref('base', 'res_partner_4')
-        __, self.user_demo = self.get_ref('base', 'user_demo')
-        __, self.lr_currency_usd = self.get_ref('base', 'USD')
-        __, self.purchase_pricelist_eur = self.get_ref('purchase', 'list0')
-        __, self.pricelist_sale = self.get_ref('product', 'list0')
+        self.purch_req_model = self.env['purchase.requisition']
+        self.log_req_model = self.env['logistic.requisition']
+        self.log_req_line_model = self.env['logistic.requisition.line']
+        self.sale_model = self.env['sale.order']
+        self.purchase_model = self.env['purchase.order']
+        data_model = self.env['ir.model.data']
+        self.partner_1 = data_model.xmlid_to_object('base.res_partner_1')
+        self.partner_3 = data_model.xmlid_to_object('base.res_partner_3')
+        self.partner_4 = data_model.xmlid_to_object('base.res_partner_4')
+        self.user_demo = data_model.xmlid_to_object('base.user_demo')
+        self.lr_currency_usd = data_model.xmlid_to_object('base.USD')
+        self.purchase_pricelist_eur = data_model.xmlid_to_object('purchase.list0')
+        self.pricelist_sale = data_model.xmlid_to_object('product.list0')
         # Computer Case: make_to_order
-        __, self.product_16 = self.get_ref('product', 'product_product_16')
-        __, self.product_uom_pce = self.get_ref('product', 'product_uom_unit')
+        self.product_16 = data_model.xmlid_to_object('product.product_product_16')
+        self.product_uom_pce = data_model.xmlid_to_object('product.product_uom_unit')
         self.vals = {
-            'partner_id': self.partner_4,
-            'consignee_id': self.partner_3,
+            'partner_id': self.partner_4.id,
+            'consignee_id': self.partner_3.id,
             'date_delivery': time.strftime(D_FMT),
-            'user_id': self.user_demo,
-            'currency_id': self.lr_currency_usd,
-            'pricelist_id': self.pricelist_sale,
+            'user_id': self.user_demo.id,
+            'currency_id': self.lr_currency_usd.id,
+            'pricelist_id': self.pricelist_sale.id,
         }
 
         self.line1 = {
-            'product_id': self.product_16,  # MTO
+            'product_id': self.product_16.id,  # MTO
+            'description': "[C-Case] Computer Case",
             'requested_qty': 100,
-            'requested_uom_id': self.product_uom_pce,
+            'requested_uom_id': self.product_uom_pce.id,
             'date_delivery': time.strftime(D_FMT),
             'account_code': '1234',
         }
         self.source1 = {
             'proposed_qty': 100,
-            'proposed_product_id': self.product_16,
-            'proposed_uom_id': self.product_uom_pce,
+            'proposed_product_id': self.product_16.id,
+            'proposed_uom_id': self.product_uom_pce.id,
             'unit_cost': 10,
-            'transport_applicable': 0,
             'procurement_method': 'procurement',
             'price_is': 'estimated',
         }
@@ -90,40 +88,37 @@ class test_sale_order_from_lr_confirm(common.TransactionCase):
         orders on the purchase requisition linked to the logistic
         requisition lines.
 
-        The price from USD to EUr should be respected.
+        The price from USD to EUR should be respected.
         """
-        cr, uid = self.cr, self.uid
-        requisition_id = logistic_requisition.create(self, self.vals)
-        line_id = logistic_requisition.add_line(self, requisition_id, self.line1)
-        source_id = logistic_requisition.add_source(self, line_id, self.source1)
-        logistic_requisition.confirm(self, requisition_id)
-        logistic_requisition.assign_lines(self, [line_id], self.user_demo)
-        purch_req_id = logistic_requisition.create_purchase_requisition(
-            self, source_id)
-        purchase_requisition.change_pricelist(self, purch_req_id,
-            self.purchase_pricelist_eur)
-        purchase_requisition.confirm_call(self, purch_req_id)
+        requisition = self.log_req_model.create(self.vals)
+        line = logistic_requisition.add_line(self, requisition, self.line1)
+        source = logistic_requisition.add_source(self, line, self.source1)
+        requisition.button_confirm()
+        logistic_requisition.assign_lines(self, line, self.user_demo.id)
+        purch_req = logistic_requisition.create_purchase_requisition(
+            self, source)
+        purch_req.pricelist_id = self.purchase_pricelist_eur.id
+        purchase_requisition.confirm_call(self, purch_req)
         bid, bid_line = purchase_requisition.create_draft_purchase_order(
-            self, purch_req_id, self.partner_1)
-        bid_line.write({'price_unit': 10})
-        purchase_order.select_line(self, bid_line.id, 100)
-        purchase_order.bid_encoded(self, bid.id)
-        purchase_requisition.close_call(self, purch_req_id)
-        purchase_requisition.bids_selected(self, purch_req_id)
+            self, purch_req, self.partner_1.id)
+        bid_line.price_unit = 10
+        purchase_order.select_line(self, bid_line, 100)
+        purchase_order.bid_encoded(self, bid)
+        purchase_requisition.close_call(self, purch_req)
+        purchase_requisition.bids_selected(self, purch_req)
 
-        logistic_requisition.check_line_unit_cost(self, source_id, 10,
+        logistic_requisition.check_line_unit_cost(self, source, 10,
             self.purchase_pricelist_eur)
         # Change po value to check
 
-        logistic_requisition.source_lines(self, [line_id])
+        logistic_requisition.source_lines(self, line)
 
         # Try to change again
-        sale_id, __ = logistic_requisition.create_quotation(
-            self, requisition_id, [line_id])
+        sale, __ = logistic_requisition.create_quotation(
+            self, requisition, line)
         # the confirmation of the sale order should generate the
         # purchase order of the purchase requisition
-        self.sale_model.action_button_confirm(cr, uid, [sale_id])
-        purch_req = self.purch_req_model.browse(cr, uid, purch_req_id)
+        sale.action_button_confirm()
         self.assertEquals(purch_req.state,
                           'done',
                           "The purchase requisition should be in 'done' state.")

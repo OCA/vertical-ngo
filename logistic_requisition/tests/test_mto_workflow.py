@@ -65,41 +65,43 @@ class test_mto_workflow(common.TransactionCase):
 
     def setUp(self):
         super(test_mto_workflow, self).setUp()
-        self.log_req_model = self.registry('logistic.requisition')
-        self.log_req_line_model = self.registry('logistic.requisition.line')
-        self.purchase_order_model = self.registry('purchase.order')
-        self.purch_req_model = self.registry('purchase.requisition')
-        self.sale_model = self.registry('sale.order')
-        self.picking_in_model = self.registry('stock.picking.in')
+        self.log_req_model = self.env['logistic.requisition']
+        self.log_req_line_model = self.env['logistic.requisition.line']
+        self.purchase_order_model = self.env['purchase.order']
+        self.purch_req_model = self.env['purchase.requisition']
+        self.sale_model = self.env['sale.order']
+        self.picking_in_model = self.env['stock.picking']
 
-        self.partner_1 = self.ref('base.res_partner_1')
-        self.partner_3 = self.ref('base.res_partner_3')
-        self.partner_4 = self.ref('base.res_partner_4')
-        self.partner_12 = self.ref('base.res_partner_12')
-        self.user_demo = self.ref('base.user_demo')
-        self.product_7 = self.ref('product.product_product_7')
-        self.browse_ref('product.product_product_7').write({'procure_method': 'make_to_order'})
-        self.product_8 = self.ref('product.product_product_8')
-        self.browse_ref('product.product_product_8').write({'procure_method': 'make_to_order'})
-        self.product_uom_pce = self.ref('product.product_uom_unit')
-        self.pricelist_sale = self.ref('product.list0')
+        data_model = self.env['ir.model.data']
+        self.partner_1 = data_model.xmlid_to_object('base.res_partner_1')
+        self.partner_3 = data_model.xmlid_to_object('base.res_partner_3')
+        self.partner_4 = data_model.xmlid_to_object('base.res_partner_4')
+        self.partner_12 = data_model.xmlid_to_object('base.res_partner_12')
+        self.user_demo = data_model.xmlid_to_object('base.user_demo')
+        route_mto_id = self.ref('stock.route_warehouse0_mto')
+        self.product_32 = data_model.xmlid_to_object('product.product_product_32')
+        self.browse_ref('product.product_product_32').write({'route_ids': [(6, 0, [route_mto_id])]})
+        self.product_25 = data_model.xmlid_to_object('product.product_product_25')
+        self.browse_ref('product.product_product_25').write({'route_ids': [(6, 0, [route_mto_id])]})
+        self.product_uom_pce = data_model.xmlid_to_object('product.product_uom_unit')
+        self.pricelist_sale = data_model.xmlid_to_object('product.list0')
         self.vals = {
-            'partner_id': self.partner_4,
-            'consignee_id': self.partner_3,
+            'partner_id': self.partner_4.id,
+            'consignee_id': self.partner_3.id,
             'date_delivery': time.strftime(D_FMT),
-            'user_id': self.user_demo,
-            'pricelist_id' : self.pricelist_sale,
+            'user_id': self.user_demo.id,
+            'pricelist_id' : self.pricelist_sale.id,
         }
-        self.line = {
-            'product_id': self.product_7,
+        self.line_vals = {
+            'product_id': self.product_32.id,
+            'description': "[HEAD] Headset standard",
             'requested_qty': 100,
-            'requested_uom_id': self.product_uom_pce,
+            'requested_uom_id': self.product_uom_pce.id,
             'date_delivery': time.strftime(D_FMT),
             'account_code': 'a code',
             'source_ids': [{'proposed_qty': 100,
-                            'proposed_product_id': self.product_7,
-                            'proposed_uom_id': self.product_uom_pce,
-                            'transport_applicable': 0,
+                            'proposed_product_id': self.product_32.id,
+                            'proposed_uom_id': self.product_uom_pce.id,
                             'procurement_method': 'procurement',
                             'price_is': 'estimated'}],
         }
@@ -113,49 +115,47 @@ class test_mto_workflow(common.TransactionCase):
             - source the lines
             - Create a sales quotation
         """
-        cr, uid = self.cr, self.uid
         # logistic requisition creation
-        requisition_id = logistic_requisition.create(self, self.vals)
-        line_ids = []
+        requisition = self.log_req_model.create(self.vals)
+        lines = self.log_req_line_model.browse()
         for line_vals in lines_vals:
             source_vals = line_vals.pop('source_ids')
-            line_id = logistic_requisition.add_line(
-                self, requisition_id, line_vals)
-            logistic_requisition.confirm(self, requisition_id)
-            logistic_requisition.assign_lines(self, [line_id], self.user_demo)
+            line = logistic_requisition.add_line(
+                self, requisition, line_vals)
+            requisition.button_confirm()
+            logistic_requisition.assign_lines(self, line, self.user_demo.id)
             for src_vals in source_vals:
-                source_id = logistic_requisition.add_source(
-                    self, line_id, src_vals)
+                source = logistic_requisition.add_source(
+                    self, line, src_vals)
 
                 # purchase requisition creation, bids selection
-                purch_req_id = logistic_requisition.create_purchase_requisition(
-                    self, source_id)
-                purchase_requisition.confirm_call(self, purch_req_id)
+                purch_req = logistic_requisition.create_purchase_requisition(
+                    self, source)
+                purchase_requisition.confirm_call(self, purch_req)
                 bid, bid_line = purchase_requisition.create_draft_purchase_order(
-                    self, purch_req_id, self.partner_1)
+                    self, purch_req, self.partner_1.id)
                 bid_line.write({'price_unit': 10})
-                purchase_order.select_line(self, bid_line.id,
+                purchase_order.select_line(self, bid_line,
                                            src_vals['proposed_qty'])
-                purchase_order.bid_encoded(self, bid.id)
-                purchase_requisition.close_call(self, purch_req_id)
-                purchase_requisition.bids_selected(self, purch_req_id)
-            line_ids.append(line_id)
+                purchase_order.bid_encoded(self, bid)
+                purchase_requisition.close_call(self, purch_req)
+                purchase_requisition.bids_selected(self, purch_req)
+            lines |= line
 
         # set lines as sourced
-        logistic_requisition.source_lines(self, line_ids)
+        logistic_requisition.source_lines(self, lines)
 
         # sales order creation
-        sale_id, __ = logistic_requisition.create_quotation(
-            self, requisition_id, line_ids)
+        sale, __ = logistic_requisition.create_quotation(
+            self, requisition, lines)
 
         # the confirmation of the sale order generates the
         # purchase order of the purchase requisition
-        self.sale_model.action_button_confirm(cr, uid, [sale_id])
-        return requisition_id, line_ids, sale_id
+        sale.action_button_confirm()
+        return requisition, lines, sale
 
     def _check_sale_line(self, sale_line):
         """ For a sales order lines, """
-        cr, uid = self.cr, self.uid
         # check if the sale order line is linked with the purchase order
         # line
         self.assertTrue(sale_line.purchase_order_line_id)
@@ -172,9 +172,7 @@ class test_mto_workflow(common.TransactionCase):
 
         # confirm the purchase order
         self.assertEquals(purchase.state, 'draftpo')
-        wf_service = netsvc.LocalService("workflow")
-        wf_service.trg_validate(uid, 'purchase.order',
-                                purchase.id, 'purchase_confirm', cr)
+        purchase.signal_workflow('purchase_confirm')
         purchase.refresh()
         self.assertEquals(purchase.state, 'approved')
 
@@ -183,12 +181,12 @@ class test_mto_workflow(common.TransactionCase):
         self.assertEquals(len(purchase.picking_ids), 1)
         picking = purchase.picking_ids[0]
         # receive it
-        receive_obj = self.registry('stock.partial.picking')
-        wizard_id = receive_obj.create(cr, uid, {},
-                                       {'active_model': 'stock.picking.in',
-                                        'active_id': picking.id,
-                                        'active_ids': [picking.id]})
-        receive_obj.do_partial(cr, uid, [wizard_id])
+        receive_obj = self.env['stock.partial.picking']
+        ctx = {'active_model': 'stock.picking',
+               'active_id': picking.id,
+               'active_ids': [picking.id]}
+        wizard = receive_obj.with_context(ctx).create({})
+        wizard.do_partial()
         picking.refresh()
         self.assertEquals(picking.state, 'done')
 
@@ -201,10 +199,8 @@ class test_mto_workflow(common.TransactionCase):
 
     def test_workflow_with_1_line(self):
         """ Test the full workflow and check if sale and purchase are both delivered """
-        cr, uid = self.cr, self.uid
-        requisition_id, line_ids, sale_id = self._setup_initial_data([self.line])
+        requisition, lines, sale = self._setup_initial_data([self.line_vals])
 
-        sale = self.sale_model.browse(cr, uid, sale_id)
         assert len(sale.order_line) == 1
         assert sale.order_line[0].type == 'make_to_order'
         self._check_sale_line(sale.order_line[0])
@@ -221,24 +217,23 @@ class test_mto_workflow(common.TransactionCase):
         cr, uid = self.cr, self.uid
         # add a line in the logistic requisition
         line2 = {
-            'product_id': self.product_8,
+            'product_id': self.product_25.id,
+            'description': "[LAP-E5] Laptop E5023",
             'requested_qty': 200,
-            'requested_uom_id': self.product_uom_pce,
+            'requested_uom_id': self.product_uom_pce.id,
             'date_delivery': time.strftime(D_FMT),
             'account_code': 'a code',
             'source_ids': [{'proposed_qty': 200,
-                            'proposed_product_id': self.product_8,
-                            'proposed_uom_id': self.product_uom_pce,
-                            'transport_applicable': 0,
+                            'proposed_product_id': self.product_25.id,
+                            'proposed_uom_id': self.product_uom_pce.id,
                             'procurement_method': 'procurement',
                             'price_is': 'estimated'}],
         }
-        lines = [self.line, line2]
-        requisition_id, line_ids, sale_id = self._setup_initial_data(lines)
+        lines = [self.line_vals, line2]
+        requisition, lines, sale = self._setup_initial_data(lines)
 
         # the confirmation of the sale order generates the
         # purchase order of the purchase requisition
-        sale = self.sale_model.browse(cr, uid, sale_id)
         assert len(sale.order_line) == 2
         self._check_sale_line(sale.order_line[0])
         sale.refresh()

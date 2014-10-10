@@ -22,59 +22,40 @@
 
 """ Helpers for the tests for the purchase requisition model
 """
-from openerp import netsvc
 
 
-def confirm_call(test, purchase_requisition_id):
+def confirm_call(test, purchase_requisition):
     """ Confirm the call for bids """
-    wf_service = netsvc.LocalService("workflow")
-    wf_service.trg_validate(test.uid, 'purchase.requisition',
-                            purchase_requisition_id, 'sent_suppliers', test.cr)
+    purchase_requisition.signal_workflow('sent_suppliers')
 
 
-def close_call(test, purchase_requisition_id):
+def close_call(test, purchase_requisition):
     """ Confirm the call for bids, next step is selection of lines """
-    wf_service = netsvc.LocalService("workflow")
-    wf_service.trg_validate(test.uid, 'purchase.requisition',
-                            purchase_requisition_id, 'open_bid', test.cr)
+    purchase_requisition.signal_workflow('open_bid')
 
 
-def bids_selected(test, purchase_requisition_id):
+def bids_selected(test, purchase_requisition):
     """ Close the purchase requisition, after selection of purchase lines """
-    purch_req_obj = test.registry('purchase.requisition')
-    purch_req_obj.close_callforbids_ok(test.cr, test.uid,
-                                       [purchase_requisition_id])
+    purchase_requisition.close_callforbids_ok()
 
-def change_pricelist(test, purchase_requisition_id, pricelist_id):
-    """ Change the pricelist """
-    purch_req_obj = test.registry('purchase.requisition')
-    purch_req_obj.write(test.cr, test.uid, [purchase_requisition_id],
-        {'pricelist_id': pricelist_id})
-
-
-def create_draft_purchase_order(test, purchase_requisition_id, partner_id):
+def create_draft_purchase_order(test, purchase_requisition, partner_id):
     """ Create a draft purchase order for a purchase requisition.
 
     Returns the purchase order created with the line.
     A logistic requisition create always only 1 line in a purchase order.
 
     :param test: instance of the running test
-    :param purchase_requisition_id: id of the purchase requisition
+    :param purchase_requisition: recordset of the purchase requisition
     :param partner_id: id of the supplier of the purchase order
     :returns: a tuple with (browse record the purchase order created,
                             browse record of the line)
     """
-    cr, uid = test.cr, test.uid
-    purch_req_obj = test.registry('purchase.requisition')
-    purch_order_obj = test.registry('purchase.order')
+    purch_order_obj = test.env['purchase.order']
     context = {'draft_bid': True}
-    res = purch_req_obj.make_purchase_order(cr, uid,
-                                            [purchase_requisition_id],
-                                            partner_id,
-                                            context=context)
-    po_id = res[purchase_requisition_id]
+    res = purchase_requisition.with_context(context).make_purchase_order(partner_id)
+    po_id = res[purchase_requisition.id]
     assert po_id
-    purchase = purch_order_obj.browse(cr, uid, po_id)
+    purchase = purch_order_obj.browse(po_id)
     test.assertEquals(len(purchase.order_line), 1,
                       "We should always have 1 line in a purchase order "
                       "created from a logistic requisition line.")

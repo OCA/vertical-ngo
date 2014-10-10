@@ -12,8 +12,10 @@
 -
   !record {model: logistic.requisition.line, id: logistic_requisition_line_assign_01}:
     requisition_id: logistic_requisition_assign_01
-    product_id: product.product_product_7
+    product_id: product.product_product_32
+    description: "[HEAD] Headset standard"
     requested_qty: 100
+    requested_uom_id: product.product_uom_unit
     date_delivery: !eval "time.strftime('%Y-%m-%d')"
     logistic_user_id: base.user_demo
 -
@@ -21,15 +23,17 @@
 -
   !record {model: logistic.requisition.line, id: logistic_requisition_line_assign_02}:
     requisition_id: logistic_requisition_assign_01
-    product_id: product.product_product_8
+    product_id: product.product_product_25
+    description: "[LAP-E5] Laptop E5023"
     requested_qty: 100
+    requested_uom_id: product.product_uom_unit
     date_delivery: !eval "time.strftime('%Y-%m-%d')"
 -
   When I confirm the logistic requisition
 -
-  !python {model: logistic.requisition}: |
-    req = self.browse(cr, uid, ref("logistic_requisition_assign_01"))
-    req.button_confirm()
+  !python {model: logistic.requisition, id: logistic_requisition_assign_01}: |
+    self.button_confirm()
+    self.refresh()
 -
   Then the state of the line 1 should be assigned
 -
