@@ -35,14 +35,6 @@ class SaleOrder(models.Model):
                                      copy=False)
 
 
-    def copy(self, cr, uid, id, default=None, context=None):
-        if not default:
-            default = {}
-        default['invoice_ids'] = False
-        return super(SaleOrder, self
-                     ).copy(cr, uid, id, default=default, context=context)
-
-
 class SaleOrderLine(models.Model):
     _inherit = "sale.order.line"
 
