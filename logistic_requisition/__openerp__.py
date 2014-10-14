@@ -77,7 +77,8 @@ Contributors
 * Nicolas Bessi <nicolas.bessi@camptocamp.com>
 * Yannick Vaucher <yannick.vaucher@camptocamp.com>
 """,
- "depends": ["stock_dropshipping",
+ "depends": ["sale_sourced_by_line",
+             "stock_dropshipping",
              "purchase",
              "purchase_requisition_bid_selection",
              "mail",
