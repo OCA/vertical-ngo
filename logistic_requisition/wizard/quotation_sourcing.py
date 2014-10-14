@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 #
-#
-#    Author: Joël Grand-Guillaume
-#    Copyright 2013-2014 Camptocamp SA
+#    Author: Alexandre Fayolle
+#    Copyright 2014 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -18,8 +17,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #
-from . import logistic_line_create_requisition
-from . import assign_line
-from . import cost_estimate
-from . import logistic_requisition_cancel
-from . import quotation_sourcing
+from openerp import models, fields
+
+
+class QuotationLineSource(models.TransientModel):
+    _inherit = 'sale.order.line.sourcing'
+    po_line_id = fields.Many2one(
+        'purchase.order.line',
+        string='Sourced By',
+        domain=[('state', 'in', ['draft', 'confirmed'])])
