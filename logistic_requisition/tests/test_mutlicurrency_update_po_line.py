@@ -106,6 +106,7 @@ class test_sale_order_from_lr_confirm(common.TransactionCase):
         purchase_order.bid_encoded(self, bid)
         purchase_requisition.close_call(self, purch_req)
         purchase_requisition.bids_selected(self, purch_req)
+        purch_req.generate_po()
 
         logistic_requisition.check_line_unit_cost(self, source, 10,
             self.purchase_pricelist_eur)
@@ -118,9 +119,18 @@ class test_sale_order_from_lr_confirm(common.TransactionCase):
             self, requisition, line)
         # the confirmation of the sale order should generate the
         # purchase order of the purchase requisition
-        sale.action_button_confirm()
-        self.assertEquals(purch_req.state,
-                          'done',
-                          "The purchase requisition should be in 'done' state.")
+        po = self.env['purchase.order'].search(
+                [('requisition_id', '=', purch_req.id),
+                 ('type', '=', 'purchase'),
+                 ('state', 'in', ['approved'])])
+        po.order_line.ensure_one()
+        sale.order_line.sourced_by = po.order_line.id
+        # the confirmation of the sale order link the
+        # purchase order on the purchase requisition
+        sale.signal_workflow('order_confirm')
+        sale.action_ship_create()
+        #self.assertEquals(purch_req.state,
+        #                  'done',
+        #                  "The purchase requisition should be in 'done' state.")
         self.assertEquals(len(purch_req.purchase_ids), 1,
                           "We should have only 1 purchase order.")

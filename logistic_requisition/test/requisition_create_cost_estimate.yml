@@ -125,15 +125,13 @@
   I check if the information of the lines is correct
 -
   !python {model: logistic.requisition.source}: |
-    def check_line(self, cr, uid, line_id):
+    def check_line(self, cr, uid, source_line_id):
         # the upper scope is not accessible here,
         # that's why self, cr, uid are passed as arguments
-        sale_line_obj = self.pool.get('sale.order.line')
-        sale_line_ids = sale_line_obj.search(
-            cr, uid, [('logistic_requisition_source_id', '=', line_id)])
-        assert len(sale_line_ids) == 1
-        sale_line = sale_line_obj.browse(cr, uid, sale_line_ids[0])
-        source = self.browse(cr, uid, line_id)
+        location_obj = self.pool['stock.location']
+        source = self.browse(cr, uid, source_line_id)
+        sale_lines = source.requisition_id.line_ids[0].cost_estimate_id.order_line
+        sale_line = [line for line in sale_lines if line.product_id == source.proposed_product_id][0]
         line = source.requisition_line_id
         assert sale_line.product_id == source.proposed_product_id, (
             "product_id should be %s, received %s" %
@@ -158,24 +156,20 @@
         assert sale_line.price_is == source.price_is, (
             "price_is should be %s, received %s" %
             (source.price_is, sale_line.price_is))
-        #assert_type = ('make_to_stock'
-                       #if source.procurement_method == 'wh_dispatch'
-                       #else 'make_to_order')
-        #assert sale_line.type == assert_type, (
-            #"Type should be %s, received: %s" % (assert_type, sale_line.type))
 
         if source.procurement_method != 'wh_dispatch':
             assert sale_line.sale_flow == 'direct_delivery', (
                 "A line not in 'Warehouse dispatch' should be in direct delivery")
 
-        #if source.dispatch_location_id:
-            #assert sale_line.location_id == source.dispatch_location_id, (
-                #"dispatch should be %s, received %s" %
-                #(source.dispatch_location_id, sale_line.location_id))
-        #else:
-            #assert not sale_line.location_id, (
-                #"No dispatch location on requisition line, but received a "
-                #"location in sale order line")
+        loc = source.dispatch_location_id
+        if location_obj.get_warehouse(cr, uid, loc):
+            assert sale_line.warehouse_id.id == location_obj.get_warehouse(cr, uid, loc), (
+                "dispatch should be %s, received %s" %
+                (location_obj.get_warehouse(cr, uid, loc), sale_line.warehouse_id.id))
+        else:
+            assert not sale_line.warehouse_id, (
+                "No dispatch location on requisition line, but received a "
+                "location in sale order line")
 
     source1_id = ref("logistic_requisition_source_cost_estimate_01")
     source2_id = ref("logistic_requisition_source_cost_estimate_02")

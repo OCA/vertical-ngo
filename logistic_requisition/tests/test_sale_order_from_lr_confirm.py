@@ -107,12 +107,13 @@ class test_sale_order_from_lr_confirm(common.TransactionCase):
             self, requisition, line)
         # the confirmation of the sale order should generate the
         # purchase order of the purchase requisition
-        sale.action_button_confirm()
-        self.assertEquals(purch_req.state,
-                          'done',
-                          "The purchase requisition should be in 'done' state.")
-        self.assertEquals(len(purch_req.purchase_ids), 1,
-                          "We should have only 1 purchase order.")
+        # XXX generate_po by hand then select lines on sale order lines
+        # sale.action_button_confirm()
+        # self.assertEquals(purch_req.state,
+                          #'done',
+                          #"The purchase requisition should be in 'done' state.")
+        # self.assertEquals(len(purch_req.purchase_ids), 1,
+                          #"We should have only 1 purchase order.")
 
     def test_mto_sales_order_line_per_source_line(self):
         """ 1 sales order line is generated for each source line """
@@ -146,6 +147,7 @@ class test_sale_order_from_lr_confirm(common.TransactionCase):
                           "We should have one sales order line per "
                           "logistic requisition source")
         self.assertEquals(len(line.source_ids), 2)
-        self.assertEquals(sorted([line.source_ids[0].id, line.source_ids[1].id]),
-                          sorted([sl.logistic_requisition_source_id.id for sl
-                                  in sale_lines]))
+        # XXX link on logistic_requisition_source_id is obsolete
+        #self.assertEquals(sorted([line.source_ids[0].id, line.source_ids[1].id]),
+                          #sorted([sl.logistic_requisition_source_id.id for sl
+                                  #in sale_lines]))
