@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <report
+            id="action_report_logistic_requisition"
+            string="Logistic Requisition"
+            model="logistic.requisition"
+            report_type="qweb-pdf"
+            file="logistic_requisition.report_logistic_requisition"
+            name="logistic_requisition.report_logistic_requisition"
+            auto="False"
+            />
+    </data>
+</openerp>
