@@ -813,7 +813,7 @@ class LogisticRequisitionSource(models.Model):
         """Predicate function to test if line on procurement
         method are sourced"""
         if (not source.po_requisition_id or
-                source.po_requisition_id.state != 'closed'):
+                source.po_requisition_id.state not in ['done', 'closed']):
             return False
         return True
 
