@@ -22,6 +22,7 @@
 """ Helpers for the tests for the purchase order model
 """
 
+
 def select_line(test, purchase_line, quantity):
     """ Select a quantity of products the BID """
     purchase_line.quantity_bid = quantity

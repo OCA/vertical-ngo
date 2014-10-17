@@ -20,8 +20,6 @@
 ##############################################################################
 
 import time
-import unittest2
-from functools import partial
 
 from openerp.tools import DEFAULT_SERVER_DATE_FORMAT as D_FMT
 import openerp.tests.common as common
@@ -49,11 +47,14 @@ class test_sale_order_from_lr_confirm(common.TransactionCase):
         self.partner_4 = data_model.xmlid_to_object('base.res_partner_4')
         self.user_demo = data_model.xmlid_to_object('base.user_demo')
         self.lr_currency_usd = data_model.xmlid_to_object('base.USD')
-        self.purchase_pricelist_eur = data_model.xmlid_to_object('purchase.list0')
+        self.purchase_pricelist_eur = data_model.xmlid_to_object(
+            'purchase.list0')
         self.pricelist_sale = data_model.xmlid_to_object('product.list0')
         # Computer Case: make_to_order
-        self.product_16 = data_model.xmlid_to_object('product.product_product_16')
-        self.product_uom_pce = data_model.xmlid_to_object('product.product_uom_unit')
+        self.product_16 = data_model.xmlid_to_object(
+            'product.product_product_16')
+        self.product_uom_pce = data_model.xmlid_to_object(
+            'product.product_uom_unit')
         self.vals = {
             'partner_id': self.partner_4.id,
             'consignee_id': self.partner_3.id,
@@ -81,7 +82,8 @@ class test_sale_order_from_lr_confirm(common.TransactionCase):
         }
 
     def test_lrs_price_from_po_price_multicurrency(self):
-        """ The purchase requisition must generate the purchase orders on confirmation of sale order.
+        """ The purchase requisition must generate the purchase orders on
+        confirmation of sale order.
 
         When a logistic requisition creates a sale order with MTO lines,
         the confirmation of the lines should generates the purchase
@@ -109,7 +111,7 @@ class test_sale_order_from_lr_confirm(common.TransactionCase):
         purch_req.generate_po()
 
         logistic_requisition.check_line_unit_cost(self, source, 10,
-            self.purchase_pricelist_eur)
+                                                  self.purchase_pricelist_eur)
         # Change po value to check
 
         logistic_requisition.source_lines(self, line)
@@ -120,17 +122,18 @@ class test_sale_order_from_lr_confirm(common.TransactionCase):
         # the confirmation of the sale order should generate the
         # purchase order of the purchase requisition
         po = self.env['purchase.order'].search(
-                [('requisition_id', '=', purch_req.id),
-                 ('type', '=', 'purchase'),
-                 ('state', 'in', ['approved'])])
+            [('requisition_id', '=', purch_req.id),
+             ('type', '=', 'purchase'),
+             ('state', 'in', ['approved'])])
         po.order_line.ensure_one()
         sale.order_line.sourced_by = po.order_line.id
         # the confirmation of the sale order link the
         # purchase order on the purchase requisition
         sale.signal_workflow('order_confirm')
         sale.action_ship_create()
-        #self.assertEquals(purch_req.state,
+        # self.assertEquals(purch_req.state,
         #                  'done',
-        #                  "The purchase requisition should be in 'done' state.")
+        #                  "The purchase requisition should be in 'done' "
+        #                  "state.")
         self.assertEquals(len(purch_req.purchase_ids), 1,
                           "We should have only 1 purchase order.")

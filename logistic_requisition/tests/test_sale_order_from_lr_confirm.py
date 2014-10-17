@@ -20,8 +20,6 @@
 ##############################################################################
 
 import time
-import unittest2
-from functools import partial
 
 from openerp.tools import DEFAULT_SERVER_DATE_FORMAT as D_FMT
 import openerp.tests.common as common
@@ -51,8 +49,10 @@ class test_sale_order_from_lr_confirm(common.TransactionCase):
         self.partner_4 = data_model.xmlid_to_object('base.res_partner_4')
         self.user_demo = data_model.xmlid_to_object('base.user_demo')
         # Computer Case: make_to_order
-        self.product_16 = data_model.xmlid_to_object('product.product_product_16')
-        self.product_uom_pce = data_model.xmlid_to_object('product.product_uom_unit')
+        self.product_16 = data_model.xmlid_to_object(
+            'product.product_product_16')
+        self.product_uom_pce = data_model.xmlid_to_object(
+            'product.product_uom_unit')
         self.pricelist_sale = data_model.xmlid_to_object('product.list0')
         self.vals = {
             'partner_id': self.partner_4.id,
@@ -80,7 +80,8 @@ class test_sale_order_from_lr_confirm(common.TransactionCase):
         }
 
     def test_mto_generate_po(self):
-        """ The purchase requisition must generate the purchase orders on confirmation of sale order.
+        """ The purchase requisition must generate the purchase orders on
+        confirmation of sale order.
 
         When a logistic requisition creates a sale order with MTO lines,
         the confirmation of the lines should generates the purchase
@@ -110,10 +111,11 @@ class test_sale_order_from_lr_confirm(common.TransactionCase):
         # XXX generate_po by hand then select lines on sale order lines
         # sale.action_button_confirm()
         # self.assertEquals(purch_req.state,
-                          #'done',
-                          #"The purchase requisition should be in 'done' state.")
+        #                   'done',
+        #                   "The purchase requisition should be in 'done' "
+        #                   "state.")
         # self.assertEquals(len(purch_req.purchase_ids), 1,
-                          #"We should have only 1 purchase order.")
+                          # "We should have only 1 purchase order.")
 
     def test_mto_sales_order_line_per_source_line(self):
         """ 1 sales order line is generated for each source line """
@@ -148,6 +150,7 @@ class test_sale_order_from_lr_confirm(common.TransactionCase):
                           "logistic requisition source")
         self.assertEquals(len(line.source_ids), 2)
         # XXX link on logistic_requisition_source_id is obsolete
-        #self.assertEquals(sorted([line.source_ids[0].id, line.source_ids[1].id]),
-                          #sorted([sl.logistic_requisition_source_id.id for sl
-                                  #in sale_lines]))
+        # self.assertEquals(sorted([line.source_ids[0].id,
+        #                   line.source_ids[1].id]),
+        #                   sorted([sl.logistic_requisition_source_id.id for sl
+        #                           in sale_lines]))

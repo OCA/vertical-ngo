@@ -38,6 +38,7 @@ def bids_selected(test, purchase_requisition):
     """ Close the purchase requisition, after selection of purchase lines """
     purchase_requisition.close_callforbids_ok()
 
+
 def create_draft_purchase_order(test, purchase_requisition, partner_id):
     """ Create a draft purchase order for a purchase requisition.
 
@@ -50,12 +51,13 @@ def create_draft_purchase_order(test, purchase_requisition, partner_id):
     :returns: a tuple with (browse record the purchase order created,
                             browse record of the line)
     """
-    purch_order_obj = test.env['purchase.order']
     context = {'draft_bid': True}
-    res = purchase_requisition.with_context(context).make_purchase_order(partner_id)
+    res = (purchase_requisition
+           .with_context(context)
+           .make_purchase_order(partner_id))
     po_id = res[purchase_requisition.id]
     assert po_id
-    purchase = purch_order_obj.browse(po_id)
+    purchase = test.env['purchase.order'].browse(po_id)
     test.assertEquals(len(purchase.order_line), 1,
                       "We should always have 1 line in a purchase order "
                       "created from a logistic requisition line.")

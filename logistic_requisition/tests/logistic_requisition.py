@@ -77,9 +77,8 @@ def check_line_unit_cost(test, lrs, bid_price, bid_pricelist):
     from_curr = bid_pricelist.currency_id
     price = from_curr.compute(bid_price, to_curr, round=False)
     delta = abs(lrs.unit_cost - price)
-    assert delta < 0.01, ("The unit cost of the LRS should be the selected "
-                          "bid value converted regarding the different currency")
-
+    assert delta < 0.01, ("The unit cost of the LRS should be the selected bid"
+                          " value converted regarding the different currency")
 
 
 def create_quotation(test, requisition, lines):
@@ -94,24 +93,24 @@ def create_quotation(test, requisition, lines):
     :param requisition: recordset of the requisition
     :returns: tuple with (sale id, [sale line ids])
     """
-    log_req_line_obj = test.env['logistic.requisition.line']
     wizard_obj = test.env['logistic.requisition.cost.estimate']
-    sale_obj = test.env['sale.order']
     ctx = {'active_model': 'logistic.requisition.line',
            'active_ids': lines.ids}
-    wizard = wizard_obj.with_context(ctx).create({'requisition_id': requisition.id})
+    wizard = (wizard_obj
+              .with_context(ctx)
+              .create({'requisition_id': requisition.id}))
     res = wizard.cost_estimate()
     sale_id = res['res_id']
-    sale = sale_obj.browse(sale_id)
+    sale = test.env['sale.order'].browse(sale_id)
     sale_lines = sale.order_line
     source_lines = [sl for line in lines for sl in line.source_ids]
     test.assertEquals(len(sale_lines),
                       len(source_lines),
                       "A sale line per logistic requisition "
                       "soucing line should have been created")
-    #for sale_line in sale_lines:
-        #test.assertTrue(sale_line.logistic_requisition_source_id.id
-                        #in [sl.id for sl in source_lines])
+    # for sale_line in sale_lines:
+    #     test.assertTrue(sale_line.logistic_requisition_source_id.id
+    #                     in [sl.id for sl in source_lines])
     return sale, sale_lines
 
 

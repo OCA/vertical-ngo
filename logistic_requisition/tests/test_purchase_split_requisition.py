@@ -20,7 +20,6 @@
 ##############################################################################
 
 import time
-import unittest2
 
 from openerp.tools import DEFAULT_SERVER_DATE_FORMAT as D_FMT
 import openerp.tests.common as common
@@ -53,7 +52,6 @@ class test_purchase_split_requisition(common.TransactionCase):
 
     def setUp(self):
         super(test_purchase_split_requisition, self).setUp()
-        cr, uid = self.cr, self.uid
         self.ir_model_data = self.env['ir.model.data']
         self.log_req = self.env['logistic.requisition']
         self.log_req_line = self.env['logistic.requisition.line']
@@ -65,8 +63,10 @@ class test_purchase_split_requisition(common.TransactionCase):
         self.partner_4 = data_model.xmlid_to_object('base.res_partner_4')
         self.partner_12 = data_model.xmlid_to_object('base.res_partner_12')
         self.user_demo = data_model.xmlid_to_object('base.user_demo')
-        self.product_32 = data_model.xmlid_to_object('product.product_product_32')
-        self.product_uom_pce = data_model.xmlid_to_object('product.product_uom_unit')
+        self.product_32 = data_model.xmlid_to_object(
+            'product.product_product_32')
+        self.product_uom_pce = data_model.xmlid_to_object(
+            'product.product_uom_unit')
         self.pricelist_sale = data_model.xmlid_to_object('product.list0')
 
         vals = {
@@ -92,18 +92,19 @@ class test_purchase_split_requisition(common.TransactionCase):
         }
         self.requisition = self.log_req.create(vals)
         self.line = logistic_requisition.add_line(self, self.requisition,
-                                                     line)
+                                                  line)
         self.source = logistic_requisition.add_source(self, self.line,
-                                                         source)
+                                                      source)
         self.requisition.button_confirm()
         logistic_requisition.assign_lines(self, self.line, self.user_demo.id)
         purch_req = logistic_requisition.create_purchase_requisition(
             self, self.source)
         purchase_requisition.confirm_call(self, purch_req)
-        purch_req_model = self.env['purchase.requisition']
         self.purchase_requisition = purch_req
         dp_obj = self.env['decimal.precision']
-        self.uom_precision = dp_obj.sudo().precision_get('Product Unit of Measure')
+        self.uom_precision = (dp_obj
+                              .sudo()
+                              .precision_get('Product Unit of Measure'))
 
     def assertPurchaseToRequisitionLines(self, bid_lines):
         """ assert that the lines of a logistic requisition are correct
@@ -139,7 +140,10 @@ class test_purchase_split_requisition(common.TransactionCase):
                               "their currency are the same ")
 
     def test_split_1_line_selected(self):
-        """ Create a call for bids from the logistic requisition, 1 po line choosed """
+        """ Create a call for bids from the logistic requisition, 1 po line
+        choosed
+
+        """
         # create a first draft bid and select completely the line
         purchase, bid_line = purchase_requisition.create_draft_purchase_order(
             self, self.purchase_requisition, self.partner_1.id)
@@ -169,21 +173,24 @@ class test_purchase_split_requisition(common.TransactionCase):
                           "line and no remaining line.")
 
     def test_split_bid_2_line_selected(self):
-        """ Create a call for bids from the logistic requisition, 2 po line choosed
+        """ Create a call for bids from the logistic requisition, 2 po line
+        choosed
 
         30 items in a first purchase order and 70 items in a second one,
         for a total of 100 items.
         """
         # create a first draft bid and select a part of the line
-        purchase1, bid_line1 = purchase_requisition.create_draft_purchase_order(
+        draft_po = purchase_requisition.create_draft_purchase_order(
             self, self.purchase_requisition, self.partner_1.id)
+        purchase1, bid_line1 = draft_po
         bid_line1.price_unit = 10
         purchase_order.select_line(self, bid_line1, 30)
         purchase_order.bid_encoded(self, purchase1)
 
         # create a second draft bid and select a part of the line
-        purchase2, bid_line2 = purchase_requisition.create_draft_purchase_order(
+        draft_po = purchase_requisition.create_draft_purchase_order(
             self, self.purchase_requisition, self.partner_12.id)
+        purchase2, bid_line2 = draft_po
         bid_line2.price_unit = 9.5
         purchase_order.select_line(self, bid_line2, 70)
         purchase_order.bid_encoded(self, purchase2)
@@ -210,7 +217,8 @@ class test_purchase_split_requisition(common.TransactionCase):
                           "lines and no remaining line.")
 
     def test_split_too_many_products_selected(self):
-        """ Create a call for bids from the logistic requisition, 2 po line choosed (too many)
+        """ Create a call for bids from the logistic requisition, 2 po line
+        choosed (too many)
 
         30 items in a first purchase order and 80 items in a second one,
         for a total of 110 items. That means 110 products have been ordered
@@ -221,15 +229,17 @@ class test_purchase_split_requisition(common.TransactionCase):
         we increase the quantity of products in the line.
         """
         # create a first draft bid and select a part of the line
-        purchase1, bid_line1 = purchase_requisition.create_draft_purchase_order(
+        draft_po = purchase_requisition.create_draft_purchase_order(
             self, self.purchase_requisition, self.partner_1.id)
+        purchase1, bid_line1 = draft_po
         bid_line1.price_unit = 10
         purchase_order.select_line(self, bid_line1, 30)
         purchase_order.bid_encoded(self, purchase1)
 
         # create a second draft bid and select a part of the line
-        purchase2, bid_line2 = purchase_requisition.create_draft_purchase_order(
+        draft_po = purchase_requisition.create_draft_purchase_order(
             self, self.purchase_requisition, self.partner_12.id)
+        purchase2, bid_line2 = draft_po
         bid_line2.price_unit = 7
         purchase_order.select_line(self, bid_line2, 80)
         purchase_order.bid_encoded(self, purchase2)
@@ -256,7 +266,8 @@ class test_purchase_split_requisition(common.TransactionCase):
                           "lines and no remaining line.")
 
     def test_split_too_few_products_selected(self):
-        """ Create a call for bids from the logistic requisition, 2 po line choosed (too few)
+        """ Create a call for bids from the logistic requisition, 2 po line
+        choosed (too few)
 
         30 items in a first purchase order and 50 items in a second one,
         for a total of 80 items. That means 80 products have been ordered
@@ -266,15 +277,17 @@ class test_purchase_split_requisition(common.TransactionCase):
         the lines.
         """
         # create a first draft bid and select a part of the line
-        purchase1, bid_line1 = purchase_requisition.create_draft_purchase_order(
+        draft_po = purchase_requisition.create_draft_purchase_order(
             self, self.purchase_requisition, self.partner_1.id)
+        purchase1, bid_line1 = draft_po
         bid_line1.price_unit = 10
         purchase_order.select_line(self, bid_line1, 30)
         purchase_order.bid_encoded(self, purchase1)
 
         # create a second draft bid and select a part of the line
-        purchase2, bid_line2 = purchase_requisition.create_draft_purchase_order(
+        draft_po = purchase_requisition.create_draft_purchase_order(
             self, self.purchase_requisition, self.partner_12.id)
+        purchase2, bid_line2 = draft_po
         bid_line2.price_unit = 10
         purchase_order.select_line(self, bid_line2, 50)
         purchase_order.bid_encoded(self, purchase2)
