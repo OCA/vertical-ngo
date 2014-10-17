@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+    <template id="report_logistic_requisition_document" inherit_id="logistic_requisition.report_logistic_requisition_document">
+
+      <xpath expr='//table[@width="100%"]' position="after">
+        <p><strong>Budget</strong></p>
+        <p>
+          <strong>Budget limit</strong>
+          <span t-field="o.allowed_budget"/>
+        </p>
+        <table width="100%">
+            <tr>
+              <td><strong>Budget/financial holder:</strong></td>
+              <td><strong>Validation date:</strong></td>
+              <td><strong>Signature:</strong></td>
+            </tr>
+            <tr t-if="o.budget_holder_id">
+              <td>
+                <span t-field="o.budget_holder_id"/>
+              </td>
+              <td>
+                <span t-if="o.date_budget_holder" t-field="o.date_budget_holder"/>
+                <span t-if="not o.date_budget_holder">N/A</span>
+              </td>
+              <td></td>
+            </tr>
+            <tr t-if="o.finance_officer_id">
+              <td>
+                <span t-field="o.finance_officer_id"/>
+              </td>
+              <td>
+                <span t-if="o.date_finance_officer" t-field="o.date_finance_officer"/>
+                <span t-if="not o.date_finance_officer">N/A</span>
+              </td>
+              <td></td>
+            </tr>
+        </table>
+      </xpath>
+
+    </template>
+
+  </data>
+</openerp>

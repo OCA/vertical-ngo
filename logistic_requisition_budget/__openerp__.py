@@ -42,7 +42,7 @@ or budget.
              ],
  "demo": [],
  "data": ["view/logistic_requisition.xml",
-          "report/logistic_requisition_report.xml",
+          "view/report_logistic_requisition.xml",
           ],
  "auto_install": False,
  "test": ['test/requisition_create_cost_estimate.yml',
