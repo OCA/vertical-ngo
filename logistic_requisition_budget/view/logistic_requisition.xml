@@ -73,7 +73,7 @@
     <record model="ir.ui.view" id="view_logistic_requisition_line_budget_form">
         <field name="name">logistic.requisition.line.budget.form</field>
         <field name="model">logistic.requisition.line</field>
-        <field name="inherit_id" ref="logistic_requisition.view_logistic_requisition_line_form"/>        
+        <field name="inherit_id" ref="logistic_requisition.view_logistic_requisition_line_form"/>
         <field name="arch" type="xml">
              <xpath expr="//form[@string='Logistic Requisition Line']/sheet/group/group/field[@name='currency_id']" position="after">
                             <field name="budget_unit_price" widget="monetary"
@@ -82,7 +82,7 @@
                                 options="{'currency_field': 'currency_id'}"/>
              </xpath>
         </field>
-       </record>                                
+       </record>
 
 
     </data>
