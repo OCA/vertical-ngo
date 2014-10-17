@@ -49,5 +49,5 @@ or budget.
  "auto_install": False,
  "test": ['test/requisition_create_cost_estimate.yml',
           ],
- 'installable': False,
+ 'installable': True,
  }
