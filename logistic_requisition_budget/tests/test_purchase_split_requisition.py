@@ -20,7 +20,6 @@
 ##############################################################################
 
 import time
-import unittest2
 from functools import partial
 
 from openerp.tools import DEFAULT_SERVER_DATE_FORMAT as D_FMT
@@ -71,8 +70,8 @@ class test_purchase_split_requisition(common.TransactionCase):
         __, self.user_demo = self.get_ref('base', 'user_demo')
         __, self.product_7 = self.get_ref('product', 'product_product_7')
         __, self.product_uom_pce = self.get_ref('product', 'product_uom_unit')
-        __, self.pricelist_sale = self.get_ref('product','list0')
-        
+        __, self.pricelist_sale = self.get_ref('product', 'list0')
+
         vals = {
             'partner_id': self.partner_4,
             'consignee_id': self.partner_3,
@@ -112,7 +111,8 @@ class test_purchase_split_requisition(common.TransactionCase):
                                                   'Product Unit of Measure')
 
     def test_split_too_many_products_selected_budget_exceeded(self):
-        """ Create a call for bids from the logistic requisition, 2 po line choosed (budget exceeded)
+        """ Create a call for bids from the logistic requisition, 2 po line
+        choosed (budget exceeded)
 
         30 items in a first purchase order and 80 items in a second one,
         for a total of 110 items. That means 110 products have been ordered
@@ -122,15 +122,17 @@ class test_purchase_split_requisition(common.TransactionCase):
         We should not be able to propose more than requested financially.
         """
         # create a first draft bid and select a part of the line
-        purchase1, bid_line1 = purchase_requisition.create_draft_purchase_order(
+        po_draft = purchase_requisition.create_draft_purchase_order(
             self, self.purchase_requisition.id, self.partner_1)
+        purchase1, bid_line1 = po_draft
         bid_line1.write({'price_unit': 15})
         purchase_order.select_line(self, bid_line1.id, 30)
         purchase_order.bid_encoded(self, purchase1.id)
 
         # create a second draft bid and select a part of the line
-        purchase2, bid_line2 = purchase_requisition.create_draft_purchase_order(
+        po_draft = purchase_requisition.create_draft_purchase_order(
             self, self.purchase_requisition.id, self.partner_12)
+        purchase2, bid_line2 = po_draft
         bid_line2.write({'price_unit': 13})
         purchase_order.select_line(self, bid_line2.id, 80)
         purchase_order.bid_encoded(self, purchase2.id)

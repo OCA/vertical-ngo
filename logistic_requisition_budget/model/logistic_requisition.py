@@ -44,8 +44,10 @@ class logistic_requisition(orm.Model):
                     lambda self, cr, uid, ids, c=None: ids,
                     ['line_ids'], 20),
                 'logistic.requisition.line': (
-                    lambda self, *a, **kw: self._store_get_requisition_ids(*a, **kw),
-                    ['requested_qty', 'budget_unit_price', 'budget_tot_price', 'requisition_id'], 20),
+                    lambda self, *a, **kw: self._store_get_requisition_ids(
+                        *a, **kw),
+                    ['requested_qty', 'budget_unit_price',
+                     'budget_tot_price', 'requisition_id'], 20),
             }),
         'allowed_budget': fields.boolean('Allowed Budget'),
         'budget_holder_id': fields.many2one(
@@ -90,7 +92,8 @@ class logistic_requisition(orm.Model):
             'finance_officer_id': False,
             'date_finance_officer': False,
         })
-        return super(logistic_requisition, self).copy(cr, uid, id, default=default, context=context)
+        return super(logistic_requisition, self
+                     ).copy(cr, uid, id, default=default, context=context)
 
     def onchange_validate(self, cr, uid, ids, validate_id,
                           date_validate, date_field_name, context=None):
@@ -121,7 +124,8 @@ class logistic_requisition_line(orm.Model):
             states=REQUEST_STATES,
             digits_compute=dp.get_precision('Account')),
         'budget_unit_price': fields.function(
-            lambda self, *args, **kwargs: self._get_unit_amount_line(*args, **kwargs),
+            lambda self, *args, **kwargs: self._get_unit_amount_line(
+                *args, **kwargs),
             string='Budget Unit Price',
             type="float",
             digits_compute=dp.get_precision('Account'),
@@ -141,7 +145,8 @@ class logistic_requisition_source(orm.Model):
     _inherit = "logistic.requisition.source"
 
     _constraints = [
-        (lambda self, *a, **kw: self._check_source_lines_total_amount(*a, **kw),
+        (lambda self, *a, **kw: self._check_source_lines_total_amount(
+            *a, **kw),
          'The total cost cannot be more than the total budget.',
          ['proposed_qty', 'unit_cost', 'requisition_line_id']),
     ]
