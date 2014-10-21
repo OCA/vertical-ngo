@@ -115,7 +115,7 @@ class test_sale_order_from_lr_confirm(common.TransactionCase):
         #                   "The purchase requisition should be in 'done' "
         #                   "state.")
         # self.assertEquals(len(purch_req.purchase_ids), 1,
-                          # "We should have only 1 purchase order.")
+        #                   "We should have only 1 purchase order.")
 
     def test_mto_sales_order_line_per_source_line(self):
         """ 1 sales order line is generated for each source line """
