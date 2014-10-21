@@ -22,14 +22,3 @@ from . import test_purchase_split_requisition
 from . import test_sale_order_from_lr_confirm
 from . import test_mto_workflow
 from . import test_multicurrency_update_po_line
-
-
-fast_suite = [
-]
-
-checks = [
-    test_purchase_split_requisition,
-    test_sale_order_from_lr_confirm,
-    test_mto_workflow,
-    test_multicurrency_update_po_line,
-]
