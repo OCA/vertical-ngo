@@ -793,11 +793,6 @@ msgid "Draft: Created\n"
 msgstr ""
 
 #. module: logistic_requisition
-#: field:logistic.requisition.line,activity_code:0
-msgid "Activity Code"
-msgstr ""
-
-#. module: logistic_requisition
 #: field:purchase.requisition.line,logistic_requisition_source_ids:0
 msgid "Logistic Requisition Source Lines"
 msgstr ""
@@ -1231,12 +1226,6 @@ msgstr ""
 #. module: logistic_requisition
 #: report:addons/logistic_requisition/report/logistic_requisition.mako:178
 msgid "Delivery Remarks"
-msgstr ""
-
-#. module: logistic_requisition
-#: field:logistic.requisition.line,account_code:0
-#: field:sale.order.line,account_code:0
-msgid "Account Code"
 msgstr ""
 
 #. module: logistic_requisition

@@ -29,16 +29,5 @@
         </field>
     </record>
 
-    <record id="view_order_form_prebook" model="ir.ui.view">
-      <field name="name">account code in sale order line</field>
-      <field name="model">sale.order</field>
-      <field name="inherit_id" ref="sale_validity.view_order_form_validity"/>
-      <field name="arch" type="xml">
-        <xpath expr="//field[@name='order_line']//field[@name='tax_id']" position="after">
-          <field name="account_code"/>
-        </xpath>
-      </field>
-    </record>
-
 </data>
 </openerp>

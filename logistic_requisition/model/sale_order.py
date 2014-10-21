@@ -39,4 +39,3 @@ class SaleOrderLine(models.Model):
         help="When the price is an estimation, the final price may change. "
              "I.e. it is not based on a request for quotation.",
         default='fixed')
-    account_code = fields.Char('Account Code', size=32)

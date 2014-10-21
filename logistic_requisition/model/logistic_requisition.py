@@ -398,8 +398,6 @@ class LogisticRequisitionLine(models.Model):
         string='Currency',
         readonly=True)
     note = fields.Text('Notes')
-    activity_code = fields.Char('Activity Code', size=32)
-    account_code = fields.Char('Account Code', size=32)
     account_id = fields.Many2one(
         related='product_id.property_account_income',
         string='Nominal Account',

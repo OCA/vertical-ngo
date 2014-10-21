@@ -112,7 +112,6 @@ class LogisticRequisitionCostEstimate(models.TransientModel):
                 'price_is': sourcing.price_is,
                 'product_uom_qty': sourcing.proposed_qty,
                 'product_uom': sourcing.proposed_uom_id.id,
-                'account_code': sourcing.requisition_line_id.account_code,
                 # line must be sourced
                 'manually_sourced': True,
                 }
@@ -158,11 +157,6 @@ class LogisticRequisitionCostEstimate(models.TransientModel):
             error = (_('Sourcing %s: '
                        'no quantity has been proposed') % line.name,
                      'NO_QTY')
-            errors.append(error)
-        if not line.requisition_line_id.account_code:
-            error = (_('Sourcing %s: no account code has been stored')
-                     % line.name,
-                     'NO_ACCOUNT_CODE')
             errors.append(error)
         return errors
 

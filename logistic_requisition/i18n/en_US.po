@@ -806,11 +806,6 @@ msgstr "Draft: Created\n"
 "Cancelled: The requisition has been cancelled"
 
 #. module: logistic_requisition
-#: field:logistic.requisition.line,activity_code:0
-msgid "Activity Code"
-msgstr "Activity Code"
-
-#. module: logistic_requisition
 #: field:purchase.requisition.line,logistic_requisition_source_ids:0
 msgid "Logistic Requisition Source Lines"
 msgstr "Logistic Requisition Source Lines"
@@ -1305,12 +1300,6 @@ msgstr "Sourced"
 #: report:addons/logistic_requisition/report/logistic_requisition.mako:178
 msgid "Delivery Remarks"
 msgstr "Delivery Remarks"
-
-#. module: logistic_requisition
-#: field:logistic.requisition.line,account_code:0
-#: field:sale.order.line,account_code:0
-msgid "Account Code"
-msgstr "Account Code"
 
 #. module: logistic_requisition
 #: field:purchase.order.line,from_bid_line_id:0

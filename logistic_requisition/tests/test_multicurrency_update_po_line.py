@@ -70,7 +70,6 @@ class test_sale_order_from_lr_confirm(common.TransactionCase):
             'requested_qty': 100,
             'requested_uom_id': self.product_uom_pce.id,
             'date_delivery': time.strftime(D_FMT),
-            'account_code': '1234',
         }
         self.source1 = {
             'proposed_qty': 100,

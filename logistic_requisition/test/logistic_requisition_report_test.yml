@@ -16,7 +16,6 @@
         requested_uom_id: product.product_uom_unit
         date_delivery: !eval "time.strftime('%Y-%m-%d')"
         logistic_user_id: base.user_demo
-        account_code: 'Shazam!'
 -
  I print the report
 -
