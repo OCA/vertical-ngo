@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-{'name': 'Framework Agreement Negociation',
+{'name': 'Framework Agreement Negociation in the Tender',
  'version': '1.0',
  'author': 'Camptocamp',
  'maintainer': 'Camptocamp',
@@ -28,22 +28,21 @@
              'purchase_requisition_bid_selection',
              'framework_agreement'],
  'description': """
-Negociate framework agreement using tender process
-==================================================
+Negociate framework agreement in the Tender
+===========================================
 
-This will allows you to use "The calls for Bids" model
- to negociate agreement.
+This module allows you to negociate a framework agreement in the Tender.
 
-To to so you have too check the box "Negociate Agreement".
+To to so you have to check the box "Negociate Agreement".
 
-The module add a state "Agreement selected" on tender and PO.
+The module add a state "Agreement selected" on the tender and on the Purchase
+Order.
 
+These will be the final state once you have chosen the agreement that best fits
+your needs.
 
-These will be the final state once you have choosen
-the agreement that fit your needs the best.
-
-Once the selection is done juste use the button "Agreement selected" on tender
-That will close flow of tender and related PO accordingly.
+Once the selection is done just use the button "Agreement selected" on the
+tender. That will close the flow of tender and the related PO accordingly.
 
 """,
  'website': 'http://www.camptocamp.com',
