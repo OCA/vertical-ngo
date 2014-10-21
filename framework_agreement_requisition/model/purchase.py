@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from openerp import netsvc
+from openerp import api, workflow
 from openerp.osv import orm
 
 SELECTED_STATE = ('agreement_selected', 'Agreement selected')
@@ -36,14 +36,14 @@ class purchase_order(orm.Model):
             super(purchase_order, self).STATE_SELECTION.append(SELECTED_STATE)
         return super(purchase_order, self).__init__(pool, cr)
 
+    @api.cr_uid_id_context
     def select_agreement(self, cr, uid, agr_id, context=None):
         """Pass PO in state 'Agreement selected'"""
         if isinstance(agr_id, (list, tuple)):
             assert len(agr_id) == 1
             agr_id = agr_id[0]
-            wf_service = netsvc.LocalService("workflow")
-        return wf_service.trg_validate(uid, 'purchase.order',
-                                       agr_id, 'select_agreement', cr)
+        return workflow.trg_validate(uid, 'purchase.order',
+                                     agr_id, 'select_agreement', cr)
 
     def po_tender_agreement_selected(self, cr, uid, ids, context=None):
         """Workflow function that write state 'Agreement selected'"""
@@ -58,24 +58,29 @@ class purchase_order_line(orm.Model):
 
     # Did you know a good way to supress SQL constraint to add
     # Python constraint...
-    _sql_constraints = [
-        ('quantity_bid', 'CHECK(true)',
-         'Selected quantity must be less or equal than the quantity in the bid'),
-    ]
+    _sql_constraints = [(
+        'quantity_bid',
+        'CHECK(true)',
+        'Selected quantity must be less or equal than the quantity in the bid'
+    )]
 
     def _check_quantity_bid(self, cr, uid, ids, context=None):
         for line in self.browse(cr, uid, ids, context=context):
             if line.order_id.framework_agreement_id:
                 continue
-            if line.product_id.type == 'product' and  not line.quantity_bid <= line.product_qty:
+            if (
+                line.product_id.type == 'product'
+                and not line.quantity_bid <= line.product_qty
+            ):
                 return False
         return True
 
-    _constraints = [
-        (_check_quantity_bid,
-         'Selected quantity must be less or equal than the quantity in the bid',
-         [])
-    ]
+    _constraints = [(
+        _check_quantity_bid,
+        'Selected quantity must be less or equal than the quantity in the bid',
+        []
+    )]
+
     def _agreement_data(self, cr, uid, po_line, origin, context=None):
         """Get agreement values from PO line
 
@@ -87,7 +92,7 @@ class purchase_order_line(orm.Model):
         vals['supplier_id'] = po_line.order_id.partner_id.id
         vals['product_id'] = po_line.product_id.id
         vals['quantity'] = po_line.product_qty
-        vals['delay'] = po_line.product_lead_time
+        vals['delay'] = po_line.product_id.seller_delay
         vals['origin'] = origin if origin else False
         return vals
 

@@ -25,7 +25,7 @@
  'category': 'NGO',
  'complexity': 'normal',
  'depends': ['purchase_requisition',
-             'purchase_requisition_extended',
+             'purchase_requisition_bid_selection',
              'framework_agreement'],
  'description': """
 Negociate framework agreement using tender process
@@ -52,7 +52,7 @@ That will close flow of tender and related PO accordingly.
           'view/purchase_requisition_view.xml'],
  'demo': [],
  'test': ['test/agreement_requisition.yml'],
- 'installable': False,
+ 'installable': True,
  'auto_install': False,
  'license': 'AGPL-3',
  'application': False,

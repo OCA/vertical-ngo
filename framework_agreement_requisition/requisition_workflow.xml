@@ -10,7 +10,7 @@
     </record>
 
     <record id="trans_agreement_selected" model="workflow.transition">
-      <field name="act_from" ref="purchase_requisition_extended.act_closed"/>
+      <field name="act_from" ref="purchase_requisition_bid_selection.act_closed"/>
       <field name="act_to" ref="act_agreement_selected"/>
       <field name="signal">select_agreement</field>
     </record>

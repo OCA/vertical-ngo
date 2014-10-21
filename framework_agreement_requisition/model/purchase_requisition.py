@@ -19,7 +19,7 @@
 #
 ##############################################################################
 from itertools import chain
-from openerp import netsvc
+from openerp import workflow
 from openerp.osv import orm, fields
 from openerp.tools.translate import _
 from .purchase import AGR_SELECT as PO_AGR_SELECT
@@ -58,9 +58,8 @@ class purchase_requisition(orm.Model):
         if isinstance(agr_id, (list, tuple)):
             assert len(agr_id) == 1
             agr_id = agr_id[0]
-        wf_service = netsvc.LocalService("workflow")
-        return wf_service.trg_validate(uid, 'purchase.requisition',
-                                       agr_id, 'select_agreement', cr)
+        return workflow.trg_validate(uid, 'purchase.requisition',
+                                     agr_id, 'select_agreement', cr)
 
     def _agreement_selected(self, cr, uid, ids, context=None):
         """Tells tender that an agreement has been selected"""
@@ -83,7 +82,7 @@ class purchase_requisition(orm.Model):
             po_to_cancel = []
             for rfq in rfqs:
                 if rfq.state == 'confirmed':
-                    agr_record = rfq.make_agreement(req.name)
+                    agr_record = rfq.make_agreement(rfq.id, req.name)
                     generated.append(agr_record)
                     po_to_select.append(rfq.order_id)
                 else:
@@ -97,12 +96,12 @@ class purchase_requisition(orm.Model):
                 p_order.select_agreement()
                 p_order.refresh()
                 if p_order.state != PO_AGR_SELECT:
-                    raise RuntimeError('Purchase order %s does not pass to %s' %
-                                       (p_order.name, PO_AGR_SELECT))
-            wf_service = netsvc.LocalService("workflow")
+                    raise RuntimeError(
+                        'Purchase order %s does not pass to %s' %
+                        (p_order.name, PO_AGR_SELECT))
             for p_order in set(po_to_cancel):
-                wf_service.trg_validate(uid, 'purchase.order', p_order.id,
-                                        'purchase_cancel', cr)
+                workflow.trg_validate(uid, 'purchase.order', p_order.id,
+                                      'purchase_cancel', cr)
         return generated
 
     def agreement_selected(self, cr, uid, ids, context=None):
