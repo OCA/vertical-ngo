@@ -19,17 +19,15 @@
 #
 ##############################################################################
 from itertools import chain
+
 from openerp.osv import orm, fields
 from openerp.tools.translate import _
-from openerp.addons.framework_agreement.model.framework_agreement import\
-    FrameworkAgreementObservable
 from openerp.addons.framework_agreement.utils import id_boilerplate
-
 
 AGR_PROC = 'fw_agreement'
 
 
-class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
+class logistic_requisition_source(orm.Model):
     """Adds support of framework agreement to source line"""
 
     _inherit = "logistic.requisition.source"
@@ -112,7 +110,7 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
         data['fiscal_position'] = position
         data['origin'] = requisition.name
         data['date_order'] = requisition.date
-        # data['name'] = requisition.name
+        data['name'] = requisition.name
         data['consignee_id'] = requisition.consignee_id.id
         data['incoterm_id'] = requisition.incoterm_id.id
         data['incoterm_address'] = requisition.incoterm_address
