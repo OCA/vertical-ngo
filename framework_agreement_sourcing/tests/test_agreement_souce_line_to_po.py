@@ -60,8 +60,9 @@ class TestSourceToPo(CommonSourcingSetUp):
                                        context={'active_ids': active_ids})
 
         wiz = self.wiz_model.browse(self.cr, self.uid, wiz_id)
-        po_id = wiz.action_create_agreement_po_requisition(
-            context={'active_ids': active_ids}
+
+        po_id = self.wiz_model.action_create_agreement_po_requisition(
+            cr, uid, [wiz_id], context={'active_ids': active_ids}
         )['res_id']
         self.assertTrue(po_id)
         supplier = self.lta_source.framework_agreement_id.supplier_id

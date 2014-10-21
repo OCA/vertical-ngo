@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-
 from openerp.osv import orm, fields
 from openerp.tools.translate import _
 
@@ -59,7 +58,7 @@ class logistic_requisition_source_po_creator(orm.TransientModel):
                 uid,
                 line.requisition_id.pricelist_id.currency_id.id,
                 context=context
-                )
+                ).id
         defaults['pricelist_id'] = pricelist_id
 
         frwk_ids = fmwk_price_obj.search(
