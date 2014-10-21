@@ -17,7 +17,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #
-{"name": "Logistic Requisition Budget",
+{"name": "Logistic Budget",
  "version": "0.1",
  "author": "Camptocamp",
  "license": "AGPL-3",
@@ -26,10 +26,10 @@
  "images": [],
  "website": "http://www.camptocamp.com",
  "description": """
-This logisitc requisiton budget
-===============================
+Logisitic budget
+================
 
-This module add a notion of budget on logistic requisition.
+This module adds a notion of budget on logistic requisition.
 Each requisition lines have now a budget holder and a budget Value.
 
 Requisiton must be approves by budget manager.
