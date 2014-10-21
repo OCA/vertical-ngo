@@ -541,7 +541,7 @@ class LogisticRequisitionLine(models.Model):
 
     @api.model
     def _message_get_auto_subscribe_fields(self, updated_fields,
-                                           auto_follow_fields=['user_id']):
+                                           auto_follow_fields=None):
         """ Returns the list of relational fields linking to res.users that
             should trigger an auto subscribe. The default list checks for the
             fields
@@ -550,6 +550,9 @@ class LogisticRequisitionLine(models.Model):
             - with track_visibility set
             We override it here to add logistic_user_id to the list
         """
+        if auto_follow_fields is None:
+            auto_follow_fields = ['user_id']
+
         fields_to_follow = ['logistic_user_id']
         fields_to_follow += auto_follow_fields
         return super(LogisticRequisitionLine, self
