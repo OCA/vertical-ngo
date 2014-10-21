@@ -41,7 +41,7 @@ class purchase_requisition(orm.Model):
         sel = super(purchase_requisition, self)._columns['state']
         if SELECTED_STATE not in sel.selection:
             sel.selection.append(SELECTED_STATE)
-        return super(purchase_requisition, self).__init__(pool, cr)
+        super(purchase_requisition, self).__init__(pool, cr)
 
     _inherit = "purchase.requisition"
     _columns = {

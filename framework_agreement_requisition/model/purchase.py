@@ -34,7 +34,7 @@ class purchase_order(orm.Model):
         """Add a new state value using PO class property"""
         if SELECTED_STATE not in super(purchase_order, self).STATE_SELECTION:
             super(purchase_order, self).STATE_SELECTION.append(SELECTED_STATE)
-        return super(purchase_order, self).__init__(pool, cr)
+        super(purchase_order, self).__init__(pool, cr)
 
     @api.cr_uid_id_context
     def select_agreement(self, cr, uid, agr_id, context=None):
