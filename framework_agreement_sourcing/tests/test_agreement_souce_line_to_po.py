@@ -61,8 +61,6 @@ class TestSourceToPo(CommonSourcingSetUp):
         wiz_id = self.wiz_model.create(self.cr, self.uid, {},
                                        context={'active_ids': active_ids})
 
-        wiz = self.wiz_model.browse(self.cr, self.uid, wiz_id)
-
         po_id = self.wiz_model.action_create_agreement_po_requisition(
             cr, uid, [wiz_id], context={'active_ids': active_ids}
         )['res_id']
@@ -84,7 +82,8 @@ class TestSourceToPo(CommonSourcingSetUp):
         self.assertEqual(len(po.order_line), 2)
 
         po_line = next(x for x in po.order_line
-                       if x.product_id == self.lta_source.framework_agreement_id.product_id)
+                       if x.product_id ==
+                       self.lta_source.framework_agreement_id.product_id)
         self.assertEqual(po_line.product_qty, self.lta_source.proposed_qty)
         self.assertEqual(
             po_line.product_id, self.lta_source.proposed_product_id)
@@ -95,7 +94,8 @@ class TestSourceToPo(CommonSourcingSetUp):
         self.assertEqual(po_line.date_planned, date_delivery)
 
         po_line = next(x for x in po.order_line
-                       if x.product_id == self.other_source.proposed_product_id)
+                       if x.product_id ==
+                       self.other_source.proposed_product_id)
         self.assertEqual(po_line.product_qty, self.other_source.proposed_qty)
         self.assertEqual(
             po_line.product_id, self.other_source.proposed_product_id)

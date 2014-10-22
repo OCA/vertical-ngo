@@ -22,7 +22,8 @@ from datetime import timedelta
 from openerp.tools import DEFAULT_SERVER_DATE_FORMAT
 import openerp.tests.common as test_common
 from openerp.addons.logistic_requisition.tests import logistic_requisition
-from openerp.addons.framework_agreement.tests.common import BaseAgreementTestMixin
+from openerp.addons.framework_agreement.tests.common \
+    import BaseAgreementTestMixin
 
 
 class CommonSourcingSetUp(test_common.TransactionCase, BaseAgreementTestMixin):
@@ -101,7 +102,6 @@ class CommonSourcingSetUp(test_common.TransactionCase, BaseAgreementTestMixin):
 
         """
 
-        cr, uid = self.cr, self.uid
         start_date = self.now + timedelta(days=10)
         start_date = start_date.strftime(DEFAULT_SERVER_DATE_FORMAT)
         end_date = self.now + timedelta(days=20)

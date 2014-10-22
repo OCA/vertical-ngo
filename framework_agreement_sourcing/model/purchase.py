@@ -29,10 +29,11 @@ class purchase_order(orm.Model):
     _inherit = "purchase.order"
 
     def action_confirm(self, cr, uid, ids, context=None):
-        super(purchase_order_line, self).action_confirm(
+        super(purchase_order, self).action_confirm(
             cr, uid, ids, context=context)
         for element in self.browse(cr, uid, ids, context=context):
             if not element.quantity_bid and not element.framework_agreement_id:
-                self.write(
-                    cr, uid, ids, {'quantity_bid': element.product_qty}, context=context)
+                self.write(cr, uid, ids, {
+                    'quantity_bid': element.product_qty
+                }, context=context)
         return True

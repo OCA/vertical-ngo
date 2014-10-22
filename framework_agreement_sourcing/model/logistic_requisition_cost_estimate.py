@@ -90,7 +90,8 @@ class logistic_requisition_cost_estimate(orm.Model):
         # gain of perfo will not worth readability loss
         # for such small data set
         sources = [x.logistic_requisition_source_id for x in order.order_line
-                   if x and x.logistic_requisition_source_id.procurement_method == AGR_PROC]
+                   if x and x.logistic_requisition_source_id.procurement_method
+                   == AGR_PROC]
         po_ids = set(x.purchase_line_id.order_id.id for x in sources
                      if x.purchase_line_id)
         po_model.write(cr, uid, list(po_ids),
