@@ -33,58 +33,62 @@ class logistic_requisition_source(orm.Model):
 
     _inherit = "logistic.requisition.source"
 
-    _columns = {'framework_agreement_id': fields.many2one('framework.agreement',
-                                                          'Agreement'),
-                'framework_agreement_po_id': fields.many2one('purchase.order',
-                                                             'Agreement Purchase'),
-                'supplier_id': fields.related('framework_agreement_id', 'supplier_id',
-                                              type='many2one',  relation='res.partner',
-                                              string='Agreement Supplier')}
+    _columns = {
+        'framework_agreement_id': fields.many2one('framework.agreement',
+                                                  'Agreement'),
+        'framework_agreement_po_id': fields.many2one('purchase.order',
+                                                     'Agreement Purchase'),
+        'supplier_id': fields.related('framework_agreement_id', 'supplier_id',
+                                      type='many2one',  relation='res.partner',
+                                      string='Agreement Supplier')}
 
     def _get_procur_method_hook(self, cr, uid, context=None):
-        """Adds framework agreement as a procurement method in selection field"""
-        res = super(logistic_requisition_source, self)._get_procur_method_hook(cr, uid,
-                                                                               context=context)
+        """Adds framework agreement as a procurement method in selection
+        field"""
+        res = super(logistic_requisition_source, self)._get_procur_method_hook(
+            cr, uid, context=context)
         res.append((AGR_PROC, 'Framework agreement'))
         return res
 
-    def _get_purchase_line_id(self, cr, uid, ids, field_name, arg, context=None):
+    def _get_purchase_line_id(self, cr, uid, ids, field_name, arg,
+                              context=None):
         """For each source line, get the related purchase order line
 
         For more detail please refer to function fields documentation
 
         """
         po_line_model = self.pool['purchase.order.line']
-        res = super(logistic_requisition_source, self)._get_purchase_line_id(cr, uid, ids,
-                                                                             field_name,
-                                                                             arg,
-                                                                             context=context)
+        res = super(logistic_requisition_source, self)._get_purchase_line_id(
+            cr, uid, ids, field_name, arg, context=context)
         for line in self.browse(cr, uid, ids, context=context):
             if line.procurement_method == AGR_PROC:
-                po_l_ids = po_line_model.search(cr, uid,
-                                                [('lr_source_line_id', '=', line.id),
-                                                 ('state', '!=', 'cancel')],
-                                                context=context)
+                po_l_ids = po_line_model.search(cr, uid, [
+                    ('lr_source_line_id', '=', line.id),
+                    ('state', '!=', 'cancel')
+                ], context=context)
                 if po_l_ids:
                     if len(po_l_ids) > 1:
-                        raise orm.except_orm(_('Many Purchase order lines found for %s') % line.name,
-                                             _('Please cancel uneeded one'))
+                        raise orm.except_orm(
+                            _('Many Purchase order lines found for %s')
+                            % line.name,
+                            _('Please cancel uneeded one'))
                     res[line.id] = po_l_ids[0]
                 else:
                     res[line.id] = False
         return res
 
-    #------------------ adapting source line to po ---------------------------
+    # ----------------- adapting source line to po --------------------------
     def _company(self, cr, uid, context):
         """Return company id
 
         :returns: company id
 
         """
-        return self.pool['res.company']._company_default_get(cr, uid, self._name,
-                                                             context=context)
+        return self.pool['res.company']._company_default_get(
+            cr, uid, self._name, context=context)
 
-    def _prepare_purchase_order(self, cr, uid, line, po_pricelist, context=None):
+    def _prepare_purchase_order(self, cr, uid, line, po_pricelist,
+                                context=None):
         """Prepare the dict of values to create the PO from a
            source line.
 
@@ -145,18 +149,19 @@ class logistic_requisition_source(orm.Model):
             lead_time = 0
             price = 0.0
             if po_pricelist:
-                price = pl_model.price_get(cr, uid,
-                                           [po_pricelist.id],
-                                           line.proposed_product_id.id,
-                                           line.proposed_qty or 1.0,
-                                           po_supplier.id,
-                                           {'uom': line.proposed_uom_id.id})[po_pricelist.id]
+                price = pl_model.price_get(
+                    cr, uid,
+                    [po_pricelist.id],
+                    line.proposed_product_id.id,
+                    line.proposed_qty or 1.0,
+                    po_supplier.id,
+                    {'uom': line.proposed_uom_id.id})[po_pricelist.id]
 
         if not price:
             price = line.proposed_product_id.standard_price or 1.00
         taxes_ids = line.proposed_product_id.supplier_taxes_id
-        taxes = acc_pos_obj.map_tax(cr, uid, supplier.property_account_position,
-                                    taxes_ids)
+        taxes = acc_pos_obj.map_tax(
+            cr, uid, supplier.property_account_position, taxes_ids)
 
         data['order_id'] = po_id
         data['product_qty'] = line.proposed_qty
@@ -202,7 +207,8 @@ class logistic_requisition_source(orm.Model):
         for source in chain([main_source], other_sources):
             line_vals = self._prepare_purchase_order_line(cr, uid, po_id,
                                                           source, supplier,
-                                                          pricelist, context=context)
+                                                          pricelist,
+                                                          context=context)
             po_l_obj.create(cr, uid, line_vals, context=context)
             # TODO: Update LRS unit_cost from po line, with currency conversion
             from_curr = source.requisition_id.currency_id.id
@@ -240,20 +246,24 @@ class logistic_requisition_source(orm.Model):
             elif source.procurement_method == 'other':
                 other_sources.append(source)
             else:
-                raise orm.except_orm(_('Source line must be of type other or agreement'),
-                                     _('Please correct selection'))
+                raise orm.except_orm(
+                    _('Source line must be of type other or agreement'),
+                    _('Please correct selection'))
 
         main_source = agreement_sources[0] if agreement_sources else False
         if len(agreement_sources) > 1:
             raise orm.except_orm(_('There should be only one agreement line'),
                                  _('Please correct selection'))
         if not main_source:
-            raise orm.except_orm(_('There should be at least one agreement line'),
-                                 _('Please correct selection'))
-        fback = main_source.framework_agreement_id.supplier_id.property_product_pricelist_purchase
+            raise orm.except_orm(
+                _('There should be at least one agreement line'),
+                _('Please correct selection'))
+
+        supplier = main_source.framework_agreement_id.supplier_id
+        fback = supplier.property_product_pricelist_purchase
         pricelist = pricelist if pricelist else fback
-        po_id = self._make_po_from_source_lines(cr, uid, main_source,
-                                                other_sources, pricelist, context=None)
+        po_id = self._make_po_from_source_lines(
+            cr, uid, main_source, other_sources, pricelist, context=None)
         return po_id
 
     def _is_sourced_other(self, cr, uid, source, context=None):
@@ -279,7 +289,7 @@ class logistic_requisition_source(orm.Model):
         # predicate
         return bool(sources_ids)
 
-    #---------------OpenERP tedious onchange management ----------------------
+    # ---------------OpenERP tedious onchange management ----------------------
 
     def _get_date(self, cr, uid, requision_line_id, context=None):
         """helper to retrive date to be used by framework agreement
@@ -297,8 +307,9 @@ class logistic_requisition_source(orm.Model):
         return current.requisition_id.date or now
 
     @id_boilerplate
-    def onchange_sourcing_method(self, cr, uid, ids, method, req_line_id, proposed_product_id,
-                                 proposed_qty=0, context=None):
+    def onchange_sourcing_method(self, cr, uid, ids, method, req_line_id,
+                                 proposed_product_id, proposed_qty=0,
+                                 context=None):
         """
         Called when source method is set on a source line.
 
@@ -314,12 +325,9 @@ class logistic_requisition_source(orm.Model):
         currency = line_source.currency_id
         agreement_obj = self.pool['framework.agreement']
         date = self._get_date(cr, uid, req_line_id, context=context)
-        agreement, enough_qty = agreement_obj.get_cheapest_agreement_for_qty(cr, uid,
-                                                                             proposed_product_id,
-                                                                             date,
-                                                                             proposed_qty,
-                                                                             currency=currency,
-                                                                             context=context)
+        agreement, enough_qty = agreement_obj.get_cheapest_agreement_for_qty(
+            cr, uid, proposed_product_id, date, proposed_qty,
+            currency=currency, context=context)
         if not agreement:
             return res
         price = agreement.get_price(proposed_qty, currency=currency)
@@ -389,4 +397,5 @@ class logistic_requisition_source(orm.Model):
         date = self._get_date(cr, uid, req_line_id, context=context)
         return self.onchange_agreement_obs(cr, uid, ids, agreement_id, qty,
                                            date, proposed_product_id,
-                                           currency=currency, price_field='dummy')
+                                           currency=currency,
+                                           price_field='dummy')

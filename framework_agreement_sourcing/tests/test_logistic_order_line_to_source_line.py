@@ -86,7 +86,8 @@ class TestTransformation(CommonSourcingSetUp):
         # high_line
         # idiom taken from Python cookbook
         high_line = next((x for x in to_validates
-                          if x.framework_agreement_id == self.cheap_on_high_agreement), None)
+                          if x.framework_agreement_id ==
+                          self.cheap_on_high_agreement), None)
         self.assertTrue(high_line, msg="High agreement was not used")
         self.assertEqual(high_line.procurement_method, AGR_PROC)
         self.assertEqual(high_line.proposed_qty, 2000)
@@ -94,14 +95,16 @@ class TestTransformation(CommonSourcingSetUp):
 
         # low_line
         low_line = next((x for x in to_validates
-                         if x.framework_agreement_id == self.cheap_on_low_agreement), None)
+                         if x.framework_agreement_id ==
+                         self.cheap_on_low_agreement), None)
         self.assertTrue(low_line, msg="Low agreement was not used")
         self.assertEqual(low_line.procurement_method, AGR_PROC)
         self.assertEqual(low_line.proposed_qty, 400)
         self.assertAlmostEqual(low_line.unit_cost, 0.0)
 
     def test_03_not_enough_qty_on_all_agreemenst(self):
-        """Test that we have generate correct line when not enough qty on all agreements
+        """Test that we have generate correct line when not enough qty on all
+        agreements
 
         That means last source line must be of type other or procurement
         """
@@ -123,7 +126,8 @@ class TestTransformation(CommonSourcingSetUp):
         # high_line
         # idiom taken from Python cookbook
         high_line = next((x for x in to_validates
-                          if x.framework_agreement_id == self.cheap_on_high_agreement), None)
+                          if x.framework_agreement_id ==
+                          self.cheap_on_high_agreement), None)
         self.assertTrue(high_line, msg="High agreement was not used")
         self.assertEqual(high_line.procurement_method, AGR_PROC)
         self.assertEqual(high_line.proposed_qty, 2000)
@@ -131,7 +135,8 @@ class TestTransformation(CommonSourcingSetUp):
 
         # low_line
         low_line = next((x for x in to_validates
-                         if x.framework_agreement_id == self.cheap_on_low_agreement), None)
+                         if x.framework_agreement_id ==
+                         self.cheap_on_low_agreement), None)
         self.assertTrue(low_line, msg="Low agreement was not used")
         self.assertEqual(low_line.procurement_method, AGR_PROC)
         self.assertEqual(low_line.proposed_qty, 1200)
