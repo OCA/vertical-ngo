@@ -269,9 +269,7 @@ class LogisticRequisition(models.Model):
     def button_create_cost_estimate(self):
         ref = 'logistic_requisition.action_logistic_requisition_cost_estimate'
         action = self.env['ir.model.data'].xmlid_to_object(ref)
-        if action is None:
-            action = self.env['ir.actions.act_window'].browse()
-        return action.read()
+        return action.read()[0]
 
     @api.multi
     def button_reset(self):
@@ -608,9 +606,7 @@ class LogisticRequisitionLine(models.Model):
     def button_create_cost_estimate(self):
         ref = 'logistic_requisition.action_logistic_requisition_cost_estimate'
         action = self.env['ir.model.data'].xmlid_to_object(ref)
-        if action is None:
-            action = self.env['ir.actions.act_window'].browse()
-        return action.read()
+        return action.read()[0]
 
     @api.multi
     def button_sourced(self):
