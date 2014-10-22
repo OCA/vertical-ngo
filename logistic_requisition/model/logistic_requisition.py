@@ -62,11 +62,11 @@ class LogisticRequisition(models.Model):
     source_document = fields.Char(
         'Source Document',
         states=REQ_STATES)
-    date = fields.Date(
+    date = fields.Datetime(
         'Requisition Date',
         states=REQ_STATES,
         required=True,
-        default=fields.Date.context_today)
+        default=fields.Datetime.now)
     date_delivery = fields.Date(
         'Desired Delivery Date',
         states=REQ_STATES,
