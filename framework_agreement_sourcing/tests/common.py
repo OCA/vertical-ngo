@@ -36,7 +36,8 @@ class CommonSourcingSetUp(test_common.TransactionCase, BaseAgreementTestMixin):
 
         # classic API
         self.requisition_model = self.registry('logistic.requisition')
-        self.requisition_line_model = self.registry('logistic.requisition.line')
+        self.requisition_line_model = self.registry(
+            'logistic.requisition.line')
         self.source_line_model = self.registry('logistic.requisition.source')
 
         # new API

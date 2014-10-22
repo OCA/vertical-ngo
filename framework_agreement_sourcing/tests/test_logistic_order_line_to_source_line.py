@@ -36,9 +36,11 @@ class TestTransformation(CommonSourcingSetUp):
         self.assertTrue(agr_line)
         agr_line.write({'requested_qty': 400})
         agr_line.refresh()
-        to_validate_ids = self.requisition_line_model._generate_source_line(cr, uid, agr_line)
+        to_validate_ids = self.requisition_line_model._generate_source_line(
+            cr, uid, agr_line)
         self.assertTrue(len(to_validate_ids) == 1)
-        to_validate = self.source_line_model.browse(cr, uid, to_validate_ids[0])
+        to_validate = self.source_line_model.browse(
+            cr, uid, to_validate_ids[0])
         self.assertEqual(to_validate.procurement_method, AGR_PROC)
         self.assertAlmostEqual(to_validate.unit_cost, 0.0)
         self.assertEqual(to_validate.proposed_qty, 400)
@@ -55,9 +57,11 @@ class TestTransformation(CommonSourcingSetUp):
         self.assertTrue(agr_line)
         agr_line.write({'requested_qty': 1500})
         agr_line.refresh()
-        to_validate_ids = self.requisition_line_model._generate_source_line(cr, uid, agr_line)
+        to_validate_ids = self.requisition_line_model._generate_source_line(
+            cr, uid, agr_line)
         self.assertTrue(len(to_validate_ids) == 1)
-        to_validate = self.source_line_model.browse(cr, uid, to_validate_ids[0])
+        to_validate = self.source_line_model.browse(
+            cr, uid, to_validate_ids[0])
         self.assertEqual(to_validate.procurement_method, AGR_PROC)
         self.assertAlmostEqual(to_validate.unit_cost, 0.0)
         self.assertEqual(to_validate.proposed_qty, 1500)
@@ -74,14 +78,15 @@ class TestTransformation(CommonSourcingSetUp):
         self.assertTrue(agr_line)
         agr_line.write({'requested_qty': 2400})
         agr_line.refresh()
-        to_validate_ids = self.requisition_line_model._generate_source_line(cr, uid, agr_line)
+        to_validate_ids = self.requisition_line_model._generate_source_line(
+            cr, uid, agr_line)
         self.assertTrue(len(to_validate_ids) == 2)
         # We validate generated line
         to_validates = self.source_line_model.browse(cr, uid, to_validate_ids)
         # high_line
         # idiom taken from Python cookbook
         high_line = next((x for x in to_validates
-                              if x.framework_agreement_id == self.cheap_on_high_agreement), None)
+                          if x.framework_agreement_id == self.cheap_on_high_agreement), None)
         self.assertTrue(high_line, msg="High agreement was not used")
         self.assertEqual(high_line.procurement_method, AGR_PROC)
         self.assertEqual(high_line.proposed_qty, 2000)
@@ -89,7 +94,7 @@ class TestTransformation(CommonSourcingSetUp):
 
         # low_line
         low_line = next((x for x in to_validates
-                              if x.framework_agreement_id == self.cheap_on_low_agreement), None)
+                         if x.framework_agreement_id == self.cheap_on_low_agreement), None)
         self.assertTrue(low_line, msg="Low agreement was not used")
         self.assertEqual(low_line.procurement_method, AGR_PROC)
         self.assertEqual(low_line.proposed_qty, 400)
@@ -110,14 +115,15 @@ class TestTransformation(CommonSourcingSetUp):
         self.assertTrue(agr_line)
         agr_line.write({'requested_qty': 5000})
         agr_line.refresh()
-        to_validate_ids = self.requisition_line_model._generate_source_line(cr, uid, agr_line)
+        to_validate_ids = self.requisition_line_model._generate_source_line(
+            cr, uid, agr_line)
         self.assertTrue(len(to_validate_ids) == 3)
         # We validate generated line
         to_validates = self.source_line_model.browse(cr, uid, to_validate_ids)
         # high_line
         # idiom taken from Python cookbook
         high_line = next((x for x in to_validates
-                              if x.framework_agreement_id == self.cheap_on_high_agreement), None)
+                          if x.framework_agreement_id == self.cheap_on_high_agreement), None)
         self.assertTrue(high_line, msg="High agreement was not used")
         self.assertEqual(high_line.procurement_method, AGR_PROC)
         self.assertEqual(high_line.proposed_qty, 2000)
@@ -125,7 +131,7 @@ class TestTransformation(CommonSourcingSetUp):
 
         # low_line
         low_line = next((x for x in to_validates
-                              if x.framework_agreement_id == self.cheap_on_low_agreement), None)
+                         if x.framework_agreement_id == self.cheap_on_low_agreement), None)
         self.assertTrue(low_line, msg="Low agreement was not used")
         self.assertEqual(low_line.procurement_method, AGR_PROC)
         self.assertEqual(low_line.proposed_qty, 1200)
@@ -133,6 +139,6 @@ class TestTransformation(CommonSourcingSetUp):
 
         # Tender line
         tender_line = next((x for x in to_validates
-                                if not x.framework_agreement_id), None)
+                            if not x.framework_agreement_id), None)
         self.assertTrue(tender_line, msg="Tender line was not generated")
         self.assertNotEqual(tender_line.procurement_method, AGR_PROC)
