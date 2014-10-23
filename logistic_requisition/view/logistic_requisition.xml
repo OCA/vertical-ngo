@@ -65,6 +65,7 @@
                             <field name="partner_id"/>
                             <field name="consignee_id"
                                    attrs="{'required': [('cost_estimate_only', '=', False)]}"/>
+                            <field name="country_id"/>
 
                             <field name="consignee_shipping_id"
                                    context="{'default_type':'delivery'}"

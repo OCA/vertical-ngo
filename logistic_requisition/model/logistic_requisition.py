@@ -92,12 +92,9 @@ class LogisticRequisition(models.Model):
         'res.partner', 'Delivery Address',
         states=REQ_STATES)
     country_id = fields.Many2one(
-        related='consignee_shipping_id.country_id',
-        comodel_name='res.country',
+        'res.country',
         string='Country',
-        select=True,
-        readonly=True,
-        store=True)
+        select=True)
     company_id = fields.Many2one(
         'res.company',
         'Company',
@@ -252,13 +249,21 @@ class LogisticRequisition(models.Model):
         self.pricelist_id = pricelist
 
     @api.onchange('consignee_id')
-    def onchange_consignee_id(self):
+    def onchange_consignee_id_set_consignee_shipping_id(self):
         if not self.consignee_id:
             self.consignee_shipping_id = False
             return
 
         addr = self.consignee_id.address_get(['delivery'])
         self.consignee_shipping_id = addr['delivery']
+
+    @api.onchange('consignee_id')
+    def onchange_consignee_id_set_country_id(self):
+        if not self.consignee_id:
+            self.country_id = False
+            return
+
+        self.country_id = self.consignee_shipping_id.country_id
 
     @api.multi
     def button_confirm(self):
