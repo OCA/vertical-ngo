@@ -368,6 +368,13 @@ class LogisticRequisitionLine(models.Model):
         string='Total Amount',
         digits_compute=dp.get_precision('Account'),
         store=True)
+    amount_total_company = fields.Float(
+        compute='_get_total_cost',
+        string='Tot. Amount in Company currency',
+        digits_compute=dp.get_precision('Account'),
+        store=True,
+        help="Total amount converted to company currency using rates at "
+             "requisition date")
     date_delivery = fields.Date(
         'Desired Delivery Date',
         states=REQUEST_STATES,
@@ -399,6 +406,11 @@ class LogisticRequisitionLine(models.Model):
         related='requisition_id.currency_id',
         comodel_name='res.currency',
         string='Currency',
+        readonly=True)
+    company_currency_id = fields.Many2one(
+        related='requisition_id.company_id.currency_id',
+        comodel_name='res.currency',
+        string='Company currency',
         readonly=True)
     note = fields.Text('Notes')
     account_id = fields.Many2one(
@@ -484,12 +496,26 @@ class LogisticRequisitionLine(models.Model):
         return list(set([line.requisition_id.id for line in self]))
 
     @api.multi
+    @api.depends('source_ids.total_cost',
+                 'requisition_id.currency_id',
+                 'requisition_id.date',
+                 'requisition_id.company_id.currency_id')
     def _get_total_cost(self):
         for line in self:
+
             total_cost = 0.0
+            total_cost_company = 0.0
             for source_line in line.source_ids:
                 total_cost += source_line.total_cost
             line.amount_total = total_cost
+
+            date = line.requisition_id.date
+            from_curr = line.requisition_id.currency_id.with_context(date=date)
+            to_curr = line.requisition_id.company_id.currency_id
+
+            total_cost_company += from_curr.compute(total_cost, to_curr,
+                                                    round=False)
+            line.amount_total_company = total_cost_company
 
     @api.multi
     def view_stock_by_location(self):
@@ -1023,6 +1049,7 @@ class LogisticRequisitionSource(models.Model):
         }
 
     @api.multi
+    @api.depends('unit_cost', 'proposed_qty')
     def _get_total_cost(self):
         for line in self:
             line.total_cost = line.unit_cost * line.proposed_qty
