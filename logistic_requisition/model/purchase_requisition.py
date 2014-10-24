@@ -24,6 +24,10 @@ from openerp import models, fields, api
 class PurchaseRequisition(models.Model):
     _inherit = 'purchase.requisition'
 
+    transport_mode_id = fields.Many2one('transport.mode', 'Transport Mode')
+    transport_vehicle_id = fields.Many2one('transport.vehicle',
+                                           'Transport Vehicle')
+
     # CAlled by the "Chose products" buton in the call for bid process
     @api.multi
     def _split_requisition_sources(self):

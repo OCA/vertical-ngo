@@ -23,6 +23,14 @@ from openerp.exceptions import Warning
 from openerp.tools.translate import _
 
 
+class PurchaseOrder(models.Model):
+    _inherit = 'purchase.order'
+
+    transport_mode_id = fields.Many2one('transport.mode', 'Transport Mode')
+    transport_vehicle_id = fields.Many2one('transport.vehicle',
+                                           'Transport Vehicle')
+
+
 class PurchaseOrderLine(models.Model):
     _inherit = 'purchase.order.line'
 

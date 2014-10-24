@@ -12,7 +12,14 @@
                 <xpath expr="//header/button[@name='generate_po']" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
+
+                <field name="bid_receipt_mode" position="after">
+                    <field name="transport_mode_id"/>
+                    <field name="transport_vehicle_id"/>
+                </field>
+
             </field>
         </record>
+
     </data>
 </openerp>
