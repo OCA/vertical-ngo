@@ -25,13 +25,14 @@
       <field name="model">purchase.requisition</field>
       <field name="inherit_id" ref="purchase_requisition.view_purchase_requisition_filter"/>
       <field name="arch" type="xml">
-        <filter name="draft"
-                position="after">
-                  <filter icon="terp-document-new"
-                          name="framework_agreement"
-                          string="Framework Agreement?"
-                          domain="[(framework_agreement_tender,'=',True)]"/>
+
+        <filter name="draft" position="after">
+          <filter icon="terp-document-new"
+            name="framework_agreement"
+            string="Framework Agreement Negociation"
+            domain="[('framework_agreement_tender','=',True)]"/>
         </filter>
+
       </field>
     </record>
 
