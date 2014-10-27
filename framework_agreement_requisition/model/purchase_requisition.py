@@ -46,6 +46,7 @@ class purchase_requisition(orm.Model):
     _inherit = "purchase.requisition"
     _columns = {
         'framework_agreement_tender': fields.boolean('Negociate Agreement'),
+        'agreement_end_date': fields.date('LTA expected valitidy period'),
     }
 
     def tender_agreement_selected(self, cr, uid, ids, context=None):

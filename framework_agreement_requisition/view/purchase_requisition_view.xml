@@ -9,6 +9,9 @@
         <field name="multiple_rfq_per_supplier"
                position="after">
           <field name="framework_agreement_tender"/>
+          <field
+            name="agreement_end_date"
+            attrs="{'invisible': [('framework_agreement_tender', '=', False)]}" />
         </field>
         <button name="cancel_requisition" position="after">
           <button name="agreement_selected"
