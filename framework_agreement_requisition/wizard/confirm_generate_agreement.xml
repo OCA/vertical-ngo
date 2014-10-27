@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+
+    <record id="confirm_generate_agreement_form_view" model="ir.ui.view">
+      <field name="name">confirm_generate_agreement_form_view</field>
+      <field name="model">confirm.generate.agreement</field>
+      <field name="arch" type="xml">
+        <form string="Confirm"> 
+          <p>
+            The chosen bid will now be converted into a Long Term Agreement.
+            Please note that at the moment you will need to manually set the
+            price in the agreement.
+          </p>
+          <footer>
+            <button string="Confirm" class="oe_highlight" type="object" name="action"/>
+            or
+            <button special="cancel" string="Cancel" class="oe_link"/>
+          </footer>
+        </form>
+      </field>
+    </record>
+
+  </data>
+</openerp>
+

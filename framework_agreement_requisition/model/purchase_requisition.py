@@ -22,13 +22,38 @@ from itertools import chain
 from openerp import workflow
 from openerp.osv import orm, fields
 from openerp.tools.translate import _
+from openerp import models, api
 from .purchase import AGR_SELECT as PO_AGR_SELECT
 
 SELECTED_STATE = ('agreement_selected', 'Agreement selected')
 AGR_SELECT = 'agreement_selected'
 
 
-class purchase_requisition(orm.Model):
+class PurchaseRequisition(models.Model):
+
+    _inherit = "purchase.requisition"
+
+    @api.multi
+    def open_wizard_confirm_generate_agreement(self):
+
+        view = self.env.ref(
+            'framework_agreement_requisition.'
+            'confirm_generate_agreement_form_view'
+        )
+
+        return {
+            'type': 'ir.actions.act_window',
+            'view_type': 'form',
+            'view_mode': 'form',
+            'res_model': 'confirm.generate.agreement',
+            'view_id': view.id,
+            'views': [(view.id, 'form')],
+            'target': 'new',
+            'context': self.env.context,
+        }
+
+
+class PurchaseRequisitionClassic(orm.Model):
     """Add support to negociate LTA using tender process"""
 
     def __init__(self, pool, cr):
@@ -38,10 +63,10 @@ class purchase_requisition(orm.Model):
         by other addons that are not in inheritance chain...
 
         """
-        sel = super(purchase_requisition, self)._columns['state']
+        sel = super(PurchaseRequisitionClassic, self)._columns['state']
         if SELECTED_STATE not in sel.selection:
             sel.selection.append(SELECTED_STATE)
-        super(purchase_requisition, self).__init__(pool, cr)
+        super(PurchaseRequisitionClassic, self).__init__(pool, cr)
 
     _inherit = "purchase.requisition"
     _columns = {

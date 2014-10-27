@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    Author: Nicolas Bessi
-#    Copyright 2013, 2014 Camptocamp SA
+#    Copyright 2014 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -18,25 +17,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-{'name': 'Framework Agreement Negociation in the Tender',
- 'version': '1.0',
- 'author': 'Camptocamp',
- 'maintainer': 'Camptocamp',
- 'category': 'NGO',
- 'complexity': 'normal',
- 'depends': ['purchase_requisition',
-             'purchase_requisition_bid_selection',
-             'framework_agreement'],
- 'website': 'http://www.camptocamp.com',
- 'data': ['requisition_workflow.xml',
-          'purchase_workflow.xml',
-          'view/purchase_requisition_view.xml',
-          'wizard/confirm_generate_agreement.xml'
-          ],
- 'demo': [],
- 'test': ['test/agreement_requisition.yml'],
- 'installable': True,
- 'auto_install': False,
- 'license': 'AGPL-3',
- 'application': False,
- }
+from openerp import models, api
+
+
+class ConfirmGenerateAgreement(models.TransientModel):
+    _name = 'confirm.generate.agreement'
+
+    @api.multi
+    def action(self):
+        Model = self.env[self._context['active_model']]
+        records = Model.browse(self._context['active_ids'])
+
+        return records.agreement_selected()

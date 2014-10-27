@@ -14,7 +14,7 @@
             attrs="{'invisible': [('framework_agreement_tender', '=', False)]}" />
         </field>
         <button name="cancel_requisition" position="after">
-          <button name="agreement_selected"
+          <button name="open_wizard_confirm_generate_agreement"
                   type="object"
                   class="po_buttons oe_form_buttons"
                   attrs="{'invisible': ['|', ('framework_agreement_tender', '=', False), ('state', '!=', 'closed')]}"
