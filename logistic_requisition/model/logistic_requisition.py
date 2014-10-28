@@ -220,7 +220,7 @@ class LogisticRequisition(models.Model):
         for req in self:
             if all(line.state == 'quoted' for line in req.line_ids):
                 to_dones |= req
-        to_dones.state = 'done'
+        to_dones.write({'state': 'done'})
 
     @api.model
     def create(self, vals):
