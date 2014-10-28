@@ -30,7 +30,7 @@
  'website': 'http://www.camptocamp.com',
  'data': ['requisition_workflow.xml',
           'purchase_workflow.xml',
-          'view/purchase_requisition_view.xml',
+          'view/purchase_requisition.xml',
           'wizard/confirm_generate_agreement.xml'
           ],
  'demo': [],
