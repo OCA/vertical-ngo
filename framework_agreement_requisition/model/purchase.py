@@ -19,7 +19,7 @@
 #
 ##############################################################################
 from openerp import api, workflow
-from openerp.osv import orm
+from openerp.osv import orm, fields
 
 SELECTED_STATE = ('agreement_selected', 'Agreement selected')
 AGR_SELECT = 'agreement_selected'
@@ -29,6 +29,12 @@ class purchase_order(orm.Model):
     """Add workflow behavior"""
 
     _inherit = "purchase.order"
+
+    _columns = {
+        'for_agreement': fields.boolean('For Framework Agreement'),
+        'agreement_expected_date': fields.date('LTA expected valitidy period'),
+        'agreement_promised_date': fields.date('LTA promised valitidy period'),
+    }
 
     def __init__(self, pool, cr):
         """Add a new state value using PO class property"""

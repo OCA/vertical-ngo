@@ -31,6 +31,7 @@
  'data': ['requisition_workflow.xml',
           'purchase_workflow.xml',
           'view/purchase_requisition.xml',
+          'view/purchase_order.xml',
           'wizard/confirm_generate_agreement.xml'
           ],
  'demo': [],
