@@ -34,8 +34,8 @@ your logistic requisition. If the date and state of agreement are OK,
 agreement will be used as source for the concerned source lines
 of your request.
 
-In this case tender flow is byassed and confirmed PO will be generated
-when logistic requisition is confirmed.
+In this case the tender flow is bypassed and confirmed PO will be generated
+when the logistic requisition is confirmed.
 
 When confirming Logistic request sourcing lines are generating.
 Generation process will look up all agreements with remaining quantity
