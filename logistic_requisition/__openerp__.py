@@ -56,6 +56,7 @@
           ],
  "test": ['test/line_assigned.yml',
           'test/requisition_create_cost_estimate.yml',
+          'test/requisition_sourcing_with_tender.yml',
           'test/requisition_cancel_reason.yml',
           # XXX port report to Qweb
           # 'test/logistic_requisition_report_test.yml',

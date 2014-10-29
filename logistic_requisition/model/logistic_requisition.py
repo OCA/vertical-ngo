@@ -1025,7 +1025,8 @@ class LogisticRequisitionSource(models.Model):
         vals = self._prepare_po_requisition(purch_req_lines,
                                             pricelist=pricelist)
         purch_req = purch_req_obj.create(vals)
-        self.po_requisition_id = purch_req.id
+        for req in self:
+            req.po_requisition_id = purch_req.id
         return purch_req
 
     @api.multi

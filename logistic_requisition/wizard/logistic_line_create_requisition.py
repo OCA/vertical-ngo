@@ -36,30 +36,29 @@ class LogisticRequisitionSourceCreateRequisition(models.TransientModel):
         """Take the first line pricelist as default"""
         defaults = super(LogisticRequisitionSourceCreateRequisition, self
                          ).default_get(fields_list)
-        line_obj = self.pool.get('logistic.requisition.source')
+        line_obj = self.env['logistic.requisition.source']
         line_ids = self.env.context['active_ids']
         pricelist_id = None
-        line = line_obj.browse(line_ids)
-        line.ensure_one()
+        line = line_obj.browse(line_ids[0])
         pricelist_id = line_obj._get_purchase_pricelist_from_currency(
             line.requisition_id.pricelist_id.currency_id.id,
             )
-        defaults['pricelist_id'] = pricelist_id
+        defaults['pricelist_id'] = pricelist_id.id
         return defaults
 
     @api.multi
     def create_po_requisition(self):
         self.ensure_one()
-        source_obj = self.pool.get('logistic.requisition.source')
-        requisition_id = source_obj._action_create_po_requisition(
-            self.env.context.get('active_ids', []),
-            pricelist=self.pricelist_id.id)
+        source_obj = self.env['logistic.requisition.source']
+        source = source_obj.browse(self.env.context['active_ids'])
+        requisition_id = source._action_create_po_requisition(
+            pricelist=self.pricelist_id)
         return {
             'name': _('Purchase Requisition'),
             'view_type': 'form',
             'view_mode': 'form',
             'res_model': 'purchase.requisition',
-            'res_id': requisition_id,
+            'res_id': requisition_id.id,
             'view_id': False,
             'type': 'ir.actions.act_window',
         }
