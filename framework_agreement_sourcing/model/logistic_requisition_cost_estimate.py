@@ -82,21 +82,29 @@ class logistic_requisition_cost_estimate(orm.Model):
         """
         so_model = self.pool['sale.order']
         po_model = self.pool['purchase.order']
+
+        assert len(ids) == 1
+
+        wizard = self.browse(cr, uid, ids, context=context)
+
         res = super(logistic_requisition_cost_estimate,
                     self).cost_estimate(cr, uid, ids, context=context)
         so_id = res['res_id']
         order = so_model.browse(cr, uid, so_id, context=context)
-        # Can be optimized with a SQL or a search but
-        # gain of perfo will not worth readability loss
-        # for such small data set
-        sources = [x.logistic_requisition_source_id for x in order.order_line
-                   if x and x.logistic_requisition_source_id.procurement_method
-                   == AGR_PROC]
+
+        sources = []
+
+        for lrl in wizard.line_ids:
+            for source in lrl.source_ids:
+                if source.procurement_method == AGR_PROC:
+                    sources.append(source)
+
         po_ids = set(x.purchase_line_id.order_id.id for x in sources
                      if x.purchase_line_id)
-        po_model.write(cr, uid, list(po_ids),
-                       {'sale_id': so_id,
-                        'sale_flow': 'direct_delivery'})
-        self._link_po_lines_to_so_lines(
-            cr, uid, order, sources, context=context)
+        if po_ids:
+            po_model.write(cr, uid, list(po_ids),
+                        {'sale_id': so_id,
+                            'sale_flow': 'direct_delivery'})
+            self._link_po_lines_to_so_lines(
+                cr, uid, order, sources, context=context)
         return res
