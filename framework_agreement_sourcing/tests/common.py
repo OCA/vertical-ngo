@@ -83,7 +83,8 @@ class CommonSourcingSetUp(test_common.TransactionCase, BaseAgreementTestMixin):
         }
 
         self.requisition = self.Requisition.create(req)
-        self.requisition.onchange_consignee_id()
+        self.requisition.onchange_consignee_id_set_country_id()
+        self.requisition.onchange_consignee_id_set_consignee_shipping_id()
         logistic_requisition.add_line(self, self.requisition, agr_line)
         logistic_requisition.add_line(self, self.requisition, product_line)
         logistic_requisition.add_line(self, self.requisition, other_line)
