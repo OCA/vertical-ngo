@@ -1,0 +1,46 @@
+-
+  Given I create a logistic requisition
+-
+  !record {model: logistic.requisition, id: logistic_requisition_assign_01}:
+    partner_id: base.res_partner_4
+    consignee_id: base.res_partner_3
+    date_delivery: !eval "time.strftime('%Y-%m-%d')"
+    user_id: base.user_demo
+    pricelist_id: product.list0
+-
+  And I add a line with an assignee
+-
+  !record {model: logistic.requisition.line, id: logistic_requisition_line_assign_01}:
+    requisition_id: logistic_requisition_assign_01
+    product_id: product.product_product_32
+    description: "[HEAD] Headset standard"
+    requested_qty: 100
+    requested_uom_id: product.product_uom_unit
+    date_delivery: !eval "time.strftime('%Y-%m-%d')"
+    logistic_user_id: base.user_demo
+-
+  And I add a line without assignee
+-
+  !record {model: logistic.requisition.line, id: logistic_requisition_line_assign_02}:
+    requisition_id: logistic_requisition_assign_01
+    product_id: product.product_product_25
+    description: "[LAP-E5] Laptop E5023"
+    requested_qty: 100
+    requested_uom_id: product.product_uom_unit
+    date_delivery: !eval "time.strftime('%Y-%m-%d')"
+-
+  When I confirm the logistic requisition
+-
+  !python {model: logistic.requisition, id: logistic_requisition_assign_01}: |
+    self.button_confirm()
+    self.refresh()
+-
+  Then the state of the line 1 should be assigned
+-
+  !assert {model: logistic.requisition.line, id: logistic_requisition_line_assign_01, string: The line should be assigned}:
+    - state == 'assigned'
+-
+  And the state of the line 2 should be 'confirmed'
+-
+  !assert {model: logistic.requisition.line, id: logistic_requisition_line_assign_02, string: The line should be confirmed}:
+    - state == 'confirmed'
