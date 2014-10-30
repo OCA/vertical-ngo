@@ -50,33 +50,6 @@ class logistic_requisition_source(orm.Model):
         res.append((AGR_PROC, 'Framework agreement'))
         return res
 
-    def _get_purchase_line_id(self, cr, uid, ids, field_name, arg,
-                              context=None):
-        """For each source line, get the related purchase order line
-
-        For more detail please refer to function fields documentation
-
-        """
-        po_line_model = self.pool['purchase.order.line']
-        res = super(logistic_requisition_source, self)._get_purchase_line_id(
-            cr, uid, ids, field_name, arg, context=context)
-        for line in self.browse(cr, uid, ids, context=context):
-            if line.procurement_method == AGR_PROC:
-                po_l_ids = po_line_model.search(cr, uid, [
-                    ('lr_source_line_id', '=', line.id),
-                    ('state', '!=', 'cancel')
-                ], context=context)
-                if po_l_ids:
-                    if len(po_l_ids) > 1:
-                        raise orm.except_orm(
-                            _('Many Purchase order lines found for %s')
-                            % line.name,
-                            _('Please cancel uneeded one'))
-                    res[line.id] = po_l_ids[0]
-                else:
-                    res[line.id] = False
-        return res
-
     # ----------------- adapting source line to po --------------------------
     def _company(self, cr, uid, context):
         """Return company id
