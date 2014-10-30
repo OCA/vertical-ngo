@@ -103,7 +103,7 @@ class logistic_requisition_cost_estimate(orm.Model):
                      if x.purchase_line_id)
         if po_ids:
             po_model.write(cr, uid, list(po_ids),
-                        {'sale_id': so_id,
+                           {'sale_id': so_id,
                             'sale_flow': 'direct_delivery'})
             self._link_po_lines_to_so_lines(
                 cr, uid, order, sources, context=context)
