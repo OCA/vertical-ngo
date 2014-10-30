@@ -1,0 +1,30 @@
+-
+ In order to test logistic order report I try to print the report
+-
+  Given I create a logistic requisition
+-
+  !record {model: logistic.requisition, id: logistic_requisition_test_report}:
+    partner_id: base.res_partner_4
+    consignee_id: base.res_partner_3
+    date_delivery: !eval "time.strftime('%Y-%m-%d')"
+    user_id: base.user_demo
+    pricelist_id: product.list0
+    line_ids:
+      - product_id: product.product_product_32
+        description: HEAD Headset standard
+        requested_qty: 100
+        requested_uom_id: product.product_uom_unit
+        date_delivery: !eval "time.strftime('%Y-%m-%d')"
+        logistic_user_id: base.user_demo
+-
+ I print the report
+-
+  !python {model: logistic.requisition}: |
+    import os
+    import openerp.report
+    from openerp import tools
+    data, format = openerp.report.render_report(cr, uid, [ref('logistic_requisition_test_report')], 'logistic_requisition.report_logistic_requisition', {}, {})
+    if tools.config['test_report_directory']:
+        path = os.path.join(tools.config['test_report_directory'], 'logistic_requisition_report.%s' % format)
+        with open(path, 'wb+') as fobj:
+            fobj.write(data)
