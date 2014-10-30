@@ -49,7 +49,6 @@
           "view/sale_order.xml",
           "view/cancel_reason.xml",
           "view/purchase_order.xml",
-          "view/purchase_requisition.xml",
           "view/report_logistic_requisition.xml",
           "logistic_requisition_report.xml",
           "data/logistic.requisition.cancel.reason.csv",
