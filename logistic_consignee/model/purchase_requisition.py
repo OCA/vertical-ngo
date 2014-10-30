@@ -28,7 +28,7 @@ class PurchaseRequisition(models.Model):
     consignee_id = fields.Many2one(
         'res.partner',
         'Consignee',
-        help="Person responsible of delivery")
+        help="The person to whom the shipment is to be delivered.")
 
     @api.model
     def _prepare_purchase_order(self, requisition, supplier):
