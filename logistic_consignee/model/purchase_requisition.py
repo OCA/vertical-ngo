@@ -18,28 +18,21 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #
+from openerp import models, fields, api
 
-{"name": "Logistic Consignee",
- "summary": "Consignee on Sales, Purchases, Purchase requisition for Pickings",
- "version": "0.1",
- "author": "Camptocamp",
- "license": "AGPL-3",
- "category": "Logistics",
- 'complexity': "normal",
- "images": [],
- "website": "http://www.camptocamp.com",
- "depends": ["sale_stock",
-             "purchase",
-             "purchase_requisition",
-             ],
- "demo": [],
- "data": ['view/purchase_order.xml',
-          'view/purchase_requisition.xml',
-          'view/sale_order.xml',
-          'view/stock_picking.xml',
-          'view/report_saleorder.xml',
-          ],
- "test": ['test/test_report.yml'],
- 'installable': True,
- "auto_install": False,
- }
+
+class PurchaseRequisition(models.Model):
+    _inherit = "purchase.requisition"
+    _description = "Call for Bids"
+
+    consignee_id = fields.Many2one(
+        'res.partner',
+        'Consignee',
+        help="Person responsible of delivery")
+
+    @api.model
+    def _prepare_purchase_order(self, requisition, supplier):
+        values = super(PurchaseRequisition, self
+                       )._prepare_purchase_order(requisition, supplier)
+        values['consignee_id'] = requisition.consignee_id.id
+        return values
