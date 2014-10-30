@@ -132,10 +132,6 @@
             "price_is should be %s, received %s" %
             (source.price_is, sale_line.price_is))
 
-        if source.procurement_method != 'wh_dispatch':
-            assert sale_line.sale_flow == 'direct_delivery', (
-                "A line not in 'Warehouse dispatch' should be in direct delivery")
-
         loc = source.dispatch_location_id
         if location_obj.get_warehouse(cr, uid, loc):
             assert sale_line.warehouse_id.id == location_obj.get_warehouse(cr, uid, loc), (
