@@ -57,10 +57,7 @@
           'test/requisition_create_cost_estimate.yml',
           'test/requisition_sourcing_with_tender.yml',
           'test/requisition_cancel_reason.yml',
-          # XXX port report to Qweb
-          # 'test/logistic_requisition_report_test.yml',
-          # XXX to remove or replace as there are no more relation on sol
-          # 'test/test_picking_by_location_address.yml',
+          'test/logistic_requisition_report_test.yml',
           ],
  'installable': True,
  'auto_install': False,
