@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from openerp import api, workflow
+from openerp import api
 from openerp.osv import orm, fields
 
 SELECTED_STATE = ('agreement_selected', 'Agreement selected')
@@ -48,8 +48,8 @@ class purchase_order(orm.Model):
         if isinstance(agr_id, (list, tuple)):
             assert len(agr_id) == 1
             agr_id = agr_id[0]
-        return workflow.trg_validate(uid, 'purchase.order',
-                                     agr_id, 'select_agreement', cr)
+        return self.signal_workflow(cr, uid, [agr_id], 'select_agreement',
+                                    context=context)
 
     def po_tender_agreement_selected(self, cr, uid, ids, context=None):
         """Workflow function that write state 'Agreement selected'"""
