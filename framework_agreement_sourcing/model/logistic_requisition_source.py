@@ -1,4 +1,4 @@
- # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 ##############################################################################
 #
 #    Author: Nicolas Bessi
@@ -19,73 +19,49 @@
 #
 ##############################################################################
 from itertools import chain
+
 from openerp.osv import orm, fields
 from openerp.tools.translate import _
-from openerp.addons.framework_agreement.model.framework_agreement import\
-    FrameworkAgreementObservable
 from openerp.addons.framework_agreement.utils import id_boilerplate
-
 
 AGR_PROC = 'fw_agreement'
 
 
-class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
+class logistic_requisition_source(orm.Model):
+
     """Adds support of framework agreement to source line"""
 
     _inherit = "logistic.requisition.source"
 
-    _columns = {'framework_agreement_id': fields.many2one('framework.agreement',
-                                                          'Agreement'),
-                'framework_agreement_po_id': fields.many2one('purchase.order',
-                                                             'Agreement Purchase'),
-                'supplier_id': fields.related('framework_agreement_id', 'supplier_id',
-                                              type='many2one',  relation='res.partner',
-                                              string='Agreement Supplier')}
+    _columns = {
+        'framework_agreement_id': fields.many2one('framework.agreement',
+                                                  'Agreement'),
+        'framework_agreement_po_id': fields.many2one('purchase.order',
+                                                     'Agreement Purchase'),
+        'supplier_id': fields.related('framework_agreement_id', 'supplier_id',
+                                      type='many2one',  relation='res.partner',
+                                      string='Agreement Supplier')}
 
     def _get_procur_method_hook(self, cr, uid, context=None):
-        """Adds framework agreement as a procurement method in selection field"""
-        res = super(logistic_requisition_source, self)._get_procur_method_hook(cr, uid,
-                                                                               context=context)
+        """Adds framework agreement as a procurement method in selection
+        field"""
+        res = super(logistic_requisition_source, self)._get_procur_method_hook(
+            cr, uid, context=context)
         res.append((AGR_PROC, 'Framework agreement'))
         return res
 
-    def _get_purchase_line_id(self, cr, uid, ids, field_name, arg, context=None):
-        """For each source line, get the related purchase order line
-
-        For more detail please refer to function fields documentation
-
-        """
-        po_line_model = self.pool['purchase.order.line']
-        res = super(logistic_requisition_source, self)._get_purchase_line_id(cr, uid, ids,
-                                                                             field_name,
-                                                                             arg,
-                                                                             context=context)
-        for line in self.browse(cr, uid, ids, context=context):
-            if line.procurement_method == AGR_PROC:
-                po_l_ids = po_line_model.search(cr, uid,
-                                                [('lr_source_line_id', '=', line.id),
-                                                 ('state', '!=', 'cancel')],
-                                                context=context)
-                if po_l_ids:
-                    if len(po_l_ids) > 1:
-                        raise orm.except_orm(_('Many Purchase order lines found for %s') % line.name,
-                                             _('Please cancel uneeded one'))
-                    res[line.id] = po_l_ids[0]
-                else:
-                    res[line.id] = False
-        return res
-
-    #------------------ adapting source line to po -----------------------------
+    # ----------------- adapting source line to po --------------------------
     def _company(self, cr, uid, context):
         """Return company id
 
         :returns: company id
 
         """
-        return self.pool['res.company']._company_default_get(cr, uid, self._name,
-                                                             context=context)
+        return self.pool['res.company']._company_default_get(
+            cr, uid, self._name, context=context)
 
-    def _prepare_purchase_order(self, cr, uid, line, po_pricelist, context=None):
+    def _prepare_purchase_order(self, cr, uid, line, po_pricelist,
+                                context=None):
         """Prepare the dict of values to create the PO from a
            source line.
 
@@ -112,7 +88,7 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
         data['fiscal_position'] = position
         data['origin'] = requisition.name
         data['date_order'] = requisition.date
-        # data['name'] = requisition.name
+        data['name'] = requisition.name
         data['consignee_id'] = requisition.consignee_id.id
         data['incoterm_id'] = requisition.incoterm_id.id
         data['incoterm_address'] = requisition.incoterm_address
@@ -120,7 +96,7 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
         return data
 
     def _prepare_purchase_order_line(self, cr, uid, po_id, line,
-                               po_supplier, po_pricelist, context=None):
+                                     po_supplier, po_pricelist, context=None):
         """Prepare the dict of values to create the PO Line from args.
 
         :param integer po_id: ids of purchase.order
@@ -136,7 +112,8 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
         currency = po_pricelist.currency_id
 
         if line.framework_agreement_id:
-            price = line.framework_agreement_id.get_price(line.proposed_qty, currency=currency)
+            price = line.framework_agreement_id.get_price(
+                line.proposed_qty, currency=currency)
             lead_time = line.framework_agreement_id.delay
             supplier = line.framework_agreement_id.supplier_id
             data['framework_agreement_id'] = line.framework_agreement_id.id
@@ -145,24 +122,25 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
             lead_time = 0
             price = 0.0
             if po_pricelist:
-                price = pl_model.price_get(cr, uid,
-                                           [po_pricelist.id],
-                                           line.proposed_product_id.id,
-                                           line.proposed_qty or 1.0,
-                                           po_supplier.id,
-                                           {'uom': line.proposed_uom_id.id})[po_pricelist.id]
+                price = pl_model.price_get(
+                    cr, uid,
+                    [po_pricelist.id],
+                    line.proposed_product_id.id,
+                    line.proposed_qty or 1.0,
+                    po_supplier.id,
+                    {'uom': line.proposed_uom_id.id})[po_pricelist.id]
 
         if not price:
             price = line.proposed_product_id.standard_price or 1.00
         taxes_ids = line.proposed_product_id.supplier_taxes_id
-        taxes = acc_pos_obj.map_tax(cr, uid, supplier.property_account_position,
-                                    taxes_ids)
+        taxes = acc_pos_obj.map_tax(
+            cr, uid, supplier.property_account_position, taxes_ids)
 
         data['order_id'] = po_id
         data['product_qty'] = line.proposed_qty
         data['product_id'] = line.proposed_product_id.id
         data['product_uom'] = line.proposed_uom_id.id
-        data['lr_source_line_id']= line.id
+        data['lr_source_line_id'] = line.id
         data['product_lead_time'] = lead_time
         data['price_unit'] = price
         data['name'] = line.proposed_product_id.name
@@ -196,20 +174,22 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
         supplier = main_source.framework_agreement_id.supplier_id
         to_curr = pricelist.currency_id.id
         po_vals = self._prepare_purchase_order(cr, uid, main_source,
-                                         pricelist, context=context)
+                                               pricelist, context=context)
         po_id = po_obj.create(cr, uid, po_vals, context=context)
         other_sources = other_sources if other_sources else []
         for source in chain([main_source], other_sources):
             line_vals = self._prepare_purchase_order_line(cr, uid, po_id,
-                                                    source, supplier,
-                                                    pricelist, context=context)
+                                                          source, supplier,
+                                                          pricelist,
+                                                          context=context)
             po_l_obj.create(cr, uid, line_vals, context=context)
             # TODO: Update LRS unit_cost from po line, with currency conversion
             from_curr = source.requisition_id.currency_id.id
             # Compute from bid currency to LRS currency
             price = currency_obj.compute(cr, uid, from_curr, to_curr,
-                    line_vals['price_unit'], False)
-            source.write({'framework_agreement_po_id': po_id, 'unit_cost':price})
+                                         line_vals['price_unit'], False)
+            source.write(
+                {'framework_agreement_po_id': po_id, 'unit_cost': price})
         return po_id
 
     def make_purchase_order(self, cr, uid, ids, pricelist, context=None):
@@ -232,27 +212,31 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
         # LRS of type LTA (framework agreement)
         agreement_sources = []
         # LRS of type other
-        other_sources =  []
+        other_sources = []
         for source in sources:
             if source.procurement_method == AGR_PROC:
                 agreement_sources.append(source)
             elif source.procurement_method == 'other':
                 other_sources.append(source)
             else:
-                raise orm.except_orm(_('Source line must be of type other or agreement'),
-                                     _('Please correct selection'))
+                raise orm.except_orm(
+                    _('Source line must be of type other or agreement'),
+                    _('Please correct selection'))
 
         main_source = agreement_sources[0] if agreement_sources else False
         if len(agreement_sources) > 1:
             raise orm.except_orm(_('There should be only one agreement line'),
                                  _('Please correct selection'))
         if not main_source:
-            raise orm.except_orm(_('There should be at least one agreement line'),
-                                 _('Please correct selection'))
-        fback = main_source.framework_agreement_id.supplier_id.property_product_pricelist_purchase
+            raise orm.except_orm(
+                _('There should be at least one agreement line'),
+                _('Please correct selection'))
+
+        supplier = main_source.framework_agreement_id.supplier_id
+        fback = supplier.property_product_pricelist_purchase
         pricelist = pricelist if pricelist else fback
-        po_id = self._make_po_from_source_lines(cr, uid, main_source,
-                                                other_sources, pricelist, context=None)
+        po_id = self._make_po_from_source_lines(
+            cr, uid, main_source, other_sources, pricelist, context=None)
         return po_id
 
     def _is_sourced_other(self, cr, uid, source, context=None):
@@ -261,7 +245,7 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
         tender_ok = self._is_sourced_procurement(cr, uid, source,
                                                  context=context)
         agr_ok = self._is_sourced_fw_agreement(cr, uid, source,
-                                                 context=context)
+                                               context=context)
         return (tender_ok or agr_ok)
 
     def _is_sourced_fw_agreement(self, cr, uid, source, context=None):
@@ -272,12 +256,13 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
         """
         po_line_obj = self.pool['purchase.order.line']
         sources_ids = po_line_obj.search(cr, uid,
-                                         [('lr_source_line_id', '=', source.id)],
+                                         [('lr_source_line_id', '=', source.id)
+                                          ],
                                          context=context)
         # predicate
         return bool(sources_ids)
 
-    #---------------OpenERP tedious onchange management ------------------------
+    # ---------------OpenERP tedious onchange management ----------------------
 
     def _get_date(self, cr, uid, requision_line_id, context=None):
         """helper to retrive date to be used by framework agreement
@@ -295,8 +280,9 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
         return current.requisition_id.date or now
 
     @id_boilerplate
-    def onchange_sourcing_method(self, cr, uid, ids, method, req_line_id, proposed_product_id,
-                                 proposed_qty=0, context=None):
+    def onchange_sourcing_method(self, cr, uid, ids, method, req_line_id,
+                                 proposed_product_id, proposed_qty=0,
+                                 context=None):
         """
         Called when source method is set on a source line.
 
@@ -312,12 +298,9 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
         currency = line_source.currency_id
         agreement_obj = self.pool['framework.agreement']
         date = self._get_date(cr, uid, req_line_id, context=context)
-        agreement, enough_qty = agreement_obj.get_cheapest_agreement_for_qty(cr, uid,
-                                                                             proposed_product_id,
-                                                                             date,
-                                                                             proposed_qty,
-                                                                             currency=currency,
-                                                                             context=context)
+        agreement, enough_qty = agreement_obj.get_cheapest_agreement_for_qty(
+            cr, uid, proposed_product_id, date, proposed_qty,
+            currency=currency, context=context)
         if not agreement:
             return res
         price = agreement.get_price(proposed_qty, currency=currency)
@@ -364,7 +347,8 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
                 value = {'proposed_uom_id': ''}
                 if proposed_product_id:
                     prod_obj = self.pool.get('product.product')
-                    prod = prod_obj.browse(cr, uid, proposed_product_id, context=context)
+                    prod = prod_obj.browse(
+                        cr, uid, proposed_product_id, context=context)
                     value = {
                         'proposed_uom_id': prod.uom_id.id,
                     }
@@ -375,15 +359,3 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
                                              proposed_product_id,
                                              proposed_qty=proposed_qty,
                                              context=context)
-
-    @id_boilerplate
-    def onchange_agreement(self, cr, uid, ids, agreement_id, req_line_id, qty,
-                           proposed_product_id, context=None):
-        line_source = self.browse(cr, uid, ids, context=context)
-        if not proposed_product_id or not agreement_id:
-            return {}
-        currency = line_source.currency_id
-        date = self._get_date(cr, uid, req_line_id, context=context)
-        return self.onchange_agreement_obs(cr, uid, ids, agreement_id, qty,
-                                           date, proposed_product_id,
-                                           currency=currency, price_field='dummy')
