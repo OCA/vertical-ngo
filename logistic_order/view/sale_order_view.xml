@@ -71,9 +71,6 @@
         <xpath expr="//label[@string='Sales Order ']" position="attributes">
           <attribute name="string">Logistic Order </attribute>
         </xpath>
-        <field name="partner_shipping_id" position="before">
-          <field name="consignee_id"/>
-        </field>
         <field name="incoterm" position="after">
           <field name="incoterm_address"/>
         </field>

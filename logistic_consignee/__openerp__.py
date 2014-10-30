@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-##############################################################################
 #
-#    Copyright 2013-2014 Camptocamp SA
+#
+#    Author: Yannick Vaucher
+#    Copyright 2014 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -16,17 +17,27 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-##############################################################################
-from openerp import models, fields
+#
 
-
-class SaleOrder(models.Model):
-    _inherit = 'sale.order'
-
-    incoterm_address = fields.Char(
-        'Incoterm Place',
-        help="Incoterm Place of Delivery. "
-             "International Commercial Terms are a series of "
-             "predefined commercial terms used in "
-             "international transactions.")
-    delivery_time = fields.Char('Delivery time')
+{"name": "Logistic Consignee",
+ "summary": "Consignee from Sales and Purchases to Pickings",
+ "version": "0.1",
+ "author": "Camptocamp",
+ "license": "AGPL-3",
+ "category": "Logistics",
+ 'complexity': "normal",
+ "images": [],
+ "website": "http://www.camptocamp.com",
+ "depends": ["sale_stock",
+             "purchase",
+             ],
+ "demo": [],
+ "data": ['view/purchase_order.xml',
+          'view/sale_order.xml',
+          'view/stock_picking.xml',
+          'view/report_saleorder.xml',
+          ],
+ "test": ['test/test_report.yml'],
+ 'installable': True,
+ "auto_install": False,
+ }

@@ -21,11 +21,6 @@ msgid "Confirm Cost Estimate"
 msgstr ""
 
 #. module: logistic_order
-#: field:sale.order,consignee_id:0
-msgid "Consignee"
-msgstr ""
-
-#. module: logistic_order
 #: view:website:sale.report_saleorder_document
 msgid "Consignee address :"
 msgstr ""
