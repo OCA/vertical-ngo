@@ -900,8 +900,10 @@ class LogisticRequisitionSource(models.Model):
                 if not po_lines:
                     continue
             else:
-                domain = [('lr_source_line_id', '=', line.id),
-                          ('state', '!=', 'cancel')],
+                domain = [
+                    ('lr_source_line_id', '=', line.id),
+                    ('state', '!=', 'cancel')
+                ]
                 po_line = po_line_model.search(domain)
             # We should not have several purchase order lines "
             # for a logistic requisition line")
