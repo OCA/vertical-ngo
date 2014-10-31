@@ -2,7 +2,7 @@
 ##############################################################################
 #
 #    Author: Nicolas Bessi
-#    Copyright 2013 Camptocamp SA
+#    Copyright 2013, 2014 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -20,14 +20,13 @@
 ##############################################################################
 from openerp.osv import orm
 from openerp.tools.translate import _
-from .logistic_requisition_source import AGR_PROC
 
 
-class logistic_requisition_cost_estimate(orm.Model):
+class logistic_requisition_cost_estimate(orm.TransientModel):
+
     """Add update of agreement price"""
 
     _inherit = "logistic.requisition.cost.estimate"
-
 
     def _prepare_cost_estimate_line(self, cr, uid, sourcing, context=None):
         """Override in order to update agreement source line
@@ -37,7 +36,7 @@ class logistic_requisition_cost_estimate(orm.Model):
                     self)._prepare_cost_estimate_line(cr, uid, sourcing,
                                                       context=context)
 
-        if sourcing.procurement_method == AGR_PROC:
+        if sourcing.procurement_method == 'fw_agreement':
             res['type'] = 'make_to_order'
             res['sale_flow'] = 'direct_delivery'
         return res
@@ -64,7 +63,8 @@ class logistic_requisition_cost_estimate(orm.Model):
                                  _('Please add one'))
         for po_line in po_lines:
             key = po_line.product_id.id if po_line.product_id else False
-            po_line.write({'sale_order_line_id': product_dict.get(key, default)})
+            po_line.write(
+                {'sale_order_line_id': product_dict.get(key, default)})
 
     def cost_estimate(self, cr, uid, ids, context=None):
         """Override to link PO to cost_estimate$
@@ -81,19 +81,29 @@ class logistic_requisition_cost_estimate(orm.Model):
         """
         so_model = self.pool['sale.order']
         po_model = self.pool['purchase.order']
+
+        assert len(ids) == 1
+
+        wizard = self.browse(cr, uid, ids, context=context)
+
         res = super(logistic_requisition_cost_estimate,
                     self).cost_estimate(cr, uid, ids, context=context)
         so_id = res['res_id']
         order = so_model.browse(cr, uid, so_id, context=context)
-        # Can be optimized with a SQL or a search but
-        # gain of perfo will not worth readability loss
-        # for such small data set
-        sources = [x.logistic_requisition_source_id for x in order.order_line
-                   if x and x.logistic_requisition_source_id.procurement_method == AGR_PROC]
+
+        sources = []
+
+        for lrl in wizard.line_ids:
+            for source in lrl.source_ids:
+                if source.procurement_method == 'fw_agreement':
+                    sources.append(source)
+
         po_ids = set(x.purchase_line_id.order_id.id for x in sources
                      if x.purchase_line_id)
-        po_model.write(cr, uid, list(po_ids),
-                       {'sale_id': so_id,
-                        'sale_flow': 'direct_delivery'})
-        self._link_po_lines_to_so_lines(cr, uid, order, sources, context=context)
+        if po_ids:
+            po_model.write(cr, uid, list(po_ids),
+                           {'sale_id': so_id,
+                            'sale_flow': 'direct_delivery'})
+            self._link_po_lines_to_so_lines(
+                cr, uid, order, sources, context=context)
         return res

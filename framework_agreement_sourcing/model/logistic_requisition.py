@@ -19,21 +19,20 @@
 #
 ##############################################################################
 from collections import namedtuple
-from openerp.tools.translate import _
 from openerp.osv import orm
-from .logistic_requisition_source import AGR_PROC
 
 
 class logistic_requisition_line(orm.Model):
+
     """Override to enable generation of source line"""
 
     _inherit = "logistic.requisition.line"
 
     def _prepare_line_source(self, cr, uid, line,
-                                      qty=None, agreement=None,
-                                      context=None):
+                             qty=None, agreement=None,
+                             context=None):
         """Prepare data dict for source line creation. If an agreement
-        is given, the procurement_method will be an LTA (AGR_PROC).
+        is given, the procurement_method will be an LTA ('fw_agreement').
         Otherwise, if it's a stockable product we'll go to tender
         by setting procurement_method as 'procurement'. Finally marke the
         rest as 'other'. Those are default value that can be changed afterward
@@ -55,12 +54,13 @@ class logistic_requisition_line(orm.Model):
         res['framework_agreement_id'] = False
         if agreement:
             if not agreement.product_id.id == line.product_id.id:
-                raise ValueError("Product mismatch for agreement and requisition line")
+                raise ValueError(
+                    "Product mismatch for agreement and requisition line")
             res['framework_agreement_id'] = agreement.id
-            res['procurement_method'] = AGR_PROC
+            res['procurement_method'] = 'fw_agreement'
         else:
             if line.product_id.type == 'product':
-               res['procurement_method'] = 'procurement'
+                res['procurement_method'] = 'procurement'
             else:
                 res['procurement_method'] = 'other'
         return res
@@ -114,7 +114,8 @@ class logistic_requisition_line(orm.Model):
             return agreements
 
     def _generate_lines_from_agreements(self, cr, uid, container, line,
-                                        agreements, qty, currency=None, context=None):
+                                        agreements, qty, currency=None,
+                                        context=None):
         """Generate 1/n source line(s) for one requisition line.
 
         This is done using available agreements.
@@ -145,23 +146,27 @@ class logistic_requisition_line(orm.Model):
         to_consume = qty if avail_sold >= 0 else avail
 
         source_id = self.make_source_line(cr, uid, line, force_qty=to_consume,
-                                          agreement=current_agr, context=context)
+                                          agreement=current_agr,
+                                          context=context)
         container.append(source_id)
         difference = qty - to_consume
         if difference:
-            return self._generate_lines_from_agreements(cr, uid, container, line,
-                                                        agreements, difference,
+            return self._generate_lines_from_agreements(cr, uid, container,
+                                                        line, agreements,
+                                                        difference,
                                                         context=context)
         else:
             return 0
 
-    def _source_lines_for_agreements(self, cr, uid, line, agreements, currency=None, context=None):
+    def _source_lines_for_agreements(self, cr, uid, line, agreements,
+                                     currency=None, context=None):
         """Generate 1/n source line(s) for one requisition line
 
         This is done using available agreements.
         We first look for cheapeast agreement.
-        Then if no more quantity are available and there is still remaining needs
-        we look for next cheapest agreement or we create a tender source line
+        Then if no more quantity are available and there is still remaining
+        needs we look for next cheapest agreement or we create a tender source
+        line
 
         :param line: requisition line browse record
         :returns: (generated line ids, remaining qty not covered by agreement)
@@ -170,12 +175,15 @@ class logistic_requisition_line(orm.Model):
         Sourced = namedtuple('Sourced', ['generated', 'remaining'])
         qty = line.requested_qty
         generated = []
-        remaining_qty = self._generate_lines_from_agreements(cr, uid, generated,
-                                                             line, agreements, qty,
-                                                             currency=currency, context=context)
+        remaining_qty = self._generate_lines_from_agreements(cr, uid,
+                                                             generated, line,
+                                                             agreements, qty,
+                                                             currency=currency,
+                                                             context=context)
         return Sourced(generated, remaining_qty)
 
-    def make_source_line(self, cr, uid, line, force_qty=None, agreement=None, context=None):
+    def make_source_line(self, cr, uid, line, force_qty=None, agreement=None,
+                         context=None):
         """Generate a source line from a requisition line, see
         _prepare_line_source for details.
 
@@ -188,17 +196,17 @@ class logistic_requisition_line(orm.Model):
         qty = force_qty if force_qty else line.requested_qty
         src_obj = self.pool['logistic.requisition.source']
         vals = self._prepare_line_source(cr, uid, line,
-                                                    qty=qty,
-                                                    agreement=agreement,
-                                                    context=None)
+                                         qty=qty,
+                                         agreement=agreement,
+                                         context=None)
         return src_obj.create(cr, uid, vals, context=context)
 
     def _generate_source_line(self, cr, uid, line, context=None):
         """Generate one or n source line(s) per requisition line.
 
-        Depending on the available resources. If there is framework agreement(s)
-        running we generate one or n source line using agreements otherwise we generate one
-        source line using tender process
+        Depending on the available resources. If there is framework
+        agreement(s) running we generate one or n source line using agreements
+        otherwise we generate one source line using tender process
 
         :param line: browse record of origin logistic.request
 
@@ -211,16 +219,17 @@ class logistic_requisition_line(orm.Model):
         date = line.requisition_id.date
         currency = line.currency_id
         product_id = line.product_id.id
-        agreements = agr_obj.get_all_product_agreements(cr, uid, product_id, date,
+        agreements = agr_obj.get_all_product_agreements(cr, uid, product_id,
+                                                        date,
                                                         context=context)
         generated_lines = []
         if agreements:
-            line_ids, missing_qty = self._source_lines_for_agreements(cr, uid, line,
-                                                                      agreements, currency=currency)
+            line_ids, missing_qty = self._source_lines_for_agreements(
+                cr, uid, line, agreements, currency=currency)
             generated_lines.extend(line_ids)
             if missing_qty:
-                generated_lines.append(self.make_source_line(cr, uid, line,
-                                                             force_qty=missing_qty))
+                generated_lines.append(self.make_source_line(
+                    cr, uid, line, force_qty=missing_qty))
         else:
             generated_lines.append(self.make_source_line(cr, uid, line))
 
@@ -236,8 +245,8 @@ class logistic_requisition_line(orm.Model):
         # this should probably be in logistic_requisition module
         # providing a mechanism to allow each type of sourcing method
         # to generate source line
-        res = super(logistic_requisition_line, self)._do_confirm(cr, uid, ids,
-                                                                 context=context)
+        res = super(logistic_requisition_line, self)._do_confirm(
+            cr, uid, ids, context=context)
         for line_br in self.browse(cr, uid, ids, context=context):
             self._generate_source_line(cr, uid, line_br, context=context)
         return res
