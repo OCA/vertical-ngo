@@ -53,6 +53,7 @@ Contributors
              "sale_validity",
              "delivery",
              "sale_quotation_sourcing",
+             'logistic_consignee',
              ],
  "demo": [],
  "data": ['view/sale_order_view.xml',
