@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from ..model.logistic_requisition_source import AGR_PROC
 from .common import CommonSourcingSetUp
 
 
@@ -41,7 +40,7 @@ class TestTransformation(CommonSourcingSetUp):
         self.assertTrue(len(to_validate_ids) == 1)
         to_validate = self.source_line_model.browse(
             cr, uid, to_validate_ids[0])
-        self.assertEqual(to_validate.procurement_method, AGR_PROC)
+        self.assertEqual(to_validate.procurement_method, 'fw_agreement')
         self.assertAlmostEqual(to_validate.unit_cost, 0.0)
         self.assertEqual(to_validate.proposed_qty, 400)
 
@@ -62,7 +61,7 @@ class TestTransformation(CommonSourcingSetUp):
         self.assertTrue(len(to_validate_ids) == 1)
         to_validate = self.source_line_model.browse(
             cr, uid, to_validate_ids[0])
-        self.assertEqual(to_validate.procurement_method, AGR_PROC)
+        self.assertEqual(to_validate.procurement_method, 'fw_agreement')
         self.assertAlmostEqual(to_validate.unit_cost, 0.0)
         self.assertEqual(to_validate.proposed_qty, 1500)
 
@@ -89,7 +88,7 @@ class TestTransformation(CommonSourcingSetUp):
                           if x.framework_agreement_id ==
                           self.cheap_on_high_agreement), None)
         self.assertTrue(high_line, msg="High agreement was not used")
-        self.assertEqual(high_line.procurement_method, AGR_PROC)
+        self.assertEqual(high_line.procurement_method, 'fw_agreement')
         self.assertEqual(high_line.proposed_qty, 2000)
         self.assertAlmostEqual(high_line.unit_cost, 0.0)
 
@@ -98,7 +97,7 @@ class TestTransformation(CommonSourcingSetUp):
                          if x.framework_agreement_id ==
                          self.cheap_on_low_agreement), None)
         self.assertTrue(low_line, msg="Low agreement was not used")
-        self.assertEqual(low_line.procurement_method, AGR_PROC)
+        self.assertEqual(low_line.procurement_method, 'fw_agreement')
         self.assertEqual(low_line.proposed_qty, 400)
         self.assertAlmostEqual(low_line.unit_cost, 0.0)
 
@@ -129,7 +128,7 @@ class TestTransformation(CommonSourcingSetUp):
                           if x.framework_agreement_id ==
                           self.cheap_on_high_agreement), None)
         self.assertTrue(high_line, msg="High agreement was not used")
-        self.assertEqual(high_line.procurement_method, AGR_PROC)
+        self.assertEqual(high_line.procurement_method, 'fw_agreement')
         self.assertEqual(high_line.proposed_qty, 2000)
         self.assertAlmostEqual(high_line.unit_cost, 0.0)
 
@@ -138,7 +137,7 @@ class TestTransformation(CommonSourcingSetUp):
                          if x.framework_agreement_id ==
                          self.cheap_on_low_agreement), None)
         self.assertTrue(low_line, msg="Low agreement was not used")
-        self.assertEqual(low_line.procurement_method, AGR_PROC)
+        self.assertEqual(low_line.procurement_method, 'fw_agreement')
         self.assertEqual(low_line.proposed_qty, 1200)
         self.assertAlmostEqual(low_line.unit_cost, 0.0)
 
@@ -146,4 +145,4 @@ class TestTransformation(CommonSourcingSetUp):
         tender_line = next((x for x in to_validates
                             if not x.framework_agreement_id), None)
         self.assertTrue(tender_line, msg="Tender line was not generated")
-        self.assertNotEqual(tender_line.procurement_method, AGR_PROC)
+        self.assertNotEqual(tender_line.procurement_method, 'fw_agreement')

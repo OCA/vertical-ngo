@@ -20,7 +20,6 @@
 ##############################################################################
 from openerp import netsvc
 from openerp.osv import orm
-from .logistic_requisition_source import AGR_PROC
 
 
 class sale_order_line(orm.Model):
@@ -41,7 +40,7 @@ class sale_order_line(orm.Model):
         wf_service = netsvc.LocalService("workflow")
 
         def source_valid(source):
-            if source and source.procurement_method == AGR_PROC:
+            if source and source.procurement_method == 'fw_agreement':
                 return True
             return False
 

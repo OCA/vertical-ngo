@@ -24,8 +24,6 @@ from openerp.osv import orm, fields
 from openerp.tools.translate import _
 from openerp.addons.framework_agreement.utils import id_boilerplate
 
-AGR_PROC = 'fw_agreement'
-
 
 class logistic_requisition_source(orm.Model):
 
@@ -47,7 +45,7 @@ class logistic_requisition_source(orm.Model):
         field"""
         res = super(logistic_requisition_source, self)._get_procur_method_hook(
             cr, uid, context=context)
-        res.append((AGR_PROC, 'Framework agreement'))
+        res.append(('fw_agreement', 'Framework agreement'))
         return res
 
     # ----------------- adapting source line to po --------------------------
@@ -214,7 +212,7 @@ class logistic_requisition_source(orm.Model):
         # LRS of type other
         other_sources = []
         for source in sources:
-            if source.procurement_method == AGR_PROC:
+            if source.procurement_method == 'fw_agreement':
                 agreement_sources.append(source)
             elif source.procurement_method == 'other':
                 other_sources.append(source)
@@ -293,7 +291,7 @@ class logistic_requisition_source(orm.Model):
         """
         line_source = self.browse(cr, uid, ids, context=context)
         res = {'value': {'framework_agreement_id': False}}
-        if (method != AGR_PROC or not proposed_product_id):
+        if (method != 'fw_agreement' or not proposed_product_id):
             return res
         currency = line_source.currency_id
         agreement_obj = self.pool['framework.agreement']
@@ -321,7 +319,7 @@ class logistic_requisition_source(orm.Model):
                           proposed_product_id, context=None):
         """Raise a warning if agreed qty is not sufficient"""
         line_source = self.browse(cr, uid, ids, context=context)
-        if (method != AGR_PROC or not proposed_product_id):
+        if (method != 'fw_agreement' or not proposed_product_id):
             return {}
         currency = line_source.currency_id
         date = self._get_date(cr, uid, req_line_id, context=context)
@@ -342,7 +340,7 @@ class logistic_requisition_source(orm.Model):
         and raise quantity warning.
 
         """
-        if method != AGR_PROC:
+        if method != 'fw_agreement':
             if proposed_product_id:
                 value = {'proposed_uom_id': ''}
                 if proposed_product_id:

@@ -20,7 +20,6 @@
 ##############################################################################
 from collections import namedtuple
 from openerp.osv import orm
-from .logistic_requisition_source import AGR_PROC
 
 
 class logistic_requisition_line(orm.Model):
@@ -33,7 +32,7 @@ class logistic_requisition_line(orm.Model):
                              qty=None, agreement=None,
                              context=None):
         """Prepare data dict for source line creation. If an agreement
-        is given, the procurement_method will be an LTA (AGR_PROC).
+        is given, the procurement_method will be an LTA ('fw_agreement').
         Otherwise, if it's a stockable product we'll go to tender
         by setting procurement_method as 'procurement'. Finally marke the
         rest as 'other'. Those are default value that can be changed afterward
@@ -58,7 +57,7 @@ class logistic_requisition_line(orm.Model):
                 raise ValueError(
                     "Product mismatch for agreement and requisition line")
             res['framework_agreement_id'] = agreement.id
-            res['procurement_method'] = AGR_PROC
+            res['procurement_method'] = 'fw_agreement'
         else:
             if line.product_id.type == 'product':
                 res['procurement_method'] = 'procurement'
