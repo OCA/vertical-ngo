@@ -30,6 +30,7 @@
         product_uos_qty: 10000
     order_policy: manual
     partner_id: base.res_partner_4
+    consignee_id: base.res_partner_4
     partner_invoice_id: base.res_partner_address_7
     partner_shipping_id: base.res_partner_address_7
     picking_policy: direct
