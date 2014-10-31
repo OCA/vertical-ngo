@@ -18,4 +18,5 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
+from . import cost_estimate
 from . import logistic_requisition_source_create_po

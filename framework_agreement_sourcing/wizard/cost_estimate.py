@@ -23,7 +23,7 @@ from openerp.tools.translate import _
 from .logistic_requisition_source import AGR_PROC
 
 
-class logistic_requisition_cost_estimate(orm.Model):
+class logistic_requisition_cost_estimate(orm.TransientModel):
 
     """Add update of agreement price"""
 
