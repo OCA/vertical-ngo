@@ -19,7 +19,6 @@
 #
 ##############################################################################
 from itertools import chain
-from openerp import workflow
 from openerp.osv import orm, fields
 from openerp.tools.translate import _
 from openerp import models, api
@@ -84,8 +83,8 @@ class PurchaseRequisitionClassic(orm.Model):
         if isinstance(agr_id, (list, tuple)):
             assert len(agr_id) == 1
             agr_id = agr_id[0]
-        return workflow.trg_validate(uid, 'purchase.requisition',
-                                     agr_id, 'select_agreement', cr)
+        return self.signal_workflow(cr, uid, [agr_id], 'select_agreement',
+                                    context=context)
 
     def _agreement_selected(self, cr, uid, ids, context=None):
         """Tells tender that an agreement has been selected"""
@@ -126,8 +125,8 @@ class PurchaseRequisitionClassic(orm.Model):
                         'Purchase order %s does not pass to %s' %
                         (p_order.name, PO_AGR_SELECT))
             for p_order in set(po_to_cancel):
-                workflow.trg_validate(uid, 'purchase.order', p_order.id,
-                                      'purchase_cancel', cr)
+                self.signal_workflow(cr, uid, [p_order.id], 'purchase_cancel',
+                                     context=context)
         return generated
 
     def agreement_selected(self, cr, uid, ids, context=None):
