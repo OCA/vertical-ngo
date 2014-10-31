@@ -33,6 +33,7 @@
              "purchase_requisition_bid_selection",
              "mail",
              "logistic_order",
+             "logistic_consignee",
              "transport_information",
              "purchase_requisition_transport_document",
              ],

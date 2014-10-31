@@ -30,12 +30,11 @@
         product_uos_qty: 10000
     order_policy: manual
     partner_id: base.res_partner_4
-    consignee_id: base.res_partner_4
     partner_invoice_id: base.res_partner_address_7
     partner_shipping_id: base.res_partner_address_7
     picking_policy: direct
     pricelist_id: product.list0
-    date_validity: !eval time.strftime('%Y-03-30')
+    consignee_id: base.res_partner_address_4
 -
  I print the report
 -

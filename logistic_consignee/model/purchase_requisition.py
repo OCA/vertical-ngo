@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-##############################################################################
 #
-#    Copyright 2013-2014 Camptocamp SA
+#
+#    Author: Yannick Vaucher
+#    Copyright 2014 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -16,17 +17,22 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-##############################################################################
-from openerp import models, fields
+#
+from openerp import models, fields, api
 
 
-class SaleOrder(models.Model):
-    _inherit = 'sale.order'
+class PurchaseRequisition(models.Model):
+    _inherit = "purchase.requisition"
+    _description = "Call for Bids"
 
-    incoterm_address = fields.Char(
-        'Incoterm Place',
-        help="Incoterm Place of Delivery. "
-             "International Commercial Terms are a series of "
-             "predefined commercial terms used in "
-             "international transactions.")
-    delivery_time = fields.Char('Delivery time')
+    consignee_id = fields.Many2one(
+        'res.partner',
+        'Consignee',
+        help="The person to whom the shipment is to be delivered.")
+
+    @api.model
+    def _prepare_purchase_order(self, requisition, supplier):
+        values = super(PurchaseRequisition, self
+                       )._prepare_purchase_order(requisition, supplier)
+        values['consignee_id'] = requisition.consignee_id.id
+        return values
