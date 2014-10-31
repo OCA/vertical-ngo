@@ -2,7 +2,7 @@
 ##############################################################################
 #
 #    Author: Guewen Baconnier
-#    Copyright 2013 Camptocamp SA
+#    Copyright 2013-2014 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -20,12 +20,10 @@
 ##############################################################################
 
 import time
-from functools import partial
 
 from openerp.tools import DEFAULT_SERVER_DATE_FORMAT as D_FMT
-from openerp.osv import orm
+from openerp import exceptions
 import openerp.tests.common as common
-from openerp import SUPERUSER_ID
 from openerp.addons.logistic_requisition.tests import logistic_requisition
 from openerp.addons.logistic_requisition.tests import purchase_requisition
 from openerp.addons.logistic_requisition.tests import purchase_order
@@ -55,60 +53,59 @@ class test_purchase_split_requisition(common.TransactionCase):
 
     def setUp(self):
         super(test_purchase_split_requisition, self).setUp()
-        cr, uid = self.cr, self.uid
-        self.ir_model_data = self.registry('ir.model.data')
-        self.log_req = self.registry('logistic.requisition')
-        self.log_req_line = self.registry('logistic.requisition.line')
-        self.purchase_order = self.registry('purchase.order')
-        self.get_ref = partial(self.ir_model_data.get_object_reference,
-                               self.cr, self.uid)
+        self.ir_model_data = self.env['ir.model.data']
+        self.log_req = self.env['logistic.requisition']
+        self.log_req_line = self.env['logistic.requisition.line']
+        self.purchase_order = self.env['purchase.order']
 
-        __, self.partner_1 = self.get_ref('base', 'res_partner_1')
-        __, self.partner_3 = self.get_ref('base', 'res_partner_3')
-        __, self.partner_4 = self.get_ref('base', 'res_partner_4')
-        __, self.partner_12 = self.get_ref('base', 'res_partner_12')
-        __, self.user_demo = self.get_ref('base', 'user_demo')
-        __, self.product_7 = self.get_ref('product', 'product_product_7')
-        __, self.product_uom_pce = self.get_ref('product', 'product_uom_unit')
-        __, self.pricelist_sale = self.get_ref('product', 'list0')
+        data_model = self.env['ir.model.data']
+        self.partner_1 = data_model.xmlid_to_object('base.res_partner_1')
+        self.partner_3 = data_model.xmlid_to_object('base.res_partner_3')
+        self.partner_4 = data_model.xmlid_to_object('base.res_partner_4')
+        self.partner_12 = data_model.xmlid_to_object('base.res_partner_12')
+        self.user_demo = data_model.xmlid_to_object('base.user_demo')
+        self.product_32 = data_model.xmlid_to_object(
+            'product.product_product_32')
+        self.product_uom_pce = data_model.xmlid_to_object(
+            'product.product_uom_unit')
+        self.pricelist_sale = data_model.xmlid_to_object('product.list0')
 
         vals = {
-            'partner_id': self.partner_4,
-            'consignee_id': self.partner_3,
+            'partner_id': self.partner_4.id,
+            'consignee_id': self.partner_3.id,
             'date_delivery': time.strftime(D_FMT),
-            'user_id': self.user_demo,
-            'pricelist_id': self.pricelist_sale,
+            'user_id': self.user_demo.id,
+            'pricelist_id': self.pricelist_sale.id,
         }
         line = {
-            'product_id': self.product_7,
+            'product_id': self.product_32.id,
+            'description': "[HEAD] Headset standard",
             'requested_qty': 100,
-            'requested_uom_id': self.product_uom_pce,
+            'requested_uom_id': self.product_uom_pce.id,
             'date_delivery': time.strftime(D_FMT),
         }
         source = {
             'proposed_qty': 100,
-            'proposed_product_id': self.product_7,
-            'proposed_uom_id': self.product_uom_pce,
-            'transport_applicable': 0,
+            'proposed_product_id': self.product_32.id,
+            'proposed_uom_id': self.product_uom_pce.id,
             'procurement_method': 'procurement',
             'price_is': 'estimated',
         }
-        self.requisition_id = logistic_requisition.create(self, vals)
-        self.line_id = logistic_requisition.add_line(self, self.requisition_id,
-                                                     line)
-        self.source_id = logistic_requisition.add_source(self, self.line_id,
-                                                         source)
-        logistic_requisition.confirm(self, self.requisition_id)
-        logistic_requisition.assign_lines(self, [self.line_id], self.user_demo)
-        purch_req_id = logistic_requisition.create_purchase_requisition(
-            self, self.source_id)
-        purchase_requisition.confirm_call(self, purch_req_id)
-        purch_req_model = self.registry('purchase.requisition')
-        self.purchase_requisition = purch_req_model.browse(
-            cr, uid, purch_req_id)
-        dp_obj = self.registry('decimal.precision')
-        self.uom_precision = dp_obj.precision_get(cr, SUPERUSER_ID,
-                                                  'Product Unit of Measure')
+        self.requisition = self.log_req.create(vals)
+        self.line = logistic_requisition.add_line(self, self.requisition,
+                                                  line)
+        self.source = logistic_requisition.add_source(self, self.line,
+                                                      source)
+        self.requisition.button_confirm()
+        logistic_requisition.assign_lines(self, self.line, self.user_demo.id)
+        purch_req = logistic_requisition.create_purchase_requisition(
+            self, self.source)
+        purchase_requisition.confirm_call(self, purch_req)
+        self.purchase_requisition = purch_req
+        dp_obj = self.env['decimal.precision']
+        self.uom_precision = (dp_obj
+                              .sudo()
+                              .precision_get('Product Unit of Measure'))
 
     def test_split_too_many_products_selected_budget_exceeded(self):
         """ Create a call for bids from the logistic requisition, 2 po line
@@ -122,25 +119,25 @@ class test_purchase_split_requisition(common.TransactionCase):
         We should not be able to propose more than requested financially.
         """
         # create a first draft bid and select a part of the line
-        po_draft = purchase_requisition.create_draft_purchase_order(
-            self, self.purchase_requisition.id, self.partner_1)
-        purchase1, bid_line1 = po_draft
-        bid_line1.write({'price_unit': 15})
-        purchase_order.select_line(self, bid_line1.id, 30)
-        purchase_order.bid_encoded(self, purchase1.id)
+        draft_po = purchase_requisition.create_draft_purchase_order(
+            self, self.purchase_requisition, self.partner_1.id)
+        purchase1, bid_line1 = draft_po
+        bid_line1.price_unit = 15
+        purchase_order.select_line(self, bid_line1, 30)
+        purchase_order.bid_encoded(self, purchase1)
 
         # create a second draft bid and select a part of the line
-        po_draft = purchase_requisition.create_draft_purchase_order(
-            self, self.purchase_requisition.id, self.partner_12)
-        purchase2, bid_line2 = po_draft
-        bid_line2.write({'price_unit': 13})
-        purchase_order.select_line(self, bid_line2.id, 80)
-        purchase_order.bid_encoded(self, purchase2.id)
+        draft_po = purchase_requisition.create_draft_purchase_order(
+            self, self.purchase_requisition, self.partner_12.id)
+        purchase2, bid_line2 = draft_po
+        bid_line2.price_unit = 13
+        purchase_order.select_line(self, bid_line2, 80)
+        purchase_order.bid_encoded(self, purchase2)
 
         # close the call for bids
-        purchase_requisition.close_call(self, self.purchase_requisition.id)
+        purchase_requisition.close_call(self, self.purchase_requisition)
         # selection of bids will trigger the split of lines
         # the generation of po fails because the budget is exceeded
-        with self.assertRaises(orm.except_orm):
+        with self.assertRaises(exceptions.ValidationError):
             purchase_requisition.bids_selected(self,
-                                               self.purchase_requisition.id)
+                                               self.purchase_requisition)
