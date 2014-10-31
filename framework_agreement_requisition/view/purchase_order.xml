@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data noupdate="0">
+
+    <record model="ir.ui.view" id="purchase_order_form">
+      <field name="name">purchase_order_form</field>
+      <field name="model">purchase.order</field>
+      <field name="inherit_id" ref="purchase.purchase_order_form" />
+      <field name="arch" type="xml">
+        <field name="framework_agreement_id" position="after">
+          <field name="for_agreement"/>
+          <field name="agreement_expected_date" 
+            attrs="{'invisible': [('for_agreement', '=', False)]}" />
+          <field name="agreement_promised_date" 
+            attrs="{'invisible': [('for_agreement', '=', False)]}" />
+        </field>
+      </field>
+    </record>
+
+
+    <record model="ir.ui.view" id="view_purchase_order_filter">
+      <field name="name">view_purchase_order_filter</field>
+      <field name="model">purchase.order</field>
+      <field name="inherit_id" ref="purchase.view_purchase_order_filter"/>
+      <field name="arch" type="xml">
+
+        <filter name="draft" position="after">
+          <filter icon="terp-document-new"
+            name="framework_agreement"
+            string="For Framework Agreement"
+            domain="[('for_agreement','=',True)]"/>
+        </filter>
+
+      </field>
+    </record>
+
+  </data>
+</openerp>

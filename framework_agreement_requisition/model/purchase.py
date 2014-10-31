@@ -2,7 +2,7 @@
 ##############################################################################
 #
 #    Author: Nicolas Bessi
-#    Copyright 2013 Camptocamp SA
+#    Copyright 2013, 2014 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -18,8 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from openerp import netsvc
-from openerp.osv import orm
+from openerp import api
+from openerp.osv import orm, fields
 
 SELECTED_STATE = ('agreement_selected', 'Agreement selected')
 AGR_SELECT = 'agreement_selected'
@@ -30,20 +30,26 @@ class purchase_order(orm.Model):
 
     _inherit = "purchase.order"
 
+    _columns = {
+        'for_agreement': fields.boolean('For Framework Agreement'),
+        'agreement_expected_date': fields.date('LTA expected valitidy period'),
+        'agreement_promised_date': fields.date('LTA promised valitidy period'),
+    }
+
     def __init__(self, pool, cr):
         """Add a new state value using PO class property"""
         if SELECTED_STATE not in super(purchase_order, self).STATE_SELECTION:
             super(purchase_order, self).STATE_SELECTION.append(SELECTED_STATE)
-        return super(purchase_order, self).__init__(pool, cr)
+        super(purchase_order, self).__init__(pool, cr)
 
+    @api.cr_uid_id_context
     def select_agreement(self, cr, uid, agr_id, context=None):
         """Pass PO in state 'Agreement selected'"""
         if isinstance(agr_id, (list, tuple)):
             assert len(agr_id) == 1
             agr_id = agr_id[0]
-            wf_service = netsvc.LocalService("workflow")
-        return wf_service.trg_validate(uid, 'purchase.order',
-                                       agr_id, 'select_agreement', cr)
+        return self.signal_workflow(cr, uid, [agr_id], 'select_agreement',
+                                    context=context)
 
     def po_tender_agreement_selected(self, cr, uid, ids, context=None):
         """Workflow function that write state 'Agreement selected'"""
@@ -58,24 +64,29 @@ class purchase_order_line(orm.Model):
 
     # Did you know a good way to supress SQL constraint to add
     # Python constraint...
-    _sql_constraints = [
-        ('quantity_bid', 'CHECK(true)',
-         'Selected quantity must be less or equal than the quantity in the bid'),
-    ]
+    _sql_constraints = [(
+        'quantity_bid',
+        'CHECK(true)',
+        'Selected quantity must be less or equal than the quantity in the bid'
+    )]
 
     def _check_quantity_bid(self, cr, uid, ids, context=None):
         for line in self.browse(cr, uid, ids, context=context):
             if line.order_id.framework_agreement_id:
                 continue
-            if line.product_id.type == 'product' and  not line.quantity_bid <= line.product_qty:
+            if (
+                line.product_id.type == 'product'
+                and not line.quantity_bid <= line.product_qty
+            ):
                 return False
         return True
 
-    _constraints = [
-        (_check_quantity_bid,
-         'Selected quantity must be less or equal than the quantity in the bid',
-         [])
-    ]
+    _constraints = [(
+        _check_quantity_bid,
+        'Selected quantity must be less or equal than the quantity in the bid',
+        []
+    )]
+
     def _agreement_data(self, cr, uid, po_line, origin, context=None):
         """Get agreement values from PO line
 
@@ -87,7 +98,7 @@ class purchase_order_line(orm.Model):
         vals['supplier_id'] = po_line.order_id.partner_id.id
         vals['product_id'] = po_line.product_id.id
         vals['quantity'] = po_line.product_qty
-        vals['delay'] = po_line.product_lead_time
+        vals['delay'] = po_line.product_id.seller_delay
         vals['origin'] = origin if origin else False
         return vals
 

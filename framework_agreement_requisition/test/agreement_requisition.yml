@@ -4,8 +4,7 @@
   Create Call for Bids
 -
   !record {model: purchase.requisition, id: purchase_requisition_agreement}:
-    date_start: '2013-08-02 00:00:00'
-    date_end: '2013-08-30 00:00:00'
+    date_end: '2014-08-30 00:00:00'
     bid_tendering_mode: 'open'
     schedule_date: '2013-09-30'
     req_validity: '2013-09-10'
@@ -16,10 +15,8 @@
 -
   Confirm Call
 -
-  !python {model: purchase.requisition}: |
-    import netsvc
-    wf_service = netsvc.LocalService("workflow")
-    wf_service.trg_validate(uid, 'purchase.requisition', ref("purchase_requisition_agreement"), 'sent_suppliers', cr)
+  !python {model: purchase.requisition, id: purchase_requisition_agreement}: |
+    self.signal_workflow('sent_suppliers')
 -
   Create RFQ1. I run the 'Request a quotation' wizard. I fill the supplier.
 -
@@ -55,12 +52,12 @@
 -
   I run the 'Bid encoded' wizard of bid1. I fill the date.
 -
-  !record {model: purchase.action_modal_datetime, id: purchase_requisition_agreement_bid1_bidencoded}:
+  !record {model: purchase.action_modal.datetime, id: purchase_requisition_agreement_bid1_bidencoded}:
     datetime: '2013-08-13 00:00:00'
 -
  I launch wizard action.
 -
-  !python {model: purchase.action_modal_datetime}: |
+  !python {model: purchase.action_modal.datetime}: |
     purchase_req = self.pool['purchase.requisition'].browse(cr, uid, ref("purchase_requisition_agreement"))
     po_id = purchase_req.purchase_ids[0].id
     self.action(cr, uid, [ref('purchase_requisition_agreement_bid1_bidencoded')],
@@ -73,11 +70,8 @@
 -
   I close the Call for bids and move to bids selection
 -
-  !python {model: purchase.requisition}: |
-    import netsvc
-    wf_service = netsvc.LocalService("workflow")
-    wf_service.trg_validate(uid, 'purchase.requisition', ref("purchase_requisition_agreement"), 'open_bid', cr)
-
+  !python {model: purchase.requisition, id: purchase_requisition_agreement}: |
+    self.signal_workflow('open_bid')
 -
   In the bids selection, I confirm line 1 of bid 1
 -

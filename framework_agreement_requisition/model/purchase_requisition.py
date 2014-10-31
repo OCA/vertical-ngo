@@ -2,7 +2,7 @@
 ##############################################################################
 #
 #    Author: Nicolas Bessi
-#    Copyright 2013 Camptocamp SA
+#    Copyright 2013, 2014 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -19,16 +19,40 @@
 #
 ##############################################################################
 from itertools import chain
-from openerp import netsvc
 from openerp.osv import orm, fields
 from openerp.tools.translate import _
+from openerp import models, api
 from .purchase import AGR_SELECT as PO_AGR_SELECT
 
 SELECTED_STATE = ('agreement_selected', 'Agreement selected')
 AGR_SELECT = 'agreement_selected'
 
 
-class purchase_requisition(orm.Model):
+class PurchaseRequisition(models.Model):
+
+    _inherit = "purchase.requisition"
+
+    @api.multi
+    def open_wizard_confirm_generate_agreement(self):
+
+        view = self.env.ref(
+            'framework_agreement_requisition.'
+            'confirm_generate_agreement_form_view'
+        )
+
+        return {
+            'type': 'ir.actions.act_window',
+            'view_type': 'form',
+            'view_mode': 'form',
+            'res_model': 'confirm.generate.agreement',
+            'view_id': view.id,
+            'views': [(view.id, 'form')],
+            'target': 'new',
+            'context': self.env.context,
+        }
+
+
+class PurchaseRequisitionClassic(orm.Model):
     """Add support to negociate LTA using tender process"""
 
     def __init__(self, pool, cr):
@@ -38,14 +62,15 @@ class purchase_requisition(orm.Model):
         by other addons that are not in inheritance chain...
 
         """
-        sel = super(purchase_requisition, self)._columns['state']
+        sel = super(PurchaseRequisitionClassic, self)._columns['state']
         if SELECTED_STATE not in sel.selection:
             sel.selection.append(SELECTED_STATE)
-        return super(purchase_requisition, self).__init__(pool, cr)
+        super(PurchaseRequisitionClassic, self).__init__(pool, cr)
 
     _inherit = "purchase.requisition"
     _columns = {
         'framework_agreement_tender': fields.boolean('Negociate Agreement'),
+        'agreement_end_date': fields.date('LTA expected valitidy period'),
     }
 
     def tender_agreement_selected(self, cr, uid, ids, context=None):
@@ -58,9 +83,8 @@ class purchase_requisition(orm.Model):
         if isinstance(agr_id, (list, tuple)):
             assert len(agr_id) == 1
             agr_id = agr_id[0]
-        wf_service = netsvc.LocalService("workflow")
-        return wf_service.trg_validate(uid, 'purchase.requisition',
-                                       agr_id, 'select_agreement', cr)
+        return self.signal_workflow(cr, uid, [agr_id], 'select_agreement',
+                                    context=context)
 
     def _agreement_selected(self, cr, uid, ids, context=None):
         """Tells tender that an agreement has been selected"""
@@ -83,7 +107,7 @@ class purchase_requisition(orm.Model):
             po_to_cancel = []
             for rfq in rfqs:
                 if rfq.state == 'confirmed':
-                    agr_record = rfq.make_agreement(req.name)
+                    agr_record = rfq.make_agreement(rfq.id, req.name)
                     generated.append(agr_record)
                     po_to_select.append(rfq.order_id)
                 else:
@@ -97,12 +121,12 @@ class purchase_requisition(orm.Model):
                 p_order.select_agreement()
                 p_order.refresh()
                 if p_order.state != PO_AGR_SELECT:
-                    raise RuntimeError('Purchase order %s does not pass to %s' %
-                                       (p_order.name, PO_AGR_SELECT))
-            wf_service = netsvc.LocalService("workflow")
+                    raise RuntimeError(
+                        'Purchase order %s does not pass to %s' %
+                        (p_order.name, PO_AGR_SELECT))
             for p_order in set(po_to_cancel):
-                wf_service.trg_validate(uid, 'purchase.order', p_order.id,
-                                        'purchase_cancel', cr)
+                self.signal_workflow(cr, uid, [p_order.id], 'purchase_cancel',
+                                     context=context)
         return generated
 
     def agreement_selected(self, cr, uid, ids, context=None):

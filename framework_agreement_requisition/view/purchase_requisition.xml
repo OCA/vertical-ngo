@@ -9,9 +9,12 @@
         <field name="multiple_rfq_per_supplier"
                position="after">
           <field name="framework_agreement_tender"/>
+          <field
+            name="agreement_end_date"
+            attrs="{'invisible': [('framework_agreement_tender', '=', False)]}" />
         </field>
         <button name="cancel_requisition" position="after">
-          <button name="agreement_selected"
+          <button name="open_wizard_confirm_generate_agreement"
                   type="object"
                   class="po_buttons oe_form_buttons"
                   attrs="{'invisible': ['|', ('framework_agreement_tender', '=', False), ('state', '!=', 'closed')]}"
@@ -25,13 +28,14 @@
       <field name="model">purchase.requisition</field>
       <field name="inherit_id" ref="purchase_requisition.view_purchase_requisition_filter"/>
       <field name="arch" type="xml">
-        <filter name="draft"
-                position="after">
-                  <filter icon="terp-document-new"
-                          name="framework_agreement"
-                          string="Framework Agreement?"
-                          domain="[(framework_agreement_tender,'=',True)]"/>
+
+        <filter name="draft" position="after">
+          <filter icon="terp-document-new"
+            name="framework_agreement"
+            string="Framework Agreement Negociation"
+            domain="[('framework_agreement_tender','=',True)]"/>
         </filter>
+
       </field>
     </record>
 
