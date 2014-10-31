@@ -45,6 +45,8 @@ or budget.
           "view/report_logistic_requisition.xml",
           ],
  "auto_install": False,
+ # TODO one test is disabled due to a bug with field functions odoo#3422
+ # to reactivate once fixed
  "test": ['test/requisition_create_cost_estimate.yml',
           ],
  'installable': True,
