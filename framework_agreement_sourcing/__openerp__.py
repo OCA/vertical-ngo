@@ -37,12 +37,12 @@ of your request.
 In this case the tender flow is bypassed and confirmed PO will be generated
 when the logistic requisition is confirmed.
 
-When confirming Logistic request sourcing lines are generating.
+When confirming Logistic request sourcing lines are generated.
 Generation process will look up all agreements with remaining quantity
 and use them one after the other.
 
 We will first choose cheapest agreements with price in negociated currency even
-if they are cheaper in other currences.
+if they are cheaper in other currencies.
 
 Then we will choose remaining agreements ordered
 by price converted in company currency.
