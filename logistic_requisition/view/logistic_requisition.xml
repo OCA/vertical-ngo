@@ -7,13 +7,13 @@
       parent="logistic_order.menu_order"
       groups="purchase.group_purchase_manager"
       sequence="100"/>
-    <menuitem id="menu_logistic_requisition_base" name="Logistic Requisition" parent="logistic_order.menu_order" sequence="1"/>
+    <menuitem id="menu_logistic_requisition_base" name="Logistics Requisition" parent="logistic_order.menu_order" sequence="1"/>
 
     <record model="ir.ui.view" id="view_logistic_requisition_form">
         <field name="name">logistic.requisition.form</field>
         <field name="model">logistic.requisition</field>
         <field name="arch" type="xml">
-            <form string="Logistic Requisition" version="7.0">
+            <form string="Logistics Requisition" version="7.0">
                 <header>
                     <button name="button_view_lines"
                         string="View Lines"
@@ -48,10 +48,10 @@
                         widget="statusbar"
                         statusbar_visible="draft,confirmed,done" />
                 </header>
-                <sheet string="Logistic Requisition">
+                <sheet string="Logistics Requisition">
                     <div class="oe_title">
                         <h1>
-                            <label string="Logistic Requisition" />
+                            <label string="Logistics Requisition" />
                             <field name="name" class="oe_inline" attrs="{'invisible': [('state', '=', 'draft')]}"/>
                         </h1>
                         <h2 attrs="{'invisible': [('state', '!=', 'cancel')]}">
@@ -135,7 +135,7 @@
         <field name="name">logistic.requisition.tree</field>
         <field name="model">logistic.requisition</field>
         <field name="arch" type="xml">
-            <tree colors="grey:state == 'done';red:date_delivery&lt;current_date and state not in ('done','cancel');black:date_delivery&gt;=current_date;" string="Logistic Requisition">
+            <tree colors="grey:state == 'done';red:date_delivery&lt;current_date and state not in ('done','cancel');black:date_delivery&gt;=current_date;" string="Logistics Requisition">
                 <field name="name"/>
                 <field name="consignee_id"/>
                 <field name="user_id"/>
@@ -155,14 +155,14 @@
         <field name="name">logistic.requisition.list.select</field>
         <field name="model">logistic.requisition</field>
         <field name="arch" type="xml">
-            <search string="Search Logistic Requisition">
+            <search string="Search Logistics Requisition">
                 <filter name="draft" string="New"
                     domain="[('state','=','draft')]"
-                    help="New Logistic Requisition"/>
+                    help="New Logistics Requisition"/>
                 <filter name="confirmed"
                     string="Confirmed"
                     domain="[('state', '=', 'confirmed')]"
-                    help="Logistic Requisition in treatment"/>
+                    help="Logistics Requisition in treatment"/>
                 <filter name="done"
                     string="Done"
                     domain="[('state', '=', 'done')]"/>
@@ -217,7 +217,7 @@
         <field name="name">logistic.requisition.line.tree</field>
         <field name="model">logistic.requisition.line</field>
         <field name="arch" type="xml">
-           <tree string="Logistic Requisition Line" create="false">
+           <tree string="Logistics Requisition Line" create="false">
              <field name="requisition_id"/>
              <field name="name"/>
              <field name="date_delivery"/>
@@ -237,7 +237,7 @@
         <field name="name">logistic.requisition.line.tree</field>
         <field name="model">logistic.requisition.line</field>
         <field name="arch" type="xml">
-            <calendar string="Logistic Requisition Line"
+            <calendar string="Logistics Requisition Line"
                 date_start="date_delivery" color="country_id">
                 <field name="name"/>
                 <field name="requisition_id"/>
@@ -282,7 +282,7 @@
         <field name="name">logistic.requisition.line.form</field>
         <field name="model">logistic.requisition.line</field>
         <field name="arch" type="xml">
-            <form string="Logistic Requisition Line" create="false" version="7.0">
+            <form string="Logistics Requisition Line" create="false" version="7.0">
                 <header>
                     <button name="%(action_requisition_line_assign)d"
                         states="confirmed"
@@ -406,17 +406,17 @@
         <field name="name">logistic.requisition.line.list.select</field>
         <field name="model">logistic.requisition.line</field>
         <field name="arch" type="xml">
-            <search string="Search Logistic Requisition Line">
+            <search string="Search Logistics Requisition Line">
                 <filter name="draft" string="New"
                     domain="[('state','=','draft')]"
-                    help="New Logistic Requisition Line"/>
+                    help="New Logistics Requisition Line"/>
                 <filter name="confirmed"
                     string="Confirmed"
                     domain="[('state', '=', 'confirmed')]"
                     help="Requisition has been confirmed"/>
                 <filter name="assigned" string="Assigned"
                     domain="[('state','=','assigned')]"
-                    help="Assigned Logistic Requisition Line"/>
+                    help="Assigned Logistics Requisition Line"/>
                 <filter name="quoted" string="Quoted"
                     domain="[('state','=','quoted')]"/>
                 <separator/>
@@ -439,7 +439,7 @@
                 <group expand="0" string="Group By...">
                     <filter name="groupby_logistic_user_id" string="Assigned Specialist"
                         domain="[]" context="{'group_by':'logistic_user_id'}"/>
-                    <filter name="groupby_requisition_id" string="Logistic Requisition"
+                    <filter name="groupby_requisition_id" string="Logistics Requisition"
                         domain="[]" context="{'group_by':'requisition_id'}"/>
                     <separator/>
                     <filter name="groupby_state" string="State"
@@ -477,7 +477,7 @@
         <field name="name">logistic.requisition.source.tree</field>
         <field name="model">logistic.requisition.source</field>
         <field name="arch" type="xml">
-           <tree string="Logistic Requisition Source" create="false">
+           <tree string="Logistics Requisition Source" create="false">
                <field name="state" invisible="1"/>
                <field name="requisition_line_id"/>
                <field name="name"/>
@@ -499,7 +499,7 @@
         <field name="name">logistic.requisition.source.form</field>
         <field name="model">logistic.requisition.source</field>
         <field name="arch" type="xml">
-            <form string="Logistic Requisition Sourcing Lines" create="false" version="7.0">
+            <form string="Logistics Requisition Sourcing Lines" create="false" version="7.0">
                 <sheet>
                     <div class="oe_title">
                         <h1>
@@ -565,7 +565,7 @@
         <field name="name">logistic.requisition.source.list.select</field>
         <field name="model">logistic.requisition.source</field>
         <field name="arch" type="xml">
-            <search string="Search Logistic Requisition Sourcing">
+            <search string="Search Logistics Requisition Sourcing">
                 <field name="name"/>
                 <group expand="0" string="Group By...">
                     <filter string="Requisition Line" name="groupby_requisition_line_id"
@@ -598,7 +598,7 @@
     </record>
 
     <record id="logistic_requisition" model="ir.actions.act_window">
-        <field name="name">Logistic Requisition</field>
+        <field name="name">Logistics Requisition</field>
         <field name="type">ir.actions.act_window</field>
         <field name="res_model">logistic.requisition</field>
         <field name="view_type">form</field>

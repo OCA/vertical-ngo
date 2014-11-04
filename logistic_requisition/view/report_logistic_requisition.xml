@@ -26,7 +26,7 @@
             </div>
 
             <h2>
-                <span>Logistic requisition</span>
+                <span>Logistics Requisition</span>
                 <span t-field="o.name"/>
             </h2>
 

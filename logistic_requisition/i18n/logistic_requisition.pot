@@ -17,7 +17,7 @@ msgstr ""
 
 #. module: logistic_requisition
 #: field:logistic.requisition.line.assign,logistic_user_id:0
-msgid "Logistic Specialist"
+msgid "Logistics Specialist"
 msgstr ""
 
 #. module: logistic_requisition
@@ -60,7 +60,7 @@ msgstr ""
 
 #. module: logistic_requisition
 #: view:logistic.requisition.line:0
-msgid "New Logistic Requisition Line"
+msgid "New Logistics Requisition Line"
 msgstr ""
 
 #. module: logistic_requisition
@@ -93,7 +93,7 @@ msgstr ""
 
 #. module: logistic_requisition
 #: view:logistic.requisition:0
-msgid "Search Logistic Requisition"
+msgid "Search Logistics Requisition"
 msgstr ""
 
 #. module: logistic_requisition
@@ -135,7 +135,7 @@ msgstr ""
 
 #. module: logistic_requisition
 #: help:logistic.requisition.line.assign,logistic_user_id:0
-msgid "Logistic Specialist in charge of the Logistic Requisition Line"
+msgid "Logistics Specialist in charge of the Logistics Requisition Line"
 msgstr ""
 
 #. module: logistic_requisition
@@ -287,7 +287,7 @@ msgstr ""
 #. module: logistic_requisition
 #: model:ir.ui.menu,name:logistic_requisition.menu_logistic_requisition_cancel_reason
 #: view:logistic.requisition.cancel.reason:0
-msgid "Logistic Requisition Cancel Reasons"
+msgid "Logistics Requisition Cancel Reasons"
 msgstr ""
 
 #. module: logistic_requisition
@@ -320,7 +320,7 @@ msgstr ""
 #. module: logistic_requisition
 #: code:addons/logistic_requisition/model/purchase.py:178
 #, python-format
-msgid "You cannot change the informations because this PO line is already linked to a Logistic Requsition Line %s marked as sourced or quoted."
+msgid "You cannot change the informations because this PO line is already linked to a Logistics Requsition Line %s marked as sourced or quoted."
 msgstr ""
 
 #. module: logistic_requisition
@@ -354,7 +354,7 @@ msgstr ""
 
 #. module: logistic_requisition
 #: view:logistic.requisition.line:0
-msgid "Assigned Logistic Requisition Line"
+msgid "Assigned Logistics Requisition Line"
 msgstr ""
 
 #. module: logistic_requisition
@@ -395,7 +395,7 @@ msgstr ""
 
 #. module: logistic_requisition
 #: view:logistic.requisition:0
-msgid "Logistic Requisition in treatment"
+msgid "Logistics Requisition in treatment"
 msgstr ""
 
 #. module: logistic_requisition
@@ -437,7 +437,7 @@ msgstr ""
 
 #. module: logistic_requisition
 #: help:logistic.requisition.line,logistic_user_id:0
-msgid "User in charge of the Logistic Requisition Line"
+msgid "User in charge of the Logistics Requisition Line"
 msgstr ""
 
 #. module: logistic_requisition
@@ -552,12 +552,12 @@ msgstr ""
 #. module: logistic_requisition
 #: code:addons/logistic_requisition/model/purchase.py:198
 #, python-format
-msgid "You cannot delete this PO line because it is already linked to a Logistic Requsition Line %s marked as sourced or quoted."
+msgid "You cannot delete this PO line because it is already linked to a Logistics Requsition Line %s marked as sourced or quoted."
 msgstr ""
 
 #. module: logistic_requisition
 #: view:logistic.requisition:0
-msgid "New Logistic Requisition"
+msgid "New Logistics Requisition"
 msgstr ""
 
 #. module: logistic_requisition
@@ -578,7 +578,7 @@ msgstr ""
 
 #. module: logistic_requisition
 #: sql_constraint:logistic.requisition:0
-msgid "Logistic Requisition Reference must be unique!"
+msgid "Logistics Requisition Reference must be unique!"
 msgstr ""
 
 #. module: logistic_requisition
@@ -654,7 +654,7 @@ msgstr ""
 
 #. module: logistic_requisition
 #: view:logistic.requisition.source:0
-msgid "Logistic Requisition Sourcing Lines"
+msgid "Logistics Requisition Sourcing Lines"
 msgstr ""
 
 #. module: logistic_requisition
@@ -718,7 +718,7 @@ msgstr ""
 
 #. module: logistic_requisition
 #: report:addons/logistic_requisition/report/logistic_requisition.mako:136
-msgid "Logistic requisition"
+msgid "Logistics requisition"
 msgstr ""
 
 #. module: logistic_requisition
@@ -794,7 +794,7 @@ msgstr ""
 
 #. module: logistic_requisition
 #: field:purchase.requisition.line,logistic_requisition_source_ids:0
-msgid "Logistic Requisition Source Lines"
+msgid "Logistics Requisition Source Lines"
 msgstr ""
 
 #: model:ir.actions.act_window,name:logistic_requisition.logistic_requisition
@@ -806,7 +806,7 @@ msgstr ""
 #: view:logistic.requisition.line:0
 #: field:logistic.requisition.source,requisition_id:0
 #: field:sale.order,requisition_id:0
-msgid "Logistic Requisition"
+msgid "Logistics Requisition"
 msgstr ""
 
 #. module: logistic_requisition
@@ -866,7 +866,7 @@ msgstr ""
 #. module: logistic_requisition
 #: model:ir.actions.act_window,name:logistic_requisition.action_logistic_requisition_cancel_reason
 #: model:ir.model,name:logistic_requisition.model_logistic_requisition_cancel_reason
-msgid "Logistic Requisition Cancel Reason"
+msgid "Logistics Requisition Cancel Reason"
 msgstr ""
 
 #. module: logistic_requisition
@@ -888,7 +888,7 @@ msgstr ""
 
 #. module: logistic_requisition
 #: view:logistic.requisition.source:0
-msgid "Search Logistic Requisition Sourcing"
+msgid "Search Logistics Requisition Sourcing"
 msgstr ""
 
 #. module: logistic_requisition
@@ -903,7 +903,7 @@ msgstr ""
 
 #. module: logistic_requisition
 #: view:logistic.requisition.line:0
-msgid "Search Logistic Requisition Line"
+msgid "Search Logistics Requisition Line"
 msgstr ""
 
 #. module: logistic_requisition
@@ -1025,7 +1025,7 @@ msgstr ""
 #. module: logistic_requisition
 #: model:ir.model,name:logistic_requisition.model_logistic_requisition_line
 #: view:logistic.requisition.line:0
-msgid "Logistic Requisition Line"
+msgid "Logistics Requisition Line"
 msgstr ""
 
 #. module: logistic_requisition
@@ -1036,7 +1036,7 @@ msgstr ""
 
 #. module: logistic_requisition
 #: sql_constraint:logistic.requisition.line:0
-msgid "Logistic Requisition Line number must be unique!"
+msgid "Logistics Requisition Line number must be unique!"
 msgstr ""
 
 #. module: logistic_requisition
@@ -1088,7 +1088,7 @@ msgstr ""
 #. module: logistic_requisition
 #: code:addons/logistic_requisition/model/logistic_requisition.py:632
 #, python-format
-msgid "Logistic Requisition Line %s Assigned"
+msgid "Logistics Requisition Line %s Assigned"
 msgstr ""
 
 #. module: logistic_requisition
@@ -1118,7 +1118,7 @@ msgstr ""
 
 #. module: logistic_requisition
 #: help:logistic.requisition,user_id:0
-msgid "Mobilization Officer or Logistic Coordinator in charge of the Logistic Requisition"
+msgid "Mobilization Officer or Logistics Coordinator in charge of the Logistics Requisition"
 msgstr ""
 
 #. module: logistic_requisition
@@ -1181,7 +1181,7 @@ msgstr ""
 #: model:ir.model,name:logistic_requisition.model_logistic_requisition_source
 #: view:logistic.requisition.source:0
 #: field:purchase.order.line,lr_source_line_id:0
-msgid "Logistic Requisition Source"
+msgid "Logistics Requisition Source"
 msgstr ""
 
 #. module: logistic_requisition

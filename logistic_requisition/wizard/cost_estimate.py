@@ -29,7 +29,7 @@ class LogisticRequisitionCostEstimate(models.TransientModel):
 
     requisition_id = fields.Many2one(
         'logistic.requisition',
-        string='Logistic Requisition',
+        string='Logistics Requisition',
         readonly=True,
         required=True)
     line_ids = fields.Many2many(

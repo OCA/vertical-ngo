@@ -19,7 +19,7 @@
 #
 #
 
-{"name": "Logistic Requisition",
+{"name": "Logistics Requisition",
  "version": "1.0",
  "author": "Camptocamp",
  "license": "AGPL-3",

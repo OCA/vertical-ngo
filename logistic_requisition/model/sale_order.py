@@ -25,7 +25,7 @@ class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
     requisition_id = fields.Many2one('logistic.requisition',
-                                     'Logistic Requisition',
+                                     'Logistics Requisition',
                                      ondelete='restrict',
                                      copy=False)
 

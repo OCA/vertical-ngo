@@ -39,7 +39,7 @@ class ResPartner(models.Model):
 
 class LogisticRequisition(models.Model):
     _name = "logistic.requisition"
-    _description = "Logistic Requisition"
+    _description = "Logistics Requisition"
     _inherit = ['mail.thread']
     _order = "name desc"
 
@@ -76,8 +76,8 @@ class LogisticRequisition(models.Model):
         'Business Unit Officer',
         required=True,
         states=REQ_STATES,
-        help="Mobilization Officer or Logistic Coordinator "
-             "in charge of the Logistic Requisition",
+        help="Mobilization Officer or Logistics Coordinator "
+             "in charge of the Logistics Requisition",
         default=lambda self: self.env.uid)
     partner_id = fields.Many2one(
         'res.partner',
@@ -166,7 +166,7 @@ class LogisticRequisition(models.Model):
     _sql_constraints = [
         ('name_uniq',
          'unique(name)',
-         'Logistic Requisition Reference must be unique!'),
+         'Logistics Requisition Reference must be unique!'),
     ]
 
     @api.multi
@@ -307,7 +307,7 @@ class LogisticRequisition(models.Model):
 
 class LogisticRequisitionLine(models.Model):
     _name = "logistic.requisition.line"
-    _description = "Logistic Requisition Line"
+    _description = "Logistics Requisition Line"
     _inherit = ['mail.thread']
     _order = "requisition_id desc, name desc"
 
@@ -348,7 +348,7 @@ class LogisticRequisitionLine(models.Model):
         # https://bugs.launchpad.net/openobject-addons/+bug/1188538
         track_visibility='never',
         help="User in charge of the "
-             "Logistic Requisition Line")
+             "Logistics Requisition Line")
     product_id = fields.Many2one('product.product', 'Product',
                                  states=REQUEST_STATES)
     description = fields.Char('Description',
@@ -426,7 +426,7 @@ class LogisticRequisitionLine(models.Model):
     _sql_constraints = [
         ('name_uniq',
          'unique(name)',
-         'Logistic Requisition Line number must be unique!'),
+         'Logistics Requisition Line number must be unique!'),
     ]
 
     @api.multi
@@ -593,7 +593,7 @@ class LogisticRequisitionLine(models.Model):
         """Post a message to warn the user that a new
         line has been associated."""
         for line in self:
-            subject = (_("Logistic Requisition Line %s Assigned") %
+            subject = (_("Logistics Requisition Line %s Assigned") %
                        (line.requisition_id.name + '/' + str(line.id)))
             details = (_("This new requisition concerns %s "
                          "and is due for %s.") %
@@ -675,7 +675,7 @@ class LogisticRequisitionLine(models.Model):
 
 class LogisticRequisitionSource(models.Model):
     _name = "logistic.requisition.source"
-    _description = "Logistic Requisition Source"
+    _description = "Logistics Requisition Source"
     _inherit = ['mail.thread']
 
     PRICE_IS_SELECTION = [('fixed', 'Fixed'),
@@ -718,7 +718,7 @@ class LogisticRequisitionSource(models.Model):
     requisition_id = fields.Many2one(
         related='requisition_line_id.requisition_id',
         comodel_name='logistic.requisition',
-        string='Logistic Requisition',
+        string='Logistics Requisition',
         store=True,
         readonly=True)
     state = fields.Selection(

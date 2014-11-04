@@ -121,5 +121,5 @@ class PurchaseRequisition_Line(models.Model):
     logistic_requisition_source_ids = fields.One2many(
         'logistic.requisition.source',
         'purchase_requisition_line_id',
-        string='Logistic Requisition Source Lines',
+        string='Logistics Requisition Source Lines',
         readonly=True)

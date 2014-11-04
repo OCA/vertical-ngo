@@ -26,10 +26,10 @@ class LogisticRequisitionLineAssign(models.TransientModel):
 
     logistic_user_id = fields.Many2one(
         'res.users',
-        'Logistic Specialist',
+        'Logistics Specialist',
         required=True,
-        help="Logistic Specialist in charge of the "
-             "Logistic Requisition Line")
+        help="Logistics Specialist in charge of the "
+             "Logistics Requisition Line")
 
     @api.multi
     def assign(self):
