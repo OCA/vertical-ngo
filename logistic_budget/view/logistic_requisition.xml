@@ -75,7 +75,7 @@
         <field name="model">logistic.requisition.line</field>
         <field name="inherit_id" ref="logistic_requisition.view_logistic_requisition_line_form"/>
         <field name="arch" type="xml">
-             <xpath expr="//form[@string='Logistic Requisition Line']/sheet/group/group/field[@name='currency_id']" position="after">
+             <xpath expr="//form[@string='Logistics Requisition Line']/sheet/group/group/field[@name='currency_id']" position="after">
                             <field name="budget_unit_price" widget="monetary"
                                 options="{'currency_field': 'currency_id'}"/>
                             <field name="budget_tot_price" widget="monetary"

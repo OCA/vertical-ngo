@@ -27,8 +27,8 @@ msgstr "General Remarks"
 
 #. module: logistic_requisition_budget
 #: report:addons/logistic_requisition_budget/report/logistic_requisition.mako:136
-msgid "Logistic requisition"
-msgstr "Logistic requisition"
+msgid "Logistics requisition"
+msgstr "Logistics requisition"
 
 #. module: logistic_requisition_budget
 #: report:addons/logistic_requisition_budget/report/logistic_requisition.mako:192
@@ -48,8 +48,8 @@ msgstr "Shipping address:"
 
 #. module: logistic_requisition_budget
 #: model:ir.model,name:logistic_requisition_budget.model_logistic_requisition_line
-msgid "Logistic Requisition Line"
-msgstr "Logistic Requisition Line"
+msgid "Logistics Requisition Line"
+msgstr "Logistics Requisition Line"
 
 #. module: logistic_requisition_budget
 #: report:addons/logistic_requisition_budget/report/logistic_requisition.mako:140
@@ -89,8 +89,8 @@ msgstr "Budget limit:"
 #. module: logistic_requisition_budget
 #: model:ir.actions.report.xml,name:logistic_requisition_budget.report_logistic_requisition
 #: model:ir.model,name:logistic_requisition_budget.model_logistic_requisition
-msgid "Logistic Requisition"
-msgstr "Logistic Requisition"
+msgid "Logistics Requisition"
+msgstr "Logistics Requisition"
 
 #. module: logistic_requisition_budget
 #: code:addons/logistic_requisition_budget/wizard/cost_estimate.py:36
@@ -160,8 +160,8 @@ msgstr "Requesting entity"
 
 #. module: logistic_requisition_budget
 #: model:ir.model,name:logistic_requisition_budget.model_logistic_requisition_source
-msgid "Logistic Requisition Source"
-msgstr "Logistic Requisition Source"
+msgid "Logistics Requisition Source"
+msgstr "Logistics Requisition Source"
 
 #. module: logistic_requisition_budget
 #: view:logistic.requisition:0
