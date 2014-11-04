@@ -108,24 +108,24 @@ msgstr ""
 
 #. module: logistic_order
 #: view:sale.order:logistic_order.view_order_form
-msgid "Logistic Order"
+msgid "Logistics Order"
 msgstr ""
 
 #. module: logistic_order
 #: view:website:sale.report_saleorder_document
-msgid "Logistic Order N°"
+msgid "Logistics Order N°"
 msgstr ""
 
 #. module: logistic_order
 #: model:ir.actions.act_window,name:logistic_order.action_orders
 #: model:ir.ui.menu,name:logistic_order.menu_logistic_order
 #: view:sale.order:logistic_order.view_sales_order_filter
-msgid "Logistic Orders"
+msgid "Logistics Orders"
 msgstr ""
 
 #. module: logistic_order
 #: view:sale.order:logistic_order.view_sales_order_filter
-msgid "My Logistic Orders"
+msgid "My Logistics Orders"
 msgstr ""
 
 #. module: logistic_order
@@ -162,7 +162,7 @@ msgstr "Cost Estimate Sent"
 #. module: sale
 #: selection:sale.order,state:0
 msgid "Sale to Invoice"
-msgstr "Logistic Order to Invoice"
+msgstr "Logistics Order to Invoice"
 
 #. module: logistic_order
 #: model:ir.model,name:logistic_order.model_sale_order
@@ -172,7 +172,7 @@ msgstr ""
 #. module: sale
 #: selection:sale.order,state:0
 msgid "Sales Order"
-msgstr "Logistic Order"
+msgstr "Logistics Order"
 
 #. module: logistic_order
 #: view:sale.order:logistic_order.view_sales_order_filter

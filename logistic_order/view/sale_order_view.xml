@@ -23,10 +23,10 @@
           <attribute name="string">Cost Estimates</attribute>
         </filter>
         <filter name="sales" position="attributes">
-          <attribute name="string">Logistic Orders</attribute>
+          <attribute name="string">Logistics Orders</attribute>
         </filter>
         <filter name="my_sale_orders_filter" position="attributes">
-          <attribute name="string">My Logistic Orders</attribute>
+          <attribute name="string">My Logistics Orders</attribute>
         </filter>
       </field>
     </record>
@@ -49,7 +49,7 @@
       sequence="4"/>
 
     <record id="action_orders" model="ir.actions.act_window">
-      <field name="name">Logistic Orders</field>
+      <field name="name">Logistics Orders</field>
       <field name="type">ir.actions.act_window</field>
       <field name="res_model">sale.order</field>
       <field name="view_type">form</field>
@@ -69,7 +69,7 @@
           <attribute name="string">Cost Estimate </attribute>
         </xpath>
         <xpath expr="//label[@string='Sales Order ']" position="attributes">
-          <attribute name="string">Logistic Order </attribute>
+          <attribute name="string">Logistics Order </attribute>
         </xpath>
         <field name="incoterm" position="after">
           <field name="incoterm_address"/>

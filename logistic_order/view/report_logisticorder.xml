@@ -5,7 +5,7 @@
       <xpath expr="//h2" position="replace">
         <h2>
           <span t-if="o.state not in ['progress','manual','done']">Cost Estimate N° </span>
-          <span t-if="o.state in ['progress','manual','done']">Logistic Order N° </span>
+          <span t-if="o.state in ['progress','manual','done']">Logistics Order N° </span>
           <span t-field="o.name"/>
         </h2>
       </xpath>
