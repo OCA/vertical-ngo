@@ -37,7 +37,7 @@ class ResPartner(models.Model):
         return env['logistic.requisition'].search([(sfield, 'in', env.ids)])
 
 
-class LogisticRequisition(models.Model):
+class LogisticsRequisition(models.Model):
     _name = "logistic.requisition"
     _description = "Logistics Requisition"
     _inherit = ['mail.thread']
@@ -227,7 +227,7 @@ class LogisticRequisition(models.Model):
         if (vals.get('name') or '/') == '/':
             seq_obj = self.env['ir.sequence']
             vals['name'] = seq_obj.get('logistic.requisition') or '/'
-        return super(LogisticRequisition, self).create(vals)
+        return super(LogisticsRequisition, self).create(vals)
 
     def copy(self, cr, uid, id, default=None, context=None):
         if not default:
@@ -236,7 +236,7 @@ class LogisticRequisition(models.Model):
             'state': 'draft',
             'name': '/',
         })
-        return super(LogisticRequisition, self
+        return super(LogisticsRequisition, self
                      ).copy(cr, uid, id, default=default, context=context)
 
     @api.onchange('partner_id')
@@ -305,7 +305,7 @@ class LogisticRequisition(models.Model):
         return action_dict
 
 
-class LogisticRequisitionLine(models.Model):
+class LogisticsRequisitionLine(models.Model):
     _name = "logistic.requisition.line"
     _description = "Logistics Requisition Line"
     _inherit = ['mail.thread']
@@ -446,7 +446,7 @@ class LogisticRequisitionLine(models.Model):
         if (vals.get('name') or '/') == '/':
             seq_obj = self.env['ir.sequence']
             vals['name'] = seq_obj.get('logistic.requisition.line') or '/'
-        return super(LogisticRequisitionLine, self).create(vals)
+        return super(LogisticsRequisitionLine, self).create(vals)
 
     @api.one
     def _do_confirm(self):
@@ -563,7 +563,7 @@ class LogisticRequisitionLine(models.Model):
             'source_ids': False,
         }
         std_default.update(default)
-        return super(LogisticRequisitionLine, self).copy_data(
+        return super(LogisticsRequisitionLine, self).copy_data(
             cr, uid, id, default=std_default, context=context)
 
     @api.model
@@ -582,7 +582,7 @@ class LogisticRequisitionLine(models.Model):
 
         fields_to_follow = ['logistic_user_id']
         fields_to_follow += auto_follow_fields
-        return super(LogisticRequisitionLine, self
+        return super(LogisticsRequisitionLine, self
                      )._message_get_auto_subscribe_fields(
             updated_fields,
             auto_follow_fields=fields_to_follow
@@ -607,7 +607,7 @@ class LogisticRequisitionLine(models.Model):
         """ Send a message to the user when it is assigned
         and move the state's line to assigned.
         """
-        res = super(LogisticRequisitionLine, self).write(vals)
+        res = super(LogisticsRequisitionLine, self).write(vals)
         assignee_changed = vals.get('logistic_user_id')
         state_changed = vals.get('state')
         if assignee_changed:
@@ -673,7 +673,7 @@ class LogisticRequisitionLine(models.Model):
         return True
 
 
-class LogisticRequisitionSource(models.Model):
+class LogisticsRequisitionSource(models.Model):
     _name = "logistic.requisition.source"
     _description = "Logistics Requisition Source"
     _inherit = ['mail.thread']
@@ -723,7 +723,7 @@ class LogisticRequisitionSource(models.Model):
         readonly=True)
     state = fields.Selection(
         related='requisition_line_id.state',
-        selection=LogisticRequisitionLine.STATES,
+        selection=LogisticsRequisitionLine.STATES,
         string='Line\'s State',
         readonly=True)
     proposed_product_id = fields.Many2one(
@@ -918,7 +918,7 @@ class LogisticRequisitionSource(models.Model):
         if (vals.get('name') or '/') == '/':
             seq_obj = self.env['ir.sequence']
             vals['name'] = seq_obj.get('logistic.requisition.source') or '/'
-        return super(LogisticRequisitionSource, self).create(vals)
+        return super(LogisticsRequisitionSource, self).create(vals)
 
     @api.model
     def _get_purchase_pricelist_from_currency(self, currency_id):
@@ -1064,7 +1064,7 @@ class LogisticRequisitionSource(models.Model):
         std_default = {
         }
         std_default.update(default)
-        return super(LogisticRequisitionSource, self).copy_data(
+        return super(LogisticsRequisitionSource, self).copy_data(
             cr, uid, id, default=std_default, context=context)
 
     @api.onchange('dispatch_location_id')

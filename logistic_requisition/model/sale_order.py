@@ -18,7 +18,7 @@
 #
 #
 from openerp import models, fields
-from .logistic_requisition import LogisticRequisitionSource
+from .logistic_requisition import LogisticsRequisitionSource
 
 
 class SaleOrder(models.Model):
@@ -34,7 +34,7 @@ class SaleOrderLine(models.Model):
     _inherit = "sale.order.line"
 
     price_is = fields.Selection(
-        LogisticRequisitionSource.PRICE_IS_SELECTION,
+        LogisticsRequisitionSource.PRICE_IS_SELECTION,
         string='Price is',
         help="When the price is an estimation, the final price may change. "
              "I.e. it is not based on a request for quotation.",

@@ -20,7 +20,7 @@
 from openerp import models, fields, api
 
 
-class LogisticRequisitionLineAssign(models.TransientModel):
+class LogisticsRequisitionLineAssign(models.TransientModel):
     _name = 'logistic.requisition.line.assign'
     _description = 'Assign a logistic requisition line'
 
