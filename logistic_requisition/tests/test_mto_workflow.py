@@ -91,6 +91,7 @@ class test_mto_workflow(common.TransactionCase):
         self.vals = {
             'partner_id': self.partner_4.id,
             'consignee_id': self.partner_3.id,
+            'date': time.strftime(D_FMT),
             'date_delivery': time.strftime(D_FMT),
             'user_id': self.user_demo.id,
             'pricelist_id': self.pricelist_sale.id,
