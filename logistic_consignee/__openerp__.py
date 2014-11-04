@@ -19,7 +19,7 @@
 #
 #
 
-{"name": "Logistic Consignee",
+{"name": "Logistics Consignee",
  "summary": "Consignee on Sales, Purchases, Purchase requisition for Pickings",
  "version": "0.1",
  "author": "Camptocamp",

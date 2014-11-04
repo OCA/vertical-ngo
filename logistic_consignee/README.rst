@@ -1,5 +1,5 @@
-Logistic Consignee
-==================
+Logistics Consignee
+===================
 
 This module adds a consignee, the person to whom the shipment must
 be delivered, on Sale Orders, Purchase Orders and Purchase Requisition.
