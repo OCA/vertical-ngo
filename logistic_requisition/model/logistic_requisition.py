@@ -81,7 +81,7 @@ class LogisticRequisition(models.Model):
         default=lambda self: self.env.uid)
     partner_id = fields.Many2one(
         'res.partner',
-        'Customer',
+        'Requestor',
         required=True,
         domain=[('customer', '=', True)],
         states=REQ_STATES)
