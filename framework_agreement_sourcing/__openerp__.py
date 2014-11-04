@@ -37,7 +37,7 @@ of your request.
 In this case the tender flow is bypassed and confirmed PO will be generated
 when the logistic requisition is confirmed.
 
-When confirming Logistic request sourcing lines are generated.
+When confirming Logistics request sourcing lines are generated.
 Generation process will look up all agreements with remaining quantity
 and use them one after the other.
 

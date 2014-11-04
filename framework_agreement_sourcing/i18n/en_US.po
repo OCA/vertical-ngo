@@ -51,8 +51,8 @@ msgstr "Which pricelist / currency you want ?"
 
 #. module: framework_agreement_sourcing
 #: model:ir.model,name:framework_agreement_sourcing.model_logistic_requisition_line
-msgid "Logistic Requisition Line"
-msgstr "Logistic Requisition Line"
+msgid "Logistics Requisition Line"
+msgstr "Logistics Requisition Line"
 
 #. module: framework_agreement_sourcing
 #: view:logistic.requisition.source:0
@@ -164,8 +164,8 @@ msgstr "You have ask for a quantity of %s \n"
 
 #. module: framework_agreement_sourcing
 #: model:ir.model,name:framework_agreement_sourcing.model_logistic_requisition_source
-msgid "Logistic Requisition Source"
-msgstr "Logistic Requisition Source"
+msgid "Logistics Requisition Source"
+msgstr "Logistics Requisition Source"
 
 #. module: framework_agreement_sourcing
 #: view:logistic.requisition.source.create.agr.po:0

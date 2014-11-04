@@ -51,7 +51,7 @@ msgstr ""
 
 #. module: framework_agreement_sourcing
 #: model:ir.model,name:framework_agreement_sourcing.model_logistic_requisition_line
-msgid "Logistic Requisition Line"
+msgid "Logistics Requisition Line"
 msgstr ""
 
 #. module: framework_agreement_sourcing
@@ -154,7 +154,7 @@ msgstr ""
 
 #. module: framework_agreement_sourcing
 #: model:ir.model,name:framework_agreement_sourcing.model_logistic_requisition_source
-msgid "Logistic Requisition Source"
+msgid "Logistics Requisition Source"
 msgstr ""
 
 #. module: framework_agreement_sourcing
