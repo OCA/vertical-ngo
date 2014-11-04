@@ -837,6 +837,7 @@ class LogisticRequisitionSource(models.Model):
          ['po_requisition_id', 'requisition_id']),
     ]
 
+    @api.model
     def _is_sourced_procurement(self, source):
         """Predicate function to test if line on procurement
         method are sourced"""
