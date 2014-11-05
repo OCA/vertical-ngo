@@ -20,9 +20,9 @@
 ##############################################################################
 from itertools import chain
 
-from openerp.osv import orm, fields
+from openerp import fields, api, osv
+from openerp.osv import orm
 from openerp.tools.translate import _
-from openerp.addons.framework_agreement.utils import id_boilerplate
 
 
 class logistic_requisition_source(orm.Model):
@@ -32,13 +32,15 @@ class logistic_requisition_source(orm.Model):
     _inherit = "logistic.requisition.source"
 
     _columns = {
-        'framework_agreement_id': fields.many2one('framework.agreement',
-                                                  'Agreement'),
-        'framework_agreement_po_id': fields.many2one('purchase.order',
-                                                     'Agreement Purchase'),
-        'supplier_id': fields.related('framework_agreement_id', 'supplier_id',
-                                      type='many2one',  relation='res.partner',
-                                      string='Agreement Supplier')}
+        'framework_agreement_id': osv.fields.many2one('framework.agreement',
+                                                      'Agreement'),
+        'framework_agreement_po_id': osv.fields.many2one(
+            'purchase.order',
+            'Agreement Purchase'),
+        'supplier_id': osv.fields.related(
+            'framework_agreement_id', 'supplier_id',
+            type='many2one',  relation='res.partner',
+            string='Agreement Supplier')}
 
     def _get_procur_method_hook(self, cr, uid, context=None):
         """Adds framework agreement as a procurement method in selection
@@ -260,27 +262,24 @@ class logistic_requisition_source(orm.Model):
         # predicate
         return bool(sources_ids)
 
-    # ---------------OpenERP tedious onchange management ----------------------
+    # ---------------Odoo onchange management ----------------------
 
-    def _get_date(self, cr, uid, requision_line_id, context=None):
+    @api.model
+    def _get_date(self):
         """helper to retrive date to be used by framework agreement
         when in source line context
 
-        :param source_id: requisition.line.source id that should
+        :param requisition_line_id: requisition.line id that should
             provide date
 
         :returns: date/datetime string
 
         """
-        req_obj = self.pool['logistic.requisition.line']
-        current = req_obj.browse(cr, uid, requision_line_id, context=context)
         now = fields.datetime.now()
-        return current.requisition_id.date or now
+        return self.requisition_id.date or now
 
-    @id_boilerplate
-    def onchange_sourcing_method(self, cr, uid, ids, method, req_line_id,
-                                 proposed_product_id, proposed_qty=0,
-                                 context=None):
+    @api.onchange('procurement_method')
+    def onchange_sourcing_method(self):
         """
         Called when source method is set on a source line.
 
@@ -289,50 +288,64 @@ class logistic_requisition_source(orm.Model):
         and raise quantity warning.
 
         """
-        line_source = self.browse(cr, uid, ids, context=context)
-        res = {'value': {'framework_agreement_id': False}}
-        if (method != 'fw_agreement' or not proposed_product_id):
-            return res
-        currency = line_source.currency_id
-        agreement_obj = self.pool['framework.agreement']
-        date = self._get_date(cr, uid, req_line_id, context=context)
+        if (self.procurement_method != 'fw_agreement'
+                or not self.proposed_product_id):
+            self.framework_agreement_id = False
+            return
+        agreement_obj = self.env['framework.agreement']
+        date = self._get_date()
         agreement, enough_qty = agreement_obj.get_cheapest_agreement_for_qty(
-            cr, uid, proposed_product_id, date, proposed_qty,
-            currency=currency, context=context)
+            self.proposed_product_id.id, date, self.proposed_qty,
+            currency=self.currency_id)
         if not agreement:
-            return res
-        price = agreement.get_price(proposed_qty, currency=currency)
-        res['value'] = {'framework_agreement_id': agreement.id,
-                        'unit_cost': price,
-                        'total_cost': price * proposed_qty,
-                        'supplier_id': agreement.supplier_id.id}
+            self.framework_agreement_id = False
+            return
+        price = agreement.get_price(self.proposed_qty,
+                                    currency=self.currency_id)
+        vals = {'framework_agreement_id': agreement.id,
+                'unit_cost': price,
+                'total_cost': price * self.proposed_qty,
+                'supplier_id': agreement.supplier_id.id}
+        self.write(vals)
+        res = {}
         if not enough_qty:
-            msg = _("You have ask for a quantity of %s \n"
+            msg = _("You have asked for a quantity of %s \n"
                     " but there is only %s available"
-                    " for current agreement") % (proposed_qty,
+                    " for current agreement") % (self.proposed_qty,
                                                  agreement.available_quantity)
+
             res['warning'] = msg
         return res
 
-    @id_boilerplate
-    def onchange_quantity(self, cr, uid, ids, method, req_line_id, qty,
-                          proposed_product_id, context=None):
+    @api.onchange('proposed_qty')
+    def onchange_quantity(self):
         """Raise a warning if agreed qty is not sufficient"""
-        line_source = self.browse(cr, uid, ids, context=context)
-        if (method != 'fw_agreement' or not proposed_product_id):
-            return {}
-        currency = line_source.currency_id
-        date = self._get_date(cr, uid, req_line_id, context=context)
-        return self.onchange_quantity_obs(cr, uid, ids, qty, date,
-                                          proposed_product_id,
-                                          currency=currency,
-                                          price_field='dummy',
-                                          context=context)
+        if (self.procurement_method != 'fw_agreement'
+                or not self.proposed_product_id):
+            return
+        agreement_obj = self.env['framework.agreement']
+        date = self._get_date()
+        agreement, enough_qty = agreement_obj.get_cheapest_agreement_for_qty(
+            self.proposed_product_id.id, date, self.proposed_qty,
+            currency=self.currency_id)
+        if not agreement:
+            self.framework_agreement_id = False
+            return
+        self.framework_agreement_id = agreement.id
+        res = {}
+        if agreement.available_quantity < self.proposed_qty:
+            msg = {'title': _('Agreement Warning!'),
+                   'message': (_("You have ask for a quantity of %s \n"
+                                 " but there is only %s available"
+                                 " for current agreement")
+                               % (self.proposed_qty,
+                                  agreement.available_quantity))}
 
-    @id_boilerplate
-    def onchange_product_id(self, cr, uid, ids, method, req_line_id,
-                            proposed_product_id, proposed_qty,
-                            context=None):
+            res['warning'] = msg
+        return res
+
+    @api.onchange('proposed_product_id')
+    def onchange_product_id(self):
         """Call when product is set on a source line.
 
         If sourcing method is framework agreement
@@ -340,20 +353,9 @@ class logistic_requisition_source(orm.Model):
         and raise quantity warning.
 
         """
-        if method != 'fw_agreement':
-            if proposed_product_id:
-                value = {'proposed_uom_id': ''}
-                if proposed_product_id:
-                    prod_obj = self.pool.get('product.product')
-                    prod = prod_obj.browse(
-                        cr, uid, proposed_product_id, context=context)
-                    value = {
-                        'proposed_uom_id': prod.uom_id.id,
-                    }
-                return {'value': value}
-            return {}
+        if self.procurement_method != 'fw_agreement':
+            if self.proposed_product_id:
+                self.proposed_uom_id = self.proposed_product_id.uom_id or False
+            return
 
-        return self.onchange_sourcing_method(cr, uid, ids, method, req_line_id,
-                                             proposed_product_id,
-                                             proposed_qty=proposed_qty,
-                                             context=context)
+        return self.onchange_sourcing_method()
