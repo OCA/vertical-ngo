@@ -333,6 +333,13 @@ class LogisticRequisitionLine(models.Model):
         readonly=True,
         required=True,
         ondelete='cascade')
+    # field for displaying requisition both on
+    # line form view and on requisition on inner line form view
+    display_requisition_id = fields.Many2one(
+        comodel_name='logistic.requisition',
+        string='Requisition',
+        compute='_get_display_requisition_id',
+        readonly=True)
     source_ids = fields.One2many(
         'logistic.requisition.source',
         'requisition_line_id',
@@ -494,6 +501,18 @@ class LogisticRequisitionLine(models.Model):
     @api.multi
     def _store_get_requisition_ids(self):
         return list(set([line.requisition_id.id for line in self]))
+
+    @api.multi
+    @api.depends('requisition_id')
+    def _get_display_requisition_id(self):
+        """ Return the requisition if we are not creating a new
+        requisition line in form view. Otherwise we let the field
+        empty as NewId is not jsonisable
+        """
+        for line in self:
+
+            if not isinstance(line.id, models.NewId):
+                line.display_requisition_id = line.requisition_id
 
     @api.multi
     @api.depends('source_ids.total_cost',

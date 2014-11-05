@@ -321,7 +321,7 @@
                     <div class="oe_title">
                         <h1>
                             <label string="Requisition"/>
-                            <field name="requisition_id" class="oe_inline" readonly="1"/> /
+                            <field name="display_requisition_id" class="oe_inline" readonly="1"/> /
                             <label string="Line N° "/>
                             <field name="name" class="oe_inline"/>
                         </h1>
