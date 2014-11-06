@@ -21,7 +21,7 @@
 from openerp import models, fields, api
 
 
-class LogisticRequisitionCancel(models.TransientModel):
+class LogisticsRequisitionCancel(models.TransientModel):
     """ Ask a reason for the logistic requisition cancellation."""
     _name = 'logistic.requisition.cancel'
     _description = __doc__

@@ -22,7 +22,7 @@ from openerp import models, fields, api
 from openerp.tools.translate import _
 
 
-class LogisticRequisitionSourceCreateRequisition(models.TransientModel):
+class LogisticsRequisitionSourceCreateRequisition(models.TransientModel):
     _name = "logistic.requisition.source.create.requisition"
     _description = "Create Purchase Requisition From Requisition Source"
 
@@ -34,7 +34,7 @@ class LogisticRequisitionSourceCreateRequisition(models.TransientModel):
     @api.model
     def default_get(self, fields_list):
         """Take the first line pricelist as default"""
-        defaults = super(LogisticRequisitionSourceCreateRequisition, self
+        defaults = super(LogisticsRequisitionSourceCreateRequisition, self
                          ).default_get(fields_list)
         line_obj = self.env['logistic.requisition.source']
         line_ids = self.env.context['active_ids']

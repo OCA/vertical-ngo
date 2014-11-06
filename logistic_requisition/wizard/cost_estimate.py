@@ -23,13 +23,13 @@ from openerp.exceptions import except_orm
 from openerp.tools.translate import _
 
 
-class LogisticRequisitionCostEstimate(models.TransientModel):
+class LogisticsRequisitionCostEstimate(models.TransientModel):
     _name = 'logistic.requisition.cost.estimate'
     _description = 'Create cost estimate of logistic requisition lines'
 
     requisition_id = fields.Many2one(
         'logistic.requisition',
-        string='Logistic Requisition',
+        string='Logistics Requisition',
         readonly=True,
         required=True)
     line_ids = fields.Many2many(
@@ -70,7 +70,7 @@ class LogisticRequisitionCostEstimate(models.TransientModel):
 
     @api.model
     def default_get(self, fields_list):
-        defaults = super(LogisticRequisitionCostEstimate, self
+        defaults = super(LogisticsRequisitionCostEstimate, self
                          ).default_get(fields_list)
         req_obj = self.env['logistic.requisition']
         line_obj = self.env['logistic.requisition.line']

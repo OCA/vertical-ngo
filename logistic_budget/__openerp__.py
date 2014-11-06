@@ -17,7 +17,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #
-{"name": "Logistic Budget",
+{"name": "Logistics Budget",
  "version": "0.1",
  "author": "Camptocamp",
  "license": "AGPL-3",

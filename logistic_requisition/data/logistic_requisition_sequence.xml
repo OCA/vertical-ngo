@@ -2,31 +2,31 @@
 <openerp>
     <data noupdate="1">
         <record id="seq_type_logistic_requisition" model="ir.sequence.type">
-            <field name="name">Logistic Requisition</field>
+            <field name="name">Logistics Requisition</field>
             <field name="code">logistic.requisition</field>
         </record>
         <record id="seq_logistic_requisition" model="ir.sequence">
-            <field name="name">Logistic Requisition</field>
+            <field name="name">Logistics Requisition</field>
             <field name="code">logistic.requisition</field>
             <field name="prefix">LR</field>
             <field name="padding">5</field>
         </record>
         <record id="seq_type_logistic_requisition_line" model="ir.sequence.type">
-            <field name="name">Logistic Requisition Line</field>
+            <field name="name">Logistics Requisition Line</field>
             <field name="code">logistic.requisition.line</field>
         </record>
         <record id="seq_logistic_requisition_line" model="ir.sequence">
-            <field name="name">Logistic Requisition Line</field>
+            <field name="name">Logistics Requisition Line</field>
             <field name="code">logistic.requisition.line</field>
             <field name="prefix">LRL</field>
             <field name="padding">5</field>
         </record>
         <record id="seq_type_logistic_requisition_source" model="ir.sequence.type">
-            <field name="name">Logistic Requisition Source</field>
+            <field name="name">Logistics Requisition Source</field>
             <field name="code">logistic.requisition.source</field>
         </record>
         <record id="seq_logistic_requisition_source" model="ir.sequence">
-            <field name="name">Logistic Requisition Source</field>
+            <field name="name">Logistics Requisition Source</field>
             <field name="code">logistic.requisition.source</field>
             <field name="prefix">LRS</field>
             <field name="padding">5</field>

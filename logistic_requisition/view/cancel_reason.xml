@@ -3,17 +3,17 @@
     <data noupdate="0">
 
         <record model="ir.ui.view" id="view_logistic_requisition_cancel_reason_form">
-            <field name="name">Logistic Requisition Cancel Reason</field>
+            <field name="name">Logistics Requisition Cancel Reason</field>
             <field name="model">logistic.requisition.cancel.reason</field>
             <field name="arch" type="xml">
-                <form string="Logistic Requisition Cancel Reasons">
+                <form string="Logistics Requisition Cancel Reasons">
                     <field name="name"/>
                 </form>
             </field>
         </record>
 
         <record model="ir.ui.view" id="view_logistic_requisition_cancel_reason_tree">
-            <field name="name">Logistic Requisition Cancel Reason</field>
+            <field name="name">Logistics Requisition Cancel Reason</field>
             <field name="model">logistic.requisition.cancel.reason</field>
             <field name="arch" type="xml">
                 <tree string="Purchase Cancel Reasons">
@@ -23,7 +23,7 @@
         </record>
 
         <record model="ir.actions.act_window" id="action_logistic_requisition_cancel_reason">
-            <field name="name">Logistic Requisition Cancel Reason</field>
+            <field name="name">Logistics Requisition Cancel Reason</field>
             <field name="res_model">logistic.requisition.cancel.reason</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
@@ -31,7 +31,7 @@
 
         <menuitem id="menu_logistic_requisition_cancel_reason"
           parent="menu_order_configuration"
-          name="Logistic Requisition Cancel Reasons"
+          name="Logistics Requisition Cancel Reasons"
           action="action_logistic_requisition_cancel_reason"
           sequence="150"
           groups="purchase.group_purchase_manager"/>

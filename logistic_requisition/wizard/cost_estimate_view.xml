@@ -2,7 +2,7 @@
 <openerp>
     <data>
         <record id="view_logistic_requisition_cost_estimate" model="ir.ui.view">
-            <field name="name">Logistic Requisition Cost Estimate</field>
+            <field name="name">Logistics Requisition Cost Estimate</field>
             <field name="model">logistic.requisition.cost.estimate</field>
             <field name="arch" type="xml">
              <form string="Create Cost Estimate" version="7.0">

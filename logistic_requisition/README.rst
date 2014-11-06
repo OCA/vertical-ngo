@@ -1,7 +1,7 @@
-This module allows you to manage your Logistic Requisitions.
-============================================================
+This module allows you to manage your Logistics Requisitions.
+=============================================================
 
-A Logistic requisition express a need that is requested somewhere.
+A Logistics requisition express a need that is requested somewhere.
 It allows to manage the sourcing of the needs before making a cost estimate to
 the requestor.
 

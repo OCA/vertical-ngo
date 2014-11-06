@@ -21,8 +21,8 @@
 from openerp import models, fields
 
 
-class LogisticRequisitionCancelReason(models.Model):
+class LogisticsRequisitionCancelReason(models.Model):
     _name = 'logistic.requisition.cancel.reason'
-    _description = 'Logistic Requisition Cancel Reason'
+    _description = 'Logistics Requisition Cancel Reason'
 
     name = fields.Char('Reason', required=True, translate=True)

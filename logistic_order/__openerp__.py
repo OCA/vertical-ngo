@@ -18,8 +18,8 @@
 #
 ##############################################################################
 
-{"name": "Logistic Order",
- "summary": "Sales Order as Logistic Order",
+{"name": "Logistics Order",
+ "summary": "Sales Order as Logistics Order",
  "version": "0.1",
  "author": "Camptocamp",
  "license": "AGPL-3",
@@ -28,15 +28,15 @@
  "images": [],
  "website": "http://www.camptocamp.com",
  "description": """
-Logistic Order
-==============
+Logistics Order
+===============
 
-This module customizes the Sales Orders to disguise them in Logistic Orders
+This module customizes the Sales Orders to disguise them in Logistics Orders
 
 A draft Sale order is now a Cost Estimate
-An opened Sale order is now a Logistic Order
+An opened Sale order is now a Logistics Order
 
-* Adds Consignee, Incoterm Address and Delivery time on the Logistic Order
+* Adds Consignee, Incoterm Address and Delivery time on the Logistics Order
 * Adds a main menu entry `Order Management`
 
 

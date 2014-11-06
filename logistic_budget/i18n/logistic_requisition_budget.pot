@@ -27,7 +27,7 @@ msgstr ""
 
 #. module: logistic_requisition_budget
 #: report:addons/logistic_requisition_budget/report/logistic_requisition.mako:136
-msgid "Logistic requisition"
+msgid "Logistics requisition"
 msgstr ""
 
 #. module: logistic_requisition_budget
@@ -48,7 +48,7 @@ msgstr ""
 
 #. module: logistic_requisition_budget
 #: model:ir.model,name:logistic_requisition_budget.model_logistic_requisition_line
-msgid "Logistic Requisition Line"
+msgid "Logistics Requisition Line"
 msgstr ""
 
 #. module: logistic_requisition_budget
@@ -89,7 +89,7 @@ msgstr ""
 #. module: logistic_requisition_budget
 #: model:ir.actions.report.xml,name:logistic_requisition_budget.report_logistic_requisition
 #: model:ir.model,name:logistic_requisition_budget.model_logistic_requisition
-msgid "Logistic Requisition"
+msgid "Logistics Requisition"
 msgstr ""
 
 #. module: logistic_requisition_budget
@@ -160,7 +160,7 @@ msgstr ""
 
 #. module: logistic_requisition_budget
 #: model:ir.model,name:logistic_requisition_budget.model_logistic_requisition_source
-msgid "Logistic Requisition Source"
+msgid "Logistics Requisition Source"
 msgstr ""
 
 #. module: logistic_requisition_budget
