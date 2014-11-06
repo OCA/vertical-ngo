@@ -2,7 +2,7 @@
 ##############################################################################
 #
 #    Author: Nicolas Bessi
-#    Copyright 2013 Camptocamp SA
+#    Copyright 2013-2014 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -278,6 +278,61 @@ class logistic_requisition_source(orm.Model):
         now = fields.datetime.now()
         return self.requisition_id.date or now
 
+    @api.multi
+    def _check_enought_qty(self, agreement):
+        """ Raise a warning if quantity is not enough
+        to fullfil completely the sourcing
+
+        :returns: dict with warning message
+
+        """
+        if self.proposed_qty > agreement.available_quantity:
+            msg = _("You have asked for a quantity of %s \n"
+                    " but there is only %s available"
+                    " for current agreement") % (self.proposed_qty,
+                                                 agreement.available_quantity)
+
+            return {'warning': {'message': msg}}
+
+    @api.multi
+    def _get_best_agreement(self):
+        """ Search for an agreement with enough quantity
+        and if not find, search for an agreement without
+        specifying qty
+
+        :returns: agreement record
+
+        """
+        agreement_obj = self.env['framework.agreement']
+        date = self._get_date()
+        agreement, __ = agreement_obj.get_cheapest_agreement_for_qty(
+            self.proposed_product_id.id, date, qty=self.proposed_qty,
+            currency=self.currency_id)
+        if not agreement:
+            agreement, __ = agreement_obj.get_cheapest_agreement_for_qty(
+                self.proposed_product_id.id, date, qty=None,
+                currency=self.currency_id)
+        return agreement
+
+    @api.multi
+    def _onchange_base_agreement_method(self):
+        """ When agreement method basics change,
+        we want to find a proper agreement,
+        update price and supplier based on this agreement.
+
+        """
+        agreement = self._get_best_agreement()
+        if not agreement:
+            self.framework_agreement_id = False
+            return
+        price = agreement.get_price(self.proposed_qty,
+                                    currency=self.currency_id)
+        self.framework_agreement_id = agreement.id
+        self.unit_cost = price
+        self.total_cost = price * self.proposed_qty
+        self.supplier_id = agreement.supplier_id.id
+        return self._check_enought_qty(agreement)
+
     @api.onchange('procurement_method')
     def onchange_sourcing_method(self):
         """
@@ -292,30 +347,7 @@ class logistic_requisition_source(orm.Model):
                 or not self.proposed_product_id):
             self.framework_agreement_id = False
             return
-        agreement_obj = self.env['framework.agreement']
-        date = self._get_date()
-        agreement, enough_qty = agreement_obj.get_cheapest_agreement_for_qty(
-            self.proposed_product_id.id, date, self.proposed_qty,
-            currency=self.currency_id)
-        if not agreement:
-            self.framework_agreement_id = False
-            return
-        price = agreement.get_price(self.proposed_qty,
-                                    currency=self.currency_id)
-        vals = {'framework_agreement_id': agreement.id,
-                'unit_cost': price,
-                'total_cost': price * self.proposed_qty,
-                'supplier_id': agreement.supplier_id.id}
-        self.write(vals)
-        res = {}
-        if not enough_qty:
-            msg = _("You have asked for a quantity of %s \n"
-                    " but there is only %s available"
-                    " for current agreement") % (self.proposed_qty,
-                                                 agreement.available_quantity)
-
-            res['warning'] = msg
-        return res
+        return self._onchange_base_agreement_method()
 
     @api.onchange('proposed_qty')
     def onchange_quantity(self):
@@ -323,26 +355,10 @@ class logistic_requisition_source(orm.Model):
         if (self.procurement_method != 'fw_agreement'
                 or not self.proposed_product_id):
             return
-        agreement_obj = self.env['framework.agreement']
-        date = self._get_date()
-        agreement, enough_qty = agreement_obj.get_cheapest_agreement_for_qty(
-            self.proposed_product_id.id, date, self.proposed_qty,
-            currency=self.currency_id)
-        if not agreement:
-            self.framework_agreement_id = False
-            return
+        agreement = self._get_best_agreement()
         self.framework_agreement_id = agreement.id
-        res = {}
-        if agreement.available_quantity < self.proposed_qty:
-            msg = {'title': _('Agreement Warning!'),
-                   'message': (_("You have ask for a quantity of %s \n"
-                                 " but there is only %s available"
-                                 " for current agreement")
-                               % (self.proposed_qty,
-                                  agreement.available_quantity))}
-
-            res['warning'] = msg
-        return res
+        if agreement:
+            return self._check_enought_qty(agreement)
 
     @api.onchange('proposed_product_id')
     def onchange_product_id(self):
@@ -357,5 +373,4 @@ class logistic_requisition_source(orm.Model):
             if self.proposed_product_id:
                 self.proposed_uom_id = self.proposed_product_id.uom_id or False
             return
-
-        return self.onchange_sourcing_method()
+        return self._onchange_base_agreement_method()
