@@ -126,6 +126,11 @@
     cost_estimate = cost_estimate_obj.browse(cr, uid, cost_estimate_id)
     assert len(cost_estimate.order_line) == 2, (
         "Cost Estimate should have 2 lines, 1 per logistic requisition line")
+    for line in cost_estimate.order_line:
+        po_line = line.sourced_by
+        assert(po_line, 'missing sourced by')
+        print po_line
+
 -
   I check if the information of the logistic requisition are propagated correctly
 -
