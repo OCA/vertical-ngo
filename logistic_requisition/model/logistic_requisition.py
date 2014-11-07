@@ -753,7 +753,7 @@ class LogisticsRequisitionSource(models.Model):
         digits_compute=dp.get_precision('Product UoM'),
         default=1)
     procurement_method = fields.Selection(
-        [('procurement', 'Procurement'),
+        [('procurement', 'Tender'),
          ('wh_dispatch', 'Warehouse Dispatch'),
          ('fw_agreement', 'Framework Agreement'),
          ('other', 'Other'),
