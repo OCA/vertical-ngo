@@ -499,7 +499,7 @@
         <field name="name">logistic.requisition.source.form</field>
         <field name="model">logistic.requisition.source</field>
         <field name="arch" type="xml">
-            <form string="Logistics Requisition Sourcing Lines" create="false" version="7.0">
+            <form string="Logistics Requisition Sourcing Lines" create="false">
                 <sheet>
                     <div class="oe_title">
                         <h1>
@@ -512,50 +512,54 @@
                             <field name="name" class="oe_inline"/>
                         </h1>
                     </div>
-                    <notebook>
-                        <page string="Sourcing">
-                            <group>
-                                <field name="state" invisible="1"/>
-                                <field name="procurement_method"/>
-                                <field name="proposed_product_id"/>
-                                <label for="proposed_qty"/>
-                                <div>
-                                    <field name="proposed_qty" class="oe_inline"/>
-                                    <field name="proposed_uom_id" class="oe_inline"/>
-                                </div>
-                                <field name="currency_id"/>
-                                <field name="unit_cost" widget="monetary"
-                                    options="{'currency_field': 'currency_id'}"/>
-                                <field name="total_cost" widget="monetary"
-                                    options="{'currency_field': 'currency_id'}"/>
-                                <field name="price_is"/>
-                            </group>
-                            <group>
-                                <group string="Purchase Requisition"
-                                    attrs="{'invisible': [('procurement_method', 'not in', ['procurement','other'])]}"
-                                    colspan="4">
-                                    <label for="po_requisition_id"/>
-                                    <div>
-                                        <field name="po_requisition_id" class="oe_inline"/>
-                                    </div>
-                                    <field name="selected_bid_id"/>
-                                </group>
-                                <group string="Warehouse Dispatch"
-                                    colspan="4"
-                                    attrs="{'invisible': [('procurement_method', '!=', 'wh_dispatch')]}">
-                                    <field name="dispatch_location_id"
-                                        attrs="{'required': [('procurement_method', '=', 'wh_dispatch')]}"
-                                        domain="[('usage', '!=', 'view')]"/>
-                                </group>
-                                <group string="Transport Plan"
-                                    colspan="4">
-                                    <field name="consignee_shipping_id" invisible="1"/>
-                                    <field name="supplier_partner_id" invisible="1"/>
-                                    <field name="location_partner_id" invisible="1"/>
-                                </group>
-                            </group>
-                        </page>
-                    </notebook>
+                    <field name="state" invisible="1"/>
+                    <field name="consignee_shipping_id" invisible="1"/>
+                    <field name="supplier_partner_id" invisible="1"/>
+                    <field name="location_partner_id" invisible="1"/>
+                    <group string="Sourcing">
+                        <group>
+                            <field name="procurement_method"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="proposed_product_id"/>
+                            <label for="proposed_qty"/>
+                            <div>
+                                <field name="proposed_qty" class="oe_inline"/>
+                                <field name="proposed_uom_id" class="oe_inline"/>
+                            </div>
+                        </group>
+                        <group>
+                            <field name="currency_id"/>
+                            <field name="unit_cost" widget="monetary"
+                                options="{'currency_field': 'currency_id'}"/>
+                            <field name="total_cost" widget="monetary"
+                                options="{'currency_field': 'currency_id'}"/>
+                            <field name="price_is"/>
+                        </group>
+                    </group>
+                    <group colspan="4">
+                        <group string="Document Reference"
+                            attrs="{'invisible': [('procurement_method', '!=', 'other')]}">
+                            <field name="origin"
+                                attrs="{'required': [('procurement_method', '=', 'other')]}"/>
+                        </group>
+                        <group string="Purchase Requisition"
+                            attrs="{'invisible': [('procurement_method', 'not in', ['procurement','other'])]}">
+                            <label for="po_requisition_id"/>
+                            <div>
+                                <field name="po_requisition_id" class="oe_inline"/>
+                            </div>
+                            <field name="selected_bid_id"/>
+                        </group>
+                        <group string="Warehouse Dispatch"
+                            attrs="{'invisible': [('procurement_method', '!=', 'wh_dispatch')]}">
+                            <field name="dispatch_location_id"
+                                attrs="{'required': [('procurement_method', '=', 'wh_dispatch')]}"
+                                domain="[('usage', '!=', 'view')]"/>
+                        </group>
+                    </group>
                 </sheet>
             </form>
         </field>
