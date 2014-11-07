@@ -911,7 +911,7 @@ class LogisticsRequisitionSource(models.Model):
             if po_line:
                 po_line.ensure_one()
                 po_line_id = po_line.id
-            self.purchase_line_id = po_line_id
+            line.purchase_line_id = po_line_id
 
     @api.model
     def create(self, vals):
