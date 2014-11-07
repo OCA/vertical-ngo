@@ -352,7 +352,7 @@
         <field name="name">logistic.requisition.line.form</field>
         <field name="model">logistic.requisition.line</field>
         <field name="arch" type="xml">
-            <form string="Logistics Requisition Line" create="false" version="7.0">
+            <form string="Logistics Requisition Line" create="false">
                 <header>
                     <button name="%(action_requisition_line_assign)d"
                         states="confirmed"
@@ -402,23 +402,38 @@
                     </div>
                     <group>
                         <group>
+                            <field name="cost_estimate_only"/>
+                        </group>
+                        <group>
+                            <field name="requestor_id"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
                             <field name="product_id"/>
-                            <field name="description"/>
+                        </group>
+                        <group>
                             <label for="requested_qty"/>
                             <div>
                                 <field name="requested_qty" class="oe_inline"/>
                                 <field name="requested_uom_id" class="oe_inline"/>
                             </div>
-                            <field name="date_delivery"/>
-                            <field name="currency_id" invisible="1"/>
-                            <field name="company_currency_id" invisible="1"/>
                         </group>
+                        <group colspan="4">
+                            <field name="description"/>
+                        </group>
+                    </group>
+                    <group>
                         <group>
-                            <field name="cost_estimate_only"/>
+                            <field name="date_delivery"/>
                             <field name="logistic_user_id"/>
-                            <field name="account_id"/>
-                            <field name="currency_id"/>
                         </group>
+                        <separator string="Accounting" colspan="4"/>
+                        <group>
+                            <field name="account_id"/>
+                        </group>
+                        <field name="company_currency_id" invisible="1"/>
+                        <field name="currency_id" invisible="1"/>
                     </group>
                     <notebook>
                         <page string="Sourcing">
@@ -453,12 +468,34 @@
                                         options="{'currency_field': 'company_currency_id'}"/>
                                 </group>
                         </page>
+                        <page string="Transportation and Delivery">
+                            <group>
+                                <group>
+                                    <field name="consignee_id"/>
+                                    <field name="consignee_shipping_id"/>
+                                </group>
+                                <group>
+                                    <field name="incoterm_id"/>
+                                    <field name="incoterm_address"/>
+                                </group>
+                            </group>
+                            <group colspan="4">
+                                <div>
+                                    <label for="shipping_note"/>
+                                </div>
+                                <field name="shipping_note"
+                                    colspan="4"
+                                    nolabel="1"
+                                    class="oe_inline"/>
+                            </group>
+                        </page>
                     </notebook>
                     <group>
                         <div>
                             <label for="note"/>
                         </div>
-                        <field name="note" colspan="4"
+                        <field name="note"
+                            colspan="4"
                             nolabel="1"
                             class="oe_inline"
                             placeholder="Additional notes..."/>

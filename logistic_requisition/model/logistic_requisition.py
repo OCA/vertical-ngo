@@ -430,6 +430,37 @@ class LogisticsRequisitionLine(models.Model):
         readonly=True,
         copy=False)
 
+    # related fields to requisition_id
+    requestor_id = fields.Many2one(
+        related='requisition_id.partner_id',
+        co_model='res.partner',
+        string='Requestor')
+    consignee_id = fields.Many2one(
+        related='requisition_id.consignee_id',
+        co_model='res.partner',
+        string='Consignee')
+    consignee_shipping_id = fields.Many2one(
+        related='requisition_id.consignee_shipping_id',
+        co_model='res.partner',
+        string='Delivery Address')
+    incoterm_id = fields.Many2one(
+        related='requisition_id.incoterm_id',
+        co_model='stock.incoterms',
+        string='Incoterm',
+        help="International Commercial Terms are a series of "
+             "predefined commercial terms used in international "
+             "transactions.")
+    incoterm_address = fields.Char(
+        related='requisition_id.incoterm_address',
+        string='Incoterm Place',
+        help="Incoterm Place of Delivery. "
+             "International Commercial Terms are a series of "
+             "predefined commercial terms used in "
+             "international transactions.")
+
+    shipping_note = fields.Text(
+        related='requisition_id.shipping_note',
+        string='Delivery / Shipping Remarks')
     _sql_constraints = [
         ('name_uniq',
          'unique(name)',
