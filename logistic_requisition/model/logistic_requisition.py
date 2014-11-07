@@ -742,7 +742,8 @@ class LogisticsRequisitionSource(models.Model):
     proposed_product_id = fields.Many2one(
         'product.product',
         string='Proposed Product',
-        states=SOURCED_STATES)
+        states=SOURCED_STATES,
+        required=True)
     proposed_uom_id = fields.Many2one(
         'product.uom',
         string='Proposed UoM',
