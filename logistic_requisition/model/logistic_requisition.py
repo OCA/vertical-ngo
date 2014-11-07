@@ -842,6 +842,10 @@ class LogisticsRequisitionSource(models.Model):
         string='Default source',
         readonly=True)
 
+    # Procument Method = Other field
+    origin = fields.Char("Origin")
+
+
     _constraints = [
         (lambda self, cr, uid, ids: self._check_purchase_requisition_unique(
             cr, uid, ids),
