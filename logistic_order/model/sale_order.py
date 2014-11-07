@@ -49,7 +49,7 @@ class SaleOrderLine(models.Model):
         return purchase_order_line.order_id.location_id.usage
 
     @api.model
-    def _route_from_usage(self, usage):
+    def _find_route_from_usage(self, usage):
         """Return the routes to assing on SO lines
         based on a location usage.
 
@@ -89,5 +89,6 @@ class SaleOrderLine(models.Model):
         if not self.sourced_by:
             return
         usage = self._get_po_location_usage(self.sourced_by)
-        route = self._route_from_usage(usage)
-        self.route_id = route
+        route = self._find_route_from_usage(usage)
+        if route:
+            self.route_id = route
