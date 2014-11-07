@@ -8,7 +8,6 @@
         <field name="inherit_id" ref="logistic_requisition.view_logistic_requisition_form"/>
         <field name="arch" type="xml">
              <xpath expr="//page[@string='Requisition Lines']/field[@name='line_ids']/tree/field[@name='date_delivery']" position="after">
-                 <field name="budget_unit_price"/>
                  <field name="budget_tot_price"/>
              </xpath>
              <xpath expr="//page[@string='Requisition Lines']/field[@name='line_ids']" position="after">
