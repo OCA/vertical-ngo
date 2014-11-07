@@ -897,8 +897,8 @@ class LogisticsRequisitionSource(models.Model):
                 bid_line = line.selected_bid_line_id
                 if not bid_line:
                     continue
-                po_lines = bid_line.po_line_from_bid_ids
-                if not po_lines:
+                po_line = bid_line.po_line_from_bid_ids
+                if not po_line:
                     continue
             else:
                 domain = [
