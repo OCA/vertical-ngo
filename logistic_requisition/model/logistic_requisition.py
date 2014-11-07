@@ -786,8 +786,7 @@ class LogisticsRequisitionSource(models.Model):
         string='Price is',
         required=True,
         help="When the price is an estimation, the final price may change."
-             " I.e. it is not based on a request for quotation.",
-        default='fixed')
+             " I.e. it is not based on a request for quotation.")
     #
     purchase_requisition_line_id = fields.Many2one(
         'purchase.requisition.line',
