@@ -91,6 +91,57 @@
                                     <field name="logistic_user_id" string="Assigned To"/>
                                     <field name="state"/>
                                 </tree>
+                                <form string="Logistics Requisition Line">
+                                    <header>
+                                        <field name="state" select="1" readonly="1"
+                                            widget="statusbar"
+                                            statusbar_visible="draft,confirmed,assigned,sourced,quoted"/>
+                                    </header>
+                                    <sheet>
+                                        <div class="oe_title">
+                                            <h1>
+                                                <label string="Line N° "/>
+                                                <field name="name" class="oe_inline"/>
+                                            </h1>
+                                        </div>
+                                        <group>
+                                            <group>
+                                                <field name="product_id"/>
+                                            </group>
+                                            <group>
+                                                <label for="requested_qty"/>
+                                                <div>
+                                                    <field name="requested_qty" class="oe_inline"/>
+                                                    <field name="requested_uom_id" class="oe_inline"/>
+                                                </div>
+                                            </group>
+                                            <group colspan="4">
+                                                <field name="description"/>
+                                            </group>
+                                        </group>
+                                        <group>
+                                            <group>
+                                                <field name="date_delivery"/>
+                                                <field name="logistic_user_id"/>
+                                            </group>
+                                            <separator string="Accounting" colspan="4"/>
+                                            <group>
+                                                <field name="account_id"/>
+                                            </group>
+                                            <field name="company_currency_id" invisible="1"/>
+                                            <field name="currency_id" invisible="1"/>
+                                        </group>
+                                        <group>
+                                            <div>
+                                                <label for="note"/>
+                                            </div>
+                                            <field name="note" colspan="4"
+                                                nolabel="1"
+                                                class="oe_inline"
+                                                placeholder="Additional notes..."/>
+                                        </group>
+                                    </sheet>
+                                </form>
                             </field>
                         </page>
                         <page string="Transportation and Delivery">
