@@ -13,7 +13,7 @@
         <field name="name">logistic.requisition.form</field>
         <field name="model">logistic.requisition</field>
         <field name="arch" type="xml">
-            <form string="Logistics Requisition" version="7.0">
+            <form string="Logistics Requisition">
                 <header>
                     <button name="button_view_lines"
                         string="View Lines"
@@ -61,24 +61,16 @@
                         </h2>
                     </div>
                     <group>
+                        <group colspan="4">
+                            <field name="cost_estimate_only"/>
+                        </group>
                         <group>
                             <field name="partner_id"/>
-                            <field name="consignee_id"
-                                   attrs="{'required': [('cost_estimate_only', '=', False)]}"/>
-                            <field name="country_id"/>
-
-                            <field name="consignee_shipping_id"
-                                   context="{'default_type':'delivery'}"
-                                   attrs="{'required': [('cost_estimate_only', '=', False)]}"/>
-                            <field name="analytic_id"/>
-                            <field name="pricelist_id" domain="[('type','=','sale')]"/>
-                            <field name="currency_id"/>
                         </group>
                         <group>
                             <field name="date"/>
-                            <field name="date_delivery"/>
-                            <field name="cost_estimate_only"/>
                             <field name="source_document"/>
+                            <field name="date_delivery"/>
                             <field name="user_id"/>
                         </group>
                     </group>
@@ -90,7 +82,7 @@
                             <field name="line_ids" colspan="4" nolabel="1"
                                 attrs="{'readonly': [('state', '!=' ,'draft')]}"
                                 context="{'default_date_delivery':date_delivery, 'default_logistic_user_id':user_id}">
-                                <tree string="Requisition Lines" editable="bottom">
+                                <tree string="Requisition Lines">
                                     <field name="name"/>
                                     <field name="product_id"/>
                                     <field name="description"/>
@@ -102,32 +94,61 @@
                                     <field name="logistic_user_id" string="Assigned To"/>
                                 </tree>
                             </field>
-                    </page>
-                    <page string="Transportation and Delivery">
-                        <group>
-                            <field name="incoterm_id"/>
-                            <field name="incoterm_address"/>
-                            <field name="shipping_note"/>
-                        </group>
-                    </page>
-                    <page string="Notes">
-                        <group>
-                            <div>
-                                <label for="note"/>
-                            </div>
-                            <field name="note" colspan="4"
-                                nolabel="1"
-                                class="oe_inline"
-                                placeholder="Additional notes..."/>
-                        </group>
-                    </page>
-                </notebook>
-            </sheet>
-            <div class="oe_chatter">
-                <field name="message_follower_ids" widget="mail_followers"/>
-                <field name="message_ids" widget="mail_thread"/>
-            </div>
-        </form>
+                        </page>
+                        <page string="Transportation and Delivery">
+                            <group>
+                                <group>
+                                    <field name="consignee_id"
+                                           attrs="{'required': [('cost_estimate_only', '=', False)]}"/>
+                                    <field name="consignee_shipping_id"
+                                           context="{'default_type':'delivery'}"
+                                           attrs="{'required': [('cost_estimate_only', '=', False)]}"/>
+                                </group>
+                                <group>
+                                    <field name="incoterm_id"/>
+                                    <field name="incoterm_address"/>
+                                </group>
+                                <group colspan="4">
+                                    <div>
+                                        <label for="shipping_note"/>
+                                    </div>
+                                    <field name="shipping_note"
+                                           colspan="4"
+                                           nolabel="1"
+                                           class="oe_inline"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Accounting and Currency">
+                            <group>
+                                <group>
+                                    <field name="pricelist_id" domain="[('type','=','sale')]"/>
+                                    <field name="currency_id"/>
+                                </group>
+                                <group>
+                                    <field name="country_id"/>
+                                    <field name="analytic_id"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Notes">
+                            <group>
+                                <div>
+                                    <label for="note"/>
+                                </div>
+                                <field name="note" colspan="4"
+                                    nolabel="1"
+                                    class="oe_inline"
+                                    placeholder="Additional notes..."/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
         </field>
     </record>
 
