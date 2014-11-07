@@ -114,6 +114,7 @@ class LogisticsRequisitionCostEstimate(models.TransientModel):
                 'product_uom': sourcing.proposed_uom_id.id,
                 # line must be sourced
                 'manually_sourced': True,
+                'sourced_by': sourcing.purchase_line_id.id,
                 }
         if sourcing.dispatch_location_id:
             warehouse_id = self.env['stock.location'].get_warehouse(
