@@ -333,13 +333,6 @@ class LogisticsRequisitionLine(models.Model):
         readonly=True,
         required=True,
         ondelete='cascade')
-    # field for displaying requisition both on
-    # line form view and on requisition on inner line form view
-    display_requisition_id = fields.Many2one(
-        comodel_name='logistic.requisition',
-        string='Requisition',
-        compute='_get_display_requisition_id',
-        readonly=True)
     source_ids = fields.One2many(
         'logistic.requisition.source',
         'requisition_line_id',
