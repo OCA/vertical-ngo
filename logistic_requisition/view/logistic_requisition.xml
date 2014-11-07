@@ -13,7 +13,7 @@
         <field name="name">logistic.requisition.form</field>
         <field name="model">logistic.requisition</field>
         <field name="arch" type="xml">
-            <form string="Logistics Requisition" version="7.0">
+            <form string="Logistics Requisition">
                 <header>
                     <button name="button_view_lines"
                         string="View Lines"
@@ -61,24 +61,16 @@
                         </h2>
                     </div>
                     <group>
+                        <group colspan="4">
+                            <field name="cost_estimate_only"/>
+                        </group>
                         <group>
                             <field name="partner_id"/>
-                            <field name="consignee_id"
-                                   attrs="{'required': [('cost_estimate_only', '=', False)]}"/>
-                            <field name="country_id"/>
-
-                            <field name="consignee_shipping_id"
-                                   context="{'default_type':'delivery'}"
-                                   attrs="{'required': [('cost_estimate_only', '=', False)]}"/>
-                            <field name="analytic_id"/>
-                            <field name="pricelist_id" domain="[('type','=','sale')]"/>
-                            <field name="currency_id"/>
                         </group>
                         <group>
                             <field name="date"/>
-                            <field name="date_delivery"/>
-                            <field name="cost_estimate_only"/>
                             <field name="source_document"/>
+                            <field name="date_delivery"/>
                             <field name="user_id"/>
                         </group>
                     </group>
@@ -90,44 +82,122 @@
                             <field name="line_ids" colspan="4" nolabel="1"
                                 attrs="{'readonly': [('state', '!=' ,'draft')]}"
                                 context="{'default_date_delivery':date_delivery, 'default_logistic_user_id':user_id}">
-                                <tree string="Requisition Lines" editable="bottom">
+                                <tree string="Requisition Lines">
                                     <field name="name"/>
-                                    <field name="product_id"/>
                                     <field name="description"/>
                                     <field name="requested_qty" string="Quantity"/>
-                                    <field name="requested_uom_id"/>
+                                    <field name="requested_uom_id" string="UoM"/>
                                     <field name="date_delivery"/>
-                                    <field name="account_id"/>
-                                    <field name="state"/>
                                     <field name="logistic_user_id" string="Assigned To"/>
+                                    <field name="state"/>
                                 </tree>
+                                <form string="Logistics Requisition Line">
+                                    <header>
+                                        <field name="state" select="1" readonly="1"
+                                            widget="statusbar"
+                                            statusbar_visible="draft,confirmed,assigned,sourced,quoted"/>
+                                    </header>
+                                    <sheet>
+                                        <div class="oe_title">
+                                            <h1>
+                                                <label string="Line N° "/>
+                                                <field name="name" class="oe_inline"/>
+                                            </h1>
+                                        </div>
+                                        <group>
+                                            <group>
+                                                <field name="product_id"/>
+                                            </group>
+                                            <group>
+                                                <label for="requested_qty"/>
+                                                <div>
+                                                    <field name="requested_qty" class="oe_inline"/>
+                                                    <field name="requested_uom_id" class="oe_inline"/>
+                                                </div>
+                                            </group>
+                                            <group colspan="4">
+                                                <field name="description"/>
+                                            </group>
+                                        </group>
+                                        <group>
+                                            <group>
+                                                <field name="date_delivery"/>
+                                                <field name="logistic_user_id"/>
+                                            </group>
+                                            <separator string="Accounting" colspan="4"/>
+                                            <group>
+                                                <field name="account_id"/>
+                                            </group>
+                                            <field name="company_currency_id" invisible="1"/>
+                                            <field name="currency_id" invisible="1"/>
+                                        </group>
+                                        <group>
+                                            <div>
+                                                <label for="note"/>
+                                            </div>
+                                            <field name="note" colspan="4"
+                                                nolabel="1"
+                                                class="oe_inline"
+                                                placeholder="Additional notes..."/>
+                                        </group>
+                                    </sheet>
+                                </form>
                             </field>
-                    </page>
-                    <page string="Transportation and Delivery">
-                        <group>
-                            <field name="incoterm_id"/>
-                            <field name="incoterm_address"/>
-                            <field name="shipping_note"/>
-                        </group>
-                    </page>
-                    <page string="Notes">
-                        <group>
-                            <div>
-                                <label for="note"/>
-                            </div>
-                            <field name="note" colspan="4"
-                                nolabel="1"
-                                class="oe_inline"
-                                placeholder="Additional notes..."/>
-                        </group>
-                    </page>
-                </notebook>
-            </sheet>
-            <div class="oe_chatter">
-                <field name="message_follower_ids" widget="mail_followers"/>
-                <field name="message_ids" widget="mail_thread"/>
-            </div>
-        </form>
+                        </page>
+                        <page string="Transportation and Delivery">
+                            <group>
+                                <group>
+                                    <field name="consignee_id"
+                                           attrs="{'required': [('cost_estimate_only', '=', False)]}"/>
+                                    <field name="consignee_shipping_id"
+                                           context="{'default_type':'delivery'}"
+                                           attrs="{'required': [('cost_estimate_only', '=', False)]}"/>
+                                </group>
+                                <group>
+                                    <field name="incoterm_id"/>
+                                    <field name="incoterm_address"/>
+                                </group>
+                                <group colspan="4">
+                                    <div>
+                                        <label for="shipping_note"/>
+                                    </div>
+                                    <field name="shipping_note"
+                                           colspan="4"
+                                           nolabel="1"
+                                           class="oe_inline"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Accounting and Currency">
+                            <group>
+                                <group>
+                                    <field name="pricelist_id" domain="[('type','=','sale')]"/>
+                                    <field name="currency_id"/>
+                                </group>
+                                <group>
+                                    <field name="country_id"/>
+                                    <field name="analytic_id"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Notes">
+                            <group>
+                                <div>
+                                    <label for="note"/>
+                                </div>
+                                <field name="note" colspan="4"
+                                    nolabel="1"
+                                    class="oe_inline"
+                                    placeholder="Additional notes..."/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
         </field>
     </record>
 
@@ -282,7 +352,7 @@
         <field name="name">logistic.requisition.line.form</field>
         <field name="model">logistic.requisition.line</field>
         <field name="arch" type="xml">
-            <form string="Logistics Requisition Line" create="false" version="7.0">
+            <form string="Logistics Requisition Line" create="false">
                 <header>
                     <button name="%(action_requisition_line_assign)d"
                         states="confirmed"
@@ -321,7 +391,7 @@
                     <div class="oe_title">
                         <h1>
                             <label string="Requisition"/>
-                            <field name="display_requisition_id" class="oe_inline" readonly="1"/> /
+                            <field name="requisition_id" class="oe_inline" readonly="1"/> /
                             <label string="Line N° "/>
                             <field name="name" class="oe_inline"/>
                         </h1>
@@ -332,23 +402,38 @@
                     </div>
                     <group>
                         <group>
+                            <field name="cost_estimate_only"/>
+                        </group>
+                        <group>
+                            <field name="requestor_id"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
                             <field name="product_id"/>
-                            <field name="description"/>
+                        </group>
+                        <group>
                             <label for="requested_qty"/>
                             <div>
                                 <field name="requested_qty" class="oe_inline"/>
                                 <field name="requested_uom_id" class="oe_inline"/>
                             </div>
-                            <field name="date_delivery"/>
-                            <field name="currency_id" invisible="1"/>
-                            <field name="company_currency_id" invisible="1"/>
                         </group>
+                        <group colspan="4">
+                            <field name="description"/>
+                        </group>
+                    </group>
+                    <group>
                         <group>
-                            <field name="cost_estimate_only"/>
+                            <field name="date_delivery"/>
                             <field name="logistic_user_id"/>
-                            <field name="account_id"/>
-                            <field name="currency_id"/>
                         </group>
+                        <separator string="Accounting" colspan="4"/>
+                        <group>
+                            <field name="account_id"/>
+                        </group>
+                        <field name="company_currency_id" invisible="1"/>
+                        <field name="currency_id" invisible="1"/>
                     </group>
                     <notebook>
                         <page string="Sourcing">
@@ -383,12 +468,34 @@
                                         options="{'currency_field': 'company_currency_id'}"/>
                                 </group>
                         </page>
+                        <page string="Transportation and Delivery">
+                            <group>
+                                <group>
+                                    <field name="consignee_id"/>
+                                    <field name="consignee_shipping_id"/>
+                                </group>
+                                <group>
+                                    <field name="incoterm_id"/>
+                                    <field name="incoterm_address"/>
+                                </group>
+                            </group>
+                            <group colspan="4">
+                                <div>
+                                    <label for="shipping_note"/>
+                                </div>
+                                <field name="shipping_note"
+                                    colspan="4"
+                                    nolabel="1"
+                                    class="oe_inline"/>
+                            </group>
+                        </page>
                     </notebook>
                     <group>
                         <div>
                             <label for="note"/>
                         </div>
-                        <field name="note" colspan="4"
+                        <field name="note"
+                            colspan="4"
                             nolabel="1"
                             class="oe_inline"
                             placeholder="Additional notes..."/>
@@ -499,7 +606,7 @@
         <field name="name">logistic.requisition.source.form</field>
         <field name="model">logistic.requisition.source</field>
         <field name="arch" type="xml">
-            <form string="Logistics Requisition Sourcing Lines" create="false" version="7.0">
+            <form string="Logistics Requisition Sourcing Lines" create="false">
                 <sheet>
                     <div class="oe_title">
                         <h1>
@@ -512,50 +619,54 @@
                             <field name="name" class="oe_inline"/>
                         </h1>
                     </div>
-                    <notebook>
-                        <page string="Sourcing">
-                            <group>
-                                <field name="state" invisible="1"/>
-                                <field name="procurement_method"/>
-                                <field name="proposed_product_id"/>
-                                <label for="proposed_qty"/>
-                                <div>
-                                    <field name="proposed_qty" class="oe_inline"/>
-                                    <field name="proposed_uom_id" class="oe_inline"/>
-                                </div>
-                                <field name="currency_id"/>
-                                <field name="unit_cost" widget="monetary"
-                                    options="{'currency_field': 'currency_id'}"/>
-                                <field name="total_cost" widget="monetary"
-                                    options="{'currency_field': 'currency_id'}"/>
-                                <field name="price_is"/>
-                            </group>
-                            <group>
-                                <group string="Purchase Requisition"
-                                    attrs="{'invisible': [('procurement_method', 'not in', ['procurement','other'])]}"
-                                    colspan="4">
-                                    <label for="po_requisition_id"/>
-                                    <div>
-                                        <field name="po_requisition_id" class="oe_inline"/>
-                                    </div>
-                                    <field name="selected_bid_id"/>
-                                </group>
-                                <group string="Warehouse Dispatch"
-                                    colspan="4"
-                                    attrs="{'invisible': [('procurement_method', '!=', 'wh_dispatch')]}">
-                                    <field name="dispatch_location_id"
-                                        attrs="{'required': [('procurement_method', '=', 'wh_dispatch')]}"
-                                        domain="[('usage', '!=', 'view')]"/>
-                                </group>
-                                <group string="Transport Plan"
-                                    colspan="4">
-                                    <field name="consignee_shipping_id" invisible="1"/>
-                                    <field name="supplier_partner_id" invisible="1"/>
-                                    <field name="location_partner_id" invisible="1"/>
-                                </group>
-                            </group>
-                        </page>
-                    </notebook>
+                    <field name="state" invisible="1"/>
+                    <field name="consignee_shipping_id" invisible="1"/>
+                    <field name="supplier_partner_id" invisible="1"/>
+                    <field name="location_partner_id" invisible="1"/>
+                    <group string="Sourcing">
+                        <group>
+                            <field name="procurement_method"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="proposed_product_id"/>
+                            <label for="proposed_qty"/>
+                            <div>
+                                <field name="proposed_qty" class="oe_inline"/>
+                                <field name="proposed_uom_id" class="oe_inline"/>
+                            </div>
+                        </group>
+                        <group>
+                            <field name="currency_id"/>
+                            <field name="unit_cost" widget="monetary"
+                                options="{'currency_field': 'currency_id'}"/>
+                            <field name="total_cost" widget="monetary"
+                                options="{'currency_field': 'currency_id'}"/>
+                            <field name="price_is"/>
+                        </group>
+                    </group>
+                    <group colspan="4">
+                        <group string="Document Reference"
+                            attrs="{'invisible': [('procurement_method', '!=', 'other')]}">
+                            <field name="origin"
+                                attrs="{'required': [('procurement_method', '=', 'other')]}"/>
+                        </group>
+                        <group string="Purchase Requisition"
+                            attrs="{'invisible': [('procurement_method', 'not in', ['procurement','other'])]}">
+                            <label for="po_requisition_id"/>
+                            <div>
+                                <field name="po_requisition_id" class="oe_inline"/>
+                            </div>
+                            <field name="selected_bid_id"/>
+                        </group>
+                        <group string="Warehouse Dispatch"
+                            attrs="{'invisible': [('procurement_method', '!=', 'wh_dispatch')]}">
+                            <field name="dispatch_location_id"
+                                attrs="{'required': [('procurement_method', '=', 'wh_dispatch')]}"
+                                domain="[('usage', '!=', 'view')]"/>
+                        </group>
+                    </group>
                 </sheet>
             </form>
         </field>

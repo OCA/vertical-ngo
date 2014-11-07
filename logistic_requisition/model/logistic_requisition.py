@@ -333,13 +333,6 @@ class LogisticsRequisitionLine(models.Model):
         readonly=True,
         required=True,
         ondelete='cascade')
-    # field for displaying requisition both on
-    # line form view and on requisition on inner line form view
-    display_requisition_id = fields.Many2one(
-        comodel_name='logistic.requisition',
-        string='Requisition',
-        compute='_get_display_requisition_id',
-        readonly=True)
     source_ids = fields.One2many(
         'logistic.requisition.source',
         'requisition_line_id',
@@ -430,6 +423,37 @@ class LogisticsRequisitionLine(models.Model):
         string='Cost Estimate',
         readonly=True)
 
+    # related fields to requisition_id
+    requestor_id = fields.Many2one(
+        related='requisition_id.partner_id',
+        co_model='res.partner',
+        string='Requestor')
+    consignee_id = fields.Many2one(
+        related='requisition_id.consignee_id',
+        co_model='res.partner',
+        string='Consignee')
+    consignee_shipping_id = fields.Many2one(
+        related='requisition_id.consignee_shipping_id',
+        co_model='res.partner',
+        string='Delivery Address')
+    incoterm_id = fields.Many2one(
+        related='requisition_id.incoterm_id',
+        co_model='stock.incoterms',
+        string='Incoterm',
+        help="International Commercial Terms are a series of "
+             "predefined commercial terms used in international "
+             "transactions.")
+    incoterm_address = fields.Char(
+        related='requisition_id.incoterm_address',
+        string='Incoterm Place',
+        help="Incoterm Place of Delivery. "
+             "International Commercial Terms are a series of "
+             "predefined commercial terms used in "
+             "international transactions.")
+
+    shipping_note = fields.Text(
+        related='requisition_id.shipping_note',
+        string='Delivery / Shipping Remarks')
     _sql_constraints = [
         ('name_uniq',
          'unique(name)',
@@ -748,7 +772,8 @@ class LogisticsRequisitionSource(models.Model):
     proposed_product_id = fields.Many2one(
         'product.product',
         string='Proposed Product',
-        states=SOURCED_STATES)
+        states=SOURCED_STATES,
+        required=True)
     proposed_uom_id = fields.Many2one(
         'product.uom',
         string='Proposed UoM',
@@ -759,7 +784,7 @@ class LogisticsRequisitionSource(models.Model):
         digits_compute=dp.get_precision('Product UoM'),
         default=1)
     procurement_method = fields.Selection(
-        [('procurement', 'Procurement'),
+        [('procurement', 'Tender'),
          ('wh_dispatch', 'Warehouse Dispatch'),
          ('fw_agreement', 'Framework Agreement'),
          ('other', 'Other'),
@@ -791,8 +816,7 @@ class LogisticsRequisitionSource(models.Model):
         string='Price is',
         required=True,
         help="When the price is an estimation, the final price may change."
-             " I.e. it is not based on a request for quotation.",
-        default='fixed')
+             " I.e. it is not based on a request for quotation.")
     #
     purchase_requisition_line_id = fields.Many2one(
         'purchase.requisition.line',
@@ -848,6 +872,10 @@ class LogisticsRequisitionSource(models.Model):
         string='Default source',
         readonly=True)
 
+    # Procument Method = Other field
+    origin = fields.Char("Origin")
+
+
     _constraints = [
         (lambda self, cr, uid, ids: self._check_purchase_requisition_unique(
             cr, uid, ids),
@@ -869,7 +897,7 @@ class LogisticsRequisitionSource(models.Model):
     def _is_sourced_other(self, source):
         """Predicate function to test if line on other
         method are sourced"""
-        return self._is_sourced_procurement(source)
+        return True
 
     @api.model
     def _is_sourced_wh_dispatch(self, source):
