@@ -65,6 +65,9 @@
       <field name="model">sale.order</field>
       <field name="inherit_id" ref="sale_stock.view_order_form_inherit"/>
       <field name="arch" type="xml">
+        <xpath expr="//button[@name='action_button_confirm' and @states='draft']" position="attributes">
+          <attribute name="attrs">{'invisible': ['|', ('cost_estimate_only', '=', True)]}</attribute>
+        </xpath>
         <xpath expr="//label[@string='Quotation ']" position="attributes">
           <attribute name="string">Cost Estimate </attribute>
         </xpath>
