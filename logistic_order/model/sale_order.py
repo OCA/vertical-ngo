@@ -42,8 +42,6 @@ class SaleOrderLine(models.Model):
 
         :param purchase_order_line: record of `purchase.order.line` Model
         :type purchase_order_line: :py:class:`openerp.models.Model`
-        purchase_order = purchase_order_line.order_id
-
         :return: PO location usage
         :rtype: str
 
