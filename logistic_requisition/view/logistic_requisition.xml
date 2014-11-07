@@ -84,14 +84,12 @@
                                 context="{'default_date_delivery':date_delivery, 'default_logistic_user_id':user_id}">
                                 <tree string="Requisition Lines">
                                     <field name="name"/>
-                                    <field name="product_id"/>
                                     <field name="description"/>
                                     <field name="requested_qty" string="Quantity"/>
-                                    <field name="requested_uom_id"/>
+                                    <field name="requested_uom_id" string="UoM"/>
                                     <field name="date_delivery"/>
-                                    <field name="account_id"/>
-                                    <field name="state"/>
                                     <field name="logistic_user_id" string="Assigned To"/>
+                                    <field name="state"/>
                                 </tree>
                             </field>
                         </page>
