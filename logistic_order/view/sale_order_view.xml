@@ -28,6 +28,10 @@
         <filter name="my_sale_orders_filter" position="attributes">
           <attribute name="string">My Logistics Orders</attribute>
         </filter>
+
+        <filter name="my_sale_orders_filter">
+          <filter string="Cost Estimate Only" domain="[('cost_estimate_only','=', True)]" name="cost_estimate_only_filter"/>
+        </filter>
       </field>
     </record>
 
