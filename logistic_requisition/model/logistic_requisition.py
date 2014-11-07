@@ -164,7 +164,8 @@ class LogisticsRequisition(models.Model):
         'logistic.requisition.cancel.reason',
         string='Reason for Cancellation',
         ondelete='restrict',
-        readonly=True)
+        readonly=True,
+        copy=False)
 
     _sql_constraints = [
         ('name_uniq',
@@ -416,7 +417,8 @@ class LogisticsRequisitionLine(models.Model):
     cost_estimate_id = fields.Many2one(
         'sale.order',
         string='Cost Estimate',
-        readonly=True)
+        readonly=True,
+        copy=False)
 
     _sql_constraints = [
         ('name_uniq',
