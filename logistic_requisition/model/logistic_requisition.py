@@ -863,7 +863,7 @@ class LogisticsRequisitionSource(models.Model):
     def _is_sourced_other(self, source):
         """Predicate function to test if line on other
         method are sourced"""
-        return self._is_sourced_procurement(source)
+        return True
 
     @api.model
     def _is_sourced_wh_dispatch(self, source):
