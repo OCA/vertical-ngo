@@ -146,3 +146,14 @@
     source2_id = ref("logistic_requisition_source_cost_estimate_02")
     check_line(self, cr, uid, source1_id)
     check_line(self, cr, uid, source2_id)
+-
+  When I duplicate the LR
+-
+  !python {model: logistic.requisition, id: logistic_requisition_cost_estimate_01}: |
+    copy = self.copy()
+    assert copy.state == 'draft'
+    assert len(copy.line_ids) == len(self.line_ids)
+    my_line_ids = set((line.id for line in self.line_ids))
+    for line in copy.line_ids:
+      assert line.id not in my_line_ids
+      assert not line.source_ids

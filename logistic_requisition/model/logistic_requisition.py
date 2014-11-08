@@ -56,7 +56,8 @@ class LogisticsRequisition(models.Model):
         'Reference',
         required=True,
         readonly=True,
-        default='/')
+        default='/',
+        copy=False)
     # Not intended to match OpenERP origin field convention.
     # Source comes from paper
     source_document = fields.Char(
@@ -129,7 +130,8 @@ class LogisticsRequisition(models.Model):
         'logistic.requisition.line',
         'requisition_id',
         string='Products to Purchase',
-        states={'done': [('readonly', True)]})
+        states={'done': [('readonly', True)]},
+        copy=True)
     state = fields.Selection(
         [('draft', 'Draft'),
          ('confirmed', 'Confirmed'),
@@ -139,7 +141,8 @@ class LogisticsRequisition(models.Model):
         string='State',
         readonly=True,
         required=True,
-        default='draft')
+        default='draft',
+        copy=False)
     sourced = fields.Float(
         compute='_get_sourced',
         string='Sourced')
@@ -161,7 +164,8 @@ class LogisticsRequisition(models.Model):
         'logistic.requisition.cancel.reason',
         string='Reason for Cancellation',
         ondelete='restrict',
-        readonly=True)
+        readonly=True,
+        copy=False)
 
     _sql_constraints = [
         ('name_uniq',
@@ -228,16 +232,6 @@ class LogisticsRequisition(models.Model):
             seq_obj = self.env['ir.sequence']
             vals['name'] = seq_obj.get('logistic.requisition') or '/'
         return super(LogisticsRequisition, self).create(vals)
-
-    def copy(self, cr, uid, id, default=None, context=None):
-        if not default:
-            default = {}
-        default.update({
-            'state': 'draft',
-            'name': '/',
-        })
-        return super(LogisticsRequisition, self
-                     ).copy(cr, uid, id, default=default, context=context)
 
     @api.onchange('partner_id')
     def onchange_partner_id(self):
@@ -326,7 +320,8 @@ class LogisticsRequisitionLine(models.Model):
     name = fields.Char(
         u'Line N°',
         readonly=True,
-        default='/')
+        default='/',
+        copy=False)
     requisition_id = fields.Many2one(
         'logistic.requisition',
         'Requisition',
@@ -407,7 +402,8 @@ class LogisticsRequisitionLine(models.Model):
              "Sourced: The line has been sourced from procurement or warehouse"
              "\nQuoted: Quotation made for the line\n"
              "Cancelled: The requisition has been cancelled",
-        default='draft'
+        default='draft',
+        copy=False
     )
     currency_id = fields.Many2one(
         related='requisition_id.currency_id',
@@ -428,7 +424,8 @@ class LogisticsRequisitionLine(models.Model):
     cost_estimate_id = fields.Many2one(
         'sale.order',
         string='Cost Estimate',
-        readonly=True)
+        readonly=True,
+        copy=False)
 
     _sql_constraints = [
         ('name_uniq',
@@ -571,19 +568,6 @@ class LogisticsRequisitionLine(models.Model):
             'domain': [('id', '=', self.product_id.id)],
             'type': 'ir.actions.act_window',
         }
-
-    def copy_data(self, cr, uid, id, default=None, context=None):
-        if default is None:
-            default = {}
-        std_default = {
-            'logistic_user_id': False,
-            'name': False,
-            'cost_estimate_id': False,
-            'source_ids': False,
-        }
-        std_default.update(default)
-        return super(LogisticsRequisitionLine, self).copy_data(
-            cr, uid, id, default=std_default, context=context)
 
     @api.model
     def _message_get_auto_subscribe_fields(self, updated_fields,
@@ -1076,15 +1060,6 @@ class LogisticsRequisitionSource(models.Model):
     def _get_total_cost(self):
         for line in self:
             line.total_cost = line.unit_cost * line.proposed_qty
-
-    def copy_data(self, cr, uid, id, default=None, context=None):
-        if default is None:
-            default = {}
-        std_default = {
-        }
-        std_default.update(default)
-        return super(LogisticsRequisitionSource, self).copy_data(
-            cr, uid, id, default=std_default, context=context)
 
     @api.onchange('dispatch_location_id')
     def onchange_dispatch_location_id(self):
