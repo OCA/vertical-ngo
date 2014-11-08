@@ -58,6 +58,7 @@ class test_sale_order_from_lr_confirm(common.TransactionCase):
         self.vals = {
             'partner_id': self.partner_4.id,
             'consignee_id': self.partner_3.id,
+            'date': time.strftime(D_FMT),
             'date_delivery': time.strftime(D_FMT),
             'user_id': self.user_demo.id,
             'currency_id': self.lr_currency_usd.id,

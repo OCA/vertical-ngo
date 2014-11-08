@@ -171,6 +171,9 @@ class LogisticsRequisition(models.Model):
         ('name_uniq',
          'unique(name)',
          'Logistics Requisition Reference must be unique!'),
+        ('check_date_delivery',
+         'check(date::date <= date_delivery)',
+         'Desired delivery date must be on or after Requisition date.'),
     ]
 
     @api.multi

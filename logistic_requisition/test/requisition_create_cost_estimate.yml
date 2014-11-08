@@ -4,6 +4,7 @@
   !record {model: logistic.requisition, id: logistic_requisition_cost_estimate_01}:
     partner_id: base.res_partner_4
     consignee_id: base.res_partner_3
+    date: !eval "time.strftime('%Y-%m-%d')"
     date_delivery: !eval "time.strftime('%Y-%m-%d')"
     user_id: base.user_demo
     incoterm_id: stock.incoterm_FCA
