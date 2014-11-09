@@ -50,6 +50,7 @@ Contributors
 
 """,
  "depends": ["sale_stock",
+             "stock_dropshipping",
              "sale_validity",
              "delivery",
              "sale_quotation_sourcing",
