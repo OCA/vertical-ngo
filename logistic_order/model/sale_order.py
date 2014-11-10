@@ -33,6 +33,10 @@ class SaleOrder(models.Model):
     cost_estimate_only = fields.Boolean(
         'Cost Estimate Only',
         default=False)
+    currency_id = fields.Many2one(
+        related='pricelist_id.currency_id',
+        co_model='res.currency',
+        string='Currency')
 
     @api.multi
     def action_quotation_send(self):
