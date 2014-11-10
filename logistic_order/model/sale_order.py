@@ -41,8 +41,13 @@ class SaleOrder(models.Model):
 
     @api.multi
     def action_quotation_send(self):
-        """ Add the action we want to perform in case the user
-        complete finally sends an email with designed wizard.
+        """ In case of Cost Estimate only, register an option to set the
+        Cost Estimate immediatly to `done` when the users sends his mail.
+
+        Nevertheless, if he launches the wizard but cancel it, we won't
+        trigger the transition to `done`
+
+        We pass this in order to avoid to browse in `mail.compose.message`
 
         """
         res = super(SaleOrder, self).action_quotation_send()
@@ -56,6 +61,10 @@ class mail_compose_message(models.Model):
 
     @api.multi
     def send_mail(self):
+        """ When sending mail for a Cost Estimate Only
+        Send a signal to set the Cost Estimate to `done`
+
+        """
         context = self.env.context
         if (context.get('default_model') == 'sale.order'
                 and 'default_res_id' in context
