@@ -88,7 +88,6 @@ class logistic_requisition_source(orm.Model):
         data['fiscal_position'] = position
         data['origin'] = requisition.name
         data['date_order'] = requisition.date
-        data['name'] = requisition.name
         data['consignee_id'] = requisition.consignee_id.id
         data['incoterm_id'] = requisition.incoterm_id.id
         data['incoterm_address'] = requisition.incoterm_address
