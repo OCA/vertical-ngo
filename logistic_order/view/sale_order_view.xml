@@ -83,19 +83,66 @@
             <field name="cost_estimate_only"/>
           </group>
         </xpath>
-        <field name="incoterm" position="after">
-          <field name="incoterm_address"/>
-        </field>
 
         <button name="action_button_confirm" position="attributes">
           <attribute name="string">Confirm Cost Estimate</attribute>
         </button>
 
+        <field name="origin" position="replace"/>
         <field name="user_id" position="replace"/>
 
         <field name="client_order_ref" position="after">
+          <field name="origin"/>
           <field name="user_id"/>
         </field>
+
+        <field name="pricelist_id" position="replace"/>
+        <field name="project_id" position="replace"/>
+        <field name="order_policy" position="replace"/>
+        <field name="carrier_id" position="replace"/>
+        <field name="incoterm" position="replace"/>
+        <field name="payment_term" position="replace"/>
+        <field name="fiscal_position" position="replace"/>
+        <field name="company_id" position="replace"/>
+        <field name="note" position="replace"/>
+
+        <xpath expr="//notebook/page[@string='Order Lines']" position="after">
+          <page string="Transportation and Delivery">
+            <group>
+              <group>
+                <field name="incoterm"/>
+                <field name="incoterm_address"/>
+              </group>
+              <group>
+                <field name="delivery_time"/>
+                <field name="carrier_id"/>
+              </group>
+            </group>
+          </page>
+          <page string="Accounting and Currency">
+            <group>
+              <group>
+                <field name="pricelist_id"/>
+                <field name="currency_id"/>
+                <field name="payment_term"/>
+                <field name="fiscal_position"/>
+                <field name="company_id"/>
+              </group>
+              <group>
+                <field name="project_id"/>
+                <field name="order_policy"/>
+              </group>
+            </group>
+          </page>
+          <page string="Terms and Condition">
+            <group>
+              <field name="note" colspan="4"
+                     nolabel="1"
+                     class="oe_inline"
+                     placeholder="Terms and conditions..."/>
+            </group>
+          </page>
+        </xpath>
       </field>
     </record>
 
