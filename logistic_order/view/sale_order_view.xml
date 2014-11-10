@@ -90,6 +90,12 @@
         <button name="action_button_confirm" position="attributes">
           <attribute name="string">Confirm Cost Estimate</attribute>
         </button>
+
+        <field name="user_id" position="replace"/>
+
+        <field name="client_order_ref" position="after">
+          <field name="user_id"/>
+        </field>
       </field>
     </record>
 
