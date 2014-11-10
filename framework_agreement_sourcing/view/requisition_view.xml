@@ -40,29 +40,5 @@
       </field>
     </record>
 
-    <record id="addd_agreement_source_line_onchange" model="ir.ui.view">
-      <field name="name">ad agreement source line onchange</field>
-      <field name="model">logistic.requisition.source</field>
-      <field name="inherit_id" ref="logistic_requisition.view_logistic_requisition_source_form"/>
-      <field name="arch" type="xml">
-        <data>
-          <field name="procurement_method"
-                 position="attributes">
-            <attribute name="on_change">onchange_sourcing_method(procurement_method, requisition_line_id, proposed_product_id, proposed_qty)</attribute>
-          </field>
-
-          <field name="proposed_qty"
-                 position="attributes">
-            <attribute name="on_change">onchange_quantity(procurement_method, requisition_line_id, proposed_qty, proposed_product_id)</attribute>
-          </field>
-          <field name="proposed_product_id"
-                 position="attributes">
-            <attribute name="on_change">onchange_product_id(procurement_method, requisition_line_id, proposed_product_id, proposed_qty)</attribute>
-          </field>
-
-        </data>
-      </field>
-    </record>
-
   </data>
 </openerp>
