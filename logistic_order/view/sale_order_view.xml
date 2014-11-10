@@ -64,6 +64,7 @@
     </record>
     <menuitem action="action_orders" id="menu_logistic_order" parent="menu_order_base" sequence="5" />
 
+
     <record id="view_order_form" model="ir.ui.view">
       <field name="name">sale.order.form</field>
       <field name="model">sale.order</field>
@@ -93,10 +94,11 @@
 
         <field name="client_order_ref" position="after">
           <field name="origin"/>
-          <field name="user_id"/>
+          <field name="user_id" context="{'default_groups_ref': ['base.group_user', 'base.group_partner_manager', 'account.group_account_invoice', 'base.group_sale_salesman_all_leads']}"/>
         </field>
 
         <field name="pricelist_id" position="replace"/>
+        <field name="currency_id" position="replace"/>
         <field name="project_id" position="replace"/>
         <field name="order_policy" position="replace"/>
         <field name="carrier_id" position="replace"/>
@@ -122,14 +124,15 @@
           <page string="Accounting and Currency">
             <group>
               <group>
-                <field name="pricelist_id"/>
+                <field domain="[('type','=','sale')]" name="pricelist_id" groups="product.group_sale_pricelist" on_change="onchange_pricelist_id(pricelist_id,order_line)"/>
                 <field name="currency_id"/>
                 <field name="payment_term"/>
-                <field name="fiscal_position"/>
-                <field name="company_id"/>
+                <field name="fiscal_position" options="{'no_create': True}"
+                  on_change="onchange_fiscal_position(fiscal_position, order_line, context)"/>
+                <field name="company_id" widget="selection" groups="base.group_multi_company"/>
               </group>
               <group>
-                <field name="project_id"/>
+                <field name="project_id" context="{'partner_id':partner_invoice_id, 'manager_id': user_id, 'default_pricelist_id':pricelist_id, 'default_name':name, 'default_type': 'contract'}" groups="sale.group_analytic_accounting" domain="[('type','in',['view','normal','contract'])]"/>
                 <field name="order_policy"/>
               </group>
             </group>
