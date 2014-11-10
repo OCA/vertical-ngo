@@ -523,7 +523,6 @@
                                     <field name="proposed_qty" class="oe_inline"/>
                                     <field name="proposed_uom_id" class="oe_inline"/>
                                 </div>
-                                <field name="currency_id"/>
                                 <field name="unit_cost" widget="monetary"
                                     options="{'currency_field': 'currency_id'}"/>
                                 <field name="total_cost" widget="monetary"
