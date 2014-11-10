@@ -528,13 +528,20 @@ class LogisticsRequisitionLine(models.Model):
                 total_cost += source_line.total_cost
             line.amount_total = total_cost
 
-            date = line.requisition_id.date
-            from_curr = line.requisition_id.currency_id.with_context(date=date)
-            to_curr = line.requisition_id.company_id.currency_id
-
-            total_cost_company += from_curr.compute(total_cost, to_curr,
-                                                    round=False)
-            line.amount_total_company = total_cost_company
+            requisition = line.requisition_id
+            # if we do not know the requisition, then this method is probably
+            # called like an on_change, before saving. In that case, we return
+            # instead of crashing. The result of that is that the
+            # amount_total_company field will be updated only when we save.
+            # It might be that that can be improved by improving the view. This
+            # check will pose no problem in that case.
+            if requisition:
+                date = requisition.date
+                from_curr = requisition.currency_id.with_context(date=date)
+                to_curr = requisition.company_id.currency_id
+                total_cost_company += from_curr.compute(total_cost, to_curr,
+                                                        round=False)
+                line.amount_total_company = total_cost_company
 
     @api.multi
     def view_stock_by_location(self):
