@@ -25,6 +25,11 @@ msgstr ""
 msgid "Consignee address :"
 msgstr ""
 
+#. module: sale
+#: field:sale.order,project_id:0
+msgid "Contract / Analytic"
+msgstr ""
+
 #. module: logistic_order
 #: view:sale.order:logistic_order.view_order_form
 #: view:sale.order:logistic_order.view_quotation_tree
