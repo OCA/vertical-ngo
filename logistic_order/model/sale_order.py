@@ -37,6 +37,7 @@ class SaleOrder(models.Model):
         related='pricelist_id.currency_id',
         co_model='res.currency',
         string='Currency')
+    remark = fields.Text('Remarks / Description')
 
     @api.multi
     def action_quotation_send(self):
