@@ -87,8 +87,6 @@
                   </div>
                   <field name="amount_total" nolabel="1" class="oe_subtotal_footer_separator" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                 </group>
-                <div class="oe_clear"/>
-                <field name="notes" class="oe_inline" placeholder="Terms and conditions..."/>
               </page>
               <page string="Transportation and Delivery">
                 <group>
@@ -130,6 +128,10 @@
                     <field name="invoiced"/>
                   </group>
                 </group>
+              </page>
+
+              <page string="Terms and Conditions">
+                <field name="notes" class="oe_inline" placeholder="Terms and conditions..."/>
               </page>
 
               <page string="Bid Information">
