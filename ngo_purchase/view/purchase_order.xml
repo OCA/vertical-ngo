@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+
+    <record id="purchase_order_form" model="ir.ui.view">
+      <field name="name">ngo.purchase.order.form</field>
+      <field name="model">purchase.order</field>
+      <field name="arch" type="xml">
+        <form string="Purchase Order">
+          <header>
+            <button name="bid_received" states="sent" string="Bid Received" class="oe_highlight"/>
+            <button name="wkf_send_rfq" states="draft" string="Send RFQ by Email" type="object" context="{'send_rfq':True}" class="oe_highlight"/>
+            <button name="wkf_send_rfq" states="sent" string="Re-Send RFQ by Email" type="object" context="{'send_rfq':True}"/>
+            <button name="print_quotation" string="Print RFQ" type="object" states="draft" class="oe_highlight" groups="base.group_user"/>
+            <button name="print_quotation" string="Re-Print RFQ" type="object" states="sent" groups="base.group_user"/>
+            <button name="purchase_confirm" states="draft" string="Confirm Order" id="draft_confirm"/>
+            <button name="purchase_confirm" states="bid" string="Confirm Order" class="oe_highlight" id="bid_confirm"/>
+            <button name="picking_ok" states="except_picking" string="Manually Corrected"/>
+            <button name="invoice_ok" states="except_invoice" string="Manually Corrected"/>
+            <button name="purchase_approve" states="confirmed" string="Approve Order" class="oe_highlight" groups="purchase.group_purchase_manager"/>
+            <button name="wkf_send_rfq" states="approved" string="Send PO by Email" type="object" context="{'send_rfq':False}"/>
+            <button name="view_picking" string="Receive Products" type="object" attrs="{'invisible': ['|', ('shipped','=',True), ('state','!=', 'approved')]}" class="oe_highlight"/>
+            <button name="view_invoice" string="Receive Invoice" type="object" attrs="{'invisible': ['|', ('invoice_method','in', ['picking', 'manual']), '|', ('state','!=', 'approved'), ('invoiced','=',True) ]}" class="oe_highlight"/>
+            <button name="action_cancel_draft" states="cancel,sent,confirmed" string="Set to Draft" type="object" />
+            <button name="action_cancel" states="draft,confirmed,sent,bid,approved,except_picking,except_invoice" string="Cancel" type="object" />
+            <field name="state" widget="statusbar" statusbar_visible="draft,sent,bid,approved,done" statusbar_colors='{"except_picking":"red","except_invoice":"red","confirmed":"blue"}' readonly="1"/>
+          </header>
+          <sheet>
+            <div class="oe_title">
+              <h1>
+                <!-- purchase-workflow/purchase_rfq_bid_workflow -->
+                <field name="type" nolabel="1" class="oe_inline"/>
+                <label string=" "/>
+                <!-- end -->
+                <field name="name" class="oe_inline" readonly="1"/>
+              </h1>
+            </div>
+            <field name="related_location_id" invisible="1"/>
+            <group>
+              <group>
+                <field name="partner_id" on_change="onchange_partner_id(partner_id, context)" context="{'search_default_supplier':1, 'default_supplier':1, 'default_customer':0}" domain="[('supplier','=',True)]"/>
+                <field name="for_agreement"/><!-- vertical-ngo/framework_agreement_requisition -->
+                <field name="agreement_expected_date"
+                  attrs="{'invisible': [('for_agreement', '=', False)]}" />
+                <field name="agreement_promised_date"
+                  attrs="{'invisible': [('for_agreement', '=', False)]}" />
+                <field name="framework_agreement_id"
+                  domain="[('draft', '=', False)]"/><!-- vertical-ngo/framework_agreement -->
+              </group>
+              <group>
+                <field name="date_order"/>
+                <field name="partner_ref"/>
+                <field name="origin" attrs="{'invisible': [('origin','=',False)]}"/>
+              </group>
+
+              <group>
+                <field name="journal_id" invisible='1'/>
+              </group>
+              <group>
+                <field name="company_id" groups="base.group_multi_company" widget="selection"/>
+              </group>
+            </group>
+            <notebook>
+              <page string="Products">
+                <field name="order_line">
+                  <tree string="Purchase Order Lines" editable="bottom">
+                    <field name="product_id" on_change="onchange_product_id(parent.pricelist_id,product_id,0,False,parent.partner_id, parent.date_order,parent.fiscal_position,date_planned,name,False,parent.state,context)"/>
+                    <field name="name"/>
+                    <field name="date_planned"/>
+                    <field name="company_id" groups="base.group_multi_company" widget="selection"/>
+                    <field name="account_analytic_id" groups="purchase.group_analytic_accounting" domain="[('type','not in',('view','template'))]"/>
+                    <field name="product_qty" on_change="onchange_product_id(parent.pricelist_id,product_id,product_qty,product_uom,parent.partner_id,parent.date_order,parent.fiscal_position,date_planned,name,price_unit,parent.state,context)"/>
+                    <field name="product_uom" groups="product.group_uom" on_change="onchange_product_uom(parent.pricelist_id,product_id,product_qty,product_uom,parent.partner_id, parent.date_order,parent.fiscal_position,date_planned,name,price_unit,parent.state,context)"/>
+                    <field name="price_unit"/>
+                    <field name="taxes_id" widget="many2many_tags" domain="[('parent_id','=',False),('type_tax_use','!=','sale')]"/>
+                    <field name="price_subtotal"/>
+                    <field name="state" invisible="1"/>
+                  </tree>
+                </field>
+                <group class="oe_subtotal_footer oe_right">
+                  <field name="amount_untaxed" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                  <field name="amount_tax" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                  <div class="oe_subtotal_footer_separator oe_inline">
+                    <label for="amount_total"/>
+                    <button name="button_dummy"
+                      states="draft" string="(update)" type="object" class="oe_edit_only oe_link"/>
+                  </div>
+                  <field name="amount_total" nolabel="1" class="oe_subtotal_footer_separator" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                </group>
+                <div class="oe_clear"/>
+                <field name="notes" class="oe_inline" placeholder="Terms and conditions..."/>
+              </page>
+              <page string="Transportation and Delivery">
+                <group>
+                  <group>
+                    <field name="location_id" groups="stock.group_locations"/>
+                    <field name="picking_type_id" on_change="onchange_picking_type_id(picking_type_id, context)" domain="[('code','=','incoming')]" widget="selection" context="{'special_shortened_wh_name': True}" groups="stock.group_locations"/>
+                    <field name="origin_address_id"/>
+                    <field name="dest_address_id" on_change="onchange_dest_address_id(dest_address_id, context)"
+                      attrs="{'invisible':['|', ('picking_type_id','=',False), ('related_location_id','!=', False)], 
+                      'required': [('picking_type_id','!=',False), ('related_location_id','=', False)]}" 
+                      groups="stock.group_locations"/>
+                    <field name="incoterm_id"/>
+                    <!-- purchase-workflow/purchase_rfq_bid_workflow -->
+                    <field name="incoterm_address"/>
+                  </group>
+                  <group>
+                    <field name="minimum_planned_date"/>
+                    <field name="shipped" groups="base.group_no_one"/>
+                  </group>
+                </group>
+                <!-- purchase-workflow/purchase_transport_document -->
+                <separator string="Transport Documents"/>
+                <field name="transport_document_ids"/>
+                <!-- purchase-workflow/purchase_requisition_bid_selection -->
+                <separator string="Delivery Remarks"/>
+                <field name="delivery_remark"/>
+              </page>
+
+              <page string="Accounting and Currency">
+                <group>
+                  <group>
+                    <field domain="[('type','=','purchase')]" name="pricelist_id" groups="product.group_purchase_pricelist" on_change="onchange_pricelist(pricelist_id, context)"/>
+                    <field name="currency_id" groups="base.group_multi_currency"/>
+                  </group>
+                  <group>
+                    <field name="payment_term_id" options="{'no_open': True, 'no_create': True}"/>
+                    <field name="fiscal_position" attrs="{'readonly': [('invoiced','=', True)]}" />
+                    <field name="invoice_method"/>
+                    <field name="invoiced"/>
+                  </group>
+                </group>
+              </page>
+
+              <page string="Bid Information">
+                <group>
+                  <group>
+                    <field name="requisition_id"/>
+                    <field name="req_bid_tendering_mode"/><!-- added related field -->
+                    <field name="tender_bid_receipt_mode"/><!-- purchase-workflow/purchase_requisition_bid_selection -->
+                    <field name="bid_partial"/>
+                  </group>
+                  <group>
+                    <field name="req_date_end"/><!-- added related field -->
+                    <field name="bid_date"/>
+                    <field name="bid_validity"/>
+                  </group>
+                </group>
+              </page>
+
+            </notebook>
+            <div class="oe_clear"/>
+            <group string="Validation">
+              <div colspan="4">
+                <label for="validator"/>
+                <field name="validator"
+                  class="oe_inline"/>
+                <label string=" validated on "
+                  attrs="{'invisible': [('validator', '=', False)]}" />
+                <field name="date_approve"
+                  attrs="{'invisible': [('validator', '=', False)]}"
+                  class="oe_inline"/>
+              </div>
+            </group>
+          </sheet>
+          <div class="oe_chatter">
+            <field name="message_follower_ids" widget="mail_followers"/>
+            <field name="message_ids" widget="mail_thread"/>
+          </div>
+        </form>
+      </field>
+    </record>
+
+    <!-- Purchase inheritances -->
+    <!-- XXX -->
+    <!-- purchase-workflow/framework_agreement -->
+    <record id="add_onchange_on_purchase_order_form" model="ir.ui.view">
+      <field name="name">add onchange on purchase form</field>
+      <field name="model">purchase.order</field>
+      <field name="inherit_id" ref="ngo_purchase.purchase_order_form" />
+      <field name="arch" type="xml">
+        <field name="pricelist_id" position="attributes">
+          <attribute name="context_agreement">{'order_line_ids': order_line}</attribute>
+        </field>
+        <field name="partner_id" position="attributes">
+          <attribute name="context_agreement">{'agreement_id': framework_agreement_id}</attribute>
+        </field>
+        <field name="product_id"
+               position="attributes">
+          <attribute name="context_agreement">{'agreement_id': parent.framework_agreement_id}</attribute>
+        </field>
+        <field name="product_qty"
+               position="attributes">
+          <attribute name="context_agreement">{'agreement_id': parent.framework_agreement_id}</attribute>
+        </field>
+
+        <field name="price_unit" position="attributes">
+          <attribute name="on_change">onchange_price(price_unit, parent.framework_agreement_id, product_qty, parent.pricelist_id, product_id)</attribute>
+        </field>
+      </field>
+
+    </record>
+
+    <!-- purchase-workflow/purchase_rfq_bid_workflow -->
+    <record model="ir.ui.view" id="purchase_rfq_bid_workflow_view_purchase_order_form">
+      <field name="name">purchase.order.form.inherit</field>
+      <field name="model">purchase.order</field>
+      <field name="inherit_id" ref="ngo_purchase.purchase_order_form"/>
+      <field name="arch" type="xml">
+
+        <xpath expr="//sheet/div[@class='oe_title']/h1" position="after">
+          <h2 attrs="{'invisible': [('state', '!=', 'cancel')]}">
+            <label for="cancel_reason_id" string="Reason for Cancellation:"/>
+            <field name="cancel_reason_id" class="oe_inline" />
+          </h2>
+        </xpath>
+
+        <xpath expr="//field[@name='state']" position="attributes">
+          <attribute name="statusbar_visible">draft,sent,bid,draftpo,approved,done</attribute>
+        </xpath>
+
+        <xpath expr="//button[@name='action_cancel_draft']" position="attributes">
+          <attribute name="states">cancel,draftpo</attribute>
+          <attribute name="string">Reset to Draft RFQ</attribute>
+        </xpath>
+
+        <xpath expr="//button[@string='Send PO by Email']" position="after">
+          <button name="wkf_send_rfq" states="draftpo" string="Send Draft PO by Email" type="object" context="{'send_rfq':True}"/>
+        </xpath>
+
+        <xpath expr="//button[@name='bid_received']" position="attributes">
+          <attribute name="string">Bid Encoded</attribute>
+          <attribute name="type">object</attribute>
+          <attribute name="states">sent,draftbid</attribute>
+        </xpath>
+
+        <xpath expr="//button[@id='bid_confirm']" position="attributes">
+          <attribute name="states">draftpo</attribute>
+        </xpath>
+
+        <xpath expr="//button[@id='draft_confirm']" position="attributes">
+          <attribute name="states">draftpo</attribute>
+          <attribute name="invisible">1</attribute>
+        </xpath>
+
+        <field name="picking_type_id" position="attributes">
+          <attribute name="on_change">onchange_picking_type_id(picking_type_id)</attribute>
+        </field>
+
+        <button name="action_cancel" position="attributes">
+          <!-- approved,except_picking,except_invoice removed -->
+          <!-- draftbid,draftpo added -->
+          <attribute name="states">draft,confirmed,sent,bid,draftbid,draftpo</attribute>
+        </button>
+
+        <xpath expr="//button[@name='purchase_confirm']" position="after">
+          <!-- FIXME confusing button name -->
+          <button name="draft_po" states="draft" string="Convert to PO"/>
+          <button name="draft_po" states="bid" string="Convert to PO" class="oe_highlight"/>
+        </xpath>
+
+        <field name="product_id" position="attributes">
+          <!-- TODO investigate context_extended -->
+          <attribute name="context_extended">{'order_type': parent.type}</attribute>
+        </field>
+
+        <field name="product_qty" position="attributes">
+          <attribute name="context_extended">{'order_type': parent.type}</attribute>
+        </field>
+
+      </field>
+    </record>
+
+    <!-- purchase-workflow/purchase_requisition_bid_selection -->
+    <record model="ir.ui.view" id="view_purchase_order_form">
+      <field name="name">purchase.order.inherit</field>
+      <field name="model">purchase.order</field>
+      <field name="inherit_id" ref="ngo_purchase.purchase_rfq_bid_workflow_view_purchase_order_form"/>
+      <field name="arch" type="xml">
+
+        <xpath expr="//button[@name='draft_po'][1]" position="attributes">
+          <attribute name="attrs">{'invisible': ['|', ('requisition_id','!=',False)]}</attribute>
+        </xpath>
+
+        <xpath expr="//button[@name='draft_po'][2]" position="attributes">
+          <attribute name="attrs">{'invisible': ['|', ('requisition_id','!=',False)]}</attribute>
+        </xpath>
+
+      </field>
+    </record>
+  </data>
+</openerp>
