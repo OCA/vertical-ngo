@@ -2,7 +2,7 @@
 <openerp>
   <data>
     <record model="ir.ui.view" id="view_purchase_requisition_form">
-      <field name="name">purchase.requisition.form</field>
+      <field name="name">ngo.purchase.requisition.form</field>
       <field name="model">purchase.requisition</field>
       <field name="priority" eval="10"/>
       <field name="arch" type="xml">
