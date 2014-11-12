@@ -905,8 +905,6 @@ class LogisticsRequisitionSource(models.Model):
         :returns: boolean True if sourced"""
         self.ensure_one()
         callable_name = "_is_sourced_%s" % self.procurement_method
-        if not hasattr(self, callable_name):
-            raise NotImplementedError(callable_name)
         return getattr(self, callable_name)()
 
     @api.multi
