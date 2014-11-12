@@ -115,26 +115,21 @@
                                                     <field name="requested_uom_id" class="oe_inline"/>
                                                 </div>
                                             </group>
-                                            <group colspan="4">
-                                                <field name="description"/>
-                                            </group>
                                         </group>
+                                        <label for="description"/>
+                                        <field name="description"/>
                                         <group>
                                             <group>
                                                 <field name="date_delivery"/>
                                                 <field name="logistic_user_id"/>
                                             </group>
-                                            <separator string="Accounting" colspan="4"/>
-                                            <group>
+                                            <group string="Accounting" colspan="4">
                                                 <field name="account_id"/>
                                             </group>
                                             <field name="company_currency_id" invisible="1"/>
                                             <field name="currency_id" invisible="1"/>
                                         </group>
-                                        <group>
-                                            <div>
-                                                <label for="note"/>
-                                            </div>
+                                        <group string="Notes">
                                             <field name="note" colspan="4"
                                                 nolabel="1"
                                                 class="oe_inline"
@@ -157,15 +152,12 @@
                                     <field name="incoterm_id"/>
                                     <field name="incoterm_address"/>
                                 </group>
-                                <group colspan="4">
-                                    <div>
-                                        <label for="shipping_note"/>
-                                    </div>
-                                    <field name="shipping_note"
-                                           colspan="4"
-                                           nolabel="1"
-                                           class="oe_inline"/>
-                                </group>
+                            </group>
+                            <group string="Delivery / Shipping Remarks">
+                                <field name="shipping_note"
+                                       colspan="4"
+                                       nolabel="1"
+                                       class="oe_inline"/>
                             </group>
                         </page>
                         <page string="Accounting and Currency">
@@ -181,10 +173,7 @@
                             </group>
                         </page>
                         <page string="Notes">
-                            <group>
-                                <div>
-                                    <label for="note"/>
-                                </div>
+                            <group string="Remarks / Description">
                                 <field name="note" colspan="4"
                                     nolabel="1"
                                     class="oe_inline"
@@ -419,17 +408,15 @@
                                 <field name="requested_uom_id" class="oe_inline"/>
                             </div>
                         </group>
-                        <group colspan="4">
-                            <field name="description"/>
-                        </group>
                     </group>
+                    <label for="description"/>
+                    <field name="description"/>
                     <group>
                         <group>
                             <field name="date_delivery"/>
                             <field name="logistic_user_id"/>
                         </group>
-                        <separator string="Accounting" colspan="4"/>
-                        <group>
+                        <group string="Accounting" colspan="4">
                             <field name="account_id"/>
                         </group>
                         <field name="company_currency_id" invisible="1"/>
@@ -467,6 +454,13 @@
                                         widget="monetary"
                                         options="{'currency_field': 'company_currency_id'}"/>
                                 </group>
+                                <group string="Notes">
+                                    <field name="note"
+                                        colspan="4"
+                                        nolabel="1"
+                                        class="oe_inline"
+                                        placeholder="Additional notes..."/>
+                                </group>
                         </page>
                         <page string="Transportation and Delivery">
                             <group>
@@ -479,27 +473,14 @@
                                     <field name="incoterm_address"/>
                                 </group>
                             </group>
-                            <group colspan="4">
-                                <div>
-                                    <label for="shipping_note"/>
-                                </div>
+                            <group string="Delivery / Shipping Remarks">
                                 <field name="shipping_note"
-                                    colspan="4"
-                                    nolabel="1"
-                                    class="oe_inline"/>
+                                       colspan="4"
+                                       nolabel="1"
+                                       class="oe_inline"/>
                             </group>
                         </page>
                     </notebook>
-                    <group>
-                        <div>
-                            <label for="note"/>
-                        </div>
-                        <field name="note"
-                            colspan="4"
-                            nolabel="1"
-                            class="oe_inline"
-                            placeholder="Additional notes..."/>
-                    </group>
                 </sheet>
                 <div class="oe_chatter">
                     <field name="message_follower_ids" widget="mail_followers"/>

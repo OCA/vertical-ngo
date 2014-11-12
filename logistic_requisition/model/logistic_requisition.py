@@ -356,7 +356,7 @@ class LogisticsRequisitionLine(models.Model):
              "Logistics Requisition Line")
     product_id = fields.Many2one('product.product', 'Product',
                                  states=REQUEST_STATES)
-    description = fields.Char('Description',
+    description = fields.Text('Description',
                               states=REQUEST_STATES,
                               required=True)
     requested_qty = fields.Float(
