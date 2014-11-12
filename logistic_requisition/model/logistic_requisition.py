@@ -884,9 +884,11 @@ class LogisticsRequisitionSource(models.Model):
         :returns: list of error strings
 
         """
-        if (not self.po_requisition_id or
-                self.po_requisition_id.state not in ['done', 'closed']):
-            return ['Purchase Requisition error']
+        if not self.po_requisition_id:
+            return ['Missing Purchase Requisition']
+        if self.po_requisition_id.state not in ['done', 'closed']:
+            return ['Purchase Requisition state should be '
+                    '"Bids Selected" or "PO Created"']
         return []
 
     @api.multi
