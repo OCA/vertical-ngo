@@ -886,7 +886,7 @@ class LogisticsRequisitionSource(models.Model):
         """
         if (not self.po_requisition_id or
                 self.po_requisition_id.state not in ['done', 'closed']):
-            return False
+            return ['Purchase Requisition error']
         return []
 
     @api.multi
