@@ -25,6 +25,15 @@ class TestIsSourced(TransactionCase):
         self.assertIs(True, self.source._is_sourced())
 
     def setUp(self):
+        """Setup a source.
+
+        Almost everything here except self.source is created only because of
+        required fields.
+
+        The tests should make sense also if we get rid of all that setUp and
+        replace self.source with some sort of mock or NewId.
+
+        """
         super(TestIsSourced, self).setUp()
         LR = self.env['logistic.requisition']
         LRL = self.env['logistic.requisition.line']
