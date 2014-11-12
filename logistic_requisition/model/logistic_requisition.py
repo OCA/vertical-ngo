@@ -491,12 +491,14 @@ class LogisticsRequisitionLine(models.Model):
 
     @api.one
     def _do_sourced(self):
+        errors = []
         for source in self.source_ids:
-            if not source._is_sourced():
-                raise except_orm(
-                    _('line %s is not sourced') % source.name,
-                    _('Please create source ressource using'
-                      ' various source line actions'))
+            errors += source._check_sourcing()
+        if errors:
+            raise except_orm(
+                _('Incorrect Sourcing'),
+                _('XXXXX')
+            )
         self.state = 'sourced'
 
     @api.one
