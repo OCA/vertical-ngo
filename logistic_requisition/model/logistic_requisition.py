@@ -878,33 +878,46 @@ class LogisticsRequisitionSource(models.Model):
     ]
 
     @api.multi
-    def _is_sourced_procurement(self):
-        """Predicate function to test if line on procurement
-        method are sourced"""
+    def _check_sourcing_procurement(self):
+        """Check sourcing for "procurement" method.
+
+        :returns: list of error strings
+
+        """
         if (not self.po_requisition_id or
                 self.po_requisition_id.state not in ['done', 'closed']):
             return False
-        return True
+        return []
 
     @api.multi
-    def _is_sourced_other(self):
-        """Predicate function to test if line on other
-        method are sourced"""
+    def _check_sourcing_other(self):
+        """Check sourcing for "other" method.
+
+        :returns: list of error strings
+
+        """
         return self._is_sourced_procurement()
 
     @api.multi
-    def _is_sourced_wh_dispatch(self):
-        """Predicate function to test if line on warehouse
-        method are sourced"""
-        return True
+    def _check_sourcing_wh_dispatch(self):
+        """Check sourcing for "warehouse dispatch" method.
+
+        :returns: list of error strings
+
+        """
+        return []
 
     @api.multi
-    def _is_sourced(self):
-        """ check if line is source using predicate function
-        that must be called _is_sourced_ + name of procurement.
-        :returns: boolean True if sourced"""
+    def _check_sourcing(self):
+        """Check sourcing for all methods.
+
+        Delegates to methods _check_sourcing_ + procurement_method.
+
+        :returns: list of error strings
+
+        """
         self.ensure_one()
-        callable_name = "_is_sourced_%s" % self.procurement_method
+        callable_name = "_check_sourcing_%s" % self.procurement_method
         return getattr(self, callable_name)()
 
     @api.multi

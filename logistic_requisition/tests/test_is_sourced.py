@@ -22,28 +22,28 @@ class TestIsSourced(TransactionCase):
 
     def test_warehouse_dispatch_is_always_sourced(self):
         self.source.procurement_method = 'wh_dispatch'
-        self.assertIs(True, self.source._is_sourced())
+        self.assertEquals([], self.source._check_sourcing())
 
     def test_procurement_sourcing_without_pr_is_not_sourced(self):
         self.source.procurement_method = 'procurement'
-        self.assertIs(False, self.source._is_sourced())
+        self.assertNotEquals([], self.source._check_sourcing())
 
     def test_procurement_sourcing_with_draft_pr_is_not_sourced(self):
         self.source.procurement_method = 'procurement'
         self.source.po_requisition_id = self.purchase_req
-        self.assertIs(False, self.source._is_sourced())
+        self.assertNotEquals([], self.source._check_sourcing())
 
     def test_procurement_sourcing_with_closed_pr_is_sourced(self):
         self.source.procurement_method = 'procurement'
         self.purchase_req.state = 'closed'
         self.source.po_requisition_id = self.purchase_req
-        self.assertIs(True, self.source._is_sourced())
+        self.assertEquals([], self.source._check_sourcing())
 
     def test_procurement_sourcing_with_done_pr_is_sourced(self):
         self.source.procurement_method = 'procurement'
         self.purchase_req.state = 'done'
         self.source.po_requisition_id = self.purchase_req
-        self.assertIs(True, self.source._is_sourced())
+        self.assertEquals([], self.source._check_sourcing())
 
     def setUp(self):
         """Setup a source.
