@@ -19,8 +19,9 @@ from openerp.exceptions import Warning
 
 class TestButtonSourced(TransactionCase):
     """Test that in a Logistic Requisition Line the Button sourced checks is
-    all the source lines are sourced correctly. All cases are tested
-    individually in TestCheckSourcing.
+    all the source lines are sourced correctly.
+
+    All cases are tested individually in TestCheckSourcing.
 
     """
     def test_line_with_procurement_sourcing_but_no_procurement_fails(self):
@@ -38,6 +39,13 @@ class TestButtonSourced(TransactionCase):
             self.lrl.button_sourced()
         self.assertEqual("Incorrect Sourcing", cm.exception.args[0])
         self.assertEqual("No Sourcing Lines", cm.exception.args[1])
+
+    def test_it_can_pass(self):
+        self.lrl.source_ids = self.LRS.new({
+            'procurement_method': 'wh_dispatch',
+        })
+        self.lrl.button_sourced()
+        self.assertEquals('sourced', self.lrl.state)
 
     def setUp(self):
         """Setup a logistic requisition line.
