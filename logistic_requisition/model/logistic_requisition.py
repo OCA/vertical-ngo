@@ -497,7 +497,7 @@ class LogisticsRequisitionLine(models.Model):
         if errors:
             raise except_orm(
                 _('Incorrect Sourcing'),
-                _('XXXXX')
+                _('\n'.join(errors))
             )
         self.state = 'sourced'
 
