@@ -17,3 +17,4 @@
 from . import common
 from . import test_logistic_order_line_to_source_line
 from . import test_agreement_souce_line_to_po
+from . import test_check_sourcing
