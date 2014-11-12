@@ -22,7 +22,7 @@ class TestIsSourced(TransactionCase):
 
     def test_warehouse_dispatch_is_always_sourced(self):
         self.source.procurement_method = 'wh_dispatch'
-        self.assertTrue(self.source._is_sourced)
+        self.assertIs(True, self.source._is_sourced())
 
     def setUp(self):
         super(TestIsSourced, self).setUp()
