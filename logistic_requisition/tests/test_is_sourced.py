@@ -39,6 +39,12 @@ class TestIsSourced(TransactionCase):
         self.source.po_requisition_id = self.purchase_req
         self.assertIs(True, self.source._is_sourced())
 
+    def test_procurement_sourcing_with_done_pr_is_sourced(self):
+        self.source.procurement_method = 'procurement'
+        self.purchase_req.state = 'done'
+        self.source.po_requisition_id = self.purchase_req
+        self.assertIs(True, self.source._is_sourced())
+
     def setUp(self):
         """Setup a source.
 
