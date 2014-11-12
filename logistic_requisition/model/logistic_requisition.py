@@ -877,28 +877,28 @@ class LogisticsRequisitionSource(models.Model):
          ['po_requisition_id', 'requisition_id']),
     ]
 
-    @api.model
-    def _is_sourced_procurement(self, source):
+    @api.multi
+    def _is_sourced_procurement(self):
         """Predicate function to test if line on procurement
         method are sourced"""
-        if (not source.po_requisition_id or
-                source.po_requisition_id.state not in ['done', 'closed']):
+        if (not self.po_requisition_id or
+                self.po_requisition_id.state not in ['done', 'closed']):
             return False
         return True
 
-    @api.model
-    def _is_sourced_other(self, source):
+    @api.multi
+    def _is_sourced_other(self):
         """Predicate function to test if line on other
         method are sourced"""
-        return True
+        return self._is_sourced_procurement()
 
-    @api.model
-    def _is_sourced_wh_dispatch(self, source):
+    @api.multi
+    def _is_sourced_wh_dispatch(self):
         """Predicate function to test if line on warehouse
         method are sourced"""
         return True
 
-    @api.model
+    @api.multi
     def _is_sourced(self):
         """ check if line is source using predicate function
         that must be called _is_sourced_ + name of procurement.
@@ -907,8 +907,7 @@ class LogisticsRequisitionSource(models.Model):
         callable_name = "_is_sourced_%s" % self.procurement_method
         if not hasattr(self, callable_name):
             raise NotImplementedError(callable_name)
-        callable_fun = getattr(self, callable_name)
-        return callable_fun(self)
+        return getattr(self, callable_name)()
 
     @api.multi
     def _check_purchase_requisition_unique(self):
