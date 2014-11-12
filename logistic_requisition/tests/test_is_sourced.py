@@ -24,6 +24,10 @@ class TestIsSourced(TransactionCase):
         self.source.procurement_method = 'wh_dispatch'
         self.assertIs(True, self.source._is_sourced())
 
+    def test_procurement_sourcing_without_pr_is_not_sourced(self):
+        self.source.procurement_method = 'procurement'
+        self.assertIs(False, self.source._is_sourced())
+
     def setUp(self):
         """Setup a source.
 
