@@ -21,7 +21,7 @@
 import logging
 
 from openerp import models, fields, api
-from openerp.exceptions import except_orm
+from openerp.exceptions import except_orm, Warning
 from openerp.tools.translate import _
 import openerp.addons.decimal_precision as dp
 
@@ -495,10 +495,7 @@ class LogisticsRequisitionLine(models.Model):
         for source in self.source_ids:
             errors += source._check_sourcing()
         if errors:
-            raise except_orm(
-                _('Incorrect Sourcing'),
-                _('\n'.join(errors))
-            )
+            raise Warning(_('Incorrect Sourcing'), '\n'.join(errors))
         self.state = 'sourced'
 
     @api.one
@@ -887,10 +884,10 @@ class LogisticsRequisitionSource(models.Model):
 
         """
         if not self.po_requisition_id:
-            return ['Missing Purchase Requisition']
+            return ['{0}: Missing Purchase Requisition'.format(self.name)]
         if self.po_requisition_id.state not in ['done', 'closed']:
-            return ['Purchase Requisition state should be '
-                    '"Bids Selected" or "PO Created"']
+            return ['{0}: Purchase Requisition state should be '
+                    '"Bids Selected" or "PO Created"'.format(self.name)]
         return []
 
     @api.multi

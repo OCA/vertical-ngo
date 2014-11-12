@@ -17,7 +17,11 @@ from openerp.tests.common import TransactionCase
 
 
 class TestCheckSourcing(TransactionCase):
+    """Check the _check_sourcing method of the source.
 
+    The button to check all sources of a line is checked in TestButtonSourced.
+
+    """
     def test_warehouse_dispatch_is_always_sourced(self):
         self.source.procurement_method = 'wh_dispatch'
         self.assertEquals([], self.source._check_sourcing())

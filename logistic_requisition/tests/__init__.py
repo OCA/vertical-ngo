@@ -23,3 +23,4 @@ from . import test_sale_order_from_lr_confirm
 from . import test_mto_workflow
 from . import test_multicurrency_update_po_line
 from . import test_check_sourcing
+from . import test_button_sourced
