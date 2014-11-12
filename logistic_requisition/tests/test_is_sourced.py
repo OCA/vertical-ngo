@@ -28,6 +28,11 @@ class TestIsSourced(TransactionCase):
         self.source.procurement_method = 'procurement'
         self.assertIs(False, self.source._is_sourced())
 
+    def test_procurement_sourcing_with_draft_pr_is_not_sourced(self):
+        self.source.procurement_method = 'procurement'
+        self.source.po_requisition_id = self.purchase_req
+        self.assertIs(False, self.source._is_sourced())
+
     def setUp(self):
         """Setup a source.
 
@@ -59,3 +64,7 @@ class TestIsSourced(TransactionCase):
         self.source = Source.create({
             'requisition_line_id': lrl.id,
         })
+        self.purchase_req = self.env['purchase.requisition'].search([(
+            'state', '=', 'draft'
+        )])
+        assert self.purchase_req
