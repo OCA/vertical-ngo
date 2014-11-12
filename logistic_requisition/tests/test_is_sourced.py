@@ -32,21 +32,19 @@ class TestIsSourced(TransactionCase):
 
     def test_procurement_sourcing_with_draft_pr_is_not_sourced(self):
         self.source.procurement_method = 'procurement'
-        self.source.po_requisition_id = self.purchase_req
+        self.source.po_requisition_id = self.PurcReq.new({'state': 'draft'})
         errors = self.source._check_sourcing()
         self.assertEquals(1, len(errors))
         self.assertIn('Purchase Requisition state should', errors[0])
 
     def test_procurement_sourcing_with_closed_pr_is_sourced(self):
         self.source.procurement_method = 'procurement'
-        self.purchase_req.state = 'closed'
-        self.source.po_requisition_id = self.purchase_req
+        self.source.po_requisition_id = self.PurcReq.new({'state': 'closed'})
         self.assertEquals([], self.source._check_sourcing())
 
     def test_procurement_sourcing_with_done_pr_is_sourced(self):
         self.source.procurement_method = 'procurement'
-        self.purchase_req.state = 'done'
-        self.source.po_requisition_id = self.purchase_req
+        self.source.po_requisition_id = self.PurcReq.new({'state': 'done'})
         self.assertEquals([], self.source._check_sourcing())
 
     def test_other_sourcing_without_pr_is_not_sourced(self):
@@ -58,35 +56,11 @@ class TestIsSourced(TransactionCase):
     def setUp(self):
         """Setup a source.
 
-        Almost everything here except self.source is created only because of
-        required fields.
-
-        The tests should make sense also if we get rid of all that setUp and
-        replace self.source with some sort of mock or NewId.
+        I use Model.new to get a model instance that is not saved to the
+        database, but has working methods.
 
         """
         super(TestIsSourced, self).setUp()
-        LR = self.env['logistic.requisition']
-        LRL = self.env['logistic.requisition.line']
         Source = self.env['logistic.requisition.source']
-        ModelData = self.env['ir.model.data']
-
-        lr = LR.create({
-            'pricelist_id': ModelData.xmlid_to_res_id('product.list0'),
-            'partner_id': ModelData.xmlid_to_res_id('base.res_partner_1'),
-            'date_delivery': time.strftime(D_FMT),
-        })
-        lrl = LRL.create({
-            'description': '/',
-            'requisition_id': lr.id,
-            'requested_uom_id': ModelData.xmlid_to_res_id(
-                'product.product_uom_unit'),
-            'date_delivery': time.strftime(D_FMT),
-        })
-        self.source = Source.create({
-            'requisition_line_id': lrl.id,
-        })
-        self.purchase_req = self.env['purchase.requisition'].search([(
-            'state', '=', 'draft'
-        )])
-        assert self.purchase_req
+        self.PurcReq = self.env['purchase.requisition']
+        self.source = Source.new()
