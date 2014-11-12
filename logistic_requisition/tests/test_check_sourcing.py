@@ -16,7 +16,7 @@
 from openerp.tests.common import TransactionCase
 
 
-class TestIsSourced(TransactionCase):
+class TestCheckSourcing(TransactionCase):
 
     def test_warehouse_dispatch_is_always_sourced(self):
         self.source.procurement_method = 'wh_dispatch'
@@ -58,7 +58,7 @@ class TestIsSourced(TransactionCase):
         database, but has working methods.
 
         """
-        super(TestIsSourced, self).setUp()
+        super(TestCheckSourcing, self).setUp()
         Source = self.env['logistic.requisition.source']
         self.PurcReq = self.env['purchase.requisition']
         self.source = Source.new()
