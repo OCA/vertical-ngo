@@ -165,6 +165,11 @@ msgid "Quotation Sent"
 msgstr "Cost Estimate Sent"
 
 #. module: sale
+#: field:sale.order,client_order_ref:0
+msgid "Reference/Description"
+msgstr "Requestor ref."
+
+#. module: sale
 #: selection:sale.order,state:0
 msgid "Sale to Invoice"
 msgstr "Logistics Order to Invoice"
