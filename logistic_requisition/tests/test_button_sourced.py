@@ -33,6 +33,12 @@ class TestButtonSourced(TransactionCase):
         self.assertEqual("Incorrect Sourcing", cm.exception.args[0])
         self.assertIn("Missing Purchase Requisition", cm.exception.args[1])
 
+    def test_line_with_no_sourcing_fails(self):
+        with self.assertRaises(Warning) as cm:
+            self.lrl.button_sourced()
+        self.assertEqual("Incorrect Sourcing", cm.exception.args[0])
+        self.assertEqual("No Sourcing Lines", cm.exception.args[1])
+
     def setUp(self):
         """Setup a logistic requisition line.
 

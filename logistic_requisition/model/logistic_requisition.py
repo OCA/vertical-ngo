@@ -492,6 +492,8 @@ class LogisticsRequisitionLine(models.Model):
     @api.one
     def _do_sourced(self):
         errors = []
+        if not self.source_ids:
+            raise Warning(_('Incorrect Sourcing'), _('No Sourcing Lines'))
         for source in self.source_ids:
             errors += source._check_sourcing()
         if errors:
