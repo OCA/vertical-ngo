@@ -49,6 +49,12 @@ class TestIsSourced(TransactionCase):
         self.source.po_requisition_id = self.purchase_req
         self.assertEquals([], self.source._check_sourcing())
 
+    def test_other_sourcing_without_pr_is_not_sourced(self):
+        self.source.procurement_method = 'other'
+        errors = self.source._check_sourcing()
+        self.assertEquals(1, len(errors))
+        self.assertIn('Missing Purchase Requisition', errors[0])
+
     def setUp(self):
         """Setup a source.
 
