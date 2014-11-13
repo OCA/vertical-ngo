@@ -4,10 +4,9 @@
     <record model="ir.ui.view" id="view_purchase_requisition_form_agreement">
       <field name="name">purchase.requisition.form.inherit.aggrement.button</field>
       <field name="model">purchase.requisition</field>
-      <field name="inherit_id" ref="purchase_requisition.view_purchase_requisition_form"/>
+      <field name="inherit_id" ref="ngo_purchase_requisition.view_purchase_requisition_form"/>
       <field name="arch" type="xml">
-        <field name="multiple_rfq_per_supplier"
-               position="after">
+        <field name="bid_receipt_mode" position="after">
           <field name="framework_agreement_tender"/>
           <field
             name="agreement_end_date"

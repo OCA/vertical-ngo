@@ -17,12 +17,6 @@
             <!-- extended by purchase_requisition_bid_selection -->
             <button name="generate_po" states="closed" string="Generate PO" type="object" class="oe_highlight"/>
             <button name="cancel_requisition" states="draft,in_progress" string="Cancel Call"/>
-            <!-- added by framework_agreement_requisition -->
-            <button name="open_wizard_confirm_generate_agreement"
-                  type="object"
-                  class="po_buttons oe_form_buttons"
-                  attrs="{'invisible': ['|', ('framework_agreement_tender', '=', False), ('state', '!=', 'closed')]}"
-                  string="Framework agreement selected"/>
             <!-- extended by purchase_requisition_bid_selection -->
             <field name="state" widget="statusbar" statusbar_visible="draft,in_progress,open,closed,done" statusbar_colors='{"in_progress":"blue"}'/>
           </header>
@@ -54,10 +48,6 @@
                 <field name="user_id" context="{'default_groups_ref': ['base.group_user', 'base.group_partner_manager', 'purchase_requisition.group_purchase_requisition_user', 'purchase.group_purchase_user', 'account.group_account_invoice']}" attrs="{'readonly': [('state','not in',('draft'))]}"/>
                 <field name="bid_tendering_mode" attrs="{'readonly': [('state','not in',('draft'))]}" /> <!-- purchase_requisition_bid_selection -->
                 <field name="bid_receipt_mode" attrs="{'readonly': [('state','not in',('draft'))]}"/>
-                <field name="framework_agreement_tender"/>
-                <field
-                  name="agreement_end_date"
-                  attrs="{'invisible': [('framework_agreement_tender', '=', False)]}" />
               </group>
               <group>
                 <field name="ordering_date" attrs="{'readonly': [('state','not in',('draft'))]}"/>
