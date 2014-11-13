@@ -93,7 +93,11 @@ class logistic_requisition(orm.Model):
             'date_finance_officer': False,
         })
         return super(logistic_requisition, self
-                     ).copy(cr, uid, record_id, default=default, context=context)
+                     ).copy(cr,
+                            uid,
+                            record_id,
+                            default=default,
+                            context=context)
 
     def onchange_validate(self, cr, uid, ids, validate_id,
                           date_validate, date_field_name, context=None):
