@@ -106,7 +106,7 @@
                     string="Request a Quotation" icon="gtk-execute"
                     attrs="{'invisible': ['|','|',('bid_tendering_mode','=','open'),('line_ids','=',[]),('state','!=','in_progress')]}"/>
                   <!-- added by purchase_requisition_bid_selection -->
-                  <button name="%(purchaser_requisition_bid_selection.action_purchase_requisition_partner_draftbid)d" type="action"
+                  <button name="%(purchase_requisition_bid_selection.action_purchase_requisition_partner_draftbid)d" type="action"
                     string="Encode a Bid" icon="gtk-execute"
                     attrs="{'invisible': ['|','|',('bid_tendering_mode','=','restricted'),('line_ids','=',[]),('state','!=','in_progress')]}"/>
                   <!-- extended by purchase_requisition_bid_selection change invisible attrs -->
