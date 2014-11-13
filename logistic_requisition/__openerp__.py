@@ -20,7 +20,7 @@
 #
 
 {"name": "Logistics Requisition",
- "version": "1.0.1",
+ "version": "1.1",
  "author": "Camptocamp",
  "license": "AGPL-3",
  "category": "Purchase Management",
@@ -36,6 +36,7 @@
              "logistic_consignee",
              "transport_information",
              "purchase_requisition_transport_document",
+             "purchase_requisition_delivery_address",
              ],
  "demo": ['data/logistic_requisition_demo.xml'],
  "data": ["wizard/logistic_line_create_requisition_view.xml",
