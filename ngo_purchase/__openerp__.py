@@ -30,6 +30,7 @@
  "depends": ["framework_agreement",
              "framework_agreement_requisition",
              "purchase_origin_address",
+             "purchase_delivery_address",
              "purchase_requisition",
              "purchase_requisition_bid_selection",
              "purchase_rfq_bid_workflow",
