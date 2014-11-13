@@ -679,7 +679,6 @@ class LogisticsRequisitionLine(models.Model):
         self._do_create_po_requisition()
         return True
 
-
     @api.model
     def _open_cost_estimate(self):
         return {
