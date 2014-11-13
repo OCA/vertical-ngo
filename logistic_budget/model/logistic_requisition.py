@@ -83,7 +83,7 @@ class logistic_requisition(orm.Model):
                 }
         self.write(cr, uid, ids, vals, context=context)
 
-    def copy(self, cr, uid, id, default=None, context=None):
+    def copy(self, cr, uid, record_id, default=None, context=None):
         if not default:
             default = {}
         default.update({
@@ -93,7 +93,11 @@ class logistic_requisition(orm.Model):
             'date_finance_officer': False,
         })
         return super(logistic_requisition, self
-                     ).copy(cr, uid, id, default=default, context=context)
+                     ).copy(cr,
+                            uid,
+                            record_id,
+                            default=default,
+                            context=context)
 
     def onchange_validate(self, cr, uid, ids, validate_id,
                           date_validate, date_field_name, context=None):

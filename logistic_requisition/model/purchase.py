@@ -19,7 +19,7 @@
 #
 #
 from openerp import models, fields, api
-from openerp.exceptions import Warning
+from openerp import exceptions
 from openerp.tools.translate import _
 
 
@@ -92,7 +92,7 @@ class PurchaseOrderLine(models.Model):
                 if source_line:
                     if (source_line.requisition_line_id in
                             ('sourced', 'quoted')):
-                        raise Warning(
+                        raise exceptions.Warning(
                             _("You cannot change the informations because "
                               "this PO line is already linked to a Logistics "
                               "Requsition Line %s marked as sourced or "
