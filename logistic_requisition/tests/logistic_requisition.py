@@ -103,14 +103,14 @@ def create_quotation(test, requisition, lines):
     sale_id = res['res_id']
     sale = test.env['sale.order'].browse(sale_id)
     sale_lines = sale.order_line
-    source_lines = [sl for line in lines for sl in line.source_ids]
+    _source_lines = [sl for line in lines for sl in line.source_ids]
     test.assertEquals(len(sale_lines),
-                      len(source_lines),
+                      len(_source_lines),
                       "A sale line per logistic requisition "
                       "soucing line should have been created")
     # for sale_line in sale_lines:
     #     test.assertTrue(sale_line.logistic_requisition_source_id.id
-    #                     in [sl.id for sl in source_lines])
+    #                     in [sl.id for sl in _source_lines])
     return sale, sale_lines
 
 
