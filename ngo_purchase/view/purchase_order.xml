@@ -5,6 +5,7 @@
     <record id="purchase_order_form" model="ir.ui.view">
       <field name="name">ngo.purchase.order.form</field>
       <field name="model">purchase.order</field>
+      <field name="priority" eval="10"/>
       <field name="arch" type="xml">
         <form string="Purchase Order">
           <header>
@@ -198,6 +199,52 @@
 
     </record>
 
+    <record id="purchase_order_line_form" model="ir.ui.view">
+      <field name="name">ngo.purchase.order.line.form</field>
+      <field name="model">purchase.order.line</field>
+      <field name="priority" eval="10"/>
+      <field name="arch" type="xml">
+        <form string="Purchase Order Line">
+          <sheet>
+            <group>
+              <group>
+                <field name="product_id" on_change="onchange_product_id(parent.pricelist_id,product_id,0,product_uom,parent.partner_id, parent.date_order,parent.fiscal_position,date_planned,name,price_unit,'draft',context)"/>
+              </group>
+              <group>
+                <label for="product_qty"/>
+                <div>
+                  <field name="product_qty" on_change="onchange_product_id(parent.pricelist_id,product_id,product_qty,product_uom,parent.partner_id,parent.date_order,parent.fiscal_position,date_planned,name,price_unit,'draft',context)" class="oe_inline"/>
+                  <field name="product_uom" groups="product.group_uom" on_change="onchange_product_uom(parent.pricelist_id,product_id,product_qty,product_uom,parent.partner_id, parent.date_order,parent.fiscal_position,date_planned,name,price_unit,'draft',context)" class="oe_inline"/>
+                </div>
+              </group>
+            </group>
+            <label for="name"/>
+            <field name="name"/>
+            <group>
+              <group>
+                <field name="price_unit"/>
+                <field name="taxes_id" widget="many2many_tags" domain="[('parent_id','=',False),('type_tax_use','!=','sale')]"/>
+                <field name="price_subtotal"/>
+              </group>
+              <group>
+                <field name="date_planned" widget="date"/>
+                <field name="company_id" groups="base.group_multi_company" widget="selection"/>
+              </group>
+              <group string="Accounting">
+                <field name="account_analytic_id" colspan="2" groups="purchase.group_analytic_accounting"/>
+              </group>
+            </group>
+            <notebook>
+              <page string="Invoices and Incoming Shipments">
+                <field name="invoice_lines"/>
+                <field name="move_ids"/>
+              </page>
+            </notebook>
+          </sheet>
+        </form>
+      </field>
+    </record>
+
     <!-- purchase-workflow/purchase_rfq_bid_workflow -->
     <record model="ir.ui.view" id="purchase_rfq_bid_workflow_view_purchase_order_form">
       <field name="name">purchase.order.form.inherit</field>
@@ -285,5 +332,6 @@
 
       </field>
     </record>
+
   </data>
 </openerp>
