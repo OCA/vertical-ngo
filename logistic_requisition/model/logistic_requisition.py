@@ -476,6 +476,23 @@ class LogisticsRequisitionLine(models.Model):
         self.state = 'sourced'
 
     @api.one
+    def _do_create_po_requisition(self):
+        """ Create a call for bif for all sourcing lines with
+            procurement_method = 'procuremnet' contained
+            in the Line
+        """
+        source_lines = self.source_ids
+        if not source_lines:
+            raise except_orm(_('No sourcing line Found') % source.name,
+                             _('No sourcing line were found, '
+                               'pleae create one.'))
+        pricelist_id = self.requisition_id.pricelist_id and \
+                         self.requisition_id.pricelist_id or None
+        res_id = source_lines._action_create_po_requisition(
+                                pricelist=pricelist_id)
+        return True
+
+    @api.one
     def _do_draft(self):
         self.state = 'draft'
 
@@ -656,6 +673,12 @@ class LogisticsRequisitionLine(models.Model):
     def button_sourced(self):
         self._do_sourced()
         return True
+
+    @api.multi
+    def button_create_po_requisition(self):
+        self._do_create_po_requisition()
+        return True
+
 
     @api.model
     def _open_cost_estimate(self):

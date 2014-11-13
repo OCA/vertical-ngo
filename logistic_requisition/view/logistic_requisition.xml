@@ -294,6 +294,10 @@
                         string="Line Sourced"
                         type="object"
                         class="oe_highlight"/>
+                    <button name="button_create_po_requisition"
+                        states="assigned"
+                        string="Create Call for Bids"
+                        type="object"/>
                     <button name="button_create_cost_estimate"
                         states="sourced"
                         string="Create Cost Estimate"
