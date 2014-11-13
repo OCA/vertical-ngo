@@ -52,6 +52,7 @@ class logistic_requisition_line(orm.Model):
         res['unit_cost'] = 0.0
         res['proposed_qty'] = qty
         res['framework_agreement_id'] = False
+        res['price_is'] = 'fixed'
         if agreement:
             if not agreement.product_id.id == line.product_id.id:
                 raise ValueError(
