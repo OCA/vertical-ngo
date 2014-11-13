@@ -25,6 +25,11 @@ msgstr ""
 msgid "Consignee address :"
 msgstr ""
 
+#. module: sale
+#: field:sale.order,project_id:0
+msgid "Contract / Analytic"
+msgstr ""
+
 #. module: logistic_order
 #: view:sale.order:logistic_order.view_order_form
 #: view:sale.order:logistic_order.view_quotation_tree
@@ -154,6 +159,11 @@ msgstr ""
 msgid "Quotation Sent"
 msgstr ""
 
+#. module: sale
+#: field:sale.order,client_order_ref:0
+msgid "Reference/Description"
+msgstr ""
+
 #. module: logistic_order
 #: selection:sale.order,state:0
 msgid "Sale to Invoice"
@@ -172,6 +182,11 @@ msgstr ""
 #. module: logistic_order
 #: view:sale.order:logistic_order.view_sales_order_filter
 msgid "Search Order"
+msgstr ""
+
+#. module: sale
+#: field:sale.order,user_id:0
+msgid "Salesperson"
 msgstr ""
 
 #. module: logistic_order

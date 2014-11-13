@@ -28,6 +28,10 @@
         <filter name="my_sale_orders_filter" position="attributes">
           <attribute name="string">My Logistics Orders</attribute>
         </filter>
+
+        <filter name="my_sale_orders_filter">
+          <filter string="Cost Estimate Only" domain="[('cost_estimate_only','=', True)]" name="cost_estimate_only_filter"/>
+        </filter>
       </field>
     </record>
 
@@ -40,7 +44,7 @@
       <field name="view_id" ref="sale.view_quotation_tree"/>
       <field name="view_mode">tree,form,calendar,graph</field>
       <field name="context">{}</field>
-      <field name="domain">[('state','in',('draft','sent','cancel'))]</field>
+      <field name="domain">['|', ('state','in',('draft','sent','cancel')), ('cost_estimate_only', '=', True)]</field>
       <field name="search_view_id" ref="sale.view_sales_order_filter"/>
     </record>
 
@@ -56,28 +60,101 @@
       <field name="view_mode">tree,form,calendar,graph</field>
       <field name="search_view_id" ref="sale.view_sales_order_filter"/>
       <field name="context">{}</field>
-      <field name="domain">[('state','not in',('draft','sent','cancel'))]</field>
+      <field name="domain">[('state','not in',('draft','sent','cancel')), ('cost_estimate_only', '=', False)]</field>
     </record>
     <menuitem action="action_orders" id="menu_logistic_order" parent="menu_order_base" sequence="5" />
+
 
     <record id="view_order_form" model="ir.ui.view">
       <field name="name">sale.order.form</field>
       <field name="model">sale.order</field>
       <field name="inherit_id" ref="sale_stock.view_order_form_inherit"/>
       <field name="arch" type="xml">
+        <xpath expr="//button[@name='action_button_confirm' and @states='draft']" position="attributes">
+          <attribute name="attrs">{'invisible': ['|', ('cost_estimate_only', '=', True)]}</attribute>
+        </xpath>
         <xpath expr="//label[@string='Quotation ']" position="attributes">
           <attribute name="string">Cost Estimate </attribute>
         </xpath>
         <xpath expr="//label[@string='Sales Order ']" position="attributes">
           <attribute name="string">Logistics Order </attribute>
         </xpath>
-        <field name="incoterm" position="after">
-          <field name="incoterm_address"/>
-        </field>
+        <xpath expr="//field[@name='partner_id']/../.." position="before">
+          <group colspan="4">
+            <field name="cost_estimate_only"/>
+          </group>
+        </xpath>
 
         <button name="action_button_confirm" position="attributes">
           <attribute name="string">Confirm Cost Estimate</attribute>
         </button>
+
+        <field name="origin" position="replace"/>
+        <field name="user_id" position="replace"/>
+
+        <field name="client_order_ref" position="after">
+          <field name="origin"/>
+          <field name="user_id" context="{'default_groups_ref': ['base.group_user', 'base.group_partner_manager', 'account.group_account_invoice', 'base.group_sale_salesman_all_leads']}"/>
+        </field>
+
+        <field name="pricelist_id" position="replace"/>
+        <field name="currency_id" position="replace"/>
+        <field name="project_id" position="replace"/>
+        <field name="order_policy" position="replace"/>
+        <field name="carrier_id" position="replace"/>
+        <field name="incoterm" position="replace"/>
+        <field name="payment_term" position="replace"/>
+        <field name="fiscal_position" position="replace"/>
+        <field name="company_id" position="replace"/>
+        <field name="note" position="replace"/>
+
+        <xpath expr="//notebook/page[@string='Order Lines']" position="after">
+          <page string="Transportation and Delivery">
+            <group>
+              <group>
+                <field name="incoterm"/>
+                <field name="incoterm_address"/>
+              </group>
+              <group>
+                <field name="delivery_time"/>
+                <field name="carrier_id"/>
+              </group>
+            </group>
+          </page>
+          <page string="Accounting and Currency">
+            <group>
+              <group>
+                <field domain="[('type','=','sale')]" name="pricelist_id" groups="product.group_sale_pricelist" on_change="onchange_pricelist_id(pricelist_id,order_line)"/>
+                <field name="currency_id"/>
+                <field name="payment_term"/>
+                <field name="fiscal_position" options="{'no_create': True}"
+                  on_change="onchange_fiscal_position(fiscal_position, order_line, context)"/>
+                <field name="company_id" widget="selection" groups="base.group_multi_company"/>
+              </group>
+              <group>
+                <field name="project_id" context="{'partner_id':partner_invoice_id, 'manager_id': user_id, 'default_pricelist_id':pricelist_id, 'default_name':name, 'default_type': 'contract'}" groups="sale.group_analytic_accounting" domain="[('type','in',['view','normal','contract'])]"/>
+                <field name="order_policy"/>
+              </group>
+            </group>
+          </page>
+          <page string="Terms and Condition">
+            <group>
+              <field name="note" colspan="4"
+                     nolabel="1"
+                     class="oe_inline"
+                     placeholder="Terms and conditions..."/>
+            </group>
+          </page>
+        </xpath>
+        <xpath expr="//notebook/page[@string='Other Information']" position="after">
+          <page string="Terms and Condition">
+            <group>
+              <field name="remark" colspan="4"
+                     nolabel="1"
+                     class="oe_inline"/>
+            </group>
+          </page>
+        </xpath>
       </field>
     </record>
 

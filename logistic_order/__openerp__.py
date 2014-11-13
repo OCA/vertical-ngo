@@ -20,7 +20,7 @@
 
 {"name": "Logistics Order",
  "summary": "Sales Order as Logistics Order",
- "version": "0.1",
+ "version": "0.2",
  "author": "Camptocamp",
  "license": "AGPL-3",
  "category": "Purchase Management",
@@ -58,6 +58,7 @@ Contributors
  "demo": [],
  "data": ['view/sale_order_view.xml',
           'view/report_logisticorder.xml',
+          'workflow/sale_order.xml',
           'data/logistic_order_sequence.xml',
           ],
  "test": ['test/test_report.yml',

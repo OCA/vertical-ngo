@@ -17,7 +17,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from openerp import models, fields
+from openerp import models, fields, api
 
 
 class SaleOrder(models.Model):
@@ -30,3 +30,46 @@ class SaleOrder(models.Model):
              "predefined commercial terms used in "
              "international transactions.")
     delivery_time = fields.Char('Delivery time')
+    cost_estimate_only = fields.Boolean(
+        'Cost Estimate Only',
+        default=False)
+    currency_id = fields.Many2one(
+        related='pricelist_id.currency_id',
+        co_model='res.currency',
+        string='Currency')
+    remark = fields.Text('Remarks / Description')
+
+    @api.multi
+    def action_quotation_send(self):
+        """ In case of Cost Estimate only, register an option to set the
+        Cost Estimate immediatly to `done` when the users sends his mail.
+
+        Nevertheless, if he launches the wizard but cancel it, we won't
+        trigger the transition to `done`
+
+        We pass this in order to avoid to browse in `mail.compose.message`
+
+        """
+        res = super(SaleOrder, self).action_quotation_send()
+        if self.cost_estimate_only:
+            res['context'].update(mark_cost_estimate_as_done=True)
+        return res
+
+
+class mail_compose_message(models.Model):
+    _inherit = 'mail.compose.message'
+
+    @api.multi
+    def send_mail(self):
+        """ When sending mail for a Cost Estimate Only
+        Send a signal to set the Cost Estimate to `done`
+
+        """
+        context = self.env.context
+        if (context.get('default_model') == 'sale.order'
+                and 'default_res_id' in context
+                and 'mark_cost_estimate_as_done' in context):
+            res_id = context.get('default_res_id')
+            sale_order = self.env['sale.order'].browse(res_id)
+            sale_order.signal_workflow('cost_estimate_only_sent')
+        return super(mail_compose_message, self).send_mail()

@@ -25,6 +25,11 @@ msgstr ""
 msgid "Consignee address :"
 msgstr ""
 
+#. module: sale
+#: field:sale.order,project_id:0
+msgid "Contract / Analytic"
+msgstr "Project code"
+
 #. module: logistic_order
 #: view:sale.order:logistic_order.view_order_form
 #: view:sale.order:logistic_order.view_quotation_tree
@@ -160,6 +165,11 @@ msgid "Quotation Sent"
 msgstr "Cost Estimate Sent"
 
 #. module: sale
+#: field:sale.order,client_order_ref:0
+msgid "Reference/Description"
+msgstr "Requestor ref."
+
+#. module: sale
 #: selection:sale.order,state:0
 msgid "Sale to Invoice"
 msgstr "Logistics Order to Invoice"
@@ -173,6 +183,11 @@ msgstr ""
 #: selection:sale.order,state:0
 msgid "Sales Order"
 msgstr "Logistics Order"
+
+#. module: sale
+#: field:sale.order,user_id:0
+msgid "Salesperson"
+msgstr "Business Unit Officer"
 
 #. module: logistic_order
 #: view:sale.order:logistic_order.view_sales_order_filter
