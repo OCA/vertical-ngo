@@ -528,13 +528,20 @@ class LogisticsRequisitionLine(models.Model):
                 total_cost += source_line.total_cost
             line.amount_total = total_cost
 
-            date = line.requisition_id.date
-            from_curr = line.requisition_id.currency_id.with_context(date=date)
-            to_curr = line.requisition_id.company_id.currency_id
-
-            total_cost_company += from_curr.compute(total_cost, to_curr,
-                                                    round=False)
-            line.amount_total_company = total_cost_company
+            requisition = line.requisition_id
+            if requisition:
+                date = requisition.date
+                from_curr = requisition.currency_id.with_context(date=date)
+                to_curr = requisition.company_id.currency_id
+                total_cost_company += from_curr.compute(total_cost, to_curr,
+                                                        round=False)
+                line.amount_total_company = total_cost_company
+            else:
+                _logger.warning(
+                    "Total in currency not computed: requisition not passed "
+                    "to the onchange method. This can probably be avoided "
+                    "improving the view."
+                )
 
     @api.multi
     def view_stock_by_location(self):
