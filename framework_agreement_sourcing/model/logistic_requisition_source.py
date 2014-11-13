@@ -238,15 +238,6 @@ class logistic_requisition_source(orm.Model):
             cr, uid, main_source, other_sources, pricelist, context=None)
         return po_id
 
-    def _is_sourced_other(self, cr, uid, source, context=None):
-        """Predicate function to test if line on other
-        method are sourced"""
-        tender_ok = self._is_sourced_procurement(cr, uid, source,
-                                                 context=context)
-        agr_ok = self._is_sourced_fw_agreement(cr, uid, source,
-                                               context=context)
-        return (tender_ok or agr_ok)
-
     def _get_purchase_order_lines(self):
         """Convenience method to return the purchase order lines associated
         with the lr_source_line_id.
@@ -260,6 +251,18 @@ class logistic_requisition_source(orm.Model):
             ('lr_source_line_id', '=', self.id)
         ])
 
+    @api.multi
+    def _check_sourcing_other(self):
+        """Check sourcing for "other" mode.
+
+        :returns: list of error strings
+
+        """
+        tender_errors = self._check_sourcing_procurement()
+        agr_errors = self._check_sourcing_fw_agreement()
+        if tender_errors and agr_errors:
+            return ['{0}: Sourcing errors both on Agreement mode  '
+                    'and in Procurement mode.'.format(self.name)]
 
     @api.multi
     def _check_sourcing_fw_agreement(self):
