@@ -23,11 +23,11 @@ class TestCheckSourcing(TransactionCase):
         self.source.procurement_method = 'fw_agreement'
         errors = self.source._check_sourcing()
         self.assertEquals(1, len(errors))
-        self.assertIn('Missing Purchase Order', errors[0])
+        self.assertIn('No Purchase Order Lines', errors[0])
 
     def test_agreement_sourcing_with_po_is_sourced(self):
         self.source.procurement_method = 'fw_agreement'
-        self.source.framework_agreement_po_id = self.PO.new()
+        self.source._get_purchase_order_lines = lambda: self.PO.new()
         self.assertEquals([], self.source._check_sourcing())
 
     def setUp(self):

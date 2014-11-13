@@ -247,19 +247,31 @@ class logistic_requisition_source(orm.Model):
                                                context=context)
         return (tender_ok or agr_ok)
 
-    def _is_sourced_fw_agreement(self, cr, uid, source, context=None):
-        """Predicate that tells if source line of type agreement are sourced
+    def _get_purchase_order_lines(self):
+        """Convenience method to return the purchase order lines associated
+        with the lr_source_line_id.
 
-        :retuns: boolean True if sourced
+        I am not adding a one2many field because there are other, similar
+        fields already. We can of course change that in the future to be a
+        one2many or to use another field.
 
         """
-        po_line_obj = self.pool['purchase.order.line']
-        sources_ids = po_line_obj.search(cr, uid,
-                                         [('lr_source_line_id', '=', source.id)
-                                          ],
-                                         context=context)
-        # predicate
-        return bool(sources_ids)
+        return self.env['purchase.order.line'].search([
+            ('lr_source_line_id', '=', self.id)
+        ])
+
+
+    @api.multi
+    def _check_sourcing_fw_agreement(self):
+        """Check sourcing for "fw_agreement" method.
+
+        :returns: list of error strings
+
+        """
+        if not self._get_purchase_order_lines():
+            return ['{0}: No Purchase Order Lines associated with this '
+                    'source'.format(self.name)]
+        return []
 
     # ---------------Odoo onchange management ----------------------
 
