@@ -34,6 +34,7 @@
              "mail",
              "logistic_order",
              "logistic_consignee",
+             "ngo_purchase",
              "transport_information",
              "purchase_requisition_transport_document",
              ],
