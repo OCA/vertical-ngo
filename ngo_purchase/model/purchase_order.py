@@ -25,15 +25,15 @@ class PurchaseOrder(models.Model):
     _inherit = 'purchase.order'
 
     req_bid_tendering_mode = fields.Selection(
-        [('open', 'Open'),
-         ('restricted', 'Restricted')],
-        'Call for Bids Mode',
+        related='requisition_id.bid_tendering_mode',
+        selection=[('open', 'Open'),
+                   ('restricted', 'Restricted')],
+        string='Call for Bids Mode',
         readonly=True,
-        help="- Restricted : you select yourself the bidders and generate a "
-             "RFQ for each of those. \n- Open : anybody can bid (you have to "
-             "advertise the call for bids) and you directly encode the bids "
-             "you received. You are still able to generate RFQ if you want to "
-             "contact usual bidders.")
+        help="Call for Bids mode of the requisition from which this RFQ was "
+             "generated\n- Restricted: Only the Tender's creator can select "
+             "bidders and generate a RFQ for each of those.\n"
+             "- Open : anybody can bid.")
     req_date_end = fields.Datetime(
         related='requisition_id.date_end',
         string="Bid Submission Deadline",
