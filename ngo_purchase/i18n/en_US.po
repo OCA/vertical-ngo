@@ -34,7 +34,7 @@ msgstr ""
 #. module: purchase
 #: field:purchase.order.line,account_analytic_id:0
 msgid "Analytic Account"
-msgstr ""
+msgstr "Project"
 
 #. module: ngo_purchase
 #: view:purchase.order:ngo_purchase.purchase_order_form
