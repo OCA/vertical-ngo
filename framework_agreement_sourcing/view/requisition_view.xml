@@ -9,13 +9,12 @@
         <field name="unit_cost"
                position="before">
           <field name="framework_agreement_id"
-                 domain="[('draft', '=', False)]"
+                 domain="[('draft', '=', False), ('product_id', '=', proposed_product_id)]"
                  attrs="{'required': [('procurement_method', '=', 'fw_agreement')],
                         'invisible': [('procurement_method', '!=', 'fw_agreement')]}" />
           <field name="framework_agreement_po_id"
                  readonly="1"
                  attrs="{'invisible': [('procurement_method', 'not in', ['fw_agreement','other'])]}"
-                                  
                  />
 
           <field name="supplier_id"
