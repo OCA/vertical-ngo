@@ -162,6 +162,7 @@
                     <field name="company_id" groups="base.group_multi_company" widget="selection" attrs="{'readonly': [('state','not in',('draft'))]}"/>
                   </group>
                   <group>
+                    <field name="req_payment_term_id"/>
                     <field name="account_analytic_id" invisible="1"/>
                   </group>
                 </group>
