@@ -14,7 +14,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from openerp.tests.common import TransactionCase
-from openerp.exceptions import Warning
+from openerp import exceptions
 
 
 class TestButtonSourced(TransactionCase):
@@ -29,13 +29,13 @@ class TestButtonSourced(TransactionCase):
             'procurement_method': 'procurement',
             'name': 'my source',
         })
-        with self.assertRaises(Warning) as cm:
+        with self.assertRaises(exceptions.Warning) as cm:
             self.lrl.button_sourced()
         self.assertEqual("Incorrect Sourcing", cm.exception.args[0])
         self.assertIn("Missing Purchase Requisition", cm.exception.args[1])
 
     def test_line_with_no_sourcing_fails(self):
-        with self.assertRaises(Warning) as cm:
+        with self.assertRaises(exceptions.Warning) as cm:
             self.lrl.button_sourced()
         self.assertEqual("Incorrect Sourcing", cm.exception.args[0])
         self.assertEqual("No Sourcing Lines", cm.exception.args[1])

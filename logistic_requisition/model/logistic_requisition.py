@@ -20,8 +20,8 @@
 #
 import logging
 
-from openerp import models, fields, api
-from openerp.exceptions import except_orm, Warning
+from openerp import models, fields, api, exceptions
+from openerp.exceptions import except_orm
 from openerp.tools.translate import _
 import openerp.addons.decimal_precision as dp
 
@@ -493,11 +493,13 @@ class LogisticsRequisitionLine(models.Model):
     def _do_sourced(self):
         errors = []
         if not self.source_ids:
-            raise Warning(_('Incorrect Sourcing'), _('No Sourcing Lines'))
+            raise exceptions.Warning(_('Incorrect Sourcing'),
+                                     _('No Sourcing Lines'))
         for source in self.source_ids:
             errors += source._check_sourcing()
         if errors:
-            raise Warning(_('Incorrect Sourcing'), '\n'.join(errors))
+            raise exceptions.Warning(_('Incorrect Sourcing'),
+                                     '\n'.join(errors))
         self.state = 'sourced'
 
     @api.one
