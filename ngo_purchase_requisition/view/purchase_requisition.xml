@@ -13,10 +13,7 @@
             <!-- added by purchase_requisition_bid_selection -->
             <button name="reopen_bid" states="closed" string="Re-Open Bids Selection"/>
             <button name="tender_reset" states="cancel" string="Reset to Draft" type="object" />
-            <!-- extended by purchase_requisition_bid_selection adds state 'done' -->
-            <button name="open_product_line" states="open" string="Choose product lines" type="object" class="oe_highlight" groups="purchase.group_advance_bidding" attrs="{'invisible': ['|', ('state', 'not in', ('open','closed','done')), ('exclusive', '=', 'exclusive')]}"/>
-            <!-- added by purchase_requisition_bid_selection -->
-            <button name="open_po" type="object" string="View Generated PO" states="open,closed,done"/>
+            <button name="open_product_line" states="open" string="Choose product lines" type="object" class="oe_highlight" groups="purchase.group_advance_bidding" />
             <!-- extended by purchase_requisition_bid_selection -->
             <button name="generate_po" states="closed" string="Generate PO" type="object" class="oe_highlight"/>
             <button name="cancel_requisition" states="draft,in_progress" string="Cancel Call"/>
@@ -31,9 +28,11 @@
           </header>
           <sheet>
             <div class="oe_right oe_button_box" style="margin-top: 10px">
+              <!-- extended by purchase_requisition_bid_selection adds state 'closed' -->
               <button name="open_product_line" type="object" string="View Products Lines"
-                attrs="{'invisible': ['|', ('state', 'not in', ('open','done')), ('exclusive', '=', 'exclusive')]}" groups="purchase.group_advance_bidding"/>
-
+                attrs="{'invisible': ['|', ('state', 'not in', ('open','closed','done')), ('exclusive', '=', 'exclusive')]}" groups="purchase.group_advance_bidding"/>
+              <!-- added by purchase_requisition_bid_selection -->
+              <button name="open_po" type="object" string="View Generated PO" states="open,closed,done"/>
             </div>
             <div class="pull-left">
               <label for="name" class="oe_edit_only oe_inline"/>
@@ -95,17 +94,23 @@
                         </div>
                         <field name="schedule_date"/>
                         <field name="company_id" groups="base.group_multi_company" widget="selection"/>
+                        <!-- added by purchase_requisition_bid_selection -->
                         <field name="remark"/>
                       </group>
                     </group>
                   </form>
                 </field>
                 <div class="oe_right oe_button_box" style="margin-top: 10px">
-                <!-- extended by purchase_requisition_bid_selection change invisible attrs -->
+                  <!-- extended by purchase_requisition_bid_selection change invisible attrs -->
                   <button name="%(purchase_requisition.action_purchase_requisition_partner)d" type="action"
                     string="Request a Quotation" icon="gtk-execute"
                     attrs="{'invisible': ['|','|',('bid_tendering_mode','=','open'),('line_ids','=',[]),('state','!=','in_progress')]}"/>
-                  <button name="open_rfq" type="object" string="View RFQs/Bids" attrs="{'invisible': [('state', 'in', ('draft'))]}"/>
+                  <!-- added by purchase_requisition_bid_selection -->
+                  <button name="%(action_purchase_requisition_partner_draftbid)d" type="action"
+                    string="Encode a Bid" icon="gtk-execute"
+                    attrs="{'invisible': ['|','|',('bid_tendering_mode','=','restricted'),('line_ids','=',[]),('state','!=','in_progress')]}"/>
+                  <!-- extended by purchase_requisition_bid_selection change invisible attrs -->
+                  <button name="open_rfq" type="object" string="View RFQs/Bids" attrs="{'invisible': ['|',('purchase_ids','=',[]), ('state', 'in', ('draft'))]}"/>
                 </div>
 
                 <!-- renamed by purchase_requisition_bid_selection -->
@@ -152,6 +157,7 @@
               <page string="Accounting and Currency">
                 <group>
                   <group>
+                    <!-- added by purchase_requisition_bid_selecton -->
                     <field name="pricelist_id" attrs="{'readonly': [('state','not in',('draft'))]}"/>
                     <field name="company_id" groups="base.group_multi_company" widget="selection" attrs="{'readonly': [('state','not in',('draft'))]}"/>
                   </group>
@@ -161,7 +167,7 @@
                 </group>
               </page>
               <page string="Terms and Conditions">
-                <field name="description" attrs="{'readonly': [('state','not in',('draft'))]}"/>
+                <field name="description" attrs="{'readonly': [('state','not in',('draft'))]}" placeholder="Terms and Conditions..."/>
               </page>
             </notebook>
           </sheet>
