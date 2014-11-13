@@ -477,19 +477,18 @@ class LogisticsRequisitionLine(models.Model):
 
     @api.one
     def _do_create_po_requisition(self):
-        """ Create a call for bif for all sourcing lines with
-            procurement_method = 'procuremnet' contained
+        """ Create a call for bid for all sourcing lines with
+            procurement_method = 'procurement' contained
             in the Line
         """
         source_lines = self.source_ids
         if not source_lines:
-            raise except_orm(_('No sourcing line Found') % source.name,
+            raise except_orm(_('No sourcing line Found'),
                              _('No sourcing line were found, '
-                               'pleae create one.'))
-        pricelist_id = self.requisition_id.pricelist_id and \
-                         self.requisition_id.pricelist_id or None
+                               'please create one.'))
+        pricelist = self.requisition_id.pricelist_id or None
         res_id = source_lines._action_create_po_requisition(
-                                pricelist=pricelist_id)
+                                pricelist=pricelist)
         return True
 
     @api.one
