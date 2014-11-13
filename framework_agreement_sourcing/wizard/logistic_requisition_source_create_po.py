@@ -92,7 +92,7 @@ class logistic_requisition_source_po_creator(orm.TransientModel):
         else:
             source_ids = context['active_ids']
         if not source_ids:
-            raise except_orm(_('No sourcing line Found') % source.name,
+            raise except_orm(_('No sourcing line Found'),
                              _('No sourcing line were found, '
                                'pleae create one.'))
         form = self.browse(cr, uid, ids, context=context)[0]
