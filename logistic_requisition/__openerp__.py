@@ -36,6 +36,7 @@
              "logistic_consignee",
              "transport_information",
              "purchase_requisition_transport_document",
+             "purchase_requisition_delivery_address",
              ],
  "demo": ['data/logistic_requisition_demo.xml'],
  "data": ["wizard/logistic_line_create_requisition_view.xml",
