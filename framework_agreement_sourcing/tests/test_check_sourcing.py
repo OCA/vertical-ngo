@@ -36,6 +36,11 @@ class TestCheckSourcing(TransactionCase):
         self.assertEquals(1, len(errors))
         self.assertIn('Sourcing errors', errors[0])
 
+    def test_other_sourcing_with_pr_without_pol_is_sourced(self):
+        self.source.procurement_method = 'other'
+        self.source.po_requisition_id = self.PurcReq.new({'state': 'closed'})
+        self.assertEquals([], self.source._check_sourcing())
+
     def setUp(self):
         """Setup a source.
 
@@ -46,4 +51,5 @@ class TestCheckSourcing(TransactionCase):
         super(TestCheckSourcing, self).setUp()
         Source = self.env['logistic.requisition.source']
         self.PO = self.env['purchase.order']
+        self.PurcReq = self.env['purchase.requisition']
         self.source = Source.new()
