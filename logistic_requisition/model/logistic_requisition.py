@@ -500,6 +500,20 @@ class LogisticsRequisitionLine(models.Model):
         self.state = 'sourced'
 
     @api.one
+    def _do_create_po_requisition(self):
+        """ Create a call for bid for all sourcing lines with
+            procurement_method = 'procurement' contained
+            in the Line
+        """
+        source_lines = self.source_ids
+        if not source_lines:
+            raise except_orm(_('No sourcing line Found'),
+                             _('No sourcing line were found, '
+                               'please create one.'))
+        pricelist = self.requisition_id.pricelist_id or None
+        source_lines._action_create_po_requisition(pricelist=pricelist)
+
+    @api.one
     def _do_draft(self):
         self.state = 'draft'
 
@@ -679,6 +693,11 @@ class LogisticsRequisitionLine(models.Model):
     @api.multi
     def button_sourced(self):
         self._do_sourced()
+        return True
+
+    @api.multi
+    def button_create_po_requisition(self):
+        self._do_create_po_requisition()
         return True
 
     @api.model
