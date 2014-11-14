@@ -33,14 +33,6 @@
                position="attributes">
           <attribute name="attrs">{'invisible': [('procurement_method', '=', 'fw_agreement')]}</attribute>
         </field>
-        <field name="unit_cost"
-               position="attributes">
-          <attribute name="attrs">{'invisible': [('procurement_method', '=', 'fw_agreement')]}</attribute>
-        </field>
-        <field name="total_cost"
-               position="attributes">
-          <attribute name="attrs">{'invisible': [('procurement_method', '=', 'fw_agreement')]}</attribute>
-        </field>
         <field name="price_is"
                position="attributes">
           <attribute name="attrs">{'invisible': [('procurement_method', '=', 'fw_agreement')]}</attribute>
