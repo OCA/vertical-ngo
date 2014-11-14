@@ -81,7 +81,7 @@ class transport_plan(orm.Model):
             seq_obj = self.pool.get('ir.sequence')
             vals['name'] = seq_obj.get(cr, uid, 'transport.plan') or '/'
         return super(transport_plan, self).create(cr, uid, vals,
-                                                   context=context)
+                                                  context=context)
 
     def copy(self, cr, uid, id, default=None, context=None):
         if default is None:

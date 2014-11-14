@@ -111,7 +111,7 @@ class purchase_order_line(orm.Model):
     }
 
     def _prepare_lrs_update_from_po_line(self, cr, uid, vals,
-            po_line, context=None):
+                                         po_line, context=None):
         """ Take the vals dict from po line and return a vals dict for LRS
 
         :param dict vals: value of to be written in new po line
@@ -131,7 +131,7 @@ class purchase_order_line(orm.Model):
             to_curr = po_line.lr_source_line_id.requisition_id.currency_id.id
             from_curr = po_line.order_id.pricelist_id.currency_id.id
             price = currency_obj.compute(cr, uid, from_curr, to_curr,
-                    vals.get('price_unit'), False)
+                                         vals.get('price_unit'), False)
             lrs_vals['unit_cost'] = price
         if vals.get('date_planned'):
             if po_line.lr_source_line_id.transport_applicable:
@@ -158,44 +158,47 @@ class purchase_order_line(orm.Model):
             context = {}
         if not ids:
             return True
-        #We have to enforce list as it is called by function_inv
+        # We have to enforce list as it is called by function_inv
         if not isinstance(ids, list):
             ids = [ids]
         if (vals.get('product_qty') or vals.get('product_id')
-                                    or vals.get('product_uom')
-                                    or vals.get('price_unit')
-                                    or vals.get('date_planned')):
+                or vals.get('product_uom')
+                or vals.get('price_unit')
+                or vals.get('date_planned')):
             lrs_obj = self.pool.get('logistic.requisition.source')
             for line in self.browse(cr, uid, ids, context=context):
                 if line.lr_source_line_id:
                     if (line.lr_source_line_id.requisition_line_id in
-                                                ('sourced', 'quoted')):
+                            ('sourced', 'quoted')):
                         raise osv.except_osv(
                             _('UserError'),
                             _(
                                 "You cannot change the informations because this PO line "
                                 "is already linked to a Logistic Requsition Line %s marked "
-                                "as sourced or quoted." % (line.lr_source_line_id.name)
+                                "as sourced or quoted." % (
+                                    line.lr_source_line_id.name)
                             )
-                    )
+                        )
                     else:
                         lrs_vals = self._prepare_lrs_update_from_po_line(cr,
-                            uid, vals, line, context=context)
+                                                                         uid, vals, line, context=context)
                         lrs_obj.write(cr, uid, [line.lr_source_line_id.id],
-                            lrs_vals, context=context)
+                                      lrs_vals, context=context)
         return super(purchase_order_line, self).write(cr, uid, ids, vals,
                                                       context=context)
+
     def unlink(self, cr, uid, ids, context=None):
         for line in self.browse(cr, uid, ids, context=context):
             if line.lr_source_line_id:
                 if (line.lr_source_line_id.requisition_line_id in
-                                            ('sourced', 'quoted')):
+                        ('sourced', 'quoted')):
                     raise osv.except_osv(
                         _('UserError'),
                         _(
                             "You cannot delete this PO line because it is "
                             "already linked to a Logistic Requsition Line %s marked "
-                            "as sourced or quoted." % (line.lr_source_line_id.name)
+                            "as sourced or quoted." % (
+                                line.lr_source_line_id.name)
                         )
-                )
+                    )
         return super(purchase_order_line, self).unlink(cr, uid, ids, context=context)

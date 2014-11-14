@@ -11,7 +11,8 @@ class transport_plan_date(common.TransactionCase):
         super(transport_plan_date, self).setUp()
         cr, uid = self.cr, self.uid
         self.wizard_date = time.strftime('%Y-03-01')
-        self.logistic_transport_wizard = self.registry('logistic.requisition.source.transport.plan')
+        self.logistic_transport_wizard = self.registry(
+            'logistic.requisition.source.transport.plan')
 
     def test_01_eta_date_from_source(self):
         """If I have set an ETA date in tansport plan wizard,
@@ -21,7 +22,8 @@ class transport_plan_date(common.TransactionCase):
         req_src_br_1.requisition_line_id.date_delivery = '2000-01-01'
         with patch.object(self.logistic_transport_wizard, '_get_default_lines') as patched:
             patched.return_value = [req_src_br_1]
-            res = self.logistic_transport_wizard._get_default_date_eta_from_lines(cr, uid, {})
+            res = self.logistic_transport_wizard._get_default_date_eta_from_lines(
+                cr, uid, {})
         self.assertEqual(res, '2000-01-01', "Date of line was not taken")
 
     def test_02_eta_date_not_from_line(self):
@@ -34,7 +36,8 @@ class transport_plan_date(common.TransactionCase):
         req_src_br_2.requisition_line_id.date_delivery = '2000-01-01'
         with patch.object(self.logistic_transport_wizard, '_get_default_lines') as patched:
             patched.return_value = [req_src_br_1, req_src_br_2]
-            res = self.logistic_transport_wizard._get_default_date_eta_from_lines(cr, uid, {})
+            res = self.logistic_transport_wizard._get_default_date_eta_from_lines(
+                cr, uid, {})
         self.assertEqual(res, False, "Date of line was taken")
 
 if __name__ == '__main__':

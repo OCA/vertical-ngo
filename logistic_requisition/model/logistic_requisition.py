@@ -35,7 +35,8 @@ class res_partner(orm.Model):
 
     def _store_get_requisition_ids(self, cr, uid, ids, sfield, context=None):
         req_obj = self.pool.get('logistic.requisition')
-        req_ids = req_obj.search(cr, uid, [(sfield, 'in', ids)], context=context)
+        req_ids = req_obj.search(
+            cr, uid, [(sfield, 'in', ids)], context=context)
         return req_ids
 
 
@@ -164,10 +165,10 @@ class logistic_requisition(orm.Model):
             type='float'
         ),
         'pricelist_id': fields.many2one('product.pricelist',
-            'Pricelist',
-            required=True,
-            states=REQ_STATES,
-            help="Pricelist that represent the currency for current logistic request."),
+                                        'Pricelist',
+                                        required=True,
+                                        states=REQ_STATES,
+                                        help="Pricelist that represent the currency for current logistic request."),
         'currency_id': fields.related('pricelist_id',
                                       'currency_id',
                                       type='many2one',
@@ -216,7 +217,6 @@ class logistic_requisition(orm.Model):
                                        [('requisition_id', 'in', ids)],
                                        context=context)
         return line_ids
-
 
     def _do_cancel(self, cr, uid, ids, reason_id, context=None):
         reqs = self.read(cr, uid, ids, ['line_ids'], context=context)
@@ -408,7 +408,8 @@ class logistic_requisition_line(orm.Model):
                                             states=REQUEST_STATES,
                                             required=True),
         'amount_total': fields.function(
-            lambda self, *args, **kwargs: self._get_total_cost(*args, **kwargs),
+            lambda self, *
+            args, **kwargs: self._get_total_cost(*args, **kwargs),
             string='Total Amount',
             type="float",
             digits_compute=dp.get_precision('Account'),
@@ -435,10 +436,11 @@ class logistic_requisition_line(orm.Model):
                     lambda self, cr, uid, ids, c=None: ids,
                     ['requisition_id'], 10),
                 'logistic.requisition': (
-                    lambda self, *a, **kw: self._store_get_requisition_line_ids(*a, **kw),
+                    lambda self, *
+                    a, **kw: self._store_get_requisition_line_ids(*a, **kw),
                     ['cost_estimate_only'], 10),
-                }
-            ),
+            }
+        ),
         'state': fields.selection(
             STATES,
             string='State',
@@ -502,7 +504,8 @@ class logistic_requisition_line(orm.Model):
     def create(self, cr, uid, vals, context=None):
         if (vals.get('name') or '/') == '/':
             seq_obj = self.pool.get('ir.sequence')
-            vals['name'] = seq_obj.get(cr, uid, 'logistic.requisition.line') or '/'
+            vals['name'] = seq_obj.get(
+                cr, uid, 'logistic.requisition.line') or '/'
         return super(logistic_requisition_line, self).create(cr, uid, vals,
                                                              context=context)
 
@@ -575,7 +578,6 @@ class logistic_requisition_line(orm.Model):
 
     def view_price_by_location(self, cr, uid, ids, context=None):
         assert len(ids) == 1, "Expected only 1 ID"
-        price_obj = self.pool.get('product.pricelist')
         line = self.browse(cr, uid, ids[0], context=context)
         ctx = {"search_default_name": line.product_id.name}
         # if line.dispatch_location_id:
@@ -816,7 +818,8 @@ class logistic_requisition_source(orm.Model):
             states=SOURCED_STATES,
             digits_compute=dp.get_precision('Account')),
         'total_cost': fields.function(
-            lambda self, *args, **kwargs: self._get_total_cost(*args, **kwargs),
+            lambda self, *
+            args, **kwargs: self._get_total_cost(*args, **kwargs),
             string='Total Cost',
             type='float',
             digits_compute=dp.get_precision('Account'),
@@ -855,15 +858,15 @@ class logistic_requisition_source(orm.Model):
         # when filled, it means that it has been associated with a
         # bid order line during the split process
         'selected_bid_line_id': fields.many2one('purchase.order.line',  # one2one relation with lr_source_line_id
-                                       'Purchase Order Line',
-                                       readonly=True,
-                                       ondelete='restrict'),
+                                                'Purchase Order Line',
+                                                readonly=True,
+                                                ondelete='restrict'),
         'selected_bid_id': fields.related('selected_bid_line_id',
-                                         'order_id',
-                                         type='many2one',
-                                         relation='purchase.order',
-                                         string='Selected Bid',
-                                         readonly=True),
+                                          'order_id',
+                                          type='many2one',
+                                          relation='purchase.order',
+                                          string='Selected Bid',
+                                          readonly=True),
         'purchase_line_id': fields.function(
             lambda self, *a, **kw: self._get_purchase_line_id(*a, **kw),
             type='many2one',
@@ -944,7 +947,7 @@ class logistic_requisition_source(orm.Model):
         callable_name = "_is_sourced_%s" % source.procurement_method
         if not hasattr(self, callable_name):
             raise NotImplementedError(callable_name)
-        callable_fun =  getattr(self, callable_name)
+        callable_fun = getattr(self, callable_name)
         return callable_fun(cr, uid, source, context=context)
 
     def _check_transport_plan(self, cr, uid, ids, context=None):
@@ -1015,7 +1018,8 @@ class logistic_requisition_source(orm.Model):
     def create(self, cr, uid, vals, context=None):
         if (vals.get('name') or '/') == '/':
             seq_obj = self.pool.get('ir.sequence')
-            vals['name'] = seq_obj.get(cr, uid, 'logistic.requisition.source') or '/'
+            vals['name'] = seq_obj.get(
+                cr, uid, 'logistic.requisition.source') or '/'
         return super(logistic_requisition_source, self).create(cr, uid, vals,
                                                                context=context)
 
@@ -1026,11 +1030,11 @@ class logistic_requisition_source(orm.Model):
         """
         pricelist_obj = self.pool.get('product.pricelist')
         pricelist_id = pricelist_obj.search(cr, uid,
-            [('currency_id','=',currency_id),('type','=','purchase')], limit=1)
+                                            [('currency_id', '=', currency_id), ('type', '=', 'purchase')], limit=1)
         return pricelist_id[0]
 
     def _prepare_po_requisition(self, cr, uid, sources, purch_req_lines,
-            pricelist=None, context=None):
+                                pricelist=None, context=None):
         company_id = None
         user_id = None
         consignee_id = None
@@ -1073,7 +1077,7 @@ class logistic_requisition_source(orm.Model):
                 uid,
                 line.requisition_id.pricelist_id.currency_id.id,
                 context=context
-                )
+            )
             if pricelist is None:
                 pricelist = line_pricelist_id
         return {'user_id': user_id or uid,
@@ -1136,9 +1140,9 @@ class logistic_requisition_source(orm.Model):
         return purch_req_id
 
     def action_create_po_requisition(self, cr, uid, ids,
-            pricelist=None, context=None):
+                                     pricelist=None, context=None):
         self._action_create_po_requisition(cr, uid, ids,
-                pricelist=pricelist, context=context)
+                                           pricelist=pricelist, context=context)
         return self.action_open_po_requisition(cr, uid, ids, context=context)
 
     def action_open_po_requisition(self, cr, uid, ids, context=None):
@@ -1178,7 +1182,8 @@ class logistic_requisition_source(orm.Model):
             cr, uid, id, default=std_default, context=context)
 
     def onchange_transport_plan_id(self, cr, uid, ids, transport_plan_id, context=None):
-        # Even if date fields are related we want to have immediate visual feedback
+        # Even if date fields are related we want to have immediate visual
+        # feedback
         value = {'date_eta': False,
                  'date_etd': False}
         if transport_plan_id:
@@ -1204,7 +1209,7 @@ class logistic_requisition_source(orm.Model):
         return {'value': value}
 
     def onchange_selected_bid_id(self, cr, uid, ids, selected_bid_id, context=None):
-        #FIXME: don't understand
+        # FIXME: don't understand
         """ Get the address of the supplier and write it in the
         supplier_partner_id field, this field is a related read-only, so
         this change will never be submitted to the server. But it is

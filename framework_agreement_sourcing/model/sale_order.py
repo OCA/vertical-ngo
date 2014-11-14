@@ -24,6 +24,7 @@ from .logistic_requisition_source import AGR_PROC
 
 
 class sale_order_line(orm.Model):
+
     """Pass agreement PO into state confirmed when SO is confirmed"""
 
     _inherit = "sale.order.line"
@@ -45,9 +46,10 @@ class sale_order_line(orm.Model):
 
         lines = self.browse(cr, uid, ids, context=context)
         source_ids = [x.logistic_requisition_source_id.id for x in lines
-                           if source_valid(x.logistic_requisition_source_id)]
+                      if source_valid(x.logistic_requisition_source_id)]
         po_line_ids = po_line_model.search(cr, uid,
-                                           [('lr_source_line_id', 'in', source_ids)],
+                                           [('lr_source_line_id',
+                                             'in', source_ids)],
                                            context=context)
         po_lines = po_line_model.read(cr, uid, po_line_ids, ['order_id'],
                                       load='_classic_write')

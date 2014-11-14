@@ -20,7 +20,6 @@
 ##############################################################################
 
 from openerp.osv import orm, fields
-from openerp.tools.translate import _
 
 
 class purchase_requisition(orm.Model):
@@ -54,7 +53,7 @@ class purchase_requisition(orm.Model):
                 # Compute from bid currency to LRS currency
                 from_curr = pr_bid_line.order_id.pricelist_id.currency_id.id
                 price = currency_obj.compute(cr, uid, from_curr, to_curr,
-                    pr_bid_line.price_unit, False)
+                                             pr_bid_line.price_unit, False)
                 vals = {
                     'price_is': 'fixed',
                     'proposed_qty': pr_bid_line.quantity_bid,
@@ -62,9 +61,9 @@ class purchase_requisition(orm.Model):
                     'proposed_uom_id': pr_bid_line.product_uom.id,
                     'selected_bid_line_id': pr_bid_line.id,
                     'unit_cost': price,
-                    #FIXME: we need to take care of the scheduled date
+                    # FIXME: we need to take care of the scheduled date
                     # set eta or etd depending if transport is included
-                    }
+                }
                 if source.transport_applicable:
                     if pr_bid_line.order_id.transport == 'included':
                         vals.update({'date_etd': False,
@@ -90,15 +89,17 @@ class purchase_requisition(orm.Model):
                         set_sources.add(source.id)
                     else:
                         # create a new source line
-                        vals.update({'purchase_requisition_line_id': pr_line.id})
+                        vals.update(
+                            {'purchase_requisition_line_id': pr_line.id})
                         new_id = req_source_obj.copy(cr, uid, source.id,
-                                              default=vals,
-                                              context=context)
+                                                     default=vals,
+                                                     context=context)
                         pr_bid_line.write({'lr_source_line_id': new_id})
                 else:
                     if not pr_bid_line.quantity_bid or pr_bid_line.state not in ('confirmed', 'done'):
                         # this bid line is not anymore selected
-                        pr_bid_line.lr_source_line_id.write({'proposed_qty': 0})
+                        pr_bid_line.lr_source_line_id.write(
+                            {'proposed_qty': 0})
                     else:
                         # update source line
                         pr_bid_line.lr_source_line_id.write(vals)

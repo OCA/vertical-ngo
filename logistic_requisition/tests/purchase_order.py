@@ -22,6 +22,7 @@
 """ Helpers for the tests for the purchase order model
 """
 
+
 def select_line(test, purchase_line_id, quantity):
     """ Select a quantity of products the BID """
     cr, uid = test.cr, test.uid
@@ -40,7 +41,7 @@ def bid_encoded(test, purchase_order_id):
                'active_ids': [purchase_order_id],
                'active_model': 'purchase.order'}
     res = purch_order_obj.bid_received(cr, uid, [purchase_order_id],
-                                      context=context)
+                                       context=context)
     context.update(res['context'])
     wizard_id = wizard_obj.create(cr, uid, {}, context=context)
     res = wizard_obj.action(cr, uid, [wizard_id], context=context)

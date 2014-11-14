@@ -19,19 +19,19 @@
 #
 ##############################################################################
 from collections import namedtuple
-from openerp.tools.translate import _
 from openerp.osv import orm
 from .logistic_requisition_source import AGR_PROC
 
 
 class logistic_requisition_line(orm.Model):
+
     """Override to enable generation of source line"""
 
     _inherit = "logistic.requisition.line"
 
     def _prepare_line_source(self, cr, uid, line,
-                                      qty=None, agreement=None,
-                                      context=None):
+                             qty=None, agreement=None,
+                             context=None):
         """Prepare data dict for source line creation. If an agreement
         is given, the procurement_method will be an LTA (AGR_PROC).
         Otherwise, if it's a stockable product we'll go to tender
@@ -55,12 +55,13 @@ class logistic_requisition_line(orm.Model):
         res['framework_agreement_id'] = False
         if agreement:
             if not agreement.product_id.id == line.product_id.id:
-                raise ValueError("Product mismatch for agreement and requisition line")
+                raise ValueError(
+                    "Product mismatch for agreement and requisition line")
             res['framework_agreement_id'] = agreement.id
             res['procurement_method'] = AGR_PROC
         else:
             if line.product_id.type == 'product':
-               res['procurement_method'] = 'procurement'
+                res['procurement_method'] = 'procurement'
             else:
                 res['procurement_method'] = 'other'
         return res
@@ -188,9 +189,9 @@ class logistic_requisition_line(orm.Model):
         qty = force_qty if force_qty else line.requested_qty
         src_obj = self.pool['logistic.requisition.source']
         vals = self._prepare_line_source(cr, uid, line,
-                                                    qty=qty,
-                                                    agreement=agreement,
-                                                    context=None)
+                                         qty=qty,
+                                         agreement=agreement,
+                                         context=None)
         return src_obj.create(cr, uid, vals, context=context)
 
     def _generate_source_line(self, cr, uid, line, context=None):

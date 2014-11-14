@@ -44,7 +44,8 @@ class logistic_requisition(orm.Model):
                     lambda self, cr, uid, ids, c=None: ids,
                     ['line_ids'], 20),
                 'logistic.requisition.line': (
-                    lambda self, *a, **kw: self._store_get_requisition_ids(*a, **kw),
+                    lambda self, *
+                    a, **kw: self._store_get_requisition_ids(*a, **kw),
                     ['requested_qty', 'budget_unit_price', 'budget_tot_price', 'requisition_id'], 20),
             }),
         'allowed_budget': fields.boolean('Allowed Budget'),
@@ -114,7 +115,8 @@ class logistic_requisition_line(orm.Model):
             states=REQUEST_STATES,
             digits_compute=dp.get_precision('Account')),
         'budget_unit_price': fields.function(
-            lambda self, *args, **kwargs: self._get_unit_amount_line(*args, **kwargs),
+            lambda self, *
+            args, **kwargs: self._get_unit_amount_line(*args, **kwargs),
             string='Budget Unit Price',
             type="float",
             digits_compute=dp.get_precision('Account'),

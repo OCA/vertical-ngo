@@ -34,7 +34,8 @@ class CommonSourcingSetUp(test_common.TransactionCase, BaseAgreementTestMixin):
         super(CommonSourcingSetUp, self).setUp()
         self.commonsetUp()
         self.requisition_model = self.registry('logistic.requisition')
-        self.requisition_line_model = self.registry('logistic.requisition.line')
+        self.requisition_line_model = self.registry(
+            'logistic.requisition.line')
         self.source_line_model = self.registry('logistic.requisition.source')
         self.make_common_agreements()
         self.make_common_requisition()
@@ -76,7 +77,6 @@ class CommonSourcingSetUp(test_common.TransactionCase, BaseAgreementTestMixin):
             'budget_tot_price': 100000000,
         }
 
-
         requisition_id = logistic_requisition.create(self, req)
         logistic_requisition.add_line(self, requisition_id,
                                       agr_line)
@@ -84,7 +84,8 @@ class CommonSourcingSetUp(test_common.TransactionCase, BaseAgreementTestMixin):
                                       product_line)
         logistic_requisition.add_line(self, requisition_id,
                                       other_line)
-        self.requisition = self.requisition_model.browse(self.cr, self.uid, requisition_id)
+        self.requisition = self.requisition_model.browse(
+            self.cr, self.uid, requisition_id)
 
     def make_common_agreements(self):
         """Create two default agreements.
@@ -128,7 +129,8 @@ class CommonSourcingSetUp(test_common.TransactionCase, BaseAgreementTestMixin):
                                           'quantity': 1000,
                                           'price': 30.0})
 
-        self.cheap_on_high_agreement = self.agreement_model.browse(cr, uid, agr_id)
+        self.cheap_on_high_agreement = self.agreement_model.browse(
+            cr, uid, agr_id)
 
         # Agreement 2
         agr_id = self.agreement_model.create(cr, uid,
@@ -152,4 +154,5 @@ class CommonSourcingSetUp(test_common.TransactionCase, BaseAgreementTestMixin):
                                          {'framework_agreement_pricelist_id': pl_id,
                                           'quantity': 1000,
                                           'price': 45.0})
-        self.cheap_on_low_agreement = self.agreement_model.browse(cr, uid, agr_id)
+        self.cheap_on_low_agreement = self.agreement_model.browse(
+            cr, uid, agr_id)

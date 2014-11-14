@@ -20,10 +20,10 @@
 ##############################################################################
 
 from openerp.osv import orm, fields
-from ..model.logistic_requisition import logistic_requisition as base_requisition
 
 
 class logistic_requisition_cancel(orm.TransientModel):
+
     """ Ask a reason for the logistic requisition cancellation."""
     _name = 'logistic.requisition.cancel'
     _description = __doc__

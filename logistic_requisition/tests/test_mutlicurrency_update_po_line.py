@@ -20,7 +20,6 @@
 ##############################################################################
 
 import time
-import unittest2
 from functools import partial
 
 from openerp.tools import DEFAULT_SERVER_DATE_FORMAT as D_FMT
@@ -31,6 +30,7 @@ from . import purchase_order
 
 
 class test_sale_order_from_lr_confirm(common.TransactionCase):
+
     """ Test the multi-currency in the LR -> PO -> LRS process
     and ensure that updating the PO line update properly the LRS values
     while there still not marked as sourced or quoted.
@@ -94,14 +94,16 @@ class test_sale_order_from_lr_confirm(common.TransactionCase):
         """
         cr, uid = self.cr, self.uid
         requisition_id = logistic_requisition.create(self, self.vals)
-        line_id = logistic_requisition.add_line(self, requisition_id, self.line1)
-        source_id = logistic_requisition.add_source(self, line_id, self.source1)
+        line_id = logistic_requisition.add_line(
+            self, requisition_id, self.line1)
+        source_id = logistic_requisition.add_source(
+            self, line_id, self.source1)
         logistic_requisition.confirm(self, requisition_id)
         logistic_requisition.assign_lines(self, [line_id], self.user_demo)
         purch_req_id = logistic_requisition.create_purchase_requisition(
             self, source_id)
         purchase_requisition.change_pricelist(self, purch_req_id,
-            self.purchase_pricelist_eur)
+                                              self.purchase_pricelist_eur)
         purchase_requisition.confirm_call(self, purch_req_id)
         bid, bid_line = purchase_requisition.create_draft_purchase_order(
             self, purch_req_id, self.partner_1)
@@ -112,7 +114,7 @@ class test_sale_order_from_lr_confirm(common.TransactionCase):
         purchase_requisition.bids_selected(self, purch_req_id)
 
         logistic_requisition.check_line_unit_cost(self, source_id, 10,
-            self.purchase_pricelist_eur)
+                                                  self.purchase_pricelist_eur)
         # Change po value to check
 
         logistic_requisition.source_lines(self, [line_id])

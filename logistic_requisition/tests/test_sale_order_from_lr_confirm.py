@@ -20,7 +20,6 @@
 ##############################################################################
 
 import time
-import unittest2
 from functools import partial
 
 from openerp.tools import DEFAULT_SERVER_DATE_FORMAT as D_FMT
@@ -31,6 +30,7 @@ from . import purchase_order
 
 
 class test_sale_order_from_lr_confirm(common.TransactionCase):
+
     """ Test the confirmation of a sale order created by a logistic
     requisition.
 
@@ -91,8 +91,10 @@ class test_sale_order_from_lr_confirm(common.TransactionCase):
         """
         cr, uid = self.cr, self.uid
         requisition_id = logistic_requisition.create(self, self.vals)
-        line_id = logistic_requisition.add_line(self, requisition_id, self.line1)
-        source_id = logistic_requisition.add_source(self, line_id, self.source1)
+        line_id = logistic_requisition.add_line(
+            self, requisition_id, self.line1)
+        source_id = logistic_requisition.add_source(
+            self, line_id, self.source1)
         logistic_requisition.confirm(self, requisition_id)
         logistic_requisition.assign_lines(self, [line_id], self.user_demo)
         purch_req_id = logistic_requisition.create_purchase_requisition(
@@ -122,8 +124,10 @@ class test_sale_order_from_lr_confirm(common.TransactionCase):
         """ 1 sales order line is generated for each source line """
         cr, uid = self.cr, self.uid
         requisition_id = logistic_requisition.create(self, self.vals)
-        line_id = logistic_requisition.add_line(self, requisition_id, self.line1)
-        source_id = logistic_requisition.add_source(self, line_id, self.source1)
+        line_id = logistic_requisition.add_line(
+            self, requisition_id, self.line1)
+        source_id = logistic_requisition.add_source(
+            self, line_id, self.source1)
         logistic_requisition.confirm(self, requisition_id)
         logistic_requisition.assign_lines(self, [line_id], self.user_demo)
         purch_req_id = logistic_requisition.create_purchase_requisition(

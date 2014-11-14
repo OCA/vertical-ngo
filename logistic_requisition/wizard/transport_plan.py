@@ -141,7 +141,8 @@ class logistic_requisition_source_transport_plan(orm.TransientModel):
         transport_obj = self.pool.get('transport.plan')
         source_obj = self.pool.get('logistic.requisition.source')
         lines = source_obj.browse(cr, uid, source_ids, context=context)
-        vals = self._prepare_transport_plan(cr, uid, form, lines, context=context)
+        vals = self._prepare_transport_plan(
+            cr, uid, form, lines, context=context)
         transport_id = transport_obj.create(cr, uid, vals, context=context)
         source_obj.write(cr, uid, source_ids,
                          {'transport_plan_id': transport_id,

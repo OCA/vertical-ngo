@@ -131,12 +131,11 @@ def check_line_unit_cost(test, line_id, bid_price, bid_pricelist):
     to_curr = lrs.requisition_id.currency_id.id
     from_curr = pricelist.currency_id.id
     price = currency_obj.compute(cr, uid, from_curr, to_curr,
-            bid_price, False)
+                                 bid_price, False)
     test.assertEquals(lrs.unit_cost,
                       price,
                       "The unit cost of the LRS should be the selected "
                       "bid value converted regarding the different currency")
-
 
 
 def create_quotation(test, requisition_id, line_ids):
