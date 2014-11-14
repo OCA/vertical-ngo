@@ -143,23 +143,3 @@ class logistic_requisition_line(orm.Model):
             price = line.budget_tot_price / line.requested_qty
             res[line.id] = price
         return res
-
-
-class logistic_requisition_source(orm.Model):
-    _inherit = "logistic.requisition.source"
-
-    _constraints = [
-        (lambda self, *a, **kw: self._check_source_lines_total_amount(
-            *a, **kw),
-         'The total cost cannot be more than the total budget.',
-         ['proposed_qty', 'unit_cost', 'requisition_line_id']),
-    ]
-
-    def _check_source_lines_total_amount(self, cr, uid, ids, context=None):
-        for source in self.browse(cr, uid, ids, context=context):
-            line = source.requisition_line_id
-            total = sum(source.unit_cost * source.proposed_qty
-                        for source in line.source_ids)
-            if total > line.budget_tot_price:
-                return False
-        return True
