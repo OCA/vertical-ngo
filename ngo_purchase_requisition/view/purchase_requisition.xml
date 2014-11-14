@@ -31,7 +31,7 @@
             <div class="pull-left">
               <label for="name" class="oe_edit_only oe_inline"/>
               <h1>
-                <field name="name" class="oe_inline" attrs="{'readonly': [('state','not in',('draft'))]}"/>
+                <field name="name" class="oe_inline" attrs="{'readonly': [('state','!=','draft')]}"/>
               </h1>
             </div>
             <div class="pull-left">
@@ -45,23 +45,23 @@
             <field name="exclusive" invisible="1"/>
             <group>
               <group>
-                <field name="user_id" context="{'default_groups_ref': ['base.group_user', 'base.group_partner_manager', 'purchase_requisition.group_purchase_requisition_user', 'purchase.group_purchase_user', 'account.group_account_invoice']}" attrs="{'readonly': [('state','not in',('draft'))]}"/>
-                <field name="bid_tendering_mode" attrs="{'readonly': [('state','not in',('draft'))]}" /> <!-- purchase_requisition_bid_selection -->
-                <field name="bid_receipt_mode" attrs="{'readonly': [('state','not in',('draft'))]}"/>
+                <field name="user_id" context="{'default_groups_ref': ['base.group_user', 'base.group_partner_manager', 'purchase_requisition.group_purchase_requisition_user', 'purchase.group_purchase_user', 'account.group_account_invoice']}" attrs="{'readonly': [('state','!=','draft')]}"/>
+                <field name="bid_tendering_mode" attrs="{'readonly': [('state','!=','draft')]}" /> <!-- purchase_requisition_bid_selection -->
+                <field name="bid_receipt_mode" attrs="{'readonly': [('state','!=','draft')]}"/>
               </group>
               <group>
-                <field name="ordering_date" attrs="{'readonly': [('state','not in',('draft'))]}"/>
-                <field name="schedule_date" attrs="{'readonly': [('state','not in',('draft'))]}"/>
-                <field name="req_validity" attrs="{'readonly': [('state','not in',('draft'))]}"/>
-                <field name="date_end" attrs="{'readonly': [('state','not in',('draft'))]}"/>
+                <field name="ordering_date" attrs="{'readonly': [('state','!=','draft')]}"/>
+                <field name="schedule_date" attrs="{'readonly': [('state','!=','draft')]}"/>
+                <field name="req_validity" attrs="{'readonly': [('state','!=','draft')]}"/>
+                <field name="date_end" attrs="{'readonly': [('state','!=','draft')]}"/>
               </group>
               <group>
-                <field name="multiple_rfq_per_supplier" attrs="{'readonly': [('state','not in',('draft'))]}"/>
+                <field name="multiple_rfq_per_supplier" attrs="{'readonly': [('state','!=','draft')]}"/>
               </group>
             </group>
             <notebook>
               <page string="Products">
-                <field name="line_ids" attrs="{'readonly': [('state','not in',('draft'))]}">
+                <field name="line_ids" attrs="{'readonly': [('state','!=','draft')]}">
                   <tree string="Products">
                     <field name="product_id" on_change="onchange_product_id(product_id,product_uom_id,parent.account_analytic_id,account_analytic_id,parent.schedule_date,schedule_date)"/>
                     <field name="product_qty"/>
@@ -126,12 +126,12 @@
               <page string="Transportation and delivery">
                 <group>
                   <group>
-                    <field name="dest_address_id" attrs="{'readonly': [('state','not in',('draft'))]}"/>
-                    <field name="picking_type_id" widget="selection" groups="stock.group_locations" attrs="{'readonly': [('state','not in',('draft'))]}"/>
+                    <field name="dest_address_id" attrs="{'readonly': [('state','!=','draft')]}"/>
+                    <field name="picking_type_id" widget="selection" groups="stock.group_locations" attrs="{'readonly': [('state','!=','draft')]}"/>
                   </group>
                   <group>
-                    <field name="req_incoterm_id" attrs="{'readonly': [('state','not in',('draft'))]}"/>
-                    <field name="req_incoterm_address" attrs="{'readonly': [('state','not in',('draft'))]}"/>
+                    <field name="req_incoterm_id" attrs="{'readonly': [('state','!=','draft')]}"/>
+                    <field name="req_incoterm_address" attrs="{'readonly': [('state','!=','draft')]}"/>
                   </group>
                 </group>
                 <group string="Transport Documents">
@@ -148,8 +148,8 @@
                 <group>
                   <group>
                     <!-- added by purchase_requisition_bid_selecton -->
-                    <field name="pricelist_id" attrs="{'readonly': [('state','not in',('draft'))]}"/>
-                    <field name="company_id" groups="base.group_multi_company" widget="selection" attrs="{'readonly': [('state','not in',('draft'))]}"/>
+                    <field name="pricelist_id" attrs="{'readonly': [('state','!=','draft')]}"/>
+                    <field name="company_id" groups="base.group_multi_company" widget="selection" attrs="{'readonly': [('state','!=','draft')]}"/>
                   </group>
                   <group>
                     <field name="req_payment_term_id"/>
@@ -158,7 +158,7 @@
                 </group>
               </page>
               <page string="Terms and Conditions">
-                <field name="description" attrs="{'readonly': [('state','not in',('draft'))]}" placeholder="Terms and Conditions..."/>
+                <field name="description" attrs="{'readonly': [('state','!=','draft')]}" placeholder="Terms and Conditions..."/>
               </page>
             </notebook>
           </sheet>
