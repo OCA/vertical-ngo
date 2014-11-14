@@ -123,6 +123,12 @@
                 <field name="carrier_id"/>
               </group>
             </group>
+            <group string="Delivery Remarks">
+              <field name="delivery_remark"
+                colspan="4"
+                nolabel="1"
+                class="oe_inline"/>
+            </group>
           </page>
           <page string="Accounting and Currency">
             <group>
