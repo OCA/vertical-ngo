@@ -20,6 +20,7 @@
 ##############################################################################
 from openerp.osv import orm, fields
 from openerp.tools.translate import _
+from openerp.exceptions import except_orm
 
 
 class logistic_requisition_source_po_creator(orm.TransientModel):
@@ -87,7 +88,7 @@ class logistic_requisition_source_po_creator(orm.TransientModel):
         lr_line_obj = self.pool['logistic.requisition.line']
         if context.get('active_model') == 'logistic.requisition.line':
             lr_lines = lr_line_obj.browse(cr, uid, context['active_ids'],
-                context=context)
+                                          context=context)
             source_ids = [s_line.id for s_line in lr_lines.source_ids]
         else:
             source_ids = context['active_ids']
