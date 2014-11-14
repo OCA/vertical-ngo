@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data noupdate="0">
+
+    <record id="view_order_form" model="ir.ui.view">
+      <field name="name">sale.order.form</field>
+      <field name="model">sale.order</field>
+      <field name="inherit_id" ref="sale.view_order_form"/>
+      <field name="arch" type="xml">
+        <xpath expr="//notebook" position="after">
+          <div class="oe_clear"/>
+          <group string="Validation">
+            <div colspan="4">
+              <label for="budget_holder_id"/>
+              <field name="budget_holder_id"/>
+              <label string=" validated on "
+                attrs="{'invisible': [('budget_holder_id', '=', False)]}" />
+              <field name="date_budget_holder"
+                attrs="{'invisible': [('budget_holder_id', '=', False)]}"
+                class="oe_inline"/>
+              <field name="budget_holder_remark"
+                attrs="{'invisible': [('budget_holder_id', '=', False)]}"/>
+            </div>
+            <div colspan="4">
+              <label for="finance_officer_id"/>
+              <field name="finance_officer_id"/>
+              <label string=" validated on "
+                attrs="{'invisible': [('finance_officer_id', '=', False)]}"/>
+              <field name="date_finance_officer"
+                attrs="{'invisible': [('finance_officer_id', '=', False)]}"
+                class="oe_inline"/>
+              <field name="finance_officer_remark"
+                attrs="{'invisible': [('finance_officer_id', '=', False)]}"/>
+            </div>
+          </group>
+        </xpath>
+      </field>
+    </record>
+
+  </data>
+</openerp>
