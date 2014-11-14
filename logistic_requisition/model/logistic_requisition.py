@@ -487,8 +487,7 @@ class LogisticsRequisitionLine(models.Model):
                              _('No sourcing line were found, '
                                'please create one.'))
         pricelist = self.requisition_id.pricelist_id or None
-        res_id = source_lines._action_create_po_requisition(
-                                pricelist=pricelist)
+        source_lines._action_create_po_requisition(pricelist=pricelist)
 
     @api.one
     def _do_draft(self):
