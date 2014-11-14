@@ -489,7 +489,6 @@ class LogisticsRequisitionLine(models.Model):
         pricelist = self.requisition_id.pricelist_id or None
         res_id = source_lines._action_create_po_requisition(
                                 pricelist=pricelist)
-        return True
 
     @api.one
     def _do_draft(self):
