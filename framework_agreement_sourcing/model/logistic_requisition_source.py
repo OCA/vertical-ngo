@@ -238,28 +238,45 @@ class logistic_requisition_source(orm.Model):
             cr, uid, main_source, other_sources, pricelist, context=None)
         return po_id
 
-    def _is_sourced_other(self, cr, uid, source, context=None):
-        """Predicate function to test if line on other
-        method are sourced"""
-        tender_ok = self._is_sourced_procurement(cr, uid, source,
-                                                 context=context)
-        agr_ok = self._is_sourced_fw_agreement(cr, uid, source,
-                                               context=context)
-        return (tender_ok or agr_ok)
+    def _get_purchase_order_lines(self):
+        """Convenience method to return the purchase order lines associated
+        with the lr_source_line_id.
 
-    def _is_sourced_fw_agreement(self, cr, uid, source, context=None):
-        """Predicate that tells if source line of type agreement are sourced
-
-        :retuns: boolean True if sourced
+        I am not adding a one2many field because there are other, similar
+        fields already. We can of course change that in the future to be a
+        one2many or to use another field.
 
         """
-        po_line_obj = self.pool['purchase.order.line']
-        sources_ids = po_line_obj.search(cr, uid,
-                                         [('lr_source_line_id', '=', source.id)
-                                          ],
-                                         context=context)
-        # predicate
-        return bool(sources_ids)
+        return self.env['purchase.order.line'].search([
+            ('lr_source_line_id', '=', self.id)
+        ])
+
+    @api.multi
+    def _check_sourcing_other(self):
+        """Check sourcing for "other" mode.
+
+        :returns: list of error strings
+
+        """
+        tender_errors = self._check_sourcing_procurement()
+        agr_errors = self._check_sourcing_fw_agreement()
+        if tender_errors and agr_errors:
+            return ['{0}: Sourcing errors both on Agreement mode  '
+                    'and in Procurement mode.'.format(self.name)]
+        else:
+            return []
+
+    @api.multi
+    def _check_sourcing_fw_agreement(self):
+        """Check sourcing for "fw_agreement" method.
+
+        :returns: list of error strings
+
+        """
+        if not self._get_purchase_order_lines():
+            return ['{0}: No Purchase Order Lines associated with this '
+                    'source'.format(self.name)]
+        return []
 
     # ---------------Odoo onchange management ----------------------
 

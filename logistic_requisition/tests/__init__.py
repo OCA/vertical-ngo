@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    Author: Nicolas Bessi
+#    Author: Nicolas Bessi, Leonardo Pistone
 #    Copyright 2013-2014 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -22,3 +22,5 @@ from . import test_purchase_split_requisition
 from . import test_sale_order_from_lr_confirm
 from . import test_mto_workflow
 from . import test_multicurrency_update_po_line
+from . import test_check_sourcing
+from . import test_button_sourced

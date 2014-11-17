@@ -20,7 +20,7 @@
 #
 import logging
 
-from openerp import models, fields, api
+from openerp import models, fields, api, exceptions
 from openerp.exceptions import except_orm
 from openerp.tools.translate import _
 import openerp.addons.decimal_precision as dp
@@ -491,12 +491,15 @@ class LogisticsRequisitionLine(models.Model):
 
     @api.one
     def _do_sourced(self):
+        errors = []
+        if not self.source_ids:
+            raise exceptions.Warning(_('Incorrect Sourcing'),
+                                     _('No Sourcing Lines'))
         for source in self.source_ids:
-            if not source._is_sourced():
-                raise except_orm(
-                    _('line %s is not sourced') % source.name,
-                    _('Please create source ressource using'
-                      ' various source line actions'))
+            errors += source._check_sourcing()
+        if errors:
+            raise exceptions.Warning(_('Incorrect Sourcing'),
+                                     '\n'.join(errors))
         self.state = 'sourced'
 
     @api.one
@@ -896,38 +899,50 @@ class LogisticsRequisitionSource(models.Model):
          ['po_requisition_id', 'requisition_id']),
     ]
 
-    @api.model
-    def _is_sourced_procurement(self, source):
-        """Predicate function to test if line on procurement
-        method are sourced"""
-        if (not source.po_requisition_id or
-                source.po_requisition_id.state not in ['done', 'closed']):
-            return False
-        return True
+    @api.multi
+    def _check_sourcing_procurement(self):
+        """Check sourcing for "procurement" method.
 
-    @api.model
-    def _is_sourced_other(self, source):
-        """Predicate function to test if line on other
-        method are sourced"""
-        return True
+        :returns: list of error strings
 
-    @api.model
-    def _is_sourced_wh_dispatch(self, source):
-        """Predicate function to test if line on warehouse
-        method are sourced"""
-        return True
+        """
+        if not self.po_requisition_id:
+            return ['{0}: Missing Purchase Requisition'.format(self.name)]
+        if self.po_requisition_id.state not in ['done', 'closed']:
+            return ['{0}: Purchase Requisition state should be '
+                    '"Bids Selected" or "PO Created"'.format(self.name)]
+        return []
 
-    @api.model
-    def _is_sourced(self):
-        """ check if line is source using predicate function
-        that must be called _is_sourced_ + name of procurement.
-        :returns: boolean True if sourced"""
+    @api.multi
+    def _check_sourcing_other(self):
+        """Check sourcing for "other" method.
+
+        :returns: list of error strings
+
+        """
+        return self._check_sourcing_procurement()
+
+    @api.multi
+    def _check_sourcing_wh_dispatch(self):
+        """Check sourcing for "warehouse dispatch" method.
+
+        :returns: list of error strings
+
+        """
+        return []
+
+    @api.multi
+    def _check_sourcing(self):
+        """Check sourcing for all methods.
+
+        Delegates to methods _check_sourcing_ + procurement_method.
+
+        :returns: list of error strings
+
+        """
         self.ensure_one()
-        callable_name = "_is_sourced_%s" % self.procurement_method
-        if not hasattr(self, callable_name):
-            raise NotImplementedError(callable_name)
-        callable_fun = getattr(self, callable_name)
-        return callable_fun(self)
+        callable_name = "_check_sourcing_%s" % self.procurement_method
+        return getattr(self, callable_name)()
 
     @api.multi
     def _check_purchase_requisition_unique(self):
