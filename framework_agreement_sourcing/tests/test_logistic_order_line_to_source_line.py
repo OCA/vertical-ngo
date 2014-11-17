@@ -42,7 +42,7 @@ class TestTransformation(CommonSourcingSetUp):
         to_validate = self.source_line_model.browse(
             cr, uid, to_validate_ids[0])
         self.assertEqual(to_validate.procurement_method, 'fw_agreement')
-        self.assertAlmostEqual(to_validate.unit_cost, 0.0)
+        self.assertAlmostEqual(to_validate.unit_cost, 50.0)
         self.assertEqual(to_validate.proposed_qty, 400)
 
     def test_02_enough_qty_on_high_agr(self):
@@ -64,7 +64,7 @@ class TestTransformation(CommonSourcingSetUp):
         to_validate = self.source_line_model.browse(
             cr, uid, to_validate_ids[0])
         self.assertEqual(to_validate.procurement_method, 'fw_agreement')
-        self.assertAlmostEqual(to_validate.unit_cost, 0.0)
+        self.assertAlmostEqual(to_validate.unit_cost, 30.0)
         self.assertEqual(to_validate.proposed_qty, 1500)
 
     def test_03_not_enough_qty_on_high_agreement(self):
@@ -93,7 +93,7 @@ class TestTransformation(CommonSourcingSetUp):
         self.assertTrue(high_line, msg="High agreement was not used")
         self.assertEqual(high_line.procurement_method, 'fw_agreement')
         self.assertEqual(high_line.proposed_qty, 2000)
-        self.assertAlmostEqual(high_line.unit_cost, 0.0)
+        self.assertAlmostEqual(high_line.unit_cost, 30.0)
 
         # low_line
         low_line = next((x for x in to_validates
@@ -102,7 +102,7 @@ class TestTransformation(CommonSourcingSetUp):
         self.assertTrue(low_line, msg="Low agreement was not used")
         self.assertEqual(low_line.procurement_method, 'fw_agreement')
         self.assertEqual(low_line.proposed_qty, 400)
-        self.assertAlmostEqual(low_line.unit_cost, 0.0)
+        self.assertAlmostEqual(low_line.unit_cost, 50.0)
 
     def test_04_not_enough_qty_on_all_agreements(self):
         """Test that we have generate correct line when not enough qty on all
@@ -134,7 +134,7 @@ class TestTransformation(CommonSourcingSetUp):
         self.assertTrue(high_line, msg="High agreement was not used")
         self.assertEqual(high_line.procurement_method, 'fw_agreement')
         self.assertEqual(high_line.proposed_qty, 2000)
-        self.assertAlmostEqual(high_line.unit_cost, 0.0)
+        self.assertAlmostEqual(high_line.unit_cost, 30.0)
 
         # low_line
         low_line = next((x for x in to_validates
@@ -143,7 +143,7 @@ class TestTransformation(CommonSourcingSetUp):
         self.assertTrue(low_line, msg="Low agreement was not used")
         self.assertEqual(low_line.procurement_method, 'fw_agreement')
         self.assertEqual(low_line.proposed_qty, 1200)
-        self.assertAlmostEqual(low_line.unit_cost, 0.0)
+        self.assertAlmostEqual(low_line.unit_cost, 45.0)
 
         # Tender line
         tender_line = next((x for x in to_validates
