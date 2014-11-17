@@ -18,6 +18,16 @@
                         options="{'currency_field': 'currency_id'}"/>
                 </group>
              </xpath>
+
+             <xpath expr="//page[@string='Requisition Lines']/field/form//field[@name='date_delivery']/.." position="before">
+                 <group>
+                     <field name="budget_unit_price" widget="monetary"
+                         options="{'currency_field': 'currency_id'}"/>
+                     <field name="budget_tot_price" widget="monetary"
+                         options="{'currency_field': 'currency_id'}"/>
+                 </group>
+             </xpath>
+
              <xpath expr="//notebook" position="after">
                <div class="oe_clear"/>
                <group string="Validation">

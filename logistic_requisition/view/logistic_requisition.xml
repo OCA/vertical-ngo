@@ -123,9 +123,9 @@
                                                 <field name="date_delivery"/>
                                                 <field name="logistic_user_id"/>
                                             </group>
-                                            <group string="Accounting" colspan="4">
-                                                <field name="account_id"/>
-                                            </group>
+                                        </group>
+                                        <group string="Accounting" colspan="4">
+                                            <field name="account_id"/>
                                         </group>
                                         <group string="Notes">
                                             <field name="note" colspan="4"
