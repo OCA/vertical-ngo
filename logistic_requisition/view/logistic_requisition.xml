@@ -121,6 +121,9 @@
                                         <field name="description"/>
                                         <group>
                                             <group>
+                                                <field name="amount_total"/>
+                                            </group>
+                                            <group>
                                                 <field name="date_delivery"/>
                                                 <field name="logistic_user_id"/>
                                             </group>
