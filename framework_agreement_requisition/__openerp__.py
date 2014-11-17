@@ -26,6 +26,7 @@
  'complexity': 'normal',
  'depends': ['purchase_requisition',
              'purchase_requisition_bid_selection',
+             'ngo_purchase_requisition',
              'framework_agreement'],
  'website': 'http://www.camptocamp.com',
  'data': ['requisition_workflow.xml',
