@@ -1,0 +1,259 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* ngo_purchase
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 8.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-11-11 13:29+0000\n"
+"PO-Revision-Date: 2014-11-11 13:29+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: ngo_purchase
+#: view:purchase.order:ngo_purchase.purchase_order_form
+msgid "(update)"
+msgstr ""
+
+#. module: ngo_purchase
+#: help:purchase.order,req_bid_tendering_mode:0
+msgid "- Restricted : you select yourself the bidders and generate a RFQ for each of those. \n"
+"- Open : anybody can bid (you have to advertise the call for bids) and you directly encode the bids you received. You are still able to generate RFQ if you want to contact usual bidders."
+msgstr ""
+
+#. module: ngo_purchase
+#: view:purchase.order:ngo_purchase.purchase_order_form
+msgid "Accounting and Currency"
+msgstr ""
+
+#. module: purchase
+#: field:purchase.order.line,account_analytic_id:0
+msgid "Analytic Account"
+msgstr "Project"
+
+#. module: ngo_purchase
+#: view:purchase.order:ngo_purchase.purchase_order_form
+msgid "Approve Order"
+msgstr ""
+
+#. module: ngo_purchase
+#: view:purchase.order:ngo_purchase.purchase_rfq_bid_workflow_view_purchase_order_form
+msgid "Bid Encoded"
+msgstr ""
+
+#. module: ngo_purchase
+#: view:purchase.order:ngo_purchase.purchase_order_form
+msgid "Bid Information"
+msgstr ""
+
+#. module: ngo_purchase
+#: view:purchase.order:ngo_purchase.purchase_order_form
+msgid "Bid Received"
+msgstr ""
+
+#. module: ngo_purchase
+#: field:purchase.order,req_bid_tendering_mode:0
+msgid "Call for Bids Mode"
+msgstr ""
+
+#. module: ngo_purchase
+#: view:purchase.order:ngo_purchase.purchase_order_form
+msgid "Cancel"
+msgstr ""
+
+#. module: ngo_purchase
+#: view:purchase.order:ngo_purchase.purchase_order_form
+msgid "Confirm Order"
+msgstr ""
+
+#. module: ngo_purchase
+#: view:purchase.order:ngo_purchase.purchase_rfq_bid_workflow_view_purchase_order_form
+msgid "Convert to PO"
+msgstr ""
+
+#. module: ngo_purchase
+#: view:purchase.order:ngo_purchase.purchase_order_form
+msgid "Delivery Remarks"
+msgstr ""
+
+#. module: ngo_purchase
+#: view:purchase.order:ngo_purchase.purchase_order_form
+msgid "Manually Corrected"
+msgstr ""
+
+#. module: ngo_purchase
+#: selection:purchase.order,req_bid_tendering_mode:0
+msgid "Open"
+msgstr ""
+
+#. module: ngo_purchase
+#: view:purchase.order:ngo_purchase.purchase_order_form
+msgid "Print RFQ"
+msgstr ""
+
+#. module: ngo_purchase
+#: view:purchase.order:ngo_purchase.purchase_order_form
+msgid "Products"
+msgstr ""
+
+#. module: ngo_purchase
+#: model:ir.model,name:ngo_purchase.model_purchase_order
+#: view:purchase.order:ngo_purchase.purchase_order_form
+msgid "Purchase Order"
+msgstr ""
+
+#. module: ngo_purchase
+#: view:purchase.order:ngo_purchase.purchase_order_form
+msgid "Purchase Order Lines"
+msgstr ""
+
+#. module: ngo_purchase
+#: view:purchase.order:ngo_purchase.purchase_order_form
+msgid "Re-Print RFQ"
+msgstr ""
+
+#. module: ngo_purchase
+#: view:purchase.order:ngo_purchase.purchase_order_form
+msgid "Re-Send RFQ by Email"
+msgstr ""
+
+#. module: ngo_purchase
+#: view:purchase.order:ngo_purchase.purchase_rfq_bid_workflow_view_purchase_order_form
+msgid "Reason for Cancellation:"
+msgstr ""
+
+#. module: ngo_purchase
+#: view:purchase.order:ngo_purchase.purchase_order_form
+msgid "Receive Invoice"
+msgstr ""
+
+#. module: ngo_purchase
+#: view:purchase.order:ngo_purchase.purchase_order_form
+msgid "Receive Products"
+msgstr ""
+
+#. module: ngo_purchase
+#: view:purchase.order:ngo_purchase.purchase_rfq_bid_workflow_view_purchase_order_form
+msgid "Reset to Draft RFQ"
+msgstr ""
+
+#. module: ngo_purchase
+#: selection:purchase.order,req_bid_tendering_mode:0
+msgid "Restricted"
+msgstr ""
+
+#. module: ngo_purchase
+#: view:purchase.order:ngo_purchase.purchase_rfq_bid_workflow_view_purchase_order_form
+msgid "Send Draft PO by Email"
+msgstr ""
+
+#. module: ngo_purchase
+#: view:purchase.order:ngo_purchase.purchase_order_form
+msgid "Send PO by Email"
+msgstr ""
+
+#. module: ngo_purchase
+#: view:purchase.order:ngo_purchase.purchase_order_form
+msgid "Send RFQ by Email"
+msgstr ""
+
+#. module: ngo_purchase
+#: view:purchase.order:ngo_purchase.purchase_order_form
+msgid "Set to Draft"
+msgstr ""
+
+#. module: ngo_purchase
+#: view:purchase.order:ngo_purchase.purchase_order_form
+msgid "Terms and conditions..."
+msgstr ""
+
+#. module: ngo_purchase
+#: view:purchase.order:ngo_purchase.purchase_order_form
+msgid "Transport Documents"
+msgstr ""
+
+#. module: ngo_purchase
+#: view:purchase.order:ngo_purchase.purchase_order_form
+msgid "Transportation and Delivery"
+msgstr ""
+
+#. module: ngo_purchase
+#: view:purchase.order:ngo_purchase.purchase_order_form
+msgid "Validation"
+msgstr ""
+
+#. module: ngo_purchase
+#: view:purchase.order:ngo_purchase.purchase_rfq_bid_workflow_view_purchase_order_form
+msgid "cancel,draftpo"
+msgstr ""
+
+#. module: ngo_purchase
+#: view:purchase.order:ngo_purchase.purchase_rfq_bid_workflow_view_purchase_order_form
+msgid "draft,confirmed,sent,bid,draftbid,draftpo"
+msgstr ""
+
+#. module: ngo_purchase
+#: view:purchase.order:ngo_purchase.purchase_rfq_bid_workflow_view_purchase_order_form
+msgid "draft,sent,bid,draftpo,approved,done"
+msgstr ""
+
+#. module: ngo_purchase
+#: view:purchase.order:ngo_purchase.purchase_rfq_bid_workflow_view_purchase_order_form
+msgid "draftpo"
+msgstr ""
+
+#. module: ngo_purchase
+#: view:purchase.order:ngo_purchase.purchase_rfq_bid_workflow_view_purchase_order_form
+msgid "object"
+msgstr ""
+
+#. module: ngo_purchase
+#: view:purchase.order:ngo_purchase.purchase_rfq_bid_workflow_view_purchase_order_form
+msgid "onchange_picking_type_id(picking_type_id)"
+msgstr ""
+
+#. module: ngo_purchase
+#: view:purchase.order:ngo_purchase.add_onchange_on_purchase_order_form
+msgid "onchange_price(price_unit, parent.framework_agreement_id, product_qty, parent.pricelist_id, product_id)"
+msgstr ""
+
+#. module: ngo_purchase
+#: view:purchase.order:ngo_purchase.purchase_rfq_bid_workflow_view_purchase_order_form
+msgid "sent,draftbid"
+msgstr ""
+
+#. module: ngo_purchase
+#: view:purchase.order:ngo_purchase.purchase_order_form
+msgid "validated on"
+msgstr ""
+
+#. module: ngo_purchase
+#: view:purchase.order:ngo_purchase.add_onchange_on_purchase_order_form
+msgid "{'agreement_id': framework_agreement_id}"
+msgstr ""
+
+#. module: ngo_purchase
+#: view:purchase.order:ngo_purchase.add_onchange_on_purchase_order_form
+msgid "{'agreement_id': parent.framework_agreement_id}"
+msgstr ""
+
+#. module: ngo_purchase
+#: view:purchase.order:ngo_purchase.view_purchase_order_form
+msgid "{'invisible': ['|', ('requisition_id','!=',False)]}"
+msgstr ""
+
+#. module: ngo_purchase
+#: view:purchase.order:ngo_purchase.add_onchange_on_purchase_order_form
+msgid "{'order_line_ids': order_line}"
+msgstr ""
+
+#. module: ngo_purchase
+#: view:purchase.order:ngo_purchase.purchase_rfq_bid_workflow_view_purchase_order_form
+msgid "{'order_type': parent.type}"
+msgstr ""
+
