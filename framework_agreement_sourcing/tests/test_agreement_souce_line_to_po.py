@@ -35,7 +35,7 @@ class TestSourceToPo(CommonSourcingSetUp):
             if line.product_id == self.cheap_on_low_agreement.product_id:
                 agr_line = line
                 break
-        self.assertTrue(agr_line)
+        self.assertTrue(agr_line, 'no agr line found')
         agr_line.write({'requested_qty': 400})
         agr_line.refresh()
         source_ids = []
@@ -45,7 +45,8 @@ class TestSourceToPo(CommonSourcingSetUp):
                 lid = self.requisition_line_model._generate_source_line(
                     cr, uid, line)
                 source_ids += lid
-        self.assertTrue(len(source_ids) == 2)
+        self.assertEqual(len(source_ids), 2,
+                         'wrong number of source lines')
         self.source_lines = self.source_line_model.browse(cr, uid, source_ids)
         self.lta_source = next(x for x in self.source_lines
                                if x.procurement_method == 'fw_agreement')
@@ -55,7 +56,7 @@ class TestSourceToPo(CommonSourcingSetUp):
     def test_01_transform_source_to_agreement(self):
         """Test transformation of an agreement source line into PO"""
         cr, uid = self.cr, self.uid
-        self.assertTrue(self.lta_source)
+        self.assertTrue(self.lta_source, 'no lta source found')
         self.lta_source.refresh()
         active_ids = [x.id for x in self.source_lines]
         wiz_id = self.wiz_model.create(self.cr, self.uid, {},
@@ -64,7 +65,7 @@ class TestSourceToPo(CommonSourcingSetUp):
         po_id = self.wiz_model.action_create_agreement_po_requisition(
             cr, uid, [wiz_id], context={'active_ids': active_ids}
         )['res_id']
-        self.assertTrue(po_id)
+        self.assertTrue(po_id, "no PO created")
         supplier = self.lta_source.framework_agreement_id.supplier_id
         add = self.lta_source.requisition_id.consignee_shipping_id
         consignee = self.lta_source.requisition_id.consignee_id
