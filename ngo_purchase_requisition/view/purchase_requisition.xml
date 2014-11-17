@@ -137,7 +137,7 @@
                 <group string="Transport Documents">
                   <field name="transport_document_ids" nolabel="1" colspan="4"/>
                 </group>
-                <group string="Deliver Remarks">
+                <group string="Delivery Remarks">
                   <field name="delivery_remark"
                     colspan="4"
                     nolabel="1"
