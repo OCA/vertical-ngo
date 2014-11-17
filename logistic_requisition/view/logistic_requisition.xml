@@ -88,6 +88,7 @@
                                     <field name="requested_qty" string="Quantity"/>
                                     <field name="requested_uom_id" string="UoM"/>
                                     <field name="date_delivery"/>
+                                    <field name="amount_total"/>
                                     <field name="logistic_user_id" string="Assigned To"/>
                                     <field name="state"/>
                                 </tree>
@@ -281,6 +282,7 @@
              <field name="description"/>
              <field name="requested_qty"/>
              <field name="requested_uom_id"/>
+             <field name="amount_total"/>
              <field name="currency_id"/>
              <field name="logistic_user_id"/>
              <field name="state"/>
