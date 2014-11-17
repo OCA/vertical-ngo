@@ -10,13 +10,17 @@
     date_delivery: !eval "time.strftime('%Y-%m-%d')"
     user_id: base.user_demo
     pricelist_id: product.list0
-    line_ids:
-      - product_id: product.product_product_32
-        description: HEAD Headset standard
-        requested_qty: 100
-        requested_uom_id: product.product_uom_unit
-        date_delivery: !eval "time.strftime('%Y-%m-%d')"
-        logistic_user_id: base.user_demo
+-
+  And I add a line 1
+-
+  !record {model: logistic.requisition.line, id: logistic_requisition_line_test_report}:
+    requisition_id: logistic_requisition_test_report
+    product_id: product.product_product_32
+    description: HEAD Headset standard
+    requested_qty: 100
+    requested_uom_id: product.product_uom_unit
+    date_delivery: !eval "time.strftime('%Y-%m-%d')"
+    logistic_user_id: base.user_demo
 -
  I print the report
 -
