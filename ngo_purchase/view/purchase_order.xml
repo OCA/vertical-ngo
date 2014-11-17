@@ -50,7 +50,7 @@
               <group>
                 <field name="date_order"/>
                 <field name="partner_ref"/>
-                <field name="origin" attrs="{'invisible': [('origin','=',False)]}"/>
+                <field name="origin"/>
               </group>
 
             </group>
