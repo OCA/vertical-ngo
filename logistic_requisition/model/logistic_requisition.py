@@ -598,28 +598,6 @@ class LogisticsRequisitionLine(models.Model):
             'type': 'ir.actions.act_window',
         }
 
-    @api.multi
-    def view_price_by_location(self):
-        self.ensure_one()
-        # price_obj = self.env['product.pricelist']
-        ctx = {"search_default_name": self.product_id.name}
-        # if line.dispatch_location_id:
-        #     price_l_id = price_obj.search(
-        #         cr, uid,
-        #         [('name', 'like', self.dispatch_location_id.name)],
-        #         context=context)
-        #     ctx['pricelist'] = price_l_id
-        return {
-            'name': _('Prices for location'),
-            'view_mode': 'tree',
-            'res_model': 'product.product',
-            'target': 'current',
-            'view_id': False,
-            'context': ctx,
-            'domain': [('id', '=', self.product_id.id)],
-            'type': 'ir.actions.act_window',
-        }
-
     @api.model
     def _message_get_auto_subscribe_fields(self, updated_fields,
                                            auto_follow_fields=None):

@@ -389,7 +389,6 @@
                     </div>
                     <div class="oe_right oe_button_box" name="buttons">
                         <button string="View Stock" name="view_stock_by_location" type="object"/>
-                        <button string="View Prices" name="view_price_by_location" type="object"/>
                     </div>
                     <group>
                         <group>
