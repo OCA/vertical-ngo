@@ -104,7 +104,7 @@ class TestTransformation(CommonSourcingSetUp):
         self.assertEqual(low_line.proposed_qty, 400)
         self.assertAlmostEqual(low_line.unit_cost, 0.0)
 
-    def test_03_not_enough_qty_on_all_agreemenst(self):
+    def test_04_not_enough_qty_on_all_agreements(self):
         """Test that we have generate correct line when not enough qty on all
         agreements
 
