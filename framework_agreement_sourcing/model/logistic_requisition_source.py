@@ -252,21 +252,6 @@ class logistic_requisition_source(orm.Model):
         ])
 
     @api.multi
-    def _check_sourcing_other(self):
-        """Check sourcing for "other" mode.
-
-        :returns: list of error strings
-
-        """
-        tender_errors = self._check_sourcing_procurement()
-        agr_errors = self._check_sourcing_fw_agreement()
-        if tender_errors and agr_errors:
-            return ['{0}: Sourcing errors both on Agreement mode  '
-                    'and in Procurement mode.'.format(self.name)]
-        else:
-            return []
-
-    @api.multi
     def _check_sourcing_fw_agreement(self):
         """Check sourcing for "fw_agreement" method.
 

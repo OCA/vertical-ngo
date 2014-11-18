@@ -30,26 +30,8 @@ class TestCheckSourcing(TransactionCase):
         self.source._get_purchase_order_lines = lambda: self.PO.new()
         self.assertEquals([], self.source._check_sourcing())
 
-    def test_other_sourcing_without_pr_nor_pol_is_not_sourced(self):
+    def test_other_sourcing_is_always_sourced(self):
         self.source.procurement_method = 'other'
-        errors = self.source._check_sourcing()
-        self.assertEquals(1, len(errors))
-        self.assertIn('Sourcing errors', errors[0])
-
-    def test_other_sourcing_with_pr_without_pol_is_sourced(self):
-        self.source.procurement_method = 'other'
-        self.source.po_requisition_id = self.PurcReq.new({'state': 'closed'})
-        self.assertEquals([], self.source._check_sourcing())
-
-    def test_other_sourcing_without_pr_with_pol_is_sourced(self):
-        self.source.procurement_method = 'other'
-        self.source._get_purchase_order_lines = lambda: self.PO.new()
-        self.assertEquals([], self.source._check_sourcing())
-
-    def test_other_sourcing_with_pr_and_pol_is_sourced(self):
-        self.source.procurement_method = 'other'
-        self.source.po_requisition_id = self.PurcReq.new({'state': 'closed'})
-        self.source._get_purchase_order_lines = lambda: self.PO.new()
         self.assertEquals([], self.source._check_sourcing())
 
     def setUp(self):
