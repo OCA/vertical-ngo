@@ -920,7 +920,7 @@ class LogisticsRequisitionSource(models.Model):
         :returns: list of error strings
 
         """
-        return self._check_sourcing_procurement()
+        return []
 
     @api.multi
     def _check_sourcing_wh_dispatch(self):
