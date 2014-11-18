@@ -20,8 +20,14 @@
     <record id="view_order_form" model="ir.ui.view">
         <field name="name">sale.order.form</field>
         <field name="model">sale.order</field>
-        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="inherit_id" ref="logistic_consignee.view_order_form"/>
         <field name="arch" type="xml">
+          <field name="consignee_id" position="before">
+            <field name='cost_estimate_only'/>
+          </field>
+          <field name="consignee_id" position="attributes">
+            <attribute name="attrs">{'required': [('cost_estimate_only', '!=', True)]}</attribute>
+          </field>
           <xpath expr="//field[@name='order_line']/tree//field[@name='price_unit']"
               position="after">
               <field name="price_is"/>
