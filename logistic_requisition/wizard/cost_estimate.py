@@ -127,7 +127,7 @@ class LogisticsRequisitionCostEstimate(models.TransientModel):
         onchange_vals = sale_line_obj.product_id_change(
             requisition.consignee_id.property_product_pricelist.id,
             sourcing.proposed_product_id.id,
-            partner_id=requisition.consignee_id.id,
+            partner_id=requisition.partner_id.id,
             qty=sourcing.proposed_qty,
             uom=sourcing.proposed_uom_id.id).get('value', {})
         #  price_unit and type of the requisition line must be kept

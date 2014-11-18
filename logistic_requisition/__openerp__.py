@@ -58,6 +58,7 @@
           ],
  "test": ['test/line_assigned.yml',
           'test/requisition_create_cost_estimate.yml',
+          'test/requisition_create_cost_estimate_only.yml',
           'test/requisition_sourcing_with_tender.yml',
           'test/requisition_cancel_reason.yml',
           'test/logistic_requisition_report_test.yml',
