@@ -570,19 +570,23 @@ class LogisticsRequisitionLine(models.Model):
             line.amount_total = total_cost
 
             requisition = line.requisition_id
-            if requisition:
+            if requisition and requisition.currency_id:
                 date = requisition.date
                 from_curr = requisition.currency_id.with_context(date=date)
                 to_curr = requisition.company_id.currency_id
                 total_cost_company += from_curr.compute(total_cost, to_curr,
                                                         round=False)
                 line.amount_total_company = total_cost_company
-            else:
+            elif not requisition:
                 _logger.warning(
                     "Total in currency not computed: requisition not passed "
                     "to the onchange method. This can probably be avoided "
                     "improving the view."
                 )
+            else:
+                raise exceptions.Warning(
+                    _('You must set a pricelist on the Requisition, '
+                      'or configure a default pricelist for this requestor.'))
 
     @api.multi
     def view_stock_by_location(self):
