@@ -198,6 +198,7 @@ class LogisticsRequisitionCostEstimate(models.TransientModel):
                 'partner_invoice_id': partner_id,
                 'partner_shipping_id': requisition.consignee_shipping_id.id,
                 'consignee_id': requisition.consignee_id.id,
+                'cost_estimate_only': requisition.cost_estimate_only,
                 'order_line': [(0, 0, x) for x in estimate_lines],
                 'incoterm': requisition.incoterm_id.id,
                 'incoterm_address': requisition.incoterm_address,
