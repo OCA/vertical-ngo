@@ -423,6 +423,8 @@ class LogisticsRequisitionLine(models.Model):
         readonly=True,
         copy=False)
 
+    stock_count = fields.Integer(compute='_stock_count')
+
     # related fields to requisition_id
     requestor_id = fields.Many2one(
         related='requisition_id.partner_id',
@@ -589,18 +591,24 @@ class LogisticsRequisitionLine(models.Model):
                       'or configure a default pricelist for this requestor.'))
 
     @api.multi
-    def view_stock_by_location(self):
+    def _stock_count(self):
+        self.stock_count = self.product_id.qty_available
+
+    @api.model
+    def _get_act_window_dict(self, name):
+        mod_obj = self.env['ir.model.data']
+        action = mod_obj.xmlid_to_object(name, raise_if_not_found=True)
+        action_dict = action.read()[0]
+        return action_dict
+
+    @api.multi
+    def action_view_stock(self):
         self.ensure_one()
-        return {
-            'name': _('Stock by Location'),
-            'view_mode': 'tree',
-            'res_model': 'stock.location',
-            'target': 'current',
-            'view_id': False,
-            'context': {'product_id': self.product_id.id},
-            'domain': [('usage', '=', 'internal')],
-            'type': 'ir.actions.act_window',
-        }
+        action_dict = self._get_act_window_dict('stock.product_open_quants')
+        action_dict['domain'] = [('product_id', '=', self.product_id.id)]
+        action_dict['context'] = {'search_default_locationgroup': 1,
+                                  'search_default_internal_loc': 1}
+        return action_dict
 
     @api.model
     def _message_get_auto_subscribe_fields(self, updated_fields,
