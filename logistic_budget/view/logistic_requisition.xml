@@ -31,6 +31,8 @@
                    <field name="date_budget_holder"
                      attrs="{'invisible': [('budget_holder_id', '=', False)]}"
                      class="oe_inline"/>
+                   <field name="budget_holder_remark"
+                     attrs="{'invisible': [('budget_holder_id', '=', False)]}"/>
                  </div>
                  <div colspan="4">
                    <label for="finance_officer_id"/>
@@ -42,6 +44,8 @@
                    <field name="date_finance_officer"
                      attrs="{'invisible': [('finance_officer_id', '=', False)]}"
                      class="oe_inline"/>
+                   <field name="finance_officer_remark"
+                     attrs="{'invisible': [('finance_officer_id', '=', False)]}"/>
                  </div>
                </group>
              </xpath>

@@ -55,11 +55,15 @@ class logistic_requisition(orm.Model):
             string='Budget Holder'),
         'date_budget_holder': fields.datetime(
             'Budget Holder Validation Date'),
+        'budget_holder_remark': fields.text(
+            'Budget Holder Remark'),
         'finance_officer_id': fields.many2one(
             'res.users',
             string='Finance Officer'),
         'date_finance_officer': fields.datetime(
             'Finance Officer Validation Date'),
+        'finance_officer_remark': fields.text(
+            'Finance Officer Remark'),
     }
 
     def _get_amount(self, cr, uid, ids, name, args, context=None):

@@ -88,6 +88,7 @@
                                     <field name="requested_qty" string="Quantity"/>
                                     <field name="requested_uom_id" string="UoM"/>
                                     <field name="date_delivery"/>
+                                    <field name="amount_total"/>
                                     <field name="logistic_user_id" string="Assigned To"/>
                                     <field name="state"/>
                                 </tree>
@@ -119,6 +120,9 @@
                                         <label for="description"/>
                                         <field name="description"/>
                                         <group>
+                                            <group>
+                                                <field name="amount_total"/>
+                                            </group>
                                             <group>
                                                 <field name="date_delivery"/>
                                                 <field name="logistic_user_id"/>
@@ -163,9 +167,9 @@
                                 <group>
                                     <field name="pricelist_id" domain="[('type','=','sale')]"/>
                                     <field name="currency_id"/>
+                                    <field name="country_id"/>
                                 </group>
                                 <group>
-                                    <field name="country_id"/>
                                     <field name="analytic_id"/>
                                 </group>
                             </group>
@@ -278,12 +282,12 @@
              <field name="requisition_id"/>
              <field name="name"/>
              <field name="date_delivery"/>
-             <field name="product_id"/>
              <field name="description"/>
              <field name="requested_qty"/>
              <field name="requested_uom_id"/>
-             <field name="logistic_user_id"/>
+             <field name="amount_total"/>
              <field name="currency_id"/>
+             <field name="logistic_user_id"/>
              <field name="state"/>
              <field name="country_id" invisible="1"/>
            </tree>
@@ -389,7 +393,6 @@
                     </div>
                     <div class="oe_right oe_button_box" name="buttons">
                         <button string="View Stock" name="view_stock_by_location" type="object"/>
-                        <button string="View Prices" name="view_price_by_location" type="object"/>
                     </div>
                     <group>
                         <group>
