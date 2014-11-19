@@ -45,8 +45,7 @@ class TestSourceToPo(CommonSourcingSetUp):
                 lid = self.requisition_line_model._generate_source_line(
                     cr, uid, line)
                 source_ids += lid
-        self.assertEqual(len(source_ids), 2,
-                         'wrong number of source lines')
+        self.assertEqual(len(source_ids), 2)
         self.source_lines = self.source_line_model.browse(cr, uid, source_ids)
         self.lta_source = next(x for x in self.source_lines
                                if x.procurement_method == 'fw_agreement')
