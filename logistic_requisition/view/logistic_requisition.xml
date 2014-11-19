@@ -127,9 +127,9 @@
                                                 <field name="date_delivery"/>
                                                 <field name="logistic_user_id"/>
                                             </group>
-                                            <group string="Accounting" colspan="4">
-                                                <field name="account_id"/>
-                                            </group>
+                                        </group>
+                                        <group string="Accounting" colspan="4">
+                                            <field name="account_id"/>
                                         </group>
                                         <group string="Notes">
                                             <field name="note" colspan="4"
@@ -421,11 +421,11 @@
                             <field name="date_delivery"/>
                             <field name="logistic_user_id"/>
                         </group>
-                        <group string="Accounting" colspan="4">
-                            <field name="account_id"/>
-                        </group>
                         <field name="company_currency_id" invisible="1"/>
                         <field name="currency_id" invisible="1"/>
+                    </group>
+                    <group string="Accounting" colspan="4">
+                        <field name="account_id"/>
                     </group>
                     <notebook>
                         <page string="Sourcing">

@@ -18,6 +18,16 @@
                         options="{'currency_field': 'currency_id'}"/>
                 </group>
              </xpath>
+
+             <xpath expr="//page[@string='Requisition Lines']/field/form//field[@name='date_delivery']/.." position="before">
+                 <group>
+                     <field name="budget_unit_price" widget="monetary"
+                         options="{'currency_field': 'currency_id'}"/>
+                     <field name="budget_tot_price" widget="monetary"
+                         options="{'currency_field': 'currency_id'}"/>
+                 </group>
+             </xpath>
+
              <xpath expr="//notebook" position="after">
                <div class="oe_clear"/>
                <group string="Validation">
@@ -79,7 +89,7 @@
          <field name="model">logistic.requisition.line</field>
          <field name="inherit_id" ref="logistic_requisition.view_logistic_requisition_line_form"/>
          <field name="arch" type="xml">
-           <xpath expr="//form[@string='Logistics Requisition Line']//field[@name='date_delivery']/.." position="after">
+           <xpath expr="//form[@string='Logistics Requisition Line']//field[@name='date_delivery']/.." position="before">
              <group>
                <field name="budget_unit_price" widget="monetary"
                  options="{'currency_field': 'currency_id'}"/>
