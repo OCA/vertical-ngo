@@ -1,11 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
   <data>
-    <record id="add_supplier_and_agreement_on_source_line" model="ir.ui.view">
-      <field name="name">add supplier and agrement on source line</field>
+    <record model="ir.ui.view" id="view_logistic_requisition_source_form">
+      <field name="name">view_logistic_requisition_source_form</field>
       <field name="model">logistic.requisition.source</field>
       <field name="inherit_id" ref="logistic_requisition.view_logistic_requisition_source_form"/>
       <field name="arch" type="xml">
+        <xpath expr="//header/group" position="after">
+          <group attrs="{'invisible': [('procurement_method', '!=', 'fw_agreement')]}">
+            <button name="%(action_view_create_agr_po_from_source)d"
+              states="assigned"
+              string="Create Agreement Purchase Order"
+              class="oe_highlight"
+              type="action"/>
+          </group>
+        </xpath>
         <field name="unit_cost"
                position="before">
           <field name="framework_agreement_id"
@@ -21,14 +30,6 @@
                  invisible="1"/>
         </field>
         <field name="proposed_uom_id"
-               position="attributes">
-          <attribute name="attrs">{'invisible': [('procurement_method', '=', 'fw_agreement')]}</attribute>
-        </field>
-        <field name="unit_cost"
-               position="attributes">
-          <attribute name="attrs">{'invisible': [('procurement_method', '=', 'fw_agreement')]}</attribute>
-        </field>
-        <field name="total_cost"
                position="attributes">
           <attribute name="attrs">{'invisible': [('procurement_method', '=', 'fw_agreement')]}</attribute>
         </field>

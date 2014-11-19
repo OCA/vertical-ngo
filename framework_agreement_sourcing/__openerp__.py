@@ -53,8 +53,8 @@ the same time in company.
 """,
  'website': 'http://www.camptocamp.com',
  'data': [
-     'view/requisition_view.xml',
      'wizard/logistic_requisition_source_create_po_view.xml',
+     'view/requisition_view.xml',
      'security/ir.model.access.csv'
  ],
  'demo': [],
