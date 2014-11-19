@@ -57,8 +57,11 @@ class logistic_requisition_line(orm.Model):
             if not agreement.product_id.id == line.product_id.id:
                 raise ValueError(
                     "Product mismatch for agreement and requisition line")
-            res['framework_agreement_id'] = agreement.id
-            res['procurement_method'] = 'fw_agreement'
+            res.update({
+                'framework_agreement_id': agreement.id,
+                'procurement_method': 'fw_agreement',
+                'unit_cost': agreement.get_price(qty, line.currency_id),
+            })
         else:
             if line.product_id.type == 'product':
                 res['procurement_method'] = 'procurement'
