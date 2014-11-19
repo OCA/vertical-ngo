@@ -27,6 +27,23 @@
             <field name="state" widget="statusbar" statusbar_visible="draft,sent,bid,approved,done" statusbar_colors='{"except_picking":"red","except_invoice":"red","confirmed":"blue"}' readonly="1"/>
           </header>
           <sheet>
+            <!-- buttons from purchase/stock_view.xml -->
+            <div class="oe_right oe_button_box" name="buttons">
+              <button type="object"
+                name="view_picking"
+                class="oe_stat_button"
+                icon="fa-truck"
+                attrs="{'invisible': [('shipment_count', '=', 0)]}">
+                <field name="shipment_count" widget="statinfo" string="In Shipments" help="Incoming Shipments"/>
+              </button>
+              <button type="object"  name="invoice_open"
+                class="oe_stat_button"
+                icon="fa-pencil-square-o"
+                attrs="{'invisible': [('invoice_count', '=', 0)]}">
+                <field name="invoice_count" widget="statinfo" string="Invoices"/>
+              </button> 
+            </div>
+            <!-- end -->
             <div class="oe_title">
               <h1>
                 <!-- purchase-workflow/purchase_rfq_bid_workflow -->
