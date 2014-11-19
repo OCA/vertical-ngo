@@ -20,7 +20,7 @@
 
 {"name": "Logistics Order",
  "summary": "Sales Order as Logistics Order",
- "version": "0.2",
+ "version": "0.2.1",
  "author": "Camptocamp",
  "license": "AGPL-3",
  "category": "Purchase Management",
