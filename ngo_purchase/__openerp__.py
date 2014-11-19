@@ -20,7 +20,7 @@
 #
 {"name": "NGO - Purchase Order",
  "summary": "Base Purchase Order view for NGO",
- "version": "1.0",
+ "version": "1.0.1",
  "author": "Camptocamp",
  "license": "AGPL-3",
  "category": "Purchase Management",
