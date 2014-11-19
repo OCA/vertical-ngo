@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-##############################################################################
-#
-#    Copyright 2013-2014 Camptocamp SA
+#    Copyright 2014 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -45,3 +43,9 @@ class SaleOrder(models.Model):
     @api.onchange('finance_officer_id')
     def onchange_set_date_finance_officer(self):
         self.date_finance_officer = fields.Datetime.now()
+
+
+class SaleOrderLine(models.Model):
+    _inherit = "sale.order.line"
+
+    budget_amount = fields.Float("Budget Amount")

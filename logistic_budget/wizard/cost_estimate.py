@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
-#    Author: Joël Grand-Guillaume
-#    Copyright 2013 Camptocamp SA
+#    Author: Joël Grand-Guillaume, Leonardo Pistone
+#    Copyright 2013, 2014 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -17,23 +17,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #
-from openerp.osv import orm
+from openerp import models, api
 from openerp.tools.translate import _
 
 
-class logistic_requisition_cost_estimate(orm.TransientModel):
+class LogisticRequisitionCostEstimate(models.TransientModel):
     _inherit = 'logistic.requisition.cost.estimate'
 
-    def _check_requisition(self, cr, uid, requisition, context=None):
-        """ Check the rules to create a cost estimate from the
-        requisition
-
-        :returns: list of tuples ('message, 'error_code')
-        """
-        errors = []
-        if not requisition.budget_holder_id:
-            error = (_('The requisition must be validated '
-                       'by the Budget Holder.'),
-                     'NO_BUDGET_VALID')
-            errors.append(error)
-        return errors
+    @api.model
+    def _prepare_cost_estimate_line(self, sourcing):
+        vals = super(
+            LogisticRequisitionCostEstimate,
+            self
+        )._prepare_cost_estimate_line(sourcing)
+        vals['budget_amount'] = sourcing.requisition_line_id.budget_tot_price
+        return vals
