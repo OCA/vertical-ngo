@@ -104,6 +104,19 @@ class LogisticsRequisitionCostEstimate(models.TransientModel):
         self.env['ir.model.data'].xmlid_to_res_id(ref)
 
     @api.model
+    def _is_manually_source(self, sourcing):
+        """ Return if Source will be made manually
+
+        In that case a Purchase Order line will be asked
+        on Cost Estimate when confirming it.
+
+        We consider Tender and Framework Agreement as manually sourced
+        Other and Warehouse Dispatch doesn't need a Purchase order line.
+
+        """
+        return sourcing.procurement_method in ['procurement', 'fw_agreement']
+
+    @api.model
     def _prepare_cost_estimate_line(self, sourcing):
         sale_line_obj = self.env['sale.order.line']
         vals = {'product_id': sourcing.proposed_product_id.id,
@@ -113,7 +126,7 @@ class LogisticsRequisitionCostEstimate(models.TransientModel):
                 'product_uom_qty': sourcing.proposed_qty,
                 'product_uom': sourcing.proposed_uom_id.id,
                 # line must be sourced
-                'manually_sourced': True,
+                'manually_sourced': self._is_manually_source(sourcing),
                 'sourced_by': sourcing.purchase_line_id.id,
                 }
         if sourcing.dispatch_location_id:
