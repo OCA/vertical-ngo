@@ -18,7 +18,7 @@
 #
 #
 {"name": "Logistics Budget",
- "version": "0.3",
+ "version": "1.0",
  "author": "Camptocamp",
  "license": "AGPL-3",
  "category": "Purchase Management",
