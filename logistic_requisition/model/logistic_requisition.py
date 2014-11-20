@@ -44,7 +44,8 @@ class LogisticsRequisition(models.Model):
     _order = "name desc"
 
     REQ_STATES = {'confirmed': [('readonly', True)],
-                  'done': [('readonly', True)]
+                  'done': [('readonly', True)],
+                  'cancel': [('readonly', True)]
                   }
 
     @api.multi
