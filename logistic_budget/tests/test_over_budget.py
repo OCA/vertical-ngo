@@ -25,5 +25,9 @@ class TestOverBudget(TransactionCase):
         self.assertIs(True, order.over_budget())
 
 
-    def no_test_not_over_budget(self):
-        pending
+    def test_not_over_budget(self):
+        order = self.env['sale.order'].new({
+            'total_budget': 80.0,
+            'amount_total': 30.0,
+        })
+        self.assertIs(False, order.over_budget())
