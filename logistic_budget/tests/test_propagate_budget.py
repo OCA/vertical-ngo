@@ -29,6 +29,7 @@ class TestPropagateBudget(TransactionCase):
         partner1_id = self.env['ir.model.data'].xmlid_to_res_id(
             'base.res_partner_1')
         self.source = Mock(
+            spec_set=self.env['logistic.requisition.source'],
             dispatch_location_id=False,
             procurement_method='other',
             proposed_product_id=self.env['product.product'],
