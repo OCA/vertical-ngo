@@ -32,12 +32,15 @@ class TestItBlocks(TransactionCase):
         self.assertEqual('draft', self.order.state)
         self.assertIsInstance(result, dict)
         exceptions = self.wizard_model.browse(result['res_id']).exception_ids
-        self.assertEqual(1, len(exceptions))
+        self.assertEqual(2, len(exceptions))
         self.assertIn("is over the total budget", exceptions[0].description)
+        self.assertIn("has not validated", exceptions[1].description)
 
     def test_it_can_pass(self):
         self.order.order_line.budget_tot_price = 500.0
         self.order.order_line.price_unit = 100.0
+        self.order.budget_holder_id = self.env['res.users'].browse(
+            self.env.uid)
 
         self.order.action_button_confirm()
 
