@@ -35,6 +35,14 @@ class TestItBlocks(TransactionCase):
         self.assertEqual(1, len(exceptions))
         self.assertIn("is over the total budget", exceptions[0].description)
 
+    def test_it_can_pass(self):
+        self.order.total_budget = 500.0
+        self.order.order_line.price_unit = 100.0
+
+        self.order.action_button_confirm()
+
+        self.assertEqual('manual', self.order.state)
+
     def setUp(self):
         super(TestItBlocks, self).setUp()
         data_model = self.env['ir.model.data']
