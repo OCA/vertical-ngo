@@ -17,6 +17,7 @@ from openerp.tests.common import TransactionCase
 
 
 class TestOverBudget(TransactionCase):
+    """Unit tests on the budget check."""
     def test_over_budget(self):
         order = self.env['sale.order'].new({
             'total_budget': 80.0,
