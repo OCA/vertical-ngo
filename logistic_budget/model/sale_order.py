@@ -33,7 +33,8 @@ class SaleOrder(models.Model):
         'Finance Officer Validation Date')
     finance_officer_remark = fields.Text(
         'Finance Officer Remark')
-    total_budget = fields.Float("Total Budget", compute='_total_budget')
+    total_budget = fields.Float("Total Budget", compute='_total_budget',
+                                store=True)
 
     @api.one
     @api.depends('order_line.budget_amount')
