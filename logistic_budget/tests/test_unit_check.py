@@ -33,6 +33,12 @@ class TestUnitCheck(TransactionCase):
         })
         self.assertIs(False, order.over_budget())
 
-    def test_has_budget_holder(self):
+    def test_has_no_budget_holder(self):
         order = self.env['sale.order'].new({})
         self.assertIs(False, order.has_budget_holder())
+
+    def test_has_budget_holder(self):
+        order = self.env['sale.order'].new({
+            'budget_holder_id': self.env['res.users'].browse(self.env.uid),
+        })
+        self.assertIs(True, order.has_budget_holder())
