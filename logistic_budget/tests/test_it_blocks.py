@@ -24,7 +24,7 @@ class TestItBlocks(TransactionCase):
 
     """
     def test_it_can_block(self):
-        self.order.total_budget = 80.0
+        self.order.order_line.budget_amount = 80.0
         self.order.order_line.price_unit = 100.0
 
         result = self.order.action_button_confirm()
@@ -36,7 +36,7 @@ class TestItBlocks(TransactionCase):
         self.assertIn("is over the total budget", exceptions[0].description)
 
     def test_it_can_pass(self):
-        self.order.total_budget = 500.0
+        self.order.order_line.budget_amount = 500.0
         self.order.order_line.price_unit = 100.0
 
         self.order.action_button_confirm()
