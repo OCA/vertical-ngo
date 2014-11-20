@@ -2,11 +2,16 @@
 <openerp>
   <data noupdate="0">
 
-    <record id="view_order_form" model="ir.ui.view">
-      <field name="name">sale.order.form</field>
+    <record model="ir.ui.view" id="view_order_form">
+      <field name="name">view_order_form</field>
       <field name="model">sale.order</field>
-      <field name="inherit_id" ref="sale.view_order_form"/>
+      <field name="inherit_id" ref="sale_stock.view_order_form_inherit"/>
       <field name="arch" type="xml">
+
+        <field name="warehouse_id" position="after">
+          <field name="total_budget"/>
+        </field>
+
         <xpath expr="//notebook" position="after">
           <div class="oe_clear"/>
           <group string="Validation">
@@ -34,6 +39,7 @@
             </div>
           </group>
         </xpath>
+
       </field>
     </record>
 

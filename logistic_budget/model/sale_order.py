@@ -13,8 +13,6 @@
 #
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-##############################################################################
 from openerp import models, fields, api
 
 
@@ -35,6 +33,7 @@ class SaleOrder(models.Model):
         'Finance Officer Validation Date')
     finance_officer_remark = fields.Text(
         'Finance Officer Remark')
+    total_budget = fields.Float("Total Budget")
 
     @api.onchange('budget_holder_id')
     def onchange_set_date_budget_holder(self):
@@ -43,6 +42,11 @@ class SaleOrder(models.Model):
     @api.onchange('finance_officer_id')
     def onchange_set_date_finance_officer(self):
         self.date_finance_officer = fields.Datetime.now()
+
+    @api.multi
+    def over_budget(self):
+        self.ensure_one()
+        return self.amount_total > self.total_budget
 
 
 class SaleOrderLine(models.Model):

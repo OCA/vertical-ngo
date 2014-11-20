@@ -29,6 +29,8 @@
 Logisitic budget
 ================
 
+XXX rewrite this
+
 This module adds a notion of budget on logistic requisition.
 Each requisition lines have now a budget holder and a budget Value.
 
@@ -39,11 +41,14 @@ or budget.
 
 """,
  "depends": ["logistic_requisition",
+             "sale_exceptions",
+             "sale_stock",
              ],
  "demo": [],
  "data": ["view/logistic_requisition.xml",
           "view/sale_order.xml",
           "view/report_logistic_requisition.xml",
+          "data/exceptions.xml",
           ],
  "auto_install": False,
  'installable': True,
