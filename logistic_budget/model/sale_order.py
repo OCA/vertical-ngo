@@ -35,6 +35,7 @@ class SaleOrder(models.Model):
         'Finance Officer Remark')
     total_budget = fields.Float("Total Budget", compute='_total_budget',
                                 store=True)
+    budget_holder_id = fields.Many2one('res.users', 'Budget Holder')
 
     @api.one
     @api.depends('order_line.budget_tot_price')
@@ -53,6 +54,11 @@ class SaleOrder(models.Model):
     def over_budget(self):
         self.ensure_one()
         return self.amount_total > self.total_budget
+
+    @api.multi
+    def has_budget_holder(self):
+        self.ensure_one()
+        return bool(self.budget_holder_id)
 
 
 class SaleOrderLine(models.Model):

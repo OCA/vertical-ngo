@@ -16,8 +16,9 @@
 from openerp.tests.common import TransactionCase
 
 
-class TestOverBudget(TransactionCase):
+class TestUnitCheck(TransactionCase):
     """Unit tests on the budget check."""
+
     def test_over_budget(self):
         order = self.env['sale.order'].new({
             'total_budget': 80.0,
@@ -25,10 +26,13 @@ class TestOverBudget(TransactionCase):
         })
         self.assertIs(True, order.over_budget())
 
-
     def test_not_over_budget(self):
         order = self.env['sale.order'].new({
             'total_budget': 80.0,
             'amount_total': 30.0,
         })
         self.assertIs(False, order.over_budget())
+
+    def test_has_budget_holder(self):
+        order = self.env['sale.order'].new({})
+        self.assertIs(False, order.has_budget_holder())
