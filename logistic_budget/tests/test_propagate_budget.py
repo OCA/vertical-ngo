@@ -21,7 +21,9 @@ class TestPropagateBudget(TransactionCase):
     def test_propagate_budget_to_cost_estimate(self):
         self.source.requisition_line_id.budget_tot_price = 120.0
         cel_data = self.wizard_model._prepare_cost_estimate_line(self.source)
-        self.assertEqual(cel_data['budget_amount'], 120.0)
+        self.assertEqual(cel_data['budget_tot_price'], 120.0)
+        for key in cel_data:
+            self.assertIn(key, dir(self.env['sale.order.line']))
 
     def setUp(self):
         super(TestPropagateBudget, self).setUp()

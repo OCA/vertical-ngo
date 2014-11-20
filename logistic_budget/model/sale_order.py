@@ -37,9 +37,9 @@ class SaleOrder(models.Model):
                                 store=True)
 
     @api.one
-    @api.depends('order_line.budget_amount')
+    @api.depends('order_line.budget_tot_price')
     def _total_budget(self):
-        self.total_budget = sum([l.budget_amount for l in self.order_line])
+        self.total_budget = sum([l.budget_tot_price for l in self.order_line])
 
     @api.onchange('budget_holder_id')
     def onchange_set_date_budget_holder(self):
@@ -58,4 +58,4 @@ class SaleOrder(models.Model):
 class SaleOrderLine(models.Model):
     _inherit = "sale.order.line"
 
-    budget_amount = fields.Float("Budget Amount")
+    budget_tot_price = fields.Float("Budget Amount")

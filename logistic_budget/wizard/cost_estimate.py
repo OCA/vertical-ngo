@@ -18,17 +18,16 @@
 #
 #
 from openerp import models, api
-from openerp.tools.translate import _
 
 
 class LogisticRequisitionCostEstimate(models.TransientModel):
     _inherit = 'logistic.requisition.cost.estimate'
 
     @api.model
-    def _prepare_cost_estimate_line(self, sourcing):
+    def _prepare_cost_estimate_line(self, source):
         vals = super(
             LogisticRequisitionCostEstimate,
             self
-        )._prepare_cost_estimate_line(sourcing)
-        vals['budget_amount'] = sourcing.requisition_line_id.budget_tot_price
+        )._prepare_cost_estimate_line(source)
+        vals['budget_tot_price'] = source.requisition_line_id.budget_tot_price
         return vals
