@@ -23,21 +23,37 @@ from openerp import models, fields, api
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
+    LO_STATES = {'cancel': [('readonly', True)]}
+
     incoterm_address = fields.Char(
         'Incoterm Place',
+        states=LO_STATES,
         help="Incoterm Place of Delivery. "
              "International Commercial Terms are a series of "
              "predefined commercial terms used in "
              "international transactions.")
-    delivery_time = fields.Char('Delivery time')
+    delivery_time = fields.Char('Delivery time', states=LO_STATES)
     cost_estimate_only = fields.Boolean(
         'Cost Estimate Only',
+        states=LO_STATES,
         default=False)
     currency_id = fields.Many2one(
         related='pricelist_id.currency_id',
         co_model='res.currency',
-        string='Currency')
-    remark = fields.Text('Remarks / Description')
+        string='Currency',
+        states=LO_STATES)
+    remark = fields.Text('Remarks / Description', states=LO_STATES)
+
+    # Set states on base fields
+    origin = fields.Char(states=LO_STATES)
+    client_order_ref = fields.Char(states=LO_STATES)
+    user_id = fields.Many2one(states=LO_STATES)
+    note = fields.Text(states=LO_STATES)
+    payment_term = fields.Many2one(states=LO_STATES)
+    fiscal_position = fields.Many2one(states=LO_STATES)
+    company_id = fields.Many2one(states=LO_STATES)
+    section_id = fields.Many2one(states=LO_STATES)
+    procurement_group_id = fields.Many2one(states=LO_STATES)
 
     @api.multi
     def action_quotation_send(self):
