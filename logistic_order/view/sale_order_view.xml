@@ -13,6 +13,9 @@
       <field name="model">sale.order</field>
       <field name="inherit_id" ref="sale.view_sales_order_filter"/>
       <field name="arch" type="xml">
+        <field name="name" position="after">
+          <field name="origin"/>
+        </field>
         <search position="attributes">
           <attribute name="string">Search Order</attribute>
         </search>
@@ -120,6 +123,12 @@
                 <field name="carrier_id"/>
               </group>
             </group>
+            <group string="Delivery Remarks">
+              <field name="delivery_remark"
+                colspan="4"
+                nolabel="1"
+                class="oe_inline"/>
+            </group>
           </page>
           <page string="Accounting and Currency">
             <group>
@@ -154,19 +163,6 @@
                      class="oe_inline"/>
             </group>
           </page>
-        </xpath>
-      </field>
-    </record>
-
-    <record id="view_order_form_delivery_time" model="ir.ui.view">
-      <field name="name">delivery time</field>
-      <field name="model">sale.order</field>
-      <field name="inherit_id" ref="sale.view_order_form"/>
-      <field name="arch" type="xml">
-        <xpath expr="//group[@name='sale_total']" position="after">
-          <group>
-            <field name="delivery_time" class="oe_inline"/>
-          </group>
         </xpath>
       </field>
     </record>

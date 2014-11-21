@@ -18,7 +18,7 @@
 #
 #
 {"name": "Logistics Budget",
- "version": "0.2",
+ "version": "0.3",
  "author": "Camptocamp",
  "license": "AGPL-3",
  "category": "Purchase Management",
@@ -42,6 +42,7 @@ or budget.
              ],
  "demo": [],
  "data": ["view/logistic_requisition.xml",
+          "view/sale_order.xml",
           "view/report_logistic_requisition.xml",
           ],
  "auto_install": False,

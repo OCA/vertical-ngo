@@ -43,6 +43,7 @@ class SaleOrder(models.Model):
         string='Currency',
         states=LO_STATES)
     remark = fields.Text('Remarks / Description', states=LO_STATES)
+    delivery_remark = fields.Text('Delivery Remarks', states=LO_STATES)
 
     # Set states on base fields
     origin = fields.Char(states=LO_STATES)
