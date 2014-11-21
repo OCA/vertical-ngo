@@ -36,7 +36,8 @@ class TestPropagateBudget(TransactionCase):
         self.assertEqual('LGTM', ce_data['budget_holder_remark'])
         self.assertEqual('not bad', ce_data['finance_officer_remark'])
         self.assertEqual('2001-01-01 00:00:00', ce_data['date_budget_holder'])
-        self.assertEqual('2002-02-02 00:00:00', ce_data['date_finance_officer'])
+        self.assertEqual('2002-02-02 00:00:00',
+                         ce_data['date_finance_officer'])
         for key in ce_data:
             self.assertIn(key, dir(self.env['sale.order']))
 
