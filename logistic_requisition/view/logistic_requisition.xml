@@ -392,8 +392,11 @@
                             <field name="name" class="oe_inline"/>
                         </h1>
                     </div>
-                    <div class="oe_right oe_button_box" name="buttons">
-                        <button string="View Stock" name="view_stock_by_location" type="object"/>
+                    <div class="oe_right oe_button_box" style="width: 300px;" name="buttons">
+                        <button class="oe_inline oe_stat_button" name="action_view_stock"
+                                type="object" groups="base.group_sale_salesman" icon="fa-building-o">
+                            <field string="Stock" name="stock_count" widget="statinfo"/>
+                        </button>
                     </div>
                     <group>
                         <group>
