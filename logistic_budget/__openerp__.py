@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 #    Author: Joël Grand-Guillaume, Jacques-Etienne Baudoux, Guewen Baconnier
+#    Leonardo Pistone
 #    Copyright 2013-2014 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -25,21 +26,6 @@
  'complexity': "normal",
  "images": [],
  "website": "http://www.camptocamp.com",
- "description": """
-Logisitic budget
-================
-
-XXX rewrite this
-
-This module adds a notion of budget on logistic requisition.
-Each requisition lines have now a budget holder and a budget Value.
-
-Requisiton must be approves by budget manager.
-
-If budget is exceeded requisition flow is block unitl adaptation of price
-or budget.
-
-""",
  "depends": ["logistic_requisition",
              "sale_exceptions",
              "sale_stock",
