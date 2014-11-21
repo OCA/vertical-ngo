@@ -127,6 +127,11 @@ class test_sale_order_from_lr_confirm(common.TransactionCase):
              ('state', 'in', ['approved'])])
         po.order_line.ensure_one()
         sale.order_line.sourced_by = po.order_line.id
+
+        # sale exceptions, if installed, is irrelevant here. If it isn't this
+        # is no-op
+        sale.ignore_exceptions = True
+
         # the confirmation of the sale order link the
         # purchase order on the purchase requisition
         sale.signal_workflow('order_confirm')
