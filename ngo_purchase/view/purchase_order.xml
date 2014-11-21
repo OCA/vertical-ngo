@@ -250,6 +250,10 @@
                 <field name="invoice_lines"/>
                 <field name="move_ids"/>
               </page>
+              <!-- add field from purchase_requisition_bid_selection -->
+              <page string="Remarks / Conditions">
+                <field name="remark"/>
+              </page>
             </notebook>
           </sheet>
         </form>
