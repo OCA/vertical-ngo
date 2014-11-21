@@ -24,6 +24,22 @@ class LogisticRequisitionCostEstimate(models.TransientModel):
     _inherit = 'logistic.requisition.cost.estimate'
 
     @api.model
+    def _prepare_cost_estimate(self, requisition, source_lines,
+                               estimate_lines):
+        vals = super(
+            LogisticRequisitionCostEstimate,
+            self
+        )._prepare_cost_estimate(requisition, source_lines, estimate_lines)
+        vals['budget_holder_id'] = requisition.budget_holder_id.id
+        vals['finance_officer_id'] = requisition.finance_officer_id.id
+        vals['budget_holder_remark'] = requisition.budget_holder_remark
+        vals['finance_officer_remark'] = requisition.finance_officer_remark
+        vals['date_budget_holder'] = requisition.date_budget_holder
+        vals['date_finance_officer'] = requisition.date_finance_officer
+
+        return vals
+
+    @api.model
     def _prepare_cost_estimate_line(self, source):
         vals = super(
             LogisticRequisitionCostEstimate,

@@ -25,6 +25,21 @@ class TestPropagateBudget(TransactionCase):
         for key in cel_data:
             self.assertIn(key, dir(self.env['sale.order.line']))
 
+    def test_propagate_holder_to_cost_estimate(self):
+        ce_data = self.wizard_model._prepare_cost_estimate(
+            requisition=self.request,
+            source_lines=None,
+            estimate_lines=[],
+        )
+        self.assertEqual(1, ce_data['budget_holder_id'], 1)
+        self.assertEqual(2, ce_data['finance_officer_id'], 2)
+        self.assertEqual('LGTM', ce_data['budget_holder_remark'])
+        self.assertEqual('not bad', ce_data['finance_officer_remark'])
+        self.assertEqual('2001-01-01 00:00:00', ce_data['date_budget_holder'])
+        self.assertEqual('2002-02-02 00:00:00', ce_data['date_finance_officer'])
+        for key in ce_data:
+            self.assertIn(key, dir(self.env['sale.order']))
+
     def setUp(self):
         super(TestPropagateBudget, self).setUp()
         self.wizard_model = self.env['logistic.requisition.cost.estimate']
@@ -38,3 +53,11 @@ class TestPropagateBudget(TransactionCase):
         )
         self.source.requisition_line_id.requisition_id.consignee_id.id = \
             partner1_id
+        self.request = self.env['logistic.requisition'].new({
+            'budget_holder_id': 1,
+            'finance_officer_id': 2,
+            'date_budget_holder': '2001-01-01 00:00:00',
+            'date_finance_officer': '2002-02-02 00:00:00',
+            'budget_holder_remark': 'LGTM',
+            'finance_officer_remark': 'not bad',
+        })
