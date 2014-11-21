@@ -168,6 +168,7 @@
                                     <field name="pricelist_id" domain="[('type','=','sale')]"/>
                                     <field name="currency_id"/>
                                     <field name="country_id"/>
+                                    <field name="company_id" invisible="1"/>
                                 </group>
                                 <group>
                                     <field name="analytic_id"/>
