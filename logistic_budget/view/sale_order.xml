@@ -12,6 +12,10 @@
           <field name="total_budget"/>
         </field>
 
+        <xpath expr="//field[@name='order_line']/tree//field[@name='price_is']" position="after">
+          <field name="budget_tot_price"/>
+        </xpath>
+
         <xpath expr="//notebook" position="after">
           <div class="oe_clear"/>
           <group string="Validation">
