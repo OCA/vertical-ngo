@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 #
-#    Author: Yannick Vaucher
+#    Author: Nicolas Bessi
 #    Copyright 2014 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -18,29 +18,16 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #
+from openerp import models, fields
 
-{"name": "Logistics Consignee",
- "summary": "Consignee on Sales, Purchases, Purchase requisition for Pickings",
- "version": "0.1",
- "author": "Camptocamp",
- "license": "AGPL-3",
- "category": "Logistics",
- 'complexity': "normal",
- "images": [],
- "website": "http://www.camptocamp.com",
- "depends": ["sale_stock",
-             "purchase",
-             "purchase_requisition",
-             ],
- "demo": [],
- "data": ['view/res_partner.xml',
-          'view/purchase_order.xml',
-          'view/purchase_requisition.xml',
-          'view/sale_order.xml',
-          'view/stock_picking.xml',
-          'view/report_saleorder.xml',
-          ],
- "test": ['test/test_report.yml'],
- 'installable': True,
- "auto_install": False,
- }
+
+class ResPartner(models.Model):
+    """Add fields related to consignee
+
+    A consignee is a special kind of partner
+    that is in charge of receiving goods.
+    """
+
+    _inherit = 'res.partner'
+
+    is_consignee = fields.Boolean('Consignee')
