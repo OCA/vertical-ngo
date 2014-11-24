@@ -1,5 +1,5 @@
-Logisitic budget
-================
+Logisitics budget
+=================
 
 This module adds a notion of budget on logistic requests and cost estimates.
 
