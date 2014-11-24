@@ -69,7 +69,6 @@ class SaleOrder(models.Model):
     @api.one
     @api.constrains('cost_estimate_only', 'consignee_id')
     def _check_consignee(self):
-        print self.cost_estimate_only, self.consignee_id
         if not self.cost_estimate_only and not self.consignee_id:
             raise exceptions.Warning(_('If this is not only for Cost Estimate, '
                                        'you must provide a Consignee'))
