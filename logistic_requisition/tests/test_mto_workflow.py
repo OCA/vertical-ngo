@@ -167,6 +167,11 @@ class test_mto_workflow(common.TransactionCase):
                 if line.product_id == po.order_line.product_id:
                     line.sourced_by = po.order_line.id
                     break
+
+        # if sale_exception is installed, ignore exceptions because they are
+        # irrelevant to this test. If not, assigning a missing field is no_op
+        sale.ignore_exceptions = True
+
         # the confirmation of the sale order link the
         # purchase order on the purchase requisition
         sale.signal_workflow('order_confirm')

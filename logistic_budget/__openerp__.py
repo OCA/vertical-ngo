@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 #    Author: Joël Grand-Guillaume, Jacques-Etienne Baudoux, Guewen Baconnier
+#    Leonardo Pistone
 #    Copyright 2013-2014 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -18,37 +19,23 @@
 #
 #
 {"name": "Logistics Budget",
- "version": "0.3",
+ "version": "1.0",
  "author": "Camptocamp",
  "license": "AGPL-3",
  "category": "Purchase Management",
  'complexity': "normal",
  "images": [],
  "website": "http://www.camptocamp.com",
- "description": """
-Logisitic budget
-================
-
-This module adds a notion of budget on logistic requisition.
-Each requisition lines have now a budget holder and a budget Value.
-
-Requisiton must be approves by budget manager.
-
-If budget is exceeded requisition flow is block unitl adaptation of price
-or budget.
-
-""",
  "depends": ["logistic_requisition",
+             "sale_exceptions",
+             "sale_stock",
              ],
  "demo": [],
  "data": ["view/logistic_requisition.xml",
           "view/sale_order.xml",
           "view/report_logistic_requisition.xml",
+          "data/exceptions.xml",
           ],
  "auto_install": False,
- # TODO one test is disabled due to a bug with field functions odoo#3422
- # to reactivate once fixed
- "test": ['test/requisition_create_cost_estimate.yml',
-          ],
  'installable': True,
  }

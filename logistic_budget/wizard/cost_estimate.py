@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
-#    Author: Joël Grand-Guillaume
-#    Copyright 2013 Camptocamp SA
+#    Author: Joël Grand-Guillaume, Leonardo Pistone
+#    Copyright 2013, 2014 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -17,23 +17,33 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #
-from openerp.osv import orm
-from openerp.tools.translate import _
+from openerp import models, api
 
 
-class logistic_requisition_cost_estimate(orm.TransientModel):
+class LogisticRequisitionCostEstimate(models.TransientModel):
     _inherit = 'logistic.requisition.cost.estimate'
 
-    def _check_requisition(self, cr, uid, requisition, context=None):
-        """ Check the rules to create a cost estimate from the
-        requisition
+    @api.model
+    def _prepare_cost_estimate(self, requisition, source_lines,
+                               estimate_lines):
+        vals = super(
+            LogisticRequisitionCostEstimate,
+            self
+        )._prepare_cost_estimate(requisition, source_lines, estimate_lines)
+        vals['budget_holder_id'] = requisition.budget_holder_id.id
+        vals['finance_officer_id'] = requisition.finance_officer_id.id
+        vals['budget_holder_remark'] = requisition.budget_holder_remark
+        vals['finance_officer_remark'] = requisition.finance_officer_remark
+        vals['date_budget_holder'] = requisition.date_budget_holder
+        vals['date_finance_officer'] = requisition.date_finance_officer
 
-        :returns: list of tuples ('message, 'error_code')
-        """
-        errors = []
-        if not requisition.budget_holder_id:
-            error = (_('The requisition must be validated '
-                       'by the Budget Holder.'),
-                     'NO_BUDGET_VALID')
-            errors.append(error)
-        return errors
+        return vals
+
+    @api.model
+    def _prepare_cost_estimate_line(self, source):
+        vals = super(
+            LogisticRequisitionCostEstimate,
+            self
+        )._prepare_cost_estimate_line(source)
+        vals['budget_tot_price'] = source.requisition_line_id.budget_tot_price
+        return vals

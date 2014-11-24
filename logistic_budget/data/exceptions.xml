@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data noupdate="1">
+
+    <record id="insufficient_budget" model="sale.exception">
+      <field name="name">Insufficient budget</field>
+      <field name="description">The total amount of this cost estimate is over the total budget of all lines. Please review your price or ask the budget holder to increase the budget.</field>
+      <field name="sequence">10</field>
+      <field name="model">sale.order</field>
+      <field name="code">if object.over_budget():
+    failed = True</field>
+      <field name="active" eval="True"/>
+    </record>
+
+    <record id="no_budget_holder" model="sale.exception">
+      <field name="name">No Budget Holder</field>
+      <field name="description">The Budget Holder has not validated the cost estimate, please ask for confirmation</field>
+      <field name="sequence">20</field>
+      <field name="model">sale.order</field>
+      <field name="code">if not object.has_budget_holder():
+    failed = True</field>
+      <field name="active" eval="True"/>
+    </record>
+
+  </data>
+</openerp>
