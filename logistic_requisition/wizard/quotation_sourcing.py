@@ -22,7 +22,9 @@ from openerp import models, fields
 
 class QuotationLineSource(models.TransientModel):
     _inherit = 'sale.order.line.sourcing'
+
+    # Replace draft by draftpo in domain
+    # This to bridge sale_quotation_sourcing and purchase_rfq_bid_workflow
     po_line_id = fields.Many2one(
-        'purchase.order.line',
-        string='Sourced By',
-        domain=[('state', 'in', ['draft', 'confirmed'])])
+        domain="[('product_id', '=', product_id),"
+               " ('order_id.state', 'in', ['draftpo', 'confirmed'])]")
