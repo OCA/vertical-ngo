@@ -33,10 +33,9 @@ class LogisticsRequisitionLineAssign(models.TransientModel):
 
     @api.multi
     def assign(self):
-        self.ensure_one()
         line_ids = self.env.context.get('active_ids')
         if not line_ids:
             return
         lines = self.env['logistic.requisition.line'].browse(line_ids)
-        lines.logistic_user_id = self.logistic_user_id.id
+        lines.write({'logistic_user_id': self.logistic_user_id.id})
         return {'type': 'ir.actions.act_window_close'}
