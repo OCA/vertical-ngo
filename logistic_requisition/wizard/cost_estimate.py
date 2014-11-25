@@ -140,7 +140,7 @@ class LogisticsRequisitionCostEstimate(models.TransientModel):
         onchange_vals = sale_line_obj.product_id_change(
             requisition.consignee_id.property_product_pricelist.id,
             sourcing.proposed_product_id.id,
-            partner_id=requisition.consignee_id.id,
+            partner_id=requisition.partner_id.id,
             qty=sourcing.proposed_qty,
             uom=sourcing.proposed_uom_id.id).get('value', {})
         #  price_unit and type of the requisition line must be kept
@@ -211,6 +211,7 @@ class LogisticsRequisitionCostEstimate(models.TransientModel):
                 'partner_invoice_id': partner_id,
                 'partner_shipping_id': requisition.consignee_shipping_id.id,
                 'consignee_id': requisition.consignee_id.id,
+                'cost_estimate_only': requisition.cost_estimate_only,
                 'order_line': [(0, 0, x) for x in estimate_lines],
                 'incoterm': requisition.incoterm_id.id,
                 'incoterm_address': requisition.incoterm_address,

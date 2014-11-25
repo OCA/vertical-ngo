@@ -17,7 +17,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from openerp import models, fields, api
+from openerp import models, fields, api, exceptions
+from openerp.tools.translate import _
 
 
 class SaleOrder(models.Model):
@@ -55,6 +56,22 @@ class SaleOrder(models.Model):
     company_id = fields.Many2one(states=LO_STATES)
     section_id = fields.Many2one(states=LO_STATES)
     procurement_group_id = fields.Many2one(states=LO_STATES)
+
+    # redefine consignee_id with required=False
+    # we have a constraint to make it
+    # required only if cost_estimate_only is False
+    consignee_id = fields.Many2one(
+        'res.partner',
+        string='Consignee',
+        required=False,
+        help="The person to whom the shipment is to be delivered.")
+
+    @api.one
+    @api.constrains('cost_estimate_only', 'consignee_id')
+    def _check_consignee(self):
+        if not self.cost_estimate_only and not self.consignee_id:
+            raise exceptions.Warning(_('If this is not only for Cost Estimate,'
+                                       ' you must provide a Consignee'))
 
     @api.multi
     def action_quotation_send(self):
