@@ -39,3 +39,8 @@ class SaleOrderLine(models.Model):
         help="When the price is an estimation, the final price may change. "
              "I.e. it is not based on a request for quotation.",
         default='fixed')
+    # Replace draft by draftpo in domain
+    # This to bridge sale_quotation_sourcing and purchase_rfq_bid_workflow
+    sourced_by = fields.Many2one(
+        domain="[('product_id', '=', product_id),"
+               " ('order_id.state', 'in', ['draftpo', 'confirmed'])]")
