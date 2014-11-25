@@ -663,7 +663,7 @@
                             attrs="{'invisible': [('procurement_method', '!=', 'wh_dispatch')]}">
                             <field name="dispatch_location_id"
                                 attrs="{'required': [('procurement_method', '=', 'wh_dispatch')]}"
-                                domain="[('usage', '!=', 'view')]"/>
+                                domain="[('usage', '=', 'internal')]"/>
                         </group>
                     </group>
                 </sheet>
