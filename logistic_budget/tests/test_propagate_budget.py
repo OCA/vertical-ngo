@@ -52,7 +52,7 @@ class TestPropagateBudget(TransactionCase):
             procurement_method='other',
             proposed_product_id=self.env['product.product'],
         )
-        self.source.requisition_line_id.requisition_id.consignee_id.id = \
+        self.source.requisition_line_id.requisition_id.partner_id.id = \
             partner1_id
         self.request = self.env['logistic.requisition'].new({
             'budget_holder_id': 1,
