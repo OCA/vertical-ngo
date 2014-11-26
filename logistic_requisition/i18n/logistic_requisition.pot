@@ -850,7 +850,6 @@ msgstr ""
 
 #. module: logistic_requisition
 #: code:addons/logistic_requisition/model/logistic_requisition.py:1111
-#: code:addons/logistic_requisition/wizard/logistic_line_create_requisition.py:57
 #: model:ir.model,name:logistic_requisition.model_purchase_requisition
 #: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_form
 #: view:logistic.requisition.source:logistic_requisition.view_logistic_requisition_source_form
