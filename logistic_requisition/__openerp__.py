@@ -21,6 +21,7 @@
 
 {"name": "Logistics Requisition",
  "version": "1.1.1",
+ "version": "1.2",
  "author": "Camptocamp",
  "license": "AGPL-3",
  "category": "Purchase Management",
