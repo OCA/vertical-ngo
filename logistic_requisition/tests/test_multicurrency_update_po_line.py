@@ -124,7 +124,7 @@ class test_sale_order_from_lr_confirm(common.TransactionCase):
         po = self.env['purchase.order'].search(
             [('requisition_id', '=', purch_req.id),
              ('type', '=', 'purchase'),
-             ('state', 'in', ['approved'])])
+             ('state', 'in', ['draftpo'])])
         po.order_line.ensure_one()
         sale.order_line.sourced_by = po.order_line.id
 
