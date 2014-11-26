@@ -201,7 +201,6 @@ class test_mto_workflow(common.TransactionCase):
         purchase.refresh()
         purchase.signal_workflow('purchase_confirm')
 
-
         # the incoming shipment of the purchase order has been generated
         purchase.refresh()
         self.assertEquals(len(purchase.picking_ids), 1)
