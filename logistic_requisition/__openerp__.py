@@ -20,7 +20,7 @@
 #
 
 {"name": "Logistics Requisition",
- "version": "1.1",
+ "version": "1.1.1",
  "author": "Camptocamp",
  "license": "AGPL-3",
  "category": "Purchase Management",
@@ -50,6 +50,7 @@
           "data/logistic_requisition_sequence.xml",
           "view/logistic_requisition.xml",
           "view/sale_order.xml",
+          "view/stock.xml",
           "view/cancel_reason.xml",
           "view/purchase_order.xml",
           "view/report_logistic_requisition.xml",
