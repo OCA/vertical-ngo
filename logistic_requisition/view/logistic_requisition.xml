@@ -677,6 +677,28 @@
         </field>
     </record>
 
+    <!-- Add an action on Logistics Requisition Source tree view to create Purchase Requisition -->
+    <record id="action_lr_source_create_po_requisition" model="ir.actions.server" >
+      <field name="name">Create Purchase Requisition</field>
+      <field name="model_id" ref="model_logistic_requisition_source"/>
+      <field name="state">code</field>
+      <field name="code">action = self.action_create_po_requisition(cr, uid, context['active_ids'], context=context)</field>
+      <field name="type">ir.actions.server</field>
+    </record>
+
+    <record id="ir_create_po_requisition" model="ir.values">
+      <field name="model">logistic.requisition.source</field>
+      <field name="name">Run Create Purchase Requisition</field>
+      <field eval="'ir.actions.server,%d'%action_lr_source_create_po_requisition" name="value"/>
+      <field name="key">action</field>
+      <field name="key2">client_action_multi</field>
+    </record>
+
+    <record id="action_lr_source_create_po_requisition" model="ir.actions.server" >
+      <field name="menu_ir_values_id" ref="ir_create_po_requisition"/>
+    </record>
+
+
     <record model="ir.actions.act_window" id="action_logistic_requisition_source">
         <field name="name">Requisitions Sourcing Lines</field>
         <field name="type">ir.actions.act_window</field>
