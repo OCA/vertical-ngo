@@ -697,15 +697,8 @@ class LogisticsRequisitionLine(models.Model):
         Then open the created purchase requisition
         """
         purch_req = self._do_create_po_requisition()
-        return {
-            'name': _('Purchase Requisition'),
-            'view_type': 'form',
-            'view_mode': 'form',
-            'res_model': 'purchase.requisition',
-            'res_id': purch_req.id,
-            'view_id': False,
-            'type': 'ir.actions.act_window',
-        }
+        source_model = self.env['logistic.requisition.source']
+        return source_model.action_open_po_requisition(purch_req)
 
     @api.model
     def _open_cost_estimate(self):
@@ -1118,18 +1111,18 @@ class LogisticsRequisitionSource(models.Model):
         sources
         Then open the created purchase requisition
         """
-        self._action_create_po_requisition()
-        return self.action_open_po_requisition()
+        purch_req = self._action_create_po_requisition()
+        return self.action_open_po_requisition(purch_req)
 
     @api.multi
-    def action_open_po_requisition(self):
-        self.ensure_one()
-        source = self
+    def action_open_po_requisition(self, purch_req=None):
+        if not purch_req:
+            purch_req = self.po_requisition_id
         return {
             'type': 'ir.actions.act_window',
             'name': _('Purchase Requisition'),
             'res_model': 'purchase.requisition',
-            'res_id': source.po_requisition_id.id,
+            'res_id': purch_req.id,
             'view_type': 'form',
             'view_mode': 'form',
             'target': 'current',
