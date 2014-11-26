@@ -65,15 +65,11 @@
 -
   And I create the PR, and I validate it
 -
-  !python {model: logistic.requisition.source.create.requisition}: |
+  !python {model: logistic.requisition.source}: |
     line1_id = ref("logistic_requisition_source_tender_11")
     line2_id = ref("logistic_requisition_source_tender_12")
-    active_ids = [line1_id, line2_id]
-    ctx = context.copy()
-    ctx['active_ids'] = active_ids
-    id = self.create(cr, uid, {}, ctx)
-    wizard = self.browse(cr, uid, id, ctx)
-    res = wizard.create_po_requisition()
+    source_ids = [line1_id, line2_id]
+    res = self.action_create_po_requisition(cr, uid, source_ids)
     requisition = self.pool['purchase.requisition'].browse(cr, uid, res['res_id'])
     requisition.write({'bid_tendering_mode': 'restricted'})
     requisition.signal_workflow('sent_suppliers')
