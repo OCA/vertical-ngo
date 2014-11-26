@@ -694,11 +694,6 @@
       <field name="key2">client_action_multi</field>
     </record>
 
-    <record id="action_lr_source_create_po_requisition" model="ir.actions.server" >
-      <field name="menu_ir_values_id" ref="ir_create_po_requisition"/>
-    </record>
-
-
     <record model="ir.actions.act_window" id="action_logistic_requisition_source">
         <field name="name">Requisitions Sourcing Lines</field>
         <field name="type">ir.actions.act_window</field>
