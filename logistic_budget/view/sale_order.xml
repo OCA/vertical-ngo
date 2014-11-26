@@ -2,6 +2,17 @@
 <openerp>
   <data noupdate="0">
 
+    <record model="ir.ui.view" id="view_order_line_form">
+      <field name="name">view_order_form</field>
+      <field name='model'>sale.order.line</field>
+      <field name="inherit_id" ref='sale.view_order_line_form2'/>
+      <field name='arch' type='xml'>
+        <field name='price_unit' position='after'>
+          <field name='budget_tot_price'/>
+        </field>
+      </field>
+    </record>
+
     <record model="ir.ui.view" id="view_order_form">
       <field name="name">view_order_form</field>
       <field name="model">sale.order</field>
