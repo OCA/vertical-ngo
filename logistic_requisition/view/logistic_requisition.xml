@@ -131,7 +131,7 @@
                                         <group string="Accounting" colspan="4">
                                             <field name="account_id"/>
                                         </group>
-                                        <group string="Notes">
+                                        <group string="Remarks / Conditions">
                                             <field name="note" colspan="4"
                                                 nolabel="1"
                                                 class="oe_inline"
@@ -463,7 +463,7 @@
                                         widget="monetary"
                                         options="{'currency_field': 'company_currency_id'}"/>
                                 </group>
-                                <group string="Notes">
+                                <group string="Remarks / Conditions">
                                     <field name="note"
                                         colspan="4"
                                         nolabel="1"
