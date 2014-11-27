@@ -46,28 +46,36 @@ class logistic_requisition_source_po_creator(orm.TransientModel):
             context = {}
         defaults = super(logistic_requisition_source_po_creator, self).\
             default_get(cr, uid, fields_list, context=context)
-        line_obj = self.pool.get('logistic.requisition.source')
-        fmwk_price_obj = self.pool.get('framework.agreement.pricelist')
-        line_ids = context['active_ids']
+        source_model = self.pool['logistic.requisition.source']
+        line_model = self.pool['logistic.requisition.line']
+        fmwk_price_obj = self.pool['framework.agreement.pricelist']
+        if context.get('active_model') == 'logistic.requisition.source':
+            source_ids = context['active_ids']
+        else:
+            line_ids = context['active_ids']
+            lines = line_model.browse(cr, uid, line_ids, context=context)
+            source_ids = [source.id for line in lines
+                          for source in line.source_ids]
         pricelist_id = None
-        line = next((x for x in line_obj.browse(cr, uid, line_ids,
-                                                context=context) if
-                     x.framework_agreement_id), None)
-        if not line:
+        source = next((x for x in source_model.browse(cr, uid, source_ids,
+                                                      context=context) if
+                      x.framework_agreement_id), None)
+        if not source:
             raise orm.except_orm(_('No sourcing line with agreement selected'),
                                  _('Please correct selection'))
 
-        pricelist_id = line_obj._get_purchase_pricelist_from_currency(
+        pricelist_id = source_model._get_purchase_pricelist_from_currency(
             cr,
             uid,
-            line.requisition_id.pricelist_id.currency_id.id,
+            source.requisition_id.pricelist_id.currency_id.id,
             context=context
         ).id
         defaults['pricelist_id'] = pricelist_id
 
         frwk_ids = fmwk_price_obj.search(
             cr, uid,
-            [('framework_agreement_id', '=', line.framework_agreement_id.id)],
+            [('framework_agreement_id', '=',
+              source.framework_agreement_id.id)],
             context=context
         )
         defaults['framework_currency_ids'] = frwk_ids
@@ -89,7 +97,8 @@ class logistic_requisition_source_po_creator(orm.TransientModel):
         if context.get('active_model') == 'logistic.requisition.line':
             lr_lines = lr_line_obj.browse(cr, uid, context['active_ids'],
                                           context=context)
-            source_ids = [s_line.id for s_line in lr_lines.source_ids]
+            source_ids = [source.id for line in lr_lines
+                          for source in line.source_ids]
         else:
             source_ids = context['active_ids']
         if not source_ids:
