@@ -19,8 +19,10 @@ from openerp.tests.common import TransactionCase
 class TestSourcingPercentage(TransactionCase):
     def test_one_sourced_out_of_two_is_50_percent(self):
         self.lr = self.LR.new({
-            'line_ids': self.LRL.new({'state': 'draft'}) |
-                        self.LRL.new({'state': 'sourced'})
+            'line_ids': (
+                self.LRL.new({'state': 'draft'}) |
+                self.LRL.new({'state': 'sourced'})
+            )
         })
         # "or 0.0" because odoo returns False instead of 0.0.
         # I need float for assertAlmostEqual to give a good failure.
