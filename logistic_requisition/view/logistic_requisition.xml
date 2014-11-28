@@ -216,7 +216,7 @@
         <field name="name">logistic.requisition.list.select</field>
         <field name="model">logistic.requisition</field>
         <field name="arch" type="xml">
-            <search string="Search Logistics Requisition">
+            <search string="Search Logistics Requisitions">
                 <filter name="draft" string="New"
                     domain="[('state','=','draft')]"
                     help="New Logistics Requisitions"/>
@@ -499,7 +499,7 @@
         <field name="name">logistic.requisition.line.list.select</field>
         <field name="model">logistic.requisition.line</field>
         <field name="arch" type="xml">
-            <search string="Search Logistics Requisition Line">
+            <search string="Search Logistics Requisition Lines">
                 <filter name="draft" string="New"
                     domain="[('state','=','draft')]"
                     help="New Logistics Requisition Line"/>
@@ -671,7 +671,7 @@
         <field name="name">logistic.requisition.source.list.select</field>
         <field name="model">logistic.requisition.source</field>
         <field name="arch" type="xml">
-            <search string="Search Logistics Requisition Sourcing">
+            <search string="Search Logistics Requisition Sourcings">
                 <field name="name"/>
                 <group expand="0" string="Group By...">
                     <filter string="Requisition Line" name="groupby_requisition_line_id"

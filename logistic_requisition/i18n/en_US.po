@@ -1015,18 +1015,18 @@ msgstr "Sales Order Line"
 
 #. module: logistic_requisition
 #: view:logistic.requisition:logistic_requisition.view_logistic_requisition_filter
-msgid "Search Logistics Requisition"
-msgstr "Search Logistics Requisition"
+msgid "Search Logistics Requisitions"
+msgstr "Search Logistics Requisitions"
 
 #. module: logistic_requisition
 #: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_filter
-msgid "Search Logistics Requisition Line"
-msgstr "Search Logistics Requisition Line"
+msgid "Search Logistics Requisition Lines"
+msgstr "Search Logistics Requisition Lines"
 
 #. module: logistic_requisition
 #: view:logistic.requisition.source:logistic_requisition.view_logistic_requisition_source_filter
-msgid "Search Logistics Requisition Sourcing"
-msgstr "Search Logistics Requisition Sourcing"
+msgid "Search Logistics Requisition Sourcings"
+msgstr "Search Logistics Requisition Sourcings"
 
 #. module: logistic_requisition
 #: view:logistic.requisition.line.assign:logistic_requisition.view_logistic_requisition_line_assign_wizard
