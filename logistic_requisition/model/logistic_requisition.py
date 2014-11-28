@@ -111,7 +111,7 @@ class LogisticsRequisition(models.Model):
         'Cost Estimate Only',
         states=REQ_STATES,
         default=False)
-    note = fields.Text('Remarks/Description')
+    note = fields.Text('Remarks / Description')
     shipping_note = fields.Text('Delivery / Shipping Remarks')
     incoterm_id = fields.Many2one(
         'stock.incoterms',

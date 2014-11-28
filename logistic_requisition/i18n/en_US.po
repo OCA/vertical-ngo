@@ -912,13 +912,9 @@ msgstr "Reference"
 
 #. module: logistic_requisition
 #: view:logistic.requisition:logistic_requisition.view_logistic_requisition_form
+#: field:logistic.requisition,note:0
 msgid "Remarks / Description"
 msgstr "Remarks / Description"
-
-#. module: logistic_requisition
-#: field:logistic.requisition,note:0
-msgid "Remarks/Description"
-msgstr "Remarks/Description"
 
 #. module: logistic_requisition
 #: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_kanban
