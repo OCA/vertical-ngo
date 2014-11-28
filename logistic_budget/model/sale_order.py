@@ -44,7 +44,6 @@ class SaleOrder(models.Model):
         states=base_logistics_order.LO_STATES)
     total_budget = fields.Float("Total Budget", compute='_total_budget',
                                 store=True)
-    budget_holder_id = fields.Many2one('res.users', 'Budget Holder')
 
     @api.one
     @api.depends('order_line.budget_tot_price')
