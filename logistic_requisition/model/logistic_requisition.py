@@ -787,7 +787,7 @@ class LogisticsRequisitionSource(models.Model):
          ('fw_agreement', 'Framework Agreement'),
          ('other', 'Other'),
          ],
-        string='Procurement Method',
+        string='Sourcing Method',
         required=True,
         states=SOURCED_STATES,
         default='other')

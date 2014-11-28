@@ -799,8 +799,8 @@ msgstr "Procurement"
 #. module: logistic_requisition
 #: view:logistic.requisition.source:logistic_requisition.view_logistic_requisition_source_filter
 #: field:logistic.requisition.source,procurement_method:0
-msgid "Procurement Method"
-msgstr "Procurement Method"
+msgid "Sourcing Method"
+msgstr "Sourcing Method"
 
 #. module: logistic_requisition
 #: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_filter

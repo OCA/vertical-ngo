@@ -676,7 +676,7 @@
                 <group expand="0" string="Group By...">
                     <filter string="Requisition Line" name="groupby_requisition_line_id"
                       domain="[]" context="{'group_by': 'requisition_line_id'}"/>
-                    <filter string="Procurement Method" name="groupby_procurement_method"
+                    <filter string="Sourcing Method" name="groupby_procurement_method"
                        domain="[]" context="{'group_by': 'procurement_method'}"/>
                 </group>
             </search>
