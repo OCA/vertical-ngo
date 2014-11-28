@@ -528,7 +528,7 @@ msgstr ""
 #: view:logistic.requisition:logistic_requisition.view_logistic_requisition_form
 #: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_form
 #: field:logistic.requisition.line,name:0
-msgid "Line N°"
+msgid "Line No."
 msgstr ""
 
 #. module: logistic_requisition
@@ -1109,7 +1109,7 @@ msgstr ""
 
 #. module: logistic_requisition
 #: view:logistic.requisition.source:logistic_requisition.view_logistic_requisition_source_form
-msgid "Sourcing Line N°"
+msgid "Sourcing Line No."
 msgstr ""
 
 #. module: logistic_requisition

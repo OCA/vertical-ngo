@@ -528,8 +528,8 @@ msgstr "Last Updated on"
 #: view:logistic.requisition:logistic_requisition.view_logistic_requisition_form
 #: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_form
 #: field:logistic.requisition.line,name:0
-msgid "Line N°"
-msgstr "Line N°"
+msgid "Line No."
+msgstr "Line No."
 
 #. module: logistic_requisition
 #: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_form
@@ -1114,8 +1114,8 @@ msgstr "Sourcing %s: no quantity has been proposed"
 
 #. module: logistic_requisition
 #: view:logistic.requisition.source:logistic_requisition.view_logistic_requisition_source_form
-msgid "Sourcing Line N°"
-msgstr "Sourcing Line N°"
+msgid "Sourcing Line No."
+msgstr "Sourcing Line No."
 
 #. module: logistic_requisition
 #: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_form

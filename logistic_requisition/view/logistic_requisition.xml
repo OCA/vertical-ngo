@@ -101,7 +101,7 @@
                                     <sheet>
                                         <div class="oe_title">
                                             <h1>
-                                                <label string="Line N° "/>
+                                                <label string="Line No."/>
                                                 <field name="name" class="oe_inline"/>
                                             </h1>
                                         </div>
@@ -387,7 +387,7 @@
                         <h1>
                             <label string="Requisition"/>
                             <field name="requisition_id" class="oe_inline" readonly="1"/> /
-                            <label string="Line N° "/>
+                            <label string="Line No."/>
                             <field name="name" class="oe_inline"/>
                         </h1>
                     </div>
@@ -610,7 +610,7 @@
                                 class="oe_inline" invisible="1"/>
                             <field name="requisition_line_id"
                                 class="oe_inline" readonly="1"/> /
-                            <label string="Sourcing Line N° "/>
+                            <label string="Sourcing Line No."/>
                             <field name="name" class="oe_inline"/>
                         </h1>
                     </div>
