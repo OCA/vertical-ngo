@@ -412,7 +412,7 @@ class LogisticsRequisitionLine(models.Model):
         comodel_name='res.currency',
         string='Company currency',
         readonly=True)
-    note = fields.Text('Notes')
+    note = fields.Text('Remarks / Conditions')
     account_id = fields.Many2one(
         related='product_id.property_account_income',
         string='Nominal Account',
