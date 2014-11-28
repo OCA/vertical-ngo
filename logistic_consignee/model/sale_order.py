@@ -20,6 +20,9 @@
 #
 from openerp import models, fields, api
 from openerp import SUPERUSER_ID
+from openerp.addons.logistic_order.model.sale_order import (
+    SaleOrder as base_logistics_order
+)
 
 
 class SaleOrder(models.Model):
@@ -29,6 +32,7 @@ class SaleOrder(models.Model):
         'res.partner',
         string='Consignee',
         required=True,
+        states=base_logistics_order.LO_STATES,
         help="The person to whom the shipment is to be delivered.")
 
     @api.cr
