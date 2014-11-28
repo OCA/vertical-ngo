@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #
+from __future__ import division
+
 import logging
 
 from openerp import models, fields, api, exceptions
@@ -180,9 +182,9 @@ class LogisticsRequisition(models.Model):
     @api.multi
     def _get_sourced(self):
         for requisition in self:
-            lines_len = sum(1.0 for req in requisition.line_ids
+            lines_len = sum(1 for req in requisition.line_ids
                             if req.state != 'cancel')
-            sourced_len = sum(1.0 for req in requisition.line_ids
+            sourced_len = sum(1 for req in requisition.line_ids
                               if req.state in ('sourced', 'quoted'))
             if lines_len == 0:
                 percentage = 0.
