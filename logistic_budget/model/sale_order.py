@@ -14,6 +14,9 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from openerp import models, fields, api
+from openerp.addons.logistic_order.model.sale_order import (
+    SaleOrder as base_logistics_order
+)
 
 
 class SaleOrder(models.Model):
@@ -21,18 +24,24 @@ class SaleOrder(models.Model):
 
     budget_holder_id = fields.Many2one(
         'res.users',
-        string='Budget Holder')
+        string='Budget Holder',
+        states=base_logistics_order.LO_STATES)
     date_budget_holder = fields.Datetime(
-        'Budget Holder Validation Date')
+        'Budget Holder Validation Date',
+        states=base_logistics_order.LO_STATES)
     budget_holder_remark = fields.Text(
-        'Budget Holder Remark')
+        'Budget Holder Remark',
+        states=base_logistics_order.LO_STATES)
     finance_officer_id = fields.Many2one(
         'res.users',
-        string='Finance Officer')
+        string='Finance Officer',
+        states=base_logistics_order.LO_STATES)
     date_finance_officer = fields.Datetime(
-        'Finance Officer Validation Date')
+        'Finance Officer Validation Date',
+        states=base_logistics_order.LO_STATES)
     finance_officer_remark = fields.Text(
-        'Finance Officer Remark')
+        'Finance Officer Remark',
+        states=base_logistics_order.LO_STATES)
     total_budget = fields.Float("Total Budget", compute='_total_budget',
                                 store=True)
     budget_holder_id = fields.Many2one('res.users', 'Budget Holder')
