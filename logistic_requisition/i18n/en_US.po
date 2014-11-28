@@ -60,8 +60,8 @@ msgstr "Approval"
 
 #. module: logistic_requisition
 #: view:logistic.requisition.source.create.requisition:logistic_requisition.view_create_requisition_from_source
-msgid "Are you sure you want to create a requisition from those lines ?"
-msgstr "Are you sure you want to create a requisition from those lines ?"
+msgid "Are you sure you want to create a requisition from those lines?"
+msgstr "Are you sure you want to create a requisition from those lines?"
 
 #. module: logistic_requisition
 #: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_form
@@ -1051,8 +1051,8 @@ msgstr "Shipping / Transport"
 
 #. module: logistic_requisition
 #: view:website:logistic_requisition.report_logistic_requisition_document
-msgid "Shipping address :"
-msgstr "Shipping address :"
+msgid "Shipping address:"
+msgstr "Shipping address:"
 
 #. module: logistic_requisition
 #: view:logistic.requisition:logistic_requisition.view_logistic_requisition_filter
@@ -1321,8 +1321,8 @@ msgstr "When the price is an estimation, the final price may change. I.e. it is 
 
 #. module: logistic_requisition
 #: view:logistic.requisition.source.create.requisition:logistic_requisition.view_create_requisition_from_source
-msgid "Which pricelist / currency you want ?"
-msgstr "Which pricelist / currency you want ?"
+msgid "Which pricelist / currency you want?"
+msgstr "Which pricelist / currency you want?"
 
 #. module: logistic_requisition
 #: view:website:logistic_requisition.report_logistic_requisition_document

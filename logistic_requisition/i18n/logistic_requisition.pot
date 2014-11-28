@@ -60,7 +60,7 @@ msgstr ""
 
 #. module: logistic_requisition
 #: view:logistic.requisition.source.create.requisition:logistic_requisition.view_create_requisition_from_source
-msgid "Are you sure you want to create a requisition from those lines ?"
+msgid "Are you sure you want to create a requisition from those lines?"
 msgstr ""
 
 #. module: logistic_requisition
@@ -1311,7 +1311,7 @@ msgstr ""
 
 #. module: logistic_requisition
 #: view:logistic.requisition.source.create.requisition:logistic_requisition.view_create_requisition_from_source
-msgid "Which pricelist / currency you want ?"
+msgid "Which pricelist / currency you want?"
 msgstr ""
 
 #. module: logistic_requisition
