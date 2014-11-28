@@ -96,6 +96,7 @@ class LogisticsRequisition(models.Model):
     country_id = fields.Many2one(
         'res.country',
         string='Country',
+        states=REQ_STATES,
         select=True)
     company_id = fields.Many2one(
         'res.company',
@@ -112,11 +113,16 @@ class LogisticsRequisition(models.Model):
         'Cost Estimate Only',
         states=REQ_STATES,
         default=False)
-    note = fields.Text('Remarks / Description')
-    shipping_note = fields.Text('Delivery / Shipping Remarks')
+    note = fields.Text(
+        'Remarks / Description',
+        states=REQ_STATES)
+    shipping_note = fields.Text(
+        'Delivery / Shipping Remarks',
+        states=REQ_STATES)
     incoterm_id = fields.Many2one(
         'stock.incoterms',
         'Incoterm',
+        states=REQ_STATES,
         help="International Commercial Terms are a series of "
              "predefined commercial terms used in international "
              "transactions.")

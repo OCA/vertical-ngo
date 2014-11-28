@@ -23,16 +23,15 @@ import time
 from openerp.osv import fields, orm
 import openerp.addons.decimal_precision as dp
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DT_FORMAT
+from openerp.addons.logistic_requisition.model.logistic_requisition import (
+    LogisticsRequisition as base_logistic_requisition
+)
 
 _logger = logging.getLogger(__name__)
 
 
 class logistic_requisition(orm.Model):
     _inherit = "logistic.requisition"
-
-    REQ_STATES = {'confirmed': [('readonly', True)],
-                  'done': [('readonly', True)]
-                  }
 
     _columns = {
         'amount_total': fields.function(
@@ -52,18 +51,24 @@ class logistic_requisition(orm.Model):
         'allowed_budget': fields.boolean('Allowed Budget'),
         'budget_holder_id': fields.many2one(
             'res.users',
+            states=base_logistic_requisition.REQ_STATES,
             string='Budget Holder'),
         'date_budget_holder': fields.datetime(
-            'Budget Holder Validation Date'),
+            'Budget Holder Validation Date',
+            states=base_logistic_requisition.REQ_STATES),
         'budget_holder_remark': fields.text(
-            'Budget Holder Remark'),
+            'Budget Holder Remark',
+            states=base_logistic_requisition.REQ_STATES),
         'finance_officer_id': fields.many2one(
             'res.users',
-            string='Finance Officer'),
+            string='Finance Officer',
+            states=base_logistic_requisition.REQ_STATES),
         'date_finance_officer': fields.datetime(
-            'Finance Officer Validation Date'),
+            'Finance Officer Validation Date',
+            states=base_logistic_requisition.REQ_STATES),
         'finance_officer_remark': fields.text(
-            'Finance Officer Remark'),
+            'Finance Officer Remark',
+            states=base_logistic_requisition.REQ_STATES),
     }
 
     def _get_amount(self, cr, uid, ids, name, args, context=None):
