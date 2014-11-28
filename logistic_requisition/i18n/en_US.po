@@ -29,7 +29,8 @@ msgstr "A call for bids cannot be linked to lines of different logistics requisi
 #: view:logistic.requisition.cost.estimate:logistic_requisition.view_logistic_requisition_cost_estimate
 msgid "A cost estimate will be generated for all the\n"
 "                    sourced logistic requisition lines."
-msgstr "A cost estimate will be generated for all the                    sourced logistic requisition lines."
+msgstr "A cost estimate will be generated for all the\n"
+"                    sourced logistic requisition lines."
 
 #. module: logistic_requisition
 #: view:logistic.requisition:logistic_requisition.view_logistic_requisition_form
@@ -144,7 +145,8 @@ msgstr "Change the assignee"
 #: view:logistic.requisition.cancel:logistic_requisition.view_logistic_requisition_cancel
 msgid "Choose the reason for the cancellation of the\n"
 "                    logistic requisition."
-msgstr "Choose the reason for the cancellation of the                    logistic requisition."
+msgstr "Choose the reason for the cancellation of the\n"
+"                    logistic requisition."
 
 #. module: logistic_requisition
 #: field:logistic.requisition,company_id:0
@@ -1165,7 +1167,9 @@ msgstr "The lines are not assigned to the same User."
 msgid "The lines in the Skipped section will be ignored\n"
 "                    because they are not sourced or are already linked\n"
 "                    to a cost estimate."
-msgstr "The lines in the Skipped section will be ignored                    because they are not sourced or are already linked                    to a cost estimate."
+msgstr "The lines in the Skipped section will be ignored\n"
+"                    because they are not sourced or are already linked\n"
+"                    to a cost estimate."
 
 #. module: logistic_requisition
 #: code:addons/logistic_requisition/model/logistic_requisition.py:1062
