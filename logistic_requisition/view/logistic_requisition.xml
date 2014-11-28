@@ -219,19 +219,19 @@
             <search string="Search Logistics Requisition">
                 <filter name="draft" string="New"
                     domain="[('state','=','draft')]"
-                    help="New Logistics Requisition"/>
+                    help="New Logistics Requisitions"/>
                 <filter name="confirmed"
                     string="Confirmed"
                     domain="[('state', '=', 'confirmed')]"
-                    help="Logistics Requisition in treatment"/>
+                    help="Logistics Requisitions in treatment"/>
                 <filter name="done"
                     string="Done"
                     domain="[('state', '=', 'done')]"/>
                 <separator/>
-                <filter string="My Requisition"
+                <filter string="My Requisitions"
                     domain="[('user_id','=', uid)]"
-                    help="Your assigned Requisition"/>
-                <filter string="Unassigned"  domain="[('user_id','=', False)]" help="Unassigned Requisition"/>
+                    help="Your assigned Requisitions"/>
+                <filter string="Unassigned"  domain="[('user_id','=', False)]" help="Unassigned Requisitions"/>
                 <separator/>
                 <filter name="cost_estimate_only" string="Cost Estimate Only"
                     domain="[('cost_estimate_only','=', True)]" help="Show cost estimate only"/>
@@ -509,16 +509,16 @@
                     help="Requisition has been confirmed"/>
                 <filter name="assigned" string="Assigned"
                     domain="[('state','=','assigned')]"
-                    help="Assigned Logistics Requisition Line"/>
+                    help="Assigned Logistics Requisition Lines"/>
                 <filter name="quoted" string="Quoted"
                     domain="[('state','=','quoted')]"/>
                 <separator/>
-                <filter name="my_lines" string="My Requisition Line"
+                <filter name="my_lines" string="My Requisition Lines"
                     domain="[('logistic_user_id','=', uid)]"
-                    help="Your assigned Requisition Line"/>
+                    help="Your assigned Requisition Lines"/>
                 <filter name="unassigned" string="Unassigned"
                     domain="[('logistic_user_id','=', False)]"
-                    help="Unassigned Requisition"/>
+                    help="Unassigned Requisitions"/>
                 <separator/>
                 <filter name="cost_estimate_only" string="Cost Estimate Only"
                     domain="[('cost_estimate_only','=', True)]" help="Show cost estimate only"/>

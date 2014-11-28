@@ -88,7 +88,7 @@ msgstr ""
 
 #. module: logistic_requisition
 #: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_filter
-msgid "Assigned Logistics Requisition Line"
+msgid "Assigned Logistics Requisition Lines"
 msgstr ""
 
 #. module: logistic_requisition
@@ -612,7 +612,7 @@ msgstr ""
 
 #. module: logistic_requisition
 #: view:logistic.requisition:logistic_requisition.view_logistic_requisition_filter
-msgid "Logistics Requisition in treatment"
+msgid "Logistics Requisitions in treatment"
 msgstr ""
 
 #. module: logistic_requisition
@@ -652,12 +652,12 @@ msgstr ""
 
 #. module: logistic_requisition
 #: view:logistic.requisition:logistic_requisition.view_logistic_requisition_filter
-msgid "My Requisition"
+msgid "My Requisitions"
 msgstr ""
 
 #. module: logistic_requisition
 #: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_filter
-msgid "My Requisition Line"
+msgid "My Requisition Lines"
 msgstr ""
 
 #. module: logistic_requisition
@@ -673,12 +673,12 @@ msgstr ""
 
 #. module: logistic_requisition
 #: view:logistic.requisition:logistic_requisition.view_logistic_requisition_filter
-msgid "New Logistics Requisition"
+msgid "New Logistics Requisitions"
 msgstr ""
 
 #. module: logistic_requisition
 #: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_filter
-msgid "New Logistics Requisition Line"
+msgid "New Logistics Requisition Lines"
 msgstr ""
 
 #. module: logistic_requisition
@@ -1261,7 +1261,7 @@ msgstr ""
 #. module: logistic_requisition
 #: view:logistic.requisition:logistic_requisition.view_logistic_requisition_filter
 #: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_filter
-msgid "Unassigned Requisition"
+msgid "Unassigned Requisitions"
 msgstr ""
 
 #. module: logistic_requisition
@@ -1343,12 +1343,12 @@ msgstr ""
 
 #. module: logistic_requisition
 #: view:logistic.requisition:logistic_requisition.view_logistic_requisition_filter
-msgid "Your assigned Requisition"
+msgid "Your assigned Requisitions"
 msgstr ""
 
 #. module: logistic_requisition
 #: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_filter
-msgid "Your assigned Requisition Line"
+msgid "Your assigned Requisition Lines"
 msgstr ""
 
 #. module: logistic_requisition

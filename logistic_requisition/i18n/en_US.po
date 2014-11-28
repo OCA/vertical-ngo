@@ -88,8 +88,8 @@ msgstr "Assigned"
 
 #. module: logistic_requisition
 #: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_filter
-msgid "Assigned Logistics Requisition Line"
-msgstr "Assigned Logistics Requisition Line"
+msgid "Assigned Logistics Requisition Lines"
+msgstr "Assigned Logistics Requisition Lines"
 
 #. module: logistic_requisition
 #: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_filter
@@ -617,8 +617,8 @@ msgstr "Logistics Requisition Sourcing Lines"
 
 #. module: logistic_requisition
 #: view:logistic.requisition:logistic_requisition.view_logistic_requisition_filter
-msgid "Logistics Requisition in treatment"
-msgstr "Logistics Requisition in treatment"
+msgid "Logistics Requisitions in treatment"
+msgstr "Logistics Requisitions in treatment"
 
 #. module: logistic_requisition
 #: field:logistic.requisition.line.assign,logistic_user_id:0
@@ -657,13 +657,13 @@ msgstr "Mobilization Officer or Logistics Coordinator in charge of the Logistics
 
 #. module: logistic_requisition
 #: view:logistic.requisition:logistic_requisition.view_logistic_requisition_filter
-msgid "My Requisition"
-msgstr "My Requisition"
+msgid "My Requisitions"
+msgstr "My Requisitions"
 
 #. module: logistic_requisition
 #: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_filter
-msgid "My Requisition Line"
-msgstr "My Requisition Line"
+msgid "My Requisition Lines"
+msgstr "My Requisition Lines"
 
 #. module: logistic_requisition
 #: view:website:logistic_requisition.report_logistic_requisition_document
@@ -678,13 +678,13 @@ msgstr "New"
 
 #. module: logistic_requisition
 #: view:logistic.requisition:logistic_requisition.view_logistic_requisition_filter
-msgid "New Logistics Requisition"
-msgstr "New Logistics Requisition"
+msgid "New Logistics Requisitions"
+msgstr "New Logistics Requisitions"
 
 #. module: logistic_requisition
 #: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_filter
-msgid "New Logistics Requisition Line"
-msgstr "New Logistics Requisition Line"
+msgid "New Logistics Requisition Lines"
+msgstr "New Logistics Requisition Lines"
 
 #. module: logistic_requisition
 #: code:addons/logistic_requisition/model/logistic_requisition.py:500
@@ -1271,8 +1271,8 @@ msgstr "Unassigned"
 #. module: logistic_requisition
 #: view:logistic.requisition:logistic_requisition.view_logistic_requisition_filter
 #: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_filter
-msgid "Unassigned Requisition"
-msgstr "Unassigned Requisition"
+msgid "Unassigned Requisitions"
+msgstr "Unassigned Requisitions"
 
 #. module: logistic_requisition
 #: field:logistic.requisition.source,unit_cost:0
@@ -1353,13 +1353,13 @@ msgstr "You must set a pricelist on the Requisition, or configure a default pric
 
 #. module: logistic_requisition
 #: view:logistic.requisition:logistic_requisition.view_logistic_requisition_filter
-msgid "Your assigned Requisition"
-msgstr "Your assigned Requisition"
+msgid "Your assigned Requisitions"
+msgstr "Your assigned Requisitions"
 
 #. module: logistic_requisition
 #: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_filter
-msgid "Your assigned Requisition Line"
-msgstr "Your assigned Requisition Line"
+msgid "Your assigned Requisition Lines"
+msgstr "Your assigned Requisition Lines"
 
 #. module: logistic_requisition
 #: view:sale.order.line:logistic_requisition.view_order_line_form2_lr
