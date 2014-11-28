@@ -354,7 +354,12 @@ msgid "Draft: Created\n"
 "Sourced: The line has been sourced from procurement or warehouse\n"
 "Quoted: Quotation made for the line\n"
 "Cancelled: The requisition has been cancelled"
-msgstr "Draft: CreatedConfirmed: Requisition has been confirmedAssigned: Waiting the creation of a quoteSourced: The line has been sourced from procurement or warehouseQuoted: Quotation made for the lineCancelled: The requisition has been cancelled"
+msgstr "Draft: Created\n"
+"Confirmed: Requisition has been confirmed\n"
+"Assigned: Waiting the creation of a quote\n"
+"Sourced: The line has been sourced from procurement or warehouse\n"
+"Quoted: Quotation made for the line\n"
+"Cancelled: The requisition has been cancelled"
 
 #. module: logistic_requisition
 #: code:addons/logistic_requisition/model/logistic_requisition.py:1015
