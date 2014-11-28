@@ -180,9 +180,9 @@ class LogisticsRequisition(models.Model):
     @api.multi
     def _get_sourced(self):
         for requisition in self:
-            lines_len = sum(1 for req in requisition.line_ids
+            lines_len = sum(1.0 for req in requisition.line_ids
                             if req.state != 'cancel')
-            sourced_len = sum(1 for req in requisition.line_ids
+            sourced_len = sum(1.0 for req in requisition.line_ids
                               if req.state in ('sourced', 'quoted'))
             if lines_len == 0:
                 percentage = 0.
