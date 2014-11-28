@@ -695,13 +695,13 @@ msgstr ""
 #. module: logistic_requisition
 #: code:addons/logistic_requisition/model/logistic_requisition.py:516
 #, python-format
-msgid "No sourcing line Found"
+msgid "No sourcing line found"
 msgstr ""
 
 #. module: logistic_requisition
 #: code:addons/logistic_requisition/model/logistic_requisition.py:517
 #, python-format
-msgid "No sourcing line were found, please create one."
+msgid "No sourcing lines were found, please create one."
 msgstr ""
 
 #. module: logistic_requisition
@@ -754,7 +754,7 @@ msgid "Please note that: \n"
 " \n"
 " Requisition will only be created if: \n"
 " * Lines belong to the same company \n"
-" * Lines has to be delivered in the same warehouse \n"
+" * Lines have to be delivered to the same warehouse \n"
 " * Products are define on all selected lines"
 msgstr ""
 
@@ -776,7 +776,7 @@ msgstr ""
 
 #. module: logistic_requisition
 #: help:logistic.requisition,pricelist_id:0
-msgid "Pricelist that represent the currency for current logistic request."
+msgid "Pricelist that represents the currency for the current logistics request."
 msgstr ""
 
 #. module: logistic_requisition

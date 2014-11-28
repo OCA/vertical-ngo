@@ -14,7 +14,7 @@
 Please note that: &#10; &#10;
 Requisition will only be created if: &#10;
 * Lines belong to the same company &#10;
-* Lines has to be delivered in the same warehouse &#10;
+* Lines have to be delivered to the same warehouse &#10;
 * Products are define on all selected lines &#10; &#10;
 " colspan="4"/>
                     </group>
