@@ -357,8 +357,8 @@ class logistic_requisition_source(orm.Model):
                 or not self.proposed_product_id):
             return
         agreement = self._get_best_agreement()
-        self.framework_agreement_id = agreement.id
         if agreement:
+            self.framework_agreement_id = agreement.id
             return self._check_enought_qty(agreement)
 
     @api.onchange('proposed_product_id')
