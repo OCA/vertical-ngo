@@ -20,19 +20,25 @@
 #
 from openerp import models, fields, api
 from openerp import SUPERUSER_ID
-from openerp.addons.logistic_order.model.sale_order import (
-    SaleOrder as base_logistics_order
-)
 
 
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
+    LO_STATES = {
+        'cancel': [('readonly', True)],
+        'progress': [('readonly', True)],
+        'manual': [('readonly', True)],
+        'shipping_except': [('readonly', True)],
+        'invoice_except': [('readonly', True)],
+        'done': [('readonly', True)],
+    }
+
     consignee_id = fields.Many2one(
         'res.partner',
         string='Consignee',
         required=True,
-        states=base_logistics_order.LO_STATES,
+        states=LO_STATES,
         help="The person to whom the shipment is to be delivered.")
 
     @api.cr
