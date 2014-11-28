@@ -24,7 +24,14 @@ from openerp.tools.translate import _
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
-    LO_STATES = {'cancel': [('readonly', True)]}
+    LO_STATES = {
+        'cancel': [('readonly', True)],
+        'progress': [('readonly', True)],
+        'manual': [('readonly', True)],
+        'shipping_except': [('readonly', True)],
+        'invoice_except': [('readonly', True)],
+        'done': [('readonly', True)],
+    }
 
     incoterm_address = fields.Char(
         'Incoterm Place',
