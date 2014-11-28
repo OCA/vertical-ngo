@@ -19,7 +19,7 @@
 #
 ##############################################################################
 {'name': 'Framework agreement integration in sourcing',
- 'version': '1.1',
+ 'version': '1.2',
  'author': 'Camptocamp',
  'maintainer': 'Camptocamp',
  'category': 'NGO',
