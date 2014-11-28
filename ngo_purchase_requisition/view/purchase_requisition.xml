@@ -84,8 +84,12 @@
                         </div>
                         <field name="schedule_date"/>
                         <field name="company_id" groups="base.group_multi_company" widget="selection"/>
-                        <!-- added by purchase_requisition_bid_selection -->
-                        <field name="remark"/>
+                      </group>
+                      <!-- added by purchase_requisition_bid_selection -->
+                      <group string="Remarks / Conditions">
+                        <field name="remark"
+                               nolabel="1"
+                               class="oe_inline"/>
                       </group>
                     </group>
                   </form>
