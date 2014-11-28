@@ -608,6 +608,7 @@ class LogisticsRequisitionLine(models.Model):
         action_dict = self._get_act_window_dict('stock.product_open_quants')
         action_dict['domain'] = [('product_id', '=', self.product_id.id)]
         action_dict['context'] = {'search_default_locationgroup': 1,
+                                  'search_default_ownergroup': 1,
                                   'search_default_internal_loc': 1}
         return action_dict
 
