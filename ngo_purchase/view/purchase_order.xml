@@ -107,7 +107,10 @@
                     <field name="related_location_id" invisible="1"/>
                     <!-- attrs and required domain removed by purchase_delivery_address -->
                     <!-- workaround odoo/odoo#2950 -->
-                    <field name="dest_address_id" on_change="onchange_dest_address_id(dest_address_id, context)"
+                    <field
+                      name="dest_address_id"
+                      on_change="1"
+                      string="Delivery Address"
                       groups="stock.group_locations"/>
                     <field name="origin_address_id"/>
                   </group>
