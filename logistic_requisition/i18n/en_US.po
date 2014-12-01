@@ -1,13 +1,13 @@
-# Translation of OpenERP Server.
+# Translation of Odoo Server.
 # This file contains the translation of the following modules:
 #	* logistic_requisition
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: OpenERP Server 7.0\n"
+"Project-Id-Version: Odoo Server 8.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-02-04 13:11+0000\n"
-"PO-Revision-Date: 2014-02-04 13:11+0000\n"
+"POT-Creation-Date: 2014-11-20 17:21+0000\n"
+"PO-Revision-Date: 2014-11-20 17:21+0000\n"
 "Last-Translator: <>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -16,85 +16,137 @@ msgstr ""
 "Plural-Forms: \n"
 
 #. module: logistic_requisition
-#: field:logistic.requisition.line.assign,logistic_user_id:0
-msgid "Logistics Specialist"
-msgstr "Logistics Specialist"
+#: model:ir.model,name:logistic_requisition.model_logistic_requisition_cancel
+msgid " Ask a reason for the logistic requisition cancellation."
+msgstr " Ask a reason for the logistic requisition cancellation."
 
 #. module: logistic_requisition
-#: field:logistic.requisition.line,amount_total:0
-msgid "Total Amount"
-msgstr "Total Amount"
+#: constraint:logistic.requisition.source:0
+msgid "A call for bids cannot be linked to lines of different logistics requisitions."
+msgstr "A call for bids cannot be linked to lines of different logistics requisitions."
 
 #. module: logistic_requisition
-#: view:logistic.requisition.line:0
-msgid "View Stock"
-msgstr "View Stock"
+#: view:logistic.requisition.cost.estimate:logistic_requisition.view_logistic_requisition_cost_estimate
+msgid "A cost estimate will be generated for all the\n"
+"                    sourced logistic requisition lines."
+msgstr "A cost estimate will be generated for all the\n"
+"                    sourced logistic requisition lines."
 
 #. module: logistic_requisition
-#: view:logistic.requisition:0
-#: view:logistic.requisition.line:0
-#: view:logistic.requisition.source:0
-msgid "Group By..."
-msgstr "Group By..."
+#: view:logistic.requisition:logistic_requisition.view_logistic_requisition_form
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_form
+msgid "Accounting"
+msgstr "Accounting"
 
 #. module: logistic_requisition
-#: help:logistic.requisition.source,price_is:0
-#: help:sale.order.line,price_is:0
-msgid "When the price is an estimation, the final price may change. I.e. it is not based on a request for quotation."
-msgstr "When the price is an estimation, the final price may change. I.e. it is not based on a request for quotation."
+#: view:logistic.requisition:logistic_requisition.view_logistic_requisition_form
+msgid "Accounting and Currency"
+msgstr "Accounting and Currency"
 
 #. module: logistic_requisition
-#: model:product.template,name:logistic_requisition.product_transport_product_template
-msgid "Shipping / Transport"
-msgstr "Shipping / Transport"
+#: view:logistic.requisition:logistic_requisition.view_logistic_requisition_form
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_form
+msgid "Additional notes..."
+msgstr "Additional notes..."
 
 #. module: logistic_requisition
-#: report:addons/logistic_requisition/report/logistic_requisition.mako:140
-msgid "Preferred transport"
-msgstr "Preferred transport"
+#: constraint:logistic.requisition.cost.estimate:0
+msgid "All the lines should belong to the same requisition."
+msgstr "All the lines should belong to the same requisition."
 
 #. module: logistic_requisition
-#: field:sale.order.line,logistic_requisition_source_id:0
-msgid "Requisition Source"
-msgstr "Requisition Source"
+#: view:website:logistic_requisition.report_logistic_requisition_document
+msgid "Approval"
+msgstr "Approval"
 
 #. module: logistic_requisition
-#: view:logistic.requisition.line:0
-msgid "New Logistics Requisition Line"
-msgstr "New Logistics Requisition Line"
+#: view:logistic.requisition.source.create.requisition:logistic_requisition.view_create_requisition_from_source
+msgid "Are you sure you want to create a requisition from those lines?"
+msgstr "Are you sure you want to create a requisition from those lines?"
 
 #. module: logistic_requisition
-#: view:logistic.requisition:0
-msgid "View Lines"
-msgstr "View Lines"
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_form
+#: view:logistic.requisition.line.assign:logistic_requisition.view_logistic_requisition_line_assign_wizard
+msgid "Assign"
+msgstr "Assign"
 
 #. module: logistic_requisition
-#: report:addons/logistic_requisition/report/logistic_requisition.mako:119
-msgid "Consignee address:"
-msgstr "Consignee address:"
+#: model:ir.actions.act_window,name:logistic_requisition.action_requisition_line_assign
+#: view:logistic.requisition.line.assign:logistic_requisition.view_logistic_requisition_line_assign_wizard
+msgid "Assign Requisition Line"
+msgstr "Assign Requisition Line"
 
 #. module: logistic_requisition
-#: code:addons/logistic_requisition/model/logistic_requisition.py:634
+#: model:ir.model,name:logistic_requisition.model_logistic_requisition_line_assign
+msgid "Assign a logistic requisition line"
+msgstr "Assign a logistic requisition line"
+
+#. module: logistic_requisition
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_filter
+#: selection:logistic.requisition.line,state:0
+msgid "Assigned"
+msgstr "Assigned"
+
+#. module: logistic_requisition
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_filter
+msgid "Assigned Logistics Requisition Lines"
+msgstr "Assigned Logistics Requisition Lines"
+
+#. module: logistic_requisition
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_filter
+msgid "Assigned Specialist"
+msgstr "Assigned Specialist"
+
+#. module: logistic_requisition
+#: view:logistic.requisition:logistic_requisition.view_logistic_requisition_form
+#: field:logistic.requisition.line,logistic_user_id:0
+msgid "Assigned To"
+msgstr "Assigned To"
+
+#. module: logistic_requisition
+#: view:logistic.requisition:logistic_requisition.view_logistic_requisition_filter
+#: field:logistic.requisition,user_id:0
+msgid "Business Unit Officer"
+msgstr "Business Unit Officer"
+
+#. module: logistic_requisition
+#: view:logistic.requisition:logistic_requisition.view_logistic_requisition_form
+#: view:logistic.requisition.cancel:logistic_requisition.view_logistic_requisition_cancel
+#: view:logistic.requisition.cost.estimate:logistic_requisition.view_logistic_requisition_cost_estimate
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_form
+#: view:logistic.requisition.line.assign:logistic_requisition.view_logistic_requisition_line_assign_wizard
+#: view:logistic.requisition.source.create.requisition:logistic_requisition.view_create_requisition_from_source
+msgid "Cancel"
+msgstr "Cancel"
+
+#. module: logistic_requisition
+#: view:logistic.requisition:logistic_requisition.view_logistic_requisition_form
+msgid "Cancellation reason:"
+msgstr "Cancellation reason:"
+
+#. module: logistic_requisition
+#: selection:logistic.requisition,state:0
+#: selection:logistic.requisition.line,state:0
+msgid "Cancelled"
+msgstr "Cancelled"
+
+#. module: logistic_requisition
+#: code:addons/logistic_requisition/wizard/cost_estimate.py:196
 #, python-format
-msgid "This new requisition concerns %s and is due for %s."
-msgstr "This new requisition concerns %s and is due for %s."
+msgid "Cannot create a cost estimate because:"
+msgstr "Cannot create a cost estimate because:"
 
 #. module: logistic_requisition
-#: report:addons/logistic_requisition/report/logistic_requisition.mako:139
-msgid "Desired delivery date"
-msgstr "Desired delivery date"
+#: model:ir.actions.act_window,name:logistic_requisition.act_window_requisition_line_assign
+msgid "Change the assignee"
+msgstr "Change the assignee"
 
 #. module: logistic_requisition
-#: field:logistic.requisition,message_unread:0
-#: field:logistic.requisition.line,message_unread:0
-#: field:logistic.requisition.source,message_unread:0
-msgid "Unread Messages"
-msgstr "Unread Messages"
-
-#. module: logistic_requisition
-#: view:logistic.requisition:0
-msgid "Search Logistics Requisition"
-msgstr "Search Logistics Requisition"
+#: view:logistic.requisition.cancel:logistic_requisition.view_logistic_requisition_cancel
+msgid "Choose the reason for the cancellation of the\n"
+"                    logistic requisition."
+msgstr "Choose the reason for the cancellation of the\n"
+"                    logistic requisition."
 
 #. module: logistic_requisition
 #: field:logistic.requisition,company_id:0
@@ -102,177 +154,161 @@ msgid "Company"
 msgstr "Company"
 
 #. module: logistic_requisition
-#: report:addons/logistic_requisition/report/logistic_requisition.mako:149
-msgid "No"
-msgstr "No"
+#: model:ir.ui.menu,name:logistic_requisition.menu_order_configuration
+msgid "Configuration"
+msgstr "Configuration"
 
 #. module: logistic_requisition
-#: selection:logistic.requisition.source,procurement_method:0
-msgid "Framework Agreement"
-msgstr "Framework Agreement"
+#: view:logistic.requisition:logistic_requisition.view_logistic_requisition_form
+#: view:logistic.requisition.cancel:logistic_requisition.view_logistic_requisition_cancel
+msgid "Confirm"
+msgstr "Confirm"
 
 #. module: logistic_requisition
-#: view:logistic.requisition:0
-msgid "My Requisition"
-msgstr "My Requisition"
+#: view:logistic.requisition:logistic_requisition.view_logistic_requisition_filter
+#: selection:logistic.requisition,state:0
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_filter
+#: selection:logistic.requisition.line,state:0
+msgid "Confirmed"
+msgstr "Confirmed"
 
 #. module: logistic_requisition
-#: field:logistic.requisition.cancel,reason_id:0
-#: field:logistic.requisition.cancel.reason,name:0
-msgid "Reason"
-msgstr "Reason"
+#: field:logistic.requisition,consignee_id:0
+msgid "Consignee"
+msgstr "Consignee"
 
 #. module: logistic_requisition
-#: model:logistic.requisition.cancel.reason,name:logistic_requisition.cancel_reason_only_quotation
-msgid "Just for Quotation"
-msgstr "Just for Quotation"
+#: code:addons/logistic_requisition/model/logistic_requisition.py:700
+#: code:addons/logistic_requisition/wizard/cost_estimate.py:256
+#: view:logistic.requisition.cost.estimate:logistic_requisition.view_logistic_requisition_cost_estimate
+#: field:logistic.requisition.line,cost_estimate_id:0
+#, python-format
+msgid "Cost Estimate"
+msgstr "Cost Estimate"
 
 #. module: logistic_requisition
-#: field:logistic.requisition,preferred_transport:0
-msgid "Preferred Transport"
-msgstr "Preferred Transport"
+#: view:logistic.requisition:logistic_requisition.view_logistic_requisition_filter
+#: field:logistic.requisition,cost_estimate_only:0
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_filter
+msgid "Cost Estimate Only"
+msgstr "Cost Estimate Only"
+
+#. module: logistic_requisition
+#: view:website:logistic_requisition.report_logistic_requisition_document
+msgid "Cost estimate only:"
+msgstr "Cost estimate only:"
+
+#. module: logistic_requisition
+#: view:logistic.requisition:logistic_requisition.view_logistic_requisition_filter
+#: field:logistic.requisition,country_id:0
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_filter
+msgid "Country"
+msgstr "Country"
+
+#. module: logistic_requisition
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_kanban
+#: view:website:logistic_requisition.report_logistic_requisition_document
+msgid "Country:"
+msgstr "Country:"
+
+#. module: logistic_requisition
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_form
+#: view:logistic.requisition.source:logistic_requisition.view_logistic_requisition_source_form
+msgid "Create Call for Bids"
+msgstr "Create Call for Bids"
+
+#. module: logistic_requisition
+#: model:ir.actions.act_window,name:logistic_requisition.action_logistic_requisition_cost_estimate
+#: view:logistic.requisition:logistic_requisition.view_logistic_requisition_form
+#: view:logistic.requisition.cost.estimate:logistic_requisition.view_logistic_requisition_cost_estimate
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_form
+msgid "Create Cost Estimate"
+msgstr "Create Cost Estimate"
+
+#. module: logistic_requisition
+#: model:ir.actions.act_window,name:logistic_requisition.action_view_create_requisition_from_source
+msgid "Create Purchase Requisition"
+msgstr "Create Call for Bids"
+
+#. module: logistic_requisition
+#: model:ir.model,name:logistic_requisition.model_logistic_requisition_source_create_requisition
+msgid "Create Purchase Requisition From Requisition Source"
+msgstr "Create Call for Bids From Requisition Source"
+
+#. module: logistic_requisition
+#: view:logistic.requisition.source.create.requisition:logistic_requisition.view_create_requisition_from_source
+msgid "Create Requisition"
+msgstr "Create Requisition"
+
+#. module: logistic_requisition
+#: model:ir.model,name:logistic_requisition.model_logistic_requisition_cost_estimate
+msgid "Create cost estimate of logistic requisition lines"
+msgstr "Create cost estimate of logistic requisition lines"
+
+#. module: logistic_requisition
+#: field:logistic.requisition,create_uid:0
+#: field:logistic.requisition.cancel,create_uid:0
+#: field:logistic.requisition.cancel.reason,create_uid:0
+#: field:logistic.requisition.cost.estimate,create_uid:0
+#: field:logistic.requisition.line,create_uid:0
+#: field:logistic.requisition.line.assign,create_uid:0
+#: field:logistic.requisition.source,create_uid:0
+#: field:logistic.requisition.source.create.requisition,create_uid:0
+msgid "Created by"
+msgstr "Created by"
+
+#. module: logistic_requisition
+#: field:logistic.requisition,create_date:0
+#: field:logistic.requisition.cancel,create_date:0
+#: field:logistic.requisition.cancel.reason,create_date:0
+#: field:logistic.requisition.cost.estimate,create_date:0
+#: field:logistic.requisition.line,create_date:0
+#: field:logistic.requisition.line.assign,create_date:0
+#: field:logistic.requisition.source,create_date:0
+#: field:logistic.requisition.source.create.requisition,create_date:0
+msgid "Created on"
+msgstr "Created on"
+
+#. module: logistic_requisition
+#: view:logistic.requisition:logistic_requisition.view_logistic_requisition_filter
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_filter
+msgid "Currency"
+msgstr "Currency"
+
+#. module: logistic_requisition
+#: help:logistic.requisition,message_last_post:0
+#: help:logistic.requisition.line,message_last_post:0
+#: help:logistic.requisition.source,message_last_post:0
+msgid "Date of the last message posted on the record."
+msgstr "Date of the last message posted on the record."
+
+#. module: logistic_requisition
+#: view:logistic.requisition:logistic_requisition.view_logistic_requisition_form
+#: field:logistic.requisition,shipping_note:0
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_form
+msgid "Delivery / Shipping Remarks"
+msgstr "Delivery / Shipping Remarks"
 
 #. module: logistic_requisition
 #: field:logistic.requisition,consignee_shipping_id:0
-#: field:logistic.requisition.source,consignee_shipping_id:0
 msgid "Delivery Address"
 msgstr "Delivery Address"
 
 #. module: logistic_requisition
-#: help:logistic.requisition.line.assign,logistic_user_id:0
-msgid "Logistics Specialist in charge of the Logistics Requisition Line"
-msgstr "Logistics Specialist in charge of the Logistics Requisition Line"
+#: view:logistic.requisition:logistic_requisition.view_logistic_requisition_filter
+msgid "Delivery Date"
+msgstr "Delivery Date"
 
 #. module: logistic_requisition
-#: report:addons/logistic_requisition/report/logistic_requisition.mako:163
-msgid "UoM"
-msgstr "UoM"
+#: view:website:logistic_requisition.report_logistic_requisition_document
+msgid "Delivery Remarks:"
+msgstr "Delivery Remarks:"
 
 #. module: logistic_requisition
-#: view:logistic.requisition:0
-#: field:logistic.requisition,user_id:0
-msgid "Business Unit Officer"
-msgstr "Business Unit Officer"
-
-#. module: logistic_requisition
-#: code:addons/logistic_requisition/wizard/cost_estimate.py:262
-#, python-format
-msgid "The cost estimate cannot be created, because no lines are sourced."
-msgstr "The cost estimate cannot be created, because no lines are sourced."
-
-#. module: logistic_requisition
-#: view:logistic.requisition:0
-#: field:logistic.requisition.line,note:0
-msgid "Notes"
-msgstr "Notes"
-
-#. module: logistic_requisition
-#: field:logistic.requisition,message_ids:0
-#: field:logistic.requisition.line,message_ids:0
-#: field:logistic.requisition.source,message_ids:0
-msgid "Messages"
-msgstr "Messages"
-
-#. module: logistic_requisition
-#: view:logistic.requisition.line:0
-msgid "Total Proposed"
-msgstr "Total Proposed"
-
-#. module: logistic_requisition
-#: model:ir.model,name:logistic_requisition.model_purchase_order
-msgid "Purchase Order"
-msgstr "Purchase Order"
-
-#. module: logistic_requisition
-#: report:addons/logistic_requisition/report/logistic_requisition.mako:142
-#: view:logistic.requisition:0
-#: field:logistic.requisition,analytic_id:0
-msgid "Project"
-msgstr "Project"
-
-#. module: logistic_requisition
-#: code:addons/logistic_requisition/model/logistic_requisition.py:522
-#, python-format
-msgid "Please create source ressource using various source line actions"
-msgstr "Please create source ressource using various source line actions"
-
-#. module: logistic_requisition
-#: help:logistic.requisition.source,date_eta:0
-msgid "Estimated Date of Arrival"
-msgstr "Estimated Date of Arrival"
-
-#. module: logistic_requisition
-#: field:logistic.requisition.source,total_cost:0
-msgid "Total Cost"
-msgstr "Total Cost"
-
-#. module: logistic_requisition
-#: selection:logistic.requisition,state:0
-#: selection:logistic.requisition.line,state:0
-#: selection:logistic.requisition.source,state:0
-msgid "Cancelled"
-msgstr "Cancelled"
-
-#. module: logistic_requisition
-#: view:logistic.requisition.cost.estimate:0
-msgid "A cost estimate will be generated for all the\n"
-"                    sourced logistic requisition lines."
-msgstr "A cost estimate will be generated for all the\n"
-"                    sourced logistic requisition lines."
-
-#. module: logistic_requisition
-#: selection:logistic.requisition.source,price_is:0
-#: selection:sale.order.line,price_is:0
-msgid "Fixed"
-msgstr "Fixed"
-
-#. module: logistic_requisition
-#: help:logistic.requisition,message_unread:0
-#: help:logistic.requisition.line,message_unread:0
-#: help:logistic.requisition.source,message_unread:0
-msgid "If checked new messages require your attention."
-msgstr "If checked new messages require your attention."
-
-#. module: logistic_requisition
-#: field:logistic.requisition,incoterm_address:0
-msgid "Incoterm Place"
-msgstr "Incoterm Place"
-
-#. module: logistic_requisition
-#: code:addons/logistic_requisition/model/purchase.py:174
-#: code:addons/logistic_requisition/model/purchase.py:194
-#, python-format
-msgid "UserError"
-msgstr "UserError"
-
-#. module: logistic_requisition
-#: field:logistic.requisition.source,unit_cost:0
-msgid "Unit Cost"
-msgstr "Unit Cost"
-
-#. module: logistic_requisition
-#: code:addons/logistic_requisition/model/logistic_requisition.py:588
-#, python-format
-msgid "Prices for location"
-msgstr "Prices for location"
-
-#. module: logistic_requisition
-#: code:addons/logistic_requisition/model/logistic_requisition.py:1067
-#, python-format
-msgid "The sourcing lines do not have the same delivery address."
-msgstr "The sourcing lines do not have the same delivery address."
-
-#. module: logistic_requisition
-#: field:logistic.requisition,name:0
-msgid "Reference"
-msgstr "Reference"
-
-#. module: logistic_requisition
-#: view:logistic.requisition.line:0
-#: selection:logistic.requisition.line,state:0
-#: selection:logistic.requisition.source,state:0
-msgid "Quoted"
-msgstr "Quoted"
+#: field:logistic.requisition.line,description:0
+#: view:website:logistic_requisition.report_logistic_requisition_document
+msgid "Description"
+msgstr "Description"
 
 #. module: logistic_requisition
 #: field:logistic.requisition,date_delivery:0
@@ -281,239 +317,14 @@ msgid "Desired Delivery Date"
 msgstr "Desired Delivery Date"
 
 #. module: logistic_requisition
-#: field:logistic.requisition,consignee_id:0
-msgid "Consignee"
-msgstr "Consignee"
+#: sql_constraint:logistic.requisition:0
+msgid "Desired delivery date must be on or after Requisition date."
+msgstr "Desired delivery date must be on or after Requisition date."
 
 #. module: logistic_requisition
-#: field:logistic.requisition.cost.estimate,line_ids:0
-msgid "Sourced Lines"
-msgstr "Sourced Lines"
-
-#. module: logistic_requisition
-#: model:ir.ui.menu,name:logistic_requisition.menu_logistic_requisition_cancel_reason
-#: view:logistic.requisition.cancel.reason:0
-msgid "Logistics Requisition Cancel Reasons"
-msgstr "Logistics Requisition Cancel Reasons"
-
-#. module: logistic_requisition
-#: help:logistic.requisition,message_summary:0
-#: help:logistic.requisition.line,message_summary:0
-#: help:logistic.requisition.source,message_summary:0
-msgid "Holds the Chatter summary (number of messages, ...). This summary is directly in html format in order to be inserted in kanban views."
-msgstr "Holds the Chatter summary (number of messages, ...). This summary is directly in html format in order to be inserted in kanban views."
-
-#. module: logistic_requisition
-#: field:logistic.requisition.source,date_eta:0
-msgid "ETA"
-msgstr "ETA"
-
-#. module: logistic_requisition
-#: field:logistic.requisition.source,name:0
-msgid "Source Name"
-msgstr "Source Name"
-
-#. module: logistic_requisition
-#: field:logistic.requisition.line,account_id:0
-msgid "Nominal Account"
-msgstr "Nominal Account"
-
-#. module: logistic_requisition
-#: model:ir.model,name:logistic_requisition.model_res_partner
-msgid "Partner"
-msgstr "Partner"
-
-#. module: logistic_requisition
-#: code:addons/logistic_requisition/model/purchase.py:178
-#, python-format
-msgid "You cannot change the informations because this PO line is already linked to a Logistics Requsition Line %s marked as sourced or quoted."
-msgstr "You cannot change the informations because this PO line is already linked to a Logistics Requsition Line %s marked as sourced or quoted."
-
-#. module: logistic_requisition
-#: model:ir.model,name:logistic_requisition.model_sale_order
-msgid "Sales Order"
-msgstr "Sales Order"
-
-#. module: logistic_requisition
-#: help:logistic.requisition,incoterm_id:0
-msgid "International Commercial Terms are a series of predefined commercial terms used in international transactions."
-msgstr "International Commercial Terms are a series of predefined commercial terms used in international transactions."
-
-#. module: logistic_requisition
-#: model:ir.model,name:logistic_requisition.model_logistic_requisition_cancel
-msgid " Ask a reason for the logistic requisition cancellation."
-msgstr " Ask a reason for the logistic requisition cancellation."
-
-#. module: logistic_requisition
-#: view:logistic.requisition:0
-#: selection:logistic.requisition,state:0
-#: view:logistic.requisition.line:0
-#: selection:logistic.requisition.line,state:0
-#: selection:logistic.requisition.source,state:0
-msgid "Confirmed"
-msgstr "Confirmed"
-
-#. module: logistic_requisition
-#: field:logistic.requisition,note:0
-msgid "Remarks/Description"
-msgstr "Remarks/Description"
-
-#. module: logistic_requisition
-#: view:logistic.requisition.line:0
-msgid "Assigned Logistics Requisition Line"
-msgstr "Assigned Logistics Requisition Line"
-
-#. module: logistic_requisition
-#: view:logistic.requisition:0
-#: view:logistic.requisition.cancel:0
-msgid "Confirm"
-msgstr "Confirm"
-
-#. module: logistic_requisition
-#: field:logistic.requisition.source,proposed_uom_id:0
-msgid "Proposed UoM"
-msgstr "Proposed UoM"
-
-#. module: logistic_requisition
-#: field:logistic.requisition,cancel_reason_id:0
-msgid "Reason for Cancellation"
-msgstr "Reason for Cancellation"
-
-#. module: logistic_requisition
-#: view:logistic.requisition:0
-#: field:logistic.requisition,state:0
-#: view:logistic.requisition.line:0
-#: field:logistic.requisition.line,state:0
-msgid "State"
-msgstr "State"
-
-#. module: logistic_requisition
-#: view:logistic.requisition.source.create.requisition:0
-msgid "Which pricelist / currency you want ?"
-msgstr "Which pricelist / currency you want ?"
-
-#. module: logistic_requisition
-#: field:logistic.requisition,message_follower_ids:0
-#: field:logistic.requisition.line,message_follower_ids:0
-#: field:logistic.requisition.source,message_follower_ids:0
-msgid "Followers"
-msgstr "Followers"
-
-#. module: logistic_requisition
-#: view:logistic.requisition:0
-msgid "Logistics Requisition in treatment"
-msgstr "Logistics Requisition in treatment"
-
-#. module: logistic_requisition
-#: view:logistic.requisition:0
-msgid "Transportation and Delivery"
-msgstr "Transportation and Delivery"
-
-#. module: logistic_requisition
-#: model:ir.actions.act_window,name:logistic_requisition.act_window_requisition_line_assign
-msgid "Change the assignee"
-msgstr "Change the assignee"
-
-#. module: logistic_requisition
-#: view:logistic.requisition:0
-#: view:logistic.requisition.line:0
-msgid "Unassigned Requisition"
-msgstr "Unassigned Requisition"
-
-#. module: logistic_requisition
-#: code:addons/logistic_requisition/model/logistic_requisition.py:1146
-#: code:addons/logistic_requisition/wizard/logistic_line_create_requisition.py:63
-#: model:ir.model,name:logistic_requisition.model_purchase_requisition
-#: view:logistic.requisition.line:0
-#: view:logistic.requisition.source:0
-#: field:logistic.requisition.source,po_requisition_id:0
-#, python-format
-msgid "Purchase Requisition"
-msgstr "Call for Bids"
-
-#. module: logistic_requisition
-#: model:ir.model,name:logistic_requisition.model_logistic_requisition_cost_estimate
-msgid "Create cost estimate of logistic requisition lines"
-msgstr "Create cost estimate of logistic requisition lines"
-
-#. module: logistic_requisition
-#: view:logistic.requisition.cost.estimate:0
-msgid "Skipped"
-msgstr "Skipped"
-
-#. module: logistic_requisition
-#: help:logistic.requisition.line,logistic_user_id:0
-msgid "User in charge of the Logistics Requisition Line"
-msgstr "User in charge of the Logistics Requisition Line"
-
-#. module: logistic_requisition
-#: model:logistic.requisition.cancel.reason,name:logistic_requisition.cancel_reason_other_provider
-msgid "Other Service Provider selected"
-msgstr "Other Service Provider selected"
-
-#. module: logistic_requisition
-#: model:product.category,name:logistic_requisition.category_services
-msgid "Services"
-msgstr "Services"
-
-#. module: logistic_requisition
-#: field:logistic.requisition.cost.estimate,skipped_line_ids:0
-msgid "Skipped Lines"
-msgstr "Skipped Lines"
-
-#. module: logistic_requisition
-#: field:logistic.requisition.source,selected_bid_id:0
-msgid "Selected Bid"
-msgstr "Selected Bid"
-
-#. module: logistic_requisition
-#: code:addons/logistic_requisition/model/logistic_requisition.py:566
-#, python-format
-msgid "Stock by Location"
-msgstr "Stock by Location"
-
-#. module: logistic_requisition
-#: code:addons/logistic_requisition/model/logistic_requisition.py:1092
-#, python-format
-msgid "The logistic requisition sourcing line %s is already linked to a Purchase Requisition."
-msgstr "The logistic requisition sourcing line %s is already linked to a Purchase Requisition."
-
-#. module: logistic_requisition
-#: code:addons/logistic_requisition/wizard/cost_estimate.py:219
-#, python-format
-msgid "Cannot create a cost estimate because:"
-msgstr "Cannot create a cost estimate because:"
-
-#. module: logistic_requisition
-#: field:logistic.requisition.source,price_is:0
-#: field:sale.order.line,price_is:0
-msgid "Price is"
-msgstr "Price is"
-
-#. module: logistic_requisition
-#: view:logistic.requisition:0
-msgid "Reset to Draft"
-msgstr "Reset to Draft"
-
-#. module: logistic_requisition
-#: view:logistic.requisition:0
-#: view:logistic.requisition.line:0
-msgid "Show cost estimate only"
-msgstr "Show cost estimate only"
-
-#. module: logistic_requisition
-#: view:logistic.requisition.cost.estimate:0
-msgid "The lines in the Skipped section will be ignored\n"
-"                    because they are not sourced or are already linked\n"
-"                    to a cost estimate."
-msgstr "The lines in the Skipped section will be ignored\n"
-"                    because they are not sourced or are already linked\n"
-"                    to a cost estimate."
-
-#. module: logistic_requisition
-#: field:logistic.requisition,pricelist_id:0
-msgid "Pricelist"
-msgstr "Pricelist"
+#: view:website:logistic_requisition.report_logistic_requisition_document
+msgid "Desired delivery date:"
+msgstr "Desired delivery date:"
 
 #. module: logistic_requisition
 #: field:logistic.requisition.source,dispatch_location_id:0
@@ -521,274 +332,21 @@ msgid "Dispatch From"
 msgstr "Dispatch From"
 
 #. module: logistic_requisition
-#: code:addons/logistic_requisition/model/logistic_requisition.py:1113
-#, python-format
-msgid "There should be at least one selectedline with procurement method Procurement"
-msgstr "There should be at least one selectedline with procurement method Procurement"
+#: view:logistic.requisition.source:logistic_requisition.view_logistic_requisition_source_form
+msgid "Document Reference"
+msgstr "Document Reference"
 
 #. module: logistic_requisition
-#: view:logistic.requisition:0
-#: field:logistic.requisition.line,logistic_user_id:0
-msgid "Assigned To"
-msgstr "Assigned To"
-
-#. module: logistic_requisition
-#: field:logistic.requisition,shipping_note:0
-msgid "Delivery / Shipping Remarks"
-msgstr "Delivery / Shipping Remarks"
-
-#. module: logistic_requisition
-#: view:sale.order.line:0
-msgid "draft,confirmed,exception"
-msgstr "draft,confirmed,exception"
-
-#. module: logistic_requisition
-#: field:logistic.requisition.source,transport_applicable:0
-msgid "Transport Applicable"
-msgstr "Transport Applicable"
-
-#. module: logistic_requisition
-#: field:logistic.requisition.source,default_source_address:0
-msgid "Default source"
-msgstr "Default source"
-
-#. module: logistic_requisition
-#: report:addons/logistic_requisition/report/logistic_requisition.mako:141
-msgid "Cost estimate only"
-msgstr "Cost estimate only"
-
-#. module: logistic_requisition
-#: code:addons/logistic_requisition/model/purchase.py:198
-#, python-format
-msgid "You cannot delete this PO line because it is already linked to a Logistics Requsition Line %s marked as sourced or quoted."
-msgstr "You cannot delete this PO line because it is already linked to a Logistics Requsition Line %s marked as sourced or quoted."
-
-#. module: logistic_requisition
-#: view:logistic.requisition:0
-msgid "New Logistics Requisition"
-msgstr "New Logistics Requisition"
-
-#. module: logistic_requisition
-#: view:logistic.requisition.line:0
-msgid "Req. Qty:"
-msgstr "Req. Qty:"
-
-#. module: logistic_requisition
-#: model:ir.model,name:logistic_requisition.model_logistic_requisition_line_assign
-msgid "Assign a logistic requisition line"
-msgstr "Assign a logistic requisition line"
-
-#. module: logistic_requisition
-#: view:logistic.requisition.line:0
-#: view:logistic.requisition.source:0
-msgid "Sourcing"
-msgstr "Sourcing"
-
-#. module: logistic_requisition
-#: sql_constraint:logistic.requisition:0
-msgid "Logistics Requisition Reference must be unique!"
-msgstr "Logistics Requisition Reference must be unique!"
-
-#. module: logistic_requisition
-#: report:addons/logistic_requisition/report/logistic_requisition.mako:192
-msgid "Signature"
-msgstr "Signature"
-
-#. module: logistic_requisition
-#: view:logistic.requisition.line:0
-msgid "Country:"
-msgstr "Country:"
-
-#. module: logistic_requisition
-#: view:logistic.requisition:0
-msgid "Your assigned Requisition"
-msgstr "Your assigned Requisition"
-
-#. module: logistic_requisition
-#: code:addons/logistic_requisition/wizard/cost_estimate.py:196
-#, python-format
-msgid "Sourcing %s: no account code has been stored"
-msgstr "Sourcing %s: no account code has been stored"
-
-#. module: logistic_requisition
-#: field:logistic.requisition.source,proposed_qty:0
-msgid "Proposed Qty"
-msgstr "Proposed Qty"
-
-#. module: logistic_requisition
-#: selection:logistic.requisition.source,price_is:0
-#: selection:sale.order.line,price_is:0
-msgid "Estimated"
-msgstr "Estimated"
-
-#. module: logistic_requisition
-#: model:ir.actions.act_window,name:logistic_requisition.action_requisition_line_assign
-#: view:logistic.requisition.line.assign:0
-msgid "Assign Requisition Line"
-msgstr "Assign Requisition Line"
-
-#. module: logistic_requisition
-#: view:logistic.requisition.cancel.reason:0
-msgid "Purchase Cancel Reasons"
-msgstr "Purchase Cancel Reasons"
-
-#. module: logistic_requisition
-#: code:addons/logistic_requisition/model/logistic_requisition.py:1045
-#, python-format
-msgid "The lines are not assigned to the same User."
-msgstr "The lines are not assigned to the same User."
-
-#. module: logistic_requisition
-#: constraint:logistic.requisition.cost.estimate:0
-msgid "All the lines should belong to the same requisition."
-msgstr "All the lines should belong to the same requisition."
-
-#. module: logistic_requisition
-#: code:addons/logistic_requisition/model/logistic_requisition.py:1118
-#, python-format
-msgid "Selected line procurement method should be procurement or other"
-msgstr "Selected line procurement method should be procurement or other"
-
-#. module: logistic_requisition
-#: view:logistic.requisition:0
-msgid "Delivery Date"
-msgstr "Delivery Date"
-
-#. module: logistic_requisition
-#: model:ir.actions.act_window,name:logistic_requisition.action_logistic_requisition_cancel
-#: view:logistic.requisition.cancel:0
-msgid "Reason for the cancellation"
-msgstr "Reason for the cancellation"
-
-#. module: logistic_requisition
-#: view:logistic.requisition.source:0
-msgid "Logistics Requisition Sourcing Lines"
-msgstr "Logistics Requisition Sourcing Lines"
-
-#. module: logistic_requisition
-#: field:logistic.requisition.source,state:0
-msgid "Line's State"
-msgstr "Line's State"
-
-#. module: logistic_requisition
-#: view:logistic.requisition:0
-#: field:logistic.requisition,currency_id:0
-#: view:logistic.requisition.line:0
-#: field:logistic.requisition.line,currency_id:0
-#: field:logistic.requisition.source,currency_id:0
-msgid "Currency"
-msgstr "Currency"
-
-#. module: logistic_requisition
-#: view:logistic.requisition.line:0
-#: field:logistic.requisition.line,requisition_id:0
-msgid "Requisition"
-msgstr "Requisition"
-
-#. module: logistic_requisition
-#: help:logistic.requisition,incoterm_address:0
-msgid "Incoterm Place of Delivery. International Commercial Terms are a series of predefined commercial terms used in international transactions."
-msgstr "Incoterm Place of Delivery. International Commercial Terms are a series of predefined commercial terms used in international transactions."
-
-#. module: logistic_requisition
-#: code:addons/logistic_requisition/wizard/cost_estimate.py:191
-#, python-format
-msgid "Sourcing %s: no quantity has been proposed"
-msgstr "Sourcing %s: no quantity has been proposed"
-
-#. module: logistic_requisition
-#: model:ir.actions.act_window,name:logistic_requisition.action_logistic_requisition
-#: model:ir.ui.menu,name:logistic_requisition.menu_logistic_requisition
-msgid "Requisitions"
-msgstr "Requisitions"
-
-#. module: logistic_requisition
-#: report:addons/logistic_requisition/report/logistic_requisition.mako:149
-msgid "Yes"
-msgstr "Yes"
-
-#. module: logistic_requisition
-#: code:addons/logistic_requisition/model/logistic_requisition.py:1115
-#: code:addons/logistic_requisition/model/logistic_requisition.py:1120
-#, python-format
-msgid "Please correct selection"
-msgstr "Please correct selection"
-
-#. module: logistic_requisition
-#: field:logistic.requisition.source,offer_ids:0
-msgid "Sales Quotation Lines"
-msgstr "Sales Quotation Lines"
-
-#. module: logistic_requisition
-#: constraint:logistic.requisition.source:0
-msgid "A purchase requisition cannot be linked to lines of different logistics requisitions."
-msgstr "A call for bids cannot be linked to lines of different logistics requisitions."
-
-#. module: logistic_requisition
-#: report:addons/logistic_requisition/report/logistic_requisition.mako:136
-msgid "Logistics requisition"
-msgstr "Logistics requisition"
-
-#. module: logistic_requisition
-#: report:addons/logistic_requisition/report/logistic_requisition.mako:190
-msgid "Requesting entity"
-msgstr "Requesting entity"
-
-#. module: logistic_requisition
-#: model:ir.model,name:logistic_requisition.model_purchase_order_line
-#: field:logistic.requisition.source,purchase_line_id:0
-#: field:logistic.requisition.source,selected_bid_line_id:0
-msgid "Purchase Order Line"
-msgstr "Purchase Order Line"
-
-#. module: logistic_requisition
-#: model:ir.actions.act_window,name:logistic_requisition.action_view_create_requisition_from_source
-msgid "Create Purchase Requisition"
-msgstr "Create Call for Bids"
-
-#. module: logistic_requisition
-#: view:logistic.requisition.line:0
-msgid "Assigned Specialist"
-msgstr "Assigned Specialist"
-
-#. module: logistic_requisition
-#: code:addons/logistic_requisition/model/logistic_requisition.py:521
-#, python-format
-msgid "line %s is not sourced"
-msgstr "line %s is not sourced"
+#: view:logistic.requisition:logistic_requisition.view_logistic_requisition_filter
+#: selection:logistic.requisition,state:0
+msgid "Done"
+msgstr "Done"
 
 #. module: logistic_requisition
 #: selection:logistic.requisition,state:0
 #: selection:logistic.requisition.line,state:0
-#: selection:logistic.requisition.source,state:0
 msgid "Draft"
 msgstr "Draft"
-
-#. module: logistic_requisition
-#: view:logistic.requisition.line:0
-msgid "Sourcing Lines"
-msgstr "Sourcing Lines"
-
-#. module: logistic_requisition
-#: field:logistic.requisition.source,date_etd:0
-msgid "ETD"
-msgstr "ETD"
-
-#. module: logistic_requisition
-#: model:ir.actions.act_window,name:logistic_requisition.action_logistic_requisition_line
-#: model:ir.ui.menu,name:logistic_requisition.menu_logistic_requisition_line
-msgid "Requisitions Lines"
-msgstr "Requisitions Lines"
-
-#. module: logistic_requisition
-#: field:logistic.requisition.source,stock_owner:0
-msgid "Stock Owner"
-msgstr "Stock Owner"
-
-#. module: logistic_requisition
-#: model:ir.model,name:logistic_requisition.model_sale_order_line
-msgid "Sales Order Line"
-msgstr "Sales Order Line"
 
 #. module: logistic_requisition
 #: help:logistic.requisition.line,state:0
@@ -806,38 +364,129 @@ msgstr "Draft: Created\n"
 "Cancelled: The requisition has been cancelled"
 
 #. module: logistic_requisition
-#: field:purchase.requisition.line,logistic_requisition_source_ids:0
-msgid "Logistics Requisition Source Lines"
-msgstr "Logistics Requisition Source Lines"
+#: code:addons/logistic_requisition/model/logistic_requisition.py:1015
+#: code:addons/logistic_requisition/model/logistic_requisition.py:1023
+#: code:addons/logistic_requisition/model/logistic_requisition.py:1030
+#: code:addons/logistic_requisition/model/logistic_requisition.py:1037
+#: code:addons/logistic_requisition/wizard/cost_estimate.py:235
+#, python-format
+msgid "Error"
+msgstr "Error"
 
 #. module: logistic_requisition
-#: model:ir.actions.act_window,name:logistic_requisition.logistic_requisition
-#: model:ir.actions.report.xml,name:logistic_requisition.report_logistic_requisition
-#: model:ir.model,name:logistic_requisition.model_logistic_requisition
-#: model:ir.ui.menu,name:logistic_requisition.menu_logistic_requisition_base
-#: view:logistic.requisition:0
-#: field:logistic.requisition.cost.estimate,requisition_id:0
-#: view:logistic.requisition.line:0
-#: field:logistic.requisition.source,requisition_id:0
-#: field:sale.order,requisition_id:0
-msgid "Logistics Requisition"
-msgstr "Logistics Requisition"
+#: selection:logistic.requisition.source,price_is:0
+#: selection:sale.order.line,price_is:0
+msgid "Estimated"
+msgstr "Estimated"
 
 #. module: logistic_requisition
-#: view:logistic.requisition.source:0
+#: code:addons/logistic_requisition/model/logistic_requisition.py:1061
+#, python-format
+msgid "Existing"
+msgstr "Existing"
+
+#. module: logistic_requisition
+#: selection:logistic.requisition.source,price_is:0
+#: selection:sale.order.line,price_is:0
+msgid "Fixed"
+msgstr "Fixed"
+
+#. module: logistic_requisition
+#: field:logistic.requisition,message_follower_ids:0
+#: field:logistic.requisition.line,message_follower_ids:0
+#: field:logistic.requisition.source,message_follower_ids:0
+msgid "Followers"
+msgstr "Followers"
+
+#. module: logistic_requisition
 #: selection:logistic.requisition.source,procurement_method:0
-msgid "Warehouse Dispatch"
-msgstr "Warehouse Dispatch"
+msgid "Framework Agreement"
+msgstr "Framework Agreement"
 
 #. module: logistic_requisition
-#: field:logistic.requisition.line,source_ids:0
-msgid "Source Lines"
-msgstr "Source Lines"
+#: view:website:logistic_requisition.report_logistic_requisition_document
+msgid "General Remarks:"
+msgstr "General Remarks:"
 
 #. module: logistic_requisition
-#: view:logistic.requisition.source:0
-msgid "offers"
-msgstr "offers"
+#: field:purchase.order.line,from_bid_line_id:0
+msgid "Generated from bid"
+msgstr "Generated from bid"
+
+#. module: logistic_requisition
+#: view:logistic.requisition:logistic_requisition.view_logistic_requisition_filter
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_filter
+#: view:logistic.requisition.source:logistic_requisition.view_logistic_requisition_source_filter
+msgid "Group By..."
+msgstr "Group By..."
+
+#. module: logistic_requisition
+#: help:logistic.requisition,message_summary:0
+#: help:logistic.requisition.line,message_summary:0
+#: help:logistic.requisition.source,message_summary:0
+msgid "Holds the Chatter summary (number of messages, ...). This summary is directly in html format in order to be inserted in kanban views."
+msgstr "Holds the Chatter summary (number of messages, ...). This summary is directly in html format in order to be inserted in kanban views."
+
+#. module: logistic_requisition
+#: field:logistic.requisition,id:0
+#: field:logistic.requisition.cancel,id:0
+#: field:logistic.requisition.cancel.reason,id:0
+#: field:logistic.requisition.cost.estimate,id:0
+#: field:logistic.requisition.line,id:0
+#: field:logistic.requisition.line.assign,id:0
+#: field:logistic.requisition.source,id:0
+#: field:logistic.requisition.source.create.requisition,id:0
+msgid "ID"
+msgstr "ID"
+
+#. module: logistic_requisition
+#: help:logistic.requisition,message_unread:0
+#: help:logistic.requisition.line,message_unread:0
+#: help:logistic.requisition.source,message_unread:0
+msgid "If checked new messages require your attention."
+msgstr "If checked new messages require your attention."
+
+#. module: logistic_requisition
+#: code:addons/logistic_requisition/model/logistic_requisition.py:499
+#: code:addons/logistic_requisition/model/logistic_requisition.py:504
+#, python-format
+msgid "Incorrect Sourcing"
+msgstr "Incorrect Sourcing"
+
+#. module: logistic_requisition
+#: field:logistic.requisition,incoterm_id:0
+msgid "Incoterm"
+msgstr "Incoterm"
+
+#. module: logistic_requisition
+#: field:logistic.requisition,incoterm_address:0
+msgid "Incoterm Place"
+msgstr "Incoterm Place"
+
+#. module: logistic_requisition
+#: help:logistic.requisition,incoterm_address:0
+msgid "Incoterm Place of Delivery. International Commercial Terms are a series of predefined commercial terms used in international transactions."
+msgstr "Incoterm Place of Delivery. International Commercial Terms are a series of predefined commercial terms used in international transactions."
+
+#. module: logistic_requisition
+#: model:ir.model,name:logistic_requisition.model_stock_incoterms
+msgid "Incoterms"
+msgstr "Incoterms"
+
+#. module: logistic_requisition
+#: help:logistic.requisition,incoterm_id:0
+msgid "International Commercial Terms are a series of predefined commercial terms used in international transactions."
+msgstr "International Commercial Terms are a series of predefined commercial terms used in international transactions."
+
+#. module: logistic_requisition
+#: view:website:logistic_requisition.report_logistic_requisition_document
+msgid "Invoice address:"
+msgstr "Invoice address:"
+
+#. module: logistic_requisition
+#: view:website:logistic_requisition.report_logistic_requisition_document
+msgid "Invoice and shipping address:"
+msgstr "Invoice and shipping address:"
 
 #. module: logistic_requisition
 #: field:logistic.requisition,message_is_follower:0
@@ -847,35 +496,72 @@ msgid "Is a Follower"
 msgstr "Is a Follower"
 
 #. module: logistic_requisition
-#: code:addons/logistic_requisition/model/sale_order.py:45
-#, python-format
-msgid "The logistic requisition line %s has no purchase order line."
-msgstr "The logistic requisition line %s has no purchase order line."
+#: model:logistic.requisition.cancel.reason,name:logistic_requisition.cancel_reason_only_quotation
+msgid "Just for Quotation"
+msgstr "Just for Quotation"
 
 #. module: logistic_requisition
-#: report:addons/logistic_requisition/report/logistic_requisition.mako:187
-msgid "Approval"
-msgstr "Approval"
+#: field:logistic.requisition,message_last_post:0
+#: field:logistic.requisition.line,message_last_post:0
+#: field:logistic.requisition.source,message_last_post:0
+msgid "Last Message Date"
+msgstr "Last Message Date"
 
 #. module: logistic_requisition
-#: help:logistic.requisition.source,date_etd:0
-msgid "Estimated Date of Departure"
-msgstr "Estimated Date of Departure"
+#: field:logistic.requisition,write_uid:0
+#: field:logistic.requisition.cancel,write_uid:0
+#: field:logistic.requisition.cancel.reason,write_uid:0
+#: field:logistic.requisition.cost.estimate,write_uid:0
+#: field:logistic.requisition.line,write_uid:0
+#: field:logistic.requisition.line.assign,write_uid:0
+#: field:logistic.requisition.source,write_uid:0
+#: field:logistic.requisition.source.create.requisition,write_uid:0
+msgid "Last Updated by"
+msgstr "Last Updated by"
 
 #. module: logistic_requisition
-#: model:ir.model,name:logistic_requisition.model_logistic_requisition_source_create_requisition
-msgid "Create Purchase Requisition From Requisition Source"
-msgstr "Create Call for Bids From Requisition Source"
+#: field:logistic.requisition,write_date:0
+#: field:logistic.requisition.cancel,write_date:0
+#: field:logistic.requisition.cancel.reason,write_date:0
+#: field:logistic.requisition.cost.estimate,write_date:0
+#: field:logistic.requisition.line,write_date:0
+#: field:logistic.requisition.line.assign,write_date:0
+#: field:logistic.requisition.source,write_date:0
+#: field:logistic.requisition.source.create.requisition,write_date:0
+msgid "Last Updated on"
+msgstr "Last Updated on"
 
 #. module: logistic_requisition
-#: help:logistic.requisition,pricelist_id:0
-msgid "Pricelist that represent the currency for current logistic request."
-msgstr "Pricelist that represent the currency for current logistic request."
+#: view:logistic.requisition:logistic_requisition.view_logistic_requisition_form
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_form
+#: field:logistic.requisition.line,name:0
+msgid "Line No."
+msgstr "Line No."
 
 #. module: logistic_requisition
-#: model:ir.model,name:logistic_requisition.model_stock_incoterms
-msgid "Incoterms"
-msgstr "Incoterms"
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_form
+msgid "Line Sourced"
+msgstr "Line Sourced"
+
+#. module: logistic_requisition
+#: field:purchase.order.line,po_line_from_bid_ids:0
+msgid "Lines generated by the bid"
+msgstr "Lines generated by the bid"
+
+#. module: logistic_requisition
+#: model:ir.actions.act_window,name:logistic_requisition.logistic_requisition
+#: model:ir.actions.report.xml,name:logistic_requisition.action_report_logistic_requisition
+#: model:ir.model,name:logistic_requisition.model_logistic_requisition
+#: model:ir.ui.menu,name:logistic_requisition.menu_logistic_requisition_base
+#: view:logistic.requisition:logistic_requisition.view_logistic_requisition_form
+#: view:logistic.requisition:logistic_requisition.view_logistic_requisition_tree
+#: field:logistic.requisition.cost.estimate,requisition_id:0
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_filter
+#: field:logistic.requisition.source,requisition_id:0
+#: field:sale.order,requisition_id:0
+#: view:website:logistic_requisition.report_logistic_requisition_document
+msgid "Logistics Requisition"
+msgstr "Logistics Requisition"
 
 #. module: logistic_requisition
 #: model:ir.actions.act_window,name:logistic_requisition.action_logistic_requisition_cancel_reason
@@ -884,220 +570,25 @@ msgid "Logistics Requisition Cancel Reason"
 msgstr "Logistics Requisition Cancel Reason"
 
 #. module: logistic_requisition
-#: view:logistic.requisition:0
-#: view:logistic.requisition.line:0
-msgid "Additional notes..."
-msgstr "Additional notes..."
-
-#. module: logistic_requisition
-#: view:logistic.requisition.source:0
-#: field:logistic.requisition.source,procurement_method:0
-msgid "Procurement Method"
-msgstr "Procurement Method"
-
-#. module: logistic_requisition
-#: view:logistic.requisition:0
-msgid "Requesting Entity"
-msgstr "Requesting Entity"
-
-#. module: logistic_requisition
-#: view:logistic.requisition.source:0
-msgid "Search Logistics Requisition Sourcing"
-msgstr "Search Logistics Requisition Sourcing"
-
-#. module: logistic_requisition
-#: view:logistic.requisition.line:0
-msgid "Reset to Confirmed"
-msgstr "Reset to Confirmed"
-
-#. module: logistic_requisition
-#: view:logistic.requisition.line:0
-msgid "Requisition has been confirmed"
-msgstr "Requisition has been confirmed"
-
-#. module: logistic_requisition
-#: view:logistic.requisition.line:0
-msgid "Search Logistics Requisition Line"
-msgstr "Search Logistics Requisition Line"
-
-#. module: logistic_requisition
-#: view:logistic.requisition.source.create.requisition:0
-msgid "Are you sure you want to create a requisition from those lines ?"
-msgstr "Are you sure you want to create a requisition from those lines ?"
-
-#. module: logistic_requisition
-#: view:logistic.requisition.line:0
-msgid "View Prices"
-msgstr "View Prices"
-
-#. module: logistic_requisition
-#: code:addons/logistic_requisition/model/logistic_requisition.py:1044
-#: code:addons/logistic_requisition/model/logistic_requisition.py:1052
-#: code:addons/logistic_requisition/model/logistic_requisition.py:1059
-#: code:addons/logistic_requisition/model/logistic_requisition.py:1066
-#: code:addons/logistic_requisition/model/sale_order.py:44
-#: code:addons/logistic_requisition/wizard/cost_estimate.py:261
-#, python-format
-msgid "Error"
-msgstr "Error"
-
-#. module: logistic_requisition
-#: model:logistic.requisition.cancel.reason,name:logistic_requisition.cancel_reason_no_service_needed
-msgid "No service needed anymore"
-msgstr "No service needed anymore"
-
-#. module: logistic_requisition
-#: view:logistic.requisition.line:0
-#: view:logistic.requisition.line.assign:0
-msgid "Assign"
-msgstr "Assign"
-
-#. module: logistic_requisition
-#: report:addons/logistic_requisition/report/logistic_requisition.mako:162
-#: view:logistic.requisition:0
-#: field:logistic.requisition.line,requested_qty:0
-msgid "Quantity"
-msgstr "Quantity"
-
-#. module: logistic_requisition
-#: field:logistic.requisition.source,location_partner_id:0
-msgid "Location Address"
-msgstr "Location Address"
-
-#. module: logistic_requisition
-#: view:logistic.requisition.source:0
-#: field:logistic.requisition.source,requisition_line_id:0
-msgid "Requisition Line"
-msgstr "Requisition Line"
-
-#. module: logistic_requisition
-#: view:logistic.requisition.line:0
-msgid "Line Sourced"
-msgstr "Line Sourced"
-
-#. module: logistic_requisition
-#: report:addons/logistic_requisition/report/logistic_requisition.mako:160
-msgid "Number"
-msgstr "Number"
-
-#. module: logistic_requisition
-#: view:logistic.requisition.source.create.requisition:0
-msgid "Create Requisition"
-msgstr "Create Requisition"
-
-#. module: logistic_requisition
-#: code:addons/logistic_requisition/model/logistic_requisition.py:1091
-#, python-format
-msgid "Existing"
-msgstr "Existing"
-
-#. module: logistic_requisition
-#: view:logistic.requisition.line:0
-#: selection:logistic.requisition.line,state:0
-#: selection:logistic.requisition.source,state:0
-msgid "Assigned"
-msgstr "Assigned"
-
-#. module: logistic_requisition
-#: view:logistic.requisition.line:0
-#: view:logistic.requisition.source:0
-msgid "Total Budget"
-msgstr "Total Budget"
-
-#. module: logistic_requisition
-#: view:logistic.requisition:0
-#: view:logistic.requisition.line:0
-msgid "Unassigned"
-msgstr "Unassigned"
-
-#. module: logistic_requisition
-#: view:logistic.requisition:0
-#: selection:logistic.requisition,state:0
-msgid "Done"
-msgstr "Done"
-
-#. module: logistic_requisition
-#: view:logistic.requisition:0
-#: view:logistic.requisition.cancel:0
-#: view:logistic.requisition.cost.estimate:0
-#: view:logistic.requisition.line:0
-#: view:logistic.requisition.line.assign:0
-#: view:logistic.requisition.source.create.requisition:0
-msgid "Cancel"
-msgstr "Cancel"
-
-#. module: logistic_requisition
-#: model:ir.actions.act_window,name:logistic_requisition.action_logistic_requisition_cost_estimate
-#: view:logistic.requisition:0
-#: view:logistic.requisition.cost.estimate:0
-#: view:logistic.requisition.line:0
-msgid "Create Cost Estimate"
-msgstr "Create Cost Estimate"
-
-#. module: logistic_requisition
-#: field:purchase.order.line,po_line_from_bid_ids:0
-msgid "Lines generated by the bid"
-msgstr "Lines generated by the bid"
-
-#. module: logistic_requisition
-#: field:logistic.requisition.line,name:0
-msgid "Line N°"
-msgstr "Line N°"
-
-#. module: logistic_requisition
-#: view:logistic.requisition:0
-msgid "Requisition Lines"
-msgstr "Requisition Lines"
-
-#. module: logistic_requisition
-#: field:logistic.requisition,source_document:0
-msgid "Source Document"
-msgstr "Source Document"
-
-#. module: logistic_requisition
-#: view:logistic.requisition.line:0
-msgid "Your assigned Requisition Line"
-msgstr "Your assigned Requisition Line"
-
-#. module: logistic_requisition
-#: view:logistic.requisition.line:0
-msgid "Req. Date:"
-msgstr "Req. Date:"
-
-#. module: logistic_requisition
-#: report:addons/logistic_requisition/report/logistic_requisition.mako:182
-msgid "General Remarks"
-msgstr "General Remarks"
-
-#. module: logistic_requisition
-#: view:logistic.requisition:0
-#: field:logistic.requisition,cost_estimate_only:0
-#: view:logistic.requisition.line:0
-#: field:logistic.requisition.line,cost_estimate_only:0
-msgid "Cost Estimate Only"
-msgstr "Cost Estimate Only"
-
-#. module: logistic_requisition
-#: field:logistic.requisition.source,supplier_partner_id:0
-msgid "Supplier Address"
-msgstr "Supplier Address"
-
-#. module: logistic_requisition
-#: selection:logistic.requisition.source,procurement_method:0
-msgid "Other"
-msgstr "Other"
+#: model:ir.ui.menu,name:logistic_requisition.menu_logistic_requisition_cancel_reason
+#: view:logistic.requisition.cancel.reason:logistic_requisition.view_logistic_requisition_cancel_reason_form
+msgid "Logistics Requisition Cancel Reasons"
+msgstr "Logistics Requisition Cancel Reasons"
 
 #. module: logistic_requisition
 #: model:ir.model,name:logistic_requisition.model_logistic_requisition_line
-#: view:logistic.requisition.line:0
+#: view:logistic.requisition:logistic_requisition.view_logistic_requisition_form
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_calendar
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_form
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_tree
 msgid "Logistics Requisition Line"
 msgstr "Logistics Requisition Line"
 
 #. module: logistic_requisition
-#: view:logistic.requisition:0
-#: view:logistic.requisition.line:0
-msgid "New"
-msgstr "New"
+#: code:addons/logistic_requisition/model/logistic_requisition.py:641
+#, python-format
+msgid "Logistics Requisition Line %s Assigned"
+msgstr "Logistics Requisition Line %s Assigned"
 
 #. module: logistic_requisition
 #: sql_constraint:logistic.requisition.line:0
@@ -1105,157 +596,48 @@ msgid "Logistics Requisition Line number must be unique!"
 msgstr "Logistics Requisition Line number must be unique!"
 
 #. module: logistic_requisition
-#: model:ir.model,name:logistic_requisition.model_purchase_requisition_line
-#: field:logistic.requisition.source,purchase_requisition_line_id:0
-msgid "Purchase Requisition Line"
-msgstr "Call for Bids Line"
-
-#. module: logistic_requisition
-#: field:logistic.requisition,incoterm_id:0
-msgid "Incoterm"
-msgstr "Incoterm"
-
-#. module: logistic_requisition
-#: view:logistic.requisition.line:0
-#: field:logistic.requisition.line,product_id:0
-msgid "Product"
-msgstr "Product"
-
-#. module: logistic_requisition
-#: report:addons/logistic_requisition/report/logistic_requisition.mako:161
-#: field:logistic.requisition.line,description:0
-msgid "Description"
-msgstr "Description"
-
-#. module: logistic_requisition
-#: model:ir.model,name:logistic_requisition.model_procurement_order
-#: selection:logistic.requisition.source,procurement_method:0
-msgid "Procurement"
-msgstr "Procurement"
-
-#. module: logistic_requisition
-#: code:addons/logistic_requisition/model/logistic_requisition.py:1053
-#, python-format
-msgid "The sourcing lines do not belong to the same company."
-msgstr "The sourcing lines do not belong to the same company."
-
-#. module: logistic_requisition
-#: code:addons/logistic_requisition/model/logistic_requisition.py:1097
-#, python-format
-msgid "The sourcing line %d does not have any product defined, please choose one."
-msgstr "The sourcing line %d does not have any product defined, please choose one."
-
-#. module: logistic_requisition
-#: view:logistic.requisition:0
-msgid "Cancellation reason:"
-msgstr "Cancellation reason:"
-
-#. module: logistic_requisition
-#: code:addons/logistic_requisition/model/logistic_requisition.py:632
-#, python-format
-msgid "Logistics Requisition Line %s Assigned"
-msgstr "Logistics Requisition Line %s Assigned"
-
-#. module: logistic_requisition
-#: report:addons/logistic_requisition/report/logistic_requisition.mako:191
-msgid "Requested date"
-msgstr "Requested date"
-
-#. module: logistic_requisition
-#: view:logistic.requisition.line:0
-msgid "My Requisition Line"
-msgstr "My Requisition Line"
-
-#. module: logistic_requisition
-#: field:logistic.requisition,partner_id:0
-msgid "Customer"
-msgstr "Customer"
-
-#. module: logistic_requisition
-#: model:ir.actions.act_window,name:logistic_requisition.action_logistic_requisition_source
-msgid "Requisitions Sourcing Lines"
-msgstr "Requisitions Sourcing Lines"
-
-#. module: logistic_requisition
-#: field:logistic.requisition,line_ids:0
-msgid "Products to Purchase"
-msgstr "Products to Purchase"
-
-#. module: logistic_requisition
-#: help:logistic.requisition,user_id:0
-msgid "Mobilization Officer or Logistics Coordinator in charge of the Logistics Requisition"
-msgstr "Mobilization Officer or Logistics Coordinator in charge of the Logistics Requisition"
-
-#. module: logistic_requisition
-#: report:addons/logistic_requisition/report/logistic_requisition.mako:143
-#: view:logistic.requisition:0
-#: field:logistic.requisition,country_id:0
-#: view:logistic.requisition.line:0
-#: field:logistic.requisition.line,country_id:0
-msgid "Country"
-msgstr "Country"
-
-#. module: logistic_requisition
-#: code:addons/logistic_requisition/model/logistic_requisition.py:693
-#: code:addons/logistic_requisition/wizard/cost_estimate.py:293
-#: view:logistic.requisition.cost.estimate:0
-#: field:logistic.requisition.line,cost_estimate_id:0
-#, python-format
-msgid "Cost Estimate"
-msgstr "Cost Estimate"
-
-#. module: logistic_requisition
-#: view:logistic.requisition.line:0
-msgid "Line N° "
-msgstr "Line N° "
-
-#. module: logistic_requisition
-#: view:logistic.requisition.source:0
-msgid "Sourcing Line N° "
-msgstr "Sourcing Line N° "
-
-#. module: logistic_requisition
-#: field:logistic.requisition.line,requested_uom_id:0
-msgid "Product UoM"
-msgstr "Product UoM"
-
-#. module: logistic_requisition
-#: report:addons/logistic_requisition/report/logistic_requisition.mako:144
-#: view:logistic.requisition:0
-#: field:logistic.requisition,date:0
-msgid "Requisition Date"
-msgstr "Requisition Date"
-
-#. module: logistic_requisition
-#: view:logistic.requisition.cancel:0
-msgid "Choose the reason for the cancellation of the\n"
-"                    logistic requisition."
-msgstr "Choose the reason for the cancellation of the\n"
-"                    logistic requisition."
-
-#. module: logistic_requisition
-#: field:logistic.requisition.source,proposed_product_id:0
-msgid "Proposed Product"
-msgstr "Proposed Product"
-
-#. module: logistic_requisition
-#: view:logistic.requisition.line.assign:0
-msgid "Select the assignee"
-msgstr "Select the assignee"
+#: sql_constraint:logistic.requisition:0
+msgid "Logistics Requisition Reference must be unique!"
+msgstr "Logistics Requisition Reference must be unique!"
 
 #. module: logistic_requisition
 #: model:ir.model,name:logistic_requisition.model_logistic_requisition_source
-#: view:logistic.requisition.source:0
+#: view:logistic.requisition.source:logistic_requisition.view_logistic_requisition_source_tree
 #: field:purchase.order.line,lr_source_line_id:0
 msgid "Logistics Requisition Source"
 msgstr "Logistics Requisition Source"
 
 #. module: logistic_requisition
-#: field:logistic.requisition,message_summary:0
-#: field:logistic.requisition.line,message_summary:0
-#: field:logistic.requisition.source,message_summary:0
-msgid "Summary"
-msgstr "Summary"
+#: field:purchase.requisition.line,logistic_requisition_source_ids:0
+msgid "Logistics Requisition Source Lines"
+msgstr "Logistics Requisition Source Lines"
+
+#. module: logistic_requisition
+#: view:logistic.requisition.source:logistic_requisition.view_logistic_requisition_source_form
+msgid "Logistics Requisition Sourcing Lines"
+msgstr "Logistics Requisition Sourcing Lines"
+
+#. module: logistic_requisition
+#: view:logistic.requisition:logistic_requisition.view_logistic_requisition_filter
+msgid "Logistics Requisitions in treatment"
+msgstr "Logistics Requisitions in treatment"
+
+#. module: logistic_requisition
+#: field:logistic.requisition.line.assign,logistic_user_id:0
+msgid "Logistics Specialist"
+msgstr "Logistics Specialist"
+
+#. module: logistic_requisition
+#: help:logistic.requisition.line.assign,logistic_user_id:0
+msgid "Logistics Specialist in charge of the Logistics Requisition Line"
+msgstr "Logistics Specialist in charge of the Logistics Requisition Line"
+
+#. module: logistic_requisition
+#: field:logistic.requisition,message_ids:0
+#: field:logistic.requisition.line,message_ids:0
+#: field:logistic.requisition.source,message_ids:0
+msgid "Messages"
+msgstr "Messages"
 
 #. module: logistic_requisition
 #: help:logistic.requisition,message_ids:0
@@ -1265,46 +647,139 @@ msgid "Messages and communication history"
 msgstr "Messages and communication history"
 
 #. module: logistic_requisition
-#: report:addons/logistic_requisition/report/logistic_requisition.mako:102
-msgid "Shipping address:"
-msgstr "Shipping address:"
+#: code:addons/logistic_requisition/model/logistic_requisition.py:1066
+#, python-format
+msgid "Missing information"
+msgstr "Missing information"
 
 #. module: logistic_requisition
-#: view:logistic.requisition.source.create.requisition:0
-msgid " Please note that: \n"
+#: help:logistic.requisition,user_id:0
+msgid "Mobilization Officer or Logistics Coordinator in charge of the Logistics Requisition"
+msgstr "Mobilization Officer or Logistics Coordinator in charge of the Logistics Requisition"
+
+#. module: logistic_requisition
+#: view:logistic.requisition:logistic_requisition.view_logistic_requisition_filter
+msgid "My Requisitions"
+msgstr "My Requisitions"
+
+#. module: logistic_requisition
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_filter
+msgid "My Requisition Lines"
+msgstr "My Requisition Lines"
+
+#. module: logistic_requisition
+#: view:website:logistic_requisition.report_logistic_requisition_document
+msgid "N/A"
+msgstr "N/A"
+
+#. module: logistic_requisition
+#: view:logistic.requisition:logistic_requisition.view_logistic_requisition_filter
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_filter
+msgid "New"
+msgstr "New"
+
+#. module: logistic_requisition
+#: view:logistic.requisition:logistic_requisition.view_logistic_requisition_filter
+msgid "New Logistics Requisitions"
+msgstr "New Logistics Requisitions"
+
+#. module: logistic_requisition
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_filter
+msgid "New Logistics Requisition Lines"
+msgstr "New Logistics Requisition Lines"
+
+#. module: logistic_requisition
+#: code:addons/logistic_requisition/model/logistic_requisition.py:500
+#, python-format
+msgid "No Sourcing Lines"
+msgstr "No Sourcing Lines"
+
+#. module: logistic_requisition
+#: model:logistic.requisition.cancel.reason,name:logistic_requisition.cancel_reason_no_service_needed
+msgid "No service needed anymore"
+msgstr "No service needed anymore"
+
+#. module: logistic_requisition
+#: code:addons/logistic_requisition/model/logistic_requisition.py:516
+#, python-format
+msgid "No sourcing line found"
+msgstr "No sourcing line found"
+
+#. module: logistic_requisition
+#: code:addons/logistic_requisition/model/logistic_requisition.py:517
+#, python-format
+msgid "No sourcing lines were found, please create one."
+msgstr "No sourcing lines were found, please create one."
+
+#. module: logistic_requisition
+#: view:logistic.requisition:logistic_requisition.view_logistic_requisition_form
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_form
+#: field:logistic.requisition.line,note:0
+msgid "Notes"
+msgstr "Notes"
+
+#. module: logistic_requisition
+#: view:website:logistic_requisition.report_logistic_requisition_document
+msgid "Number"
+msgstr "Number"
+
+#. module: logistic_requisition
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_form
+msgid "Open Cost Estimate"
+msgstr "Open Cost Estimate"
+
+#. module: logistic_requisition
+#: field:logistic.requisition.source,origin:0
+msgid "Origin"
+msgstr "Origin"
+
+#. module: logistic_requisition
+#: selection:logistic.requisition.source,procurement_method:0
+msgid "Other"
+msgstr "Other"
+
+#. module: logistic_requisition
+#: model:logistic.requisition.cancel.reason,name:logistic_requisition.cancel_reason_other_provider
+msgid "Other Service Provider selected"
+msgstr "Other Service Provider selected"
+
+#. module: logistic_requisition
+#: model:ir.model,name:logistic_requisition.model_res_partner
+msgid "Partner"
+msgstr "Partner"
+
+#. module: logistic_requisition
+#: code:addons/logistic_requisition/model/logistic_requisition.py:1085
+#: code:addons/logistic_requisition/model/logistic_requisition.py:1090
+#, python-format
+msgid "Please correct selection"
+msgstr "Please correct selection"
+
+#. module: logistic_requisition
+#: view:logistic.requisition.source.create.requisition:logistic_requisition.view_create_requisition_from_source
+msgid "Please note that: \n"
 " \n"
 " Requisition will only be created if: \n"
 " * Lines belong to the same company \n"
-" * Lines has to be delivered in the same warehouse \n"
-" * Products are define on all selected lines \n"
-" \n"
-" "
-msgstr " Please note that: \n"
+" * Lines have to be delivered to the same warehouse \n"
+" * Products are define on all selected lines"
+msgstr "Please note that: \n"
 " \n"
 " Requisition will only be created if: \n"
 " * Lines belong to the same company \n"
-" * Lines has to be delivered in the same warehouse \n"
-" * Products are define on all selected lines \n"
-" \n"
-" "
+" * Lines have to be delivered to the same warehouse \n"
+" * Products are define on all selected lines"
 
 #. module: logistic_requisition
-#: field:logistic.requisition,sourced:0
-#: view:logistic.requisition.cost.estimate:0
-#: selection:logistic.requisition.line,state:0
-#: selection:logistic.requisition.source,state:0
-msgid "Sourced"
-msgstr "Sourced"
+#: field:logistic.requisition.source,price_is:0
+#: field:sale.order.line,price_is:0
+msgid "Price is"
+msgstr "Price is"
 
 #. module: logistic_requisition
-#: report:addons/logistic_requisition/report/logistic_requisition.mako:178
-msgid "Delivery Remarks"
-msgstr "Delivery Remarks"
-
-#. module: logistic_requisition
-#: field:purchase.order.line,from_bid_line_id:0
-msgid "Generated from bid"
-msgstr "Generated from bid"
+#: field:logistic.requisition,pricelist_id:0
+msgid "Pricelist"
+msgstr "Pricelist"
 
 #. module: logistic_requisition
 #: field:logistic.requisition.source.create.requisition,pricelist_id:0
@@ -1312,31 +787,592 @@ msgid "Pricelist / Currency"
 msgstr "Pricelist / Currency"
 
 #. module: logistic_requisition
-#: code:addons/logistic_requisition/model/logistic_requisition.py:1060
+#: help:logistic.requisition,pricelist_id:0
+msgid "Pricelist that represents the currency for the current logistics requisition."
+msgstr "Pricelist that represents the currency for the current logistics requisition."
+
+#. module: logistic_requisition
+#: model:ir.model,name:logistic_requisition.model_procurement_order
+msgid "Procurement"
+msgstr "Procurement"
+
+#. module: logistic_requisition
+#: view:logistic.requisition.source:logistic_requisition.view_logistic_requisition_source_filter
+#: field:logistic.requisition.source,procurement_method:0
+msgid "Sourcing Method"
+msgstr "Sourcing Method"
+
+#. module: logistic_requisition
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_filter
+#: field:logistic.requisition.line,product_id:0
+msgid "Product"
+msgstr "Product"
+
+#. module: logistic_requisition
+#: field:logistic.requisition.line,requested_uom_id:0
+msgid "Product UoM"
+msgstr "Product UoM"
+
+#. module: logistic_requisition
+#: field:logistic.requisition,line_ids:0
+msgid "Products to Purchase"
+msgstr "Products to Purchase"
+
+#. module: logistic_requisition
+#: view:logistic.requisition:logistic_requisition.view_logistic_requisition_filter
+#: field:logistic.requisition,analytic_id:0
+msgid "Project"
+msgstr "Project"
+
+#. module: logistic_requisition
+#: view:website:logistic_requisition.report_logistic_requisition_document
+msgid "Project:"
+msgstr "Project:"
+
+#. module: logistic_requisition
+#: field:logistic.requisition.source,proposed_product_id:0
+msgid "Proposed Product"
+msgstr "Proposed Product"
+
+#. module: logistic_requisition
+#: field:logistic.requisition.source,proposed_qty:0
+msgid "Proposed Qty"
+msgstr "Proposed Qty"
+
+#. module: logistic_requisition
+#: field:logistic.requisition.source,proposed_uom_id:0
+msgid "Proposed UoM"
+msgstr "Proposed UoM"
+
+#. module: logistic_requisition
+#: view:logistic.requisition.cancel.reason:logistic_requisition.view_logistic_requisition_cancel_reason_tree
+msgid "Purchase Cancel Reasons"
+msgstr "Purchase Cancel Reasons"
+
+#. module: logistic_requisition
+#: model:ir.model,name:logistic_requisition.model_purchase_order
+msgid "Purchase Order"
+msgstr "Purchase Order"
+
+#. module: logistic_requisition
+#: model:ir.model,name:logistic_requisition.model_purchase_order_line
+#: field:logistic.requisition.source,selected_bid_line_id:0
+msgid "Purchase Order Line"
+msgstr "Purchase Order Line"
+
+#. module: logistic_requisition
+#: code:addons/logistic_requisition/model/logistic_requisition.py:1111
+#: code:addons/logistic_requisition/wizard/logistic_line_create_requisition.py:57
+#: model:ir.model,name:logistic_requisition.model_purchase_requisition
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_form
+#: view:logistic.requisition.source:logistic_requisition.view_logistic_requisition_source_form
+#: view:logistic.requisition.source:logistic_requisition.view_logistic_requisition_source_tree
+#, python-format
+msgid "Purchase Requisition"
+msgstr "Call for Bids"
+
+#. module: logistic_requisition
+#: model:ir.model,name:logistic_requisition.model_purchase_requisition_line
+#: field:logistic.requisition.source,purchase_requisition_line_id:0
+msgid "Purchase Requisition Line"
+msgstr "Call for Bids Line"
+
+#. module: logistic_requisition
+#: view:logistic.requisition:logistic_requisition.view_logistic_requisition_form
+#: field:logistic.requisition.line,requested_qty:0
+#: view:website:logistic_requisition.report_logistic_requisition_document
+msgid "Quantity"
+msgstr "Quantity"
+
+#. module: logistic_requisition
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_filter
+#: selection:logistic.requisition.line,state:0
+msgid "Quoted"
+msgstr "Quoted"
+
+#. module: logistic_requisition
+#: field:logistic.requisition.cancel,reason_id:0
+#: field:logistic.requisition.cancel.reason,name:0
+msgid "Reason"
+msgstr "Reason"
+
+#. module: logistic_requisition
+#: field:logistic.requisition,cancel_reason_id:0
+msgid "Reason for Cancellation"
+msgstr "Reason for Cancellation"
+
+#. module: logistic_requisition
+#: model:ir.actions.act_window,name:logistic_requisition.action_logistic_requisition_cancel
+#: view:logistic.requisition.cancel:logistic_requisition.view_logistic_requisition_cancel
+msgid "Reason for the cancellation"
+msgstr "Reason for the cancellation"
+
+#. module: logistic_requisition
+#: field:logistic.requisition,name:0
+msgid "Reference"
+msgstr "Reference"
+
+#. module: logistic_requisition
+#: view:logistic.requisition:logistic_requisition.view_logistic_requisition_form
+#: field:logistic.requisition,note:0
+msgid "Remarks / Description"
+msgstr "Remarks / Description"
+
+#. module: logistic_requisition
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_kanban
+msgid "Req. Date:"
+msgstr "Req. Date:"
+
+#. module: logistic_requisition
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_kanban
+msgid "Req. Qty:"
+msgstr "Req. Qty:"
+
+#. module: logistic_requisition
+#: view:website:logistic_requisition.report_logistic_requisition_document
+msgid "Requested date:"
+msgstr "Requested date:"
+
+#. module: logistic_requisition
+#: view:logistic.requisition:logistic_requisition.view_logistic_requisition_filter
+#: field:logistic.requisition,partner_id:0
+msgid "Requesting Entity"
+msgstr "Requesting Entity"
+
+#. module: logistic_requisition
+#: view:website:logistic_requisition.report_logistic_requisition_document
+msgid "Requesting entity:"
+msgstr "Requesting entity:"
+
+#. module: logistic_requisition
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_form
+#: field:logistic.requisition.line,requisition_id:0
+msgid "Requisition"
+msgstr "Requisition"
+
+#. module: logistic_requisition
+#: view:logistic.requisition:logistic_requisition.view_logistic_requisition_filter
+#: field:logistic.requisition,date:0
+msgid "Requisition Date"
+msgstr "Requisition Date"
+
+#. module: logistic_requisition
+#: view:website:logistic_requisition.report_logistic_requisition_document
+msgid "Requisition Date:"
+msgstr "Requisition Date:"
+
+#. module: logistic_requisition
+#: view:logistic.requisition.source:logistic_requisition.view_logistic_requisition_source_filter
+#: view:logistic.requisition.source:logistic_requisition.view_logistic_requisition_source_form
+#: field:logistic.requisition.source,requisition_line_id:0
+msgid "Requisition Line"
+msgstr "Requisition Line"
+
+#. module: logistic_requisition
+#: view:logistic.requisition:logistic_requisition.view_logistic_requisition_form
+msgid "Requisition Lines"
+msgstr "Requisition Lines"
+
+#. module: logistic_requisition
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_filter
+msgid "Requisition has been confirmed"
+msgstr "Requisition has been confirmed"
+
+#. module: logistic_requisition
+#: model:ir.actions.act_window,name:logistic_requisition.action_logistic_requisition
+#: model:ir.ui.menu,name:logistic_requisition.menu_logistic_requisition
+msgid "Requisitions"
+msgstr "Requisitions"
+
+#. module: logistic_requisition
+#: model:ir.actions.act_window,name:logistic_requisition.action_logistic_requisition_line
+#: model:ir.ui.menu,name:logistic_requisition.menu_logistic_requisition_line
+msgid "Requisitions Lines"
+msgstr "Requisitions Lines"
+
+#. module: logistic_requisition
+#: model:ir.actions.act_window,name:logistic_requisition.action_logistic_requisition_source
+msgid "Requisitions Sourcing Lines"
+msgstr "Requisitions Sourcing Lines"
+
+#. module: logistic_requisition
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_form
+msgid "Reset to Confirmed"
+msgstr "Reset to Confirmed"
+
+#. module: logistic_requisition
+#: view:logistic.requisition:logistic_requisition.view_logistic_requisition_form
+msgid "Reset to Draft"
+msgstr "Reset to Draft"
+
+#. module: logistic_requisition
+#: model:ir.model,name:logistic_requisition.model_sale_order
+msgid "Sales Order"
+msgstr "Sales Order"
+
+#. module: logistic_requisition
+#: model:ir.model,name:logistic_requisition.model_sale_order_line
+msgid "Sales Order Line"
+msgstr "Sales Order Line"
+
+#. module: logistic_requisition
+#: view:logistic.requisition:logistic_requisition.view_logistic_requisition_filter
+msgid "Search Logistics Requisitions"
+msgstr "Search Logistics Requisitions"
+
+#. module: logistic_requisition
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_filter
+msgid "Search Logistics Requisition Lines"
+msgstr "Search Logistics Requisition Lines"
+
+#. module: logistic_requisition
+#: view:logistic.requisition.source:logistic_requisition.view_logistic_requisition_source_filter
+msgid "Search Logistics Requisition Sourcings"
+msgstr "Search Logistics Requisition Sourcings"
+
+#. module: logistic_requisition
+#: view:logistic.requisition.line.assign:logistic_requisition.view_logistic_requisition_line_assign_wizard
+msgid "Select the assignee"
+msgstr "Select the assignee"
+
+#. module: logistic_requisition
+#: code:addons/logistic_requisition/model/logistic_requisition.py:1088
+#, python-format
+msgid "Selected line procurement method should be procurement or other"
+msgstr "Selected line procurement method should be procurement or other"
+
+#. module: logistic_requisition
+#: model:product.category,name:logistic_requisition.category_services
+msgid "Services"
+msgstr "Services"
+
+#. module: logistic_requisition
+#: model:product.template,name:logistic_requisition.product_transport_product_template
+msgid "Shipping / Transport"
+msgstr "Shipping / Transport"
+
+#. module: logistic_requisition
+#: view:website:logistic_requisition.report_logistic_requisition_document
+msgid "Shipping address:"
+msgstr "Shipping address:"
+
+#. module: logistic_requisition
+#: view:logistic.requisition:logistic_requisition.view_logistic_requisition_filter
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_filter
+msgid "Show cost estimate only"
+msgstr "Show cost estimate only"
+
+#. module: logistic_requisition
+#: view:website:logistic_requisition.report_logistic_requisition_document
+msgid "Signature:"
+msgstr "Signature:"
+
+#. module: logistic_requisition
+#: view:logistic.requisition.cost.estimate:logistic_requisition.view_logistic_requisition_cost_estimate
+msgid "Skipped"
+msgstr "Skipped"
+
+#. module: logistic_requisition
+#: field:logistic.requisition.cost.estimate,skipped_line_ids:0
+msgid "Skipped Lines"
+msgstr "Skipped Lines"
+
+#. module: logistic_requisition
+#: field:logistic.requisition,source_document:0
+msgid "Source Document"
+msgstr "Source Document"
+
+#. module: logistic_requisition
+#: field:logistic.requisition.line,source_ids:0
+msgid "Source Lines"
+msgstr "Source Lines"
+
+#. module: logistic_requisition
+#: field:logistic.requisition.source,name:0
+msgid "Source Name"
+msgstr "Source Name"
+
+#. module: logistic_requisition
+#: view:logistic.requisition.cost.estimate:logistic_requisition.view_logistic_requisition_cost_estimate
+#: selection:logistic.requisition.line,state:0
+msgid "Sourced"
+msgstr "Sourced"
+
+#. module: logistic_requisition
+#: field:logistic.requisition.cost.estimate,line_ids:0
+msgid "Sourced Lines"
+msgstr "Sourced Lines"
+
+#. module: logistic_requisition
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_form
+#: view:logistic.requisition.source:logistic_requisition.view_logistic_requisition_source_form
+msgid "Sourcing"
+msgstr "Sourcing"
+
+#. module: logistic_requisition
+#: code:addons/logistic_requisition/wizard/cost_estimate.py:171
+#, python-format
+msgid "Sourcing %s: no quantity has been proposed"
+msgstr "Sourcing %s: no quantity has been proposed"
+
+#. module: logistic_requisition
+#: view:logistic.requisition.source:logistic_requisition.view_logistic_requisition_source_form
+msgid "Sourcing Line No."
+msgstr "Sourcing Line No."
+
+#. module: logistic_requisition
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_form
+msgid "Sourcing Lines"
+msgstr "Sourcing Lines"
+
+#. module: logistic_requisition
+#: view:logistic.requisition:logistic_requisition.view_logistic_requisition_filter
+#: field:logistic.requisition,state:0
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_filter
+#: field:logistic.requisition.line,state:0
+msgid "State"
+msgstr "State"
+
+#. module: logistic_requisition
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_form
+msgid "Stock"
+msgstr "Stock"
+
+#. module: logistic_requisition
+#: field:logistic.requisition,message_summary:0
+#: field:logistic.requisition.line,message_summary:0
+#: field:logistic.requisition.source,message_summary:0
+msgid "Summary"
+msgstr "Summary"
+
+#. module: logistic_requisition
+#: selection:logistic.requisition.source,procurement_method:0
+msgid "Tender"
+msgstr "Tender"
+
+#. module: logistic_requisition
+#: code:addons/logistic_requisition/wizard/cost_estimate.py:236
+#, python-format
+msgid "The cost estimate cannot be created, because no lines are sourced."
+msgstr "The cost estimate cannot be created, because no lines are sourced."
+
+#. module: logistic_requisition
+#: code:addons/logistic_requisition/model/logistic_requisition.py:1016
+#, python-format
+msgid "The lines are not assigned to the same User."
+msgstr "The lines are not assigned to the same User."
+
+#. module: logistic_requisition
+#: view:logistic.requisition.cost.estimate:logistic_requisition.view_logistic_requisition_cost_estimate
+msgid "The lines in the Skipped section will be ignored\n"
+"                    because they are not sourced or are already linked\n"
+"                    to a cost estimate."
+msgstr "The lines in the Skipped section will be ignored\n"
+"                    because they are not sourced or are already linked\n"
+"                    to a cost estimate."
+
+#. module: logistic_requisition
+#: code:addons/logistic_requisition/model/logistic_requisition.py:1062
+#, python-format
+msgid "The logistic requisition sourcing line %s is already linked to a Purchase Requisition."
+msgstr "The logistic requisition sourcing line %s is already linked to a Call for Bids."
+
+#. module: logistic_requisition
+#: code:addons/logistic_requisition/model/logistic_requisition.py:1067
+#, python-format
+msgid "The sourcing line %d does not have any product defined, please choose one."
+msgstr "The sourcing line %d does not have any product defined, please choose one."
+
+#. module: logistic_requisition
+#: code:addons/logistic_requisition/model/logistic_requisition.py:1024
+#, python-format
+msgid "The sourcing lines do not belong to the same company."
+msgstr "The sourcing lines do not belong to the same company."
+
+#. module: logistic_requisition
+#: code:addons/logistic_requisition/model/logistic_requisition.py:1031
 #, python-format
 msgid "The sourcing lines do not have the same consignee."
 msgstr "The sourcing lines do not have the same consignee."
 
 #. module: logistic_requisition
-#: view:logistic.requisition.cancel:0
-#: view:logistic.requisition.cost.estimate:0
-#: view:logistic.requisition.line.assign:0
-#: view:logistic.requisition.source.create.requisition:0
-msgid "or"
-msgstr "or"
+#: code:addons/logistic_requisition/model/logistic_requisition.py:1038
+#, python-format
+msgid "The sourcing lines do not have the same delivery address."
+msgstr "The sourcing lines do not have the same delivery address."
 
 #. module: logistic_requisition
-#: view:logistic.requisition:0
+#: code:addons/logistic_requisition/model/logistic_requisition.py:1083
+#, python-format
+msgid "There should be at least one selected line with procurement method Procurement"
+msgstr "There should be at least one selected line with procurement method Procurement"
+
+#. module: logistic_requisition
+#: code:addons/logistic_requisition/model/logistic_requisition.py:643
+#, python-format
+msgid "This new requisition concerns %s and is due for %s."
+msgstr "This new requisition concerns %s and is due for %s."
+
+#. module: logistic_requisition
+#: field:logistic.requisition.line,amount_total_company:0
+msgid "Tot. Amount in Company currency"
+msgstr "Tot. Amount in Company currency"
+
+#. module: logistic_requisition
+#: field:logistic.requisition.line,amount_total:0
+msgid "Total Amount"
+msgstr "Total Amount"
+
+#. module: logistic_requisition
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_form
+#: view:logistic.requisition.source:logistic_requisition.view_logistic_requisition_source_tree
+msgid "Total Budget"
+msgstr "Total Budget"
+
+#. module: logistic_requisition
+#: field:logistic.requisition.source,total_cost:0
+msgid "Total Cost"
+msgstr "Total Cost"
+
+#. module: logistic_requisition
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_form
+msgid "Total Proposed"
+msgstr "Total Proposed"
+
+#. module: logistic_requisition
+#: help:logistic.requisition.line,amount_total_company:0
+msgid "Total amount converted to company currency using rates at requisition date"
+msgstr "Total amount converted to company currency using rates at requisition date"
+
+#. module: logistic_requisition
+#: field:purchase.order,transport_mode_id:0
+#: field:purchase.requisition,transport_mode_id:0
+msgid "Transport Mode"
+msgstr "Transport Mode"
+
+#. module: logistic_requisition
+#: field:purchase.order,transport_vehicle_id:0
+#: field:purchase.requisition,transport_vehicle_id:0
+msgid "Transport Vehicle"
+msgstr "Transport Vehicle"
+
+#. module: logistic_requisition
+#: view:logistic.requisition:logistic_requisition.view_logistic_requisition_form
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_form
+msgid "Transportation and Delivery"
+msgstr "Transportation and Delivery"
+
+#. module: logistic_requisition
+#: view:logistic.requisition:logistic_requisition.view_logistic_requisition_filter
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_filter
+msgid "Unassigned"
+msgstr "Unassigned"
+
+#. module: logistic_requisition
+#: view:logistic.requisition:logistic_requisition.view_logistic_requisition_filter
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_filter
+msgid "Unassigned Requisitions"
+msgstr "Unassigned Requisitions"
+
+#. module: logistic_requisition
+#: field:logistic.requisition.source,unit_cost:0
+msgid "Unit Cost"
+msgstr "Unit Cost"
+
+#. module: logistic_requisition
+#: field:logistic.requisition,message_unread:0
+#: field:logistic.requisition.line,message_unread:0
+#: field:logistic.requisition.source,message_unread:0
+msgid "Unread Messages"
+msgstr "Unread Messages"
+
+#. module: logistic_requisition
+#: view:logistic.requisition:logistic_requisition.view_logistic_requisition_form
+msgid "UoM"
+msgstr "UoM"
+
+#. module: logistic_requisition
+#: help:logistic.requisition.line,logistic_user_id:0
+msgid "User in charge of the Logistics Requisition Line"
+msgstr "User in charge of the Logistics Requisition Line"
+
+#. module: logistic_requisition
+#: view:website:logistic_requisition.report_logistic_requisition_document
+msgid "VAT:"
+msgstr "VAT:"
+
+#. module: logistic_requisition
+#: view:logistic.requisition:logistic_requisition.view_logistic_requisition_form
+msgid "View Lines"
+msgstr "View Lines"
+
+#. module: logistic_requisition
+#: view:logistic.requisition:logistic_requisition.view_logistic_requisition_form
 msgid "View Sourcing Lines"
 msgstr "View Sourcing Lines"
 
 #. module: logistic_requisition
-#: code:addons/logistic_requisition/model/logistic_requisition.py:1096
-#, python-format
-msgid "Missing information"
-msgstr "Missing information"
+#: view:logistic.requisition.source:logistic_requisition.view_logistic_requisition_source_form
+#: selection:logistic.requisition.source,procurement_method:0
+msgid "Warehouse Dispatch"
+msgstr "Warehouse Dispatch"
 
 #. module: logistic_requisition
-#: view:logistic.requisition.line:0
-msgid "Open Cost Estimate"
-msgstr "Open Cost Estimate"
+#: help:logistic.requisition.source,price_is:0
+#: help:sale.order.line,price_is:0
+msgid "When the price is an estimation, the final price may change. I.e. it is not based on a request for quotation."
+msgstr "When the price is an estimation, the final price may change. I.e. it is not based on a request for quotation."
+
+#. module: logistic_requisition
+#: view:logistic.requisition.source.create.requisition:logistic_requisition.view_create_requisition_from_source
+msgid "Which pricelist / currency you want?"
+msgstr "Which pricelist / currency you want?"
+
+#. module: logistic_requisition
+#: view:website:logistic_requisition.report_logistic_requisition_document
+msgid "Yes"
+msgstr "Yes"
+
+#. module: logistic_requisition
+#: code:addons/logistic_requisition/model/purchase.py:96
+#, python-format
+msgid "You cannot change the informations because this PO line is already linked to a Logistics Requsition Line %s marked as sourced or quoted."
+msgstr "You cannot change the informations because this PO line is already linked to a Logistics Requsition Line %s marked as sourced or quoted."
+
+#. module: logistic_requisition
+#: code:addons/logistic_requisition/model/purchase.py:114
+#, python-format
+msgid "You cannot delete this PO line because it is already linked to a Logistics Requsition Line %s marked as sourced or quoted."
+msgstr "You cannot delete this PO line because it is already linked to a Logistics Requsition Line %s marked as sourced or quoted."
+
+#. module: logistic_requisition
+#: code:addons/logistic_requisition/model/logistic_requisition.py:591
+#, python-format
+msgid "You must set a pricelist on the Requisition, or configure a default pricelist for this requestor."
+msgstr "You must set a pricelist on the Requisition, or configure a default pricelist for this requestor."
+
+#. module: logistic_requisition
+#: view:logistic.requisition:logistic_requisition.view_logistic_requisition_filter
+msgid "Your assigned Requisitions"
+msgstr "Your assigned Requisitions"
+
+#. module: logistic_requisition
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_filter
+msgid "Your assigned Requisition Lines"
+msgstr "Your assigned Requisition Lines"
+
+#. module: logistic_requisition
+#: view:sale.order.line:logistic_requisition.view_order_line_form2_lr
+msgid "draft,confirmed,exception"
+msgstr "draft,confirmed,exception"
+
+#. module: logistic_requisition
+#: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_form
+msgid "in company currency"
+msgstr "in company currency"
+
+#. module: logistic_requisition
+#: view:sale.order:logistic_requisition.view_order_form
+msgid "{'required': [('cost_estimate_only', '!=', True)]}"
+msgstr "{'required': [('cost_estimate_only', '!=', True)]}"
+

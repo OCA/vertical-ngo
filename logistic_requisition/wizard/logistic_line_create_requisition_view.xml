@@ -6,15 +6,15 @@
             <field name="model">logistic.requisition.source.create.requisition</field>
             <field name="arch" type="xml">
                <form string="Create Requisition" version="7.0">
-                    <separator string="Which pricelist / currency you want ?"/>
+                    <separator string="Which pricelist / currency you want?"/>
                     <field name="pricelist_id" domain="[('type','=','purchase')]"/>
                     <group>
-                        <separator string="Are you sure you want to create a requisition from those lines ?"/>
+                        <separator string="Are you sure you want to create a requisition from those lines?"/>
                         <label string="
 Please note that: &#10; &#10;
 Requisition will only be created if: &#10;
 * Lines belong to the same company &#10;
-* Lines has to be delivered in the same warehouse &#10;
+* Lines have to be delivered to the same warehouse &#10;
 * Products are define on all selected lines &#10; &#10;
 " colspan="4"/>
                     </group>

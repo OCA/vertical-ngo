@@ -13,7 +13,7 @@
                         t-field-options='{"widget": "contact", "fields": ["address", "name", "phone", "fax"], "no_marker": true}'/>
                     <p t-if="o.partner_id.vat">VAT: <span t-field="o.partner_id.vat"/></p>
                     <div t-if="o.consignee_shipping_id != o.consignee_id">
-                        <p>Shipping address :</p>
+                        <p>Shipping address:</p>
                         <div t-field="o.consignee_shipping_id"
                             t-field-options='{"widget": "contact", "fields": ["address", "name", "phone", "fax"], "no_marker": true}'/>
                         <p t-if="o.partner_id.vat">VAT: <span t-field="o.partner_id.vat"/></p>

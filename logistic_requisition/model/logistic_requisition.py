@@ -112,7 +112,7 @@ class LogisticsRequisition(models.Model):
         'Cost Estimate Only',
         states=REQ_STATES,
         default=False)
-    note = fields.Text('Remarks/Description')
+    note = fields.Text('Remarks / Description')
     shipping_note = fields.Text('Delivery / Shipping Remarks')
     incoterm_id = fields.Many2one(
         'stock.incoterms',
@@ -513,8 +513,8 @@ class LogisticsRequisitionLine(models.Model):
         """
         source_lines = self.source_ids
         if not source_lines:
-            raise except_orm(_('No sourcing line Found'),
-                             _('No sourcing line were found, '
+            raise except_orm(_('No sourcing line found'),
+                             _('No sourcing lines were found, '
                                'please create one.'))
         pricelist = self.requisition_id.pricelist_id or None
         source_lines._action_create_po_requisition(pricelist=pricelist)
@@ -797,7 +797,7 @@ class LogisticsRequisitionSource(models.Model):
          ('fw_agreement', 'Framework Agreement'),
          ('other', 'Other'),
          ],
-        string='Procurement Method',
+        string='Sourcing Method',
         required=True,
         states=SOURCED_STATES,
         default='other')
