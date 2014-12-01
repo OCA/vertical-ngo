@@ -238,29 +238,33 @@ class logistic_requisition_source(orm.Model):
             cr, uid, main_source, other_sources, pricelist, context=None)
         return po_id
 
-    def _get_purchase_order_lines(self):
-        """Convenience method to return the purchase order lines associated
-        with the lr_source_line_id.
-
-        I am not adding a one2many field because there are other, similar
-        fields already. We can of course change that in the future to be a
-        one2many or to use another field.
-
-        """
-        return self.env['purchase.order.line'].search([
-            ('lr_source_line_id', '=', self.id)
-        ])
-
     @api.multi
     def _check_sourcing_fw_agreement(self):
         """Check sourcing for "fw_agreement" method.
 
+        Check if assigned Framework Agreement is running and if it has enough
+        remaining quantity
+
         :returns: list of error strings
 
         """
-        if not self._get_purchase_order_lines():
-            return ['{0}: No Purchase Order Lines associated with this '
+        if self.framework_agreement_po_id:
+            return []
+        agreement = self.framework_agreement_id
+        if not agreement:
+            return ['{0}: No Framework Agreement associated with this '
                     'source'.format(self.name)]
+        if agreement.state != 'running':
+            return ['{0}: Selected Framework Agreement is {1} for this source,'
+                    ' it must be Running'.format(self.name, agreement.state)]
+        if agreement.available_quantity < self.proposed_qty:
+            return ['{0}: Selected Framework Agreement available quantity is '
+                    'only {1} and this source proposed quantity is {2}. You '
+                    'need to:'
+                    '\n * Reduce proposed quantity of this source'
+                    '\n * Fill remaining quantity with aditional(s) source(s)'
+                    .format(self.name, agreement.available_quantity,
+                            self.proposed_qty)]
         return []
 
     # ---------------Odoo onchange management ----------------------

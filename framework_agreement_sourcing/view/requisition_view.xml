@@ -9,7 +9,7 @@
         <xpath expr="//header/group" position="after">
           <group attrs="{'invisible': [('procurement_method', '!=', 'fw_agreement')]}">
             <button name="%(action_view_create_agr_po_from_source)d"
-              states="assigned"
+              states="assigned,sourced"
               string="Create Agreement Purchase Order"
               class="oe_highlight"
               type="action"/>
@@ -49,7 +49,7 @@
                         string="Create Call for Bids"
                         type="object" position="after">
               <button name="%(action_view_create_agr_po_from_source)d"
-                        states="assigned"
+                        states="assigned,sourced"
                         string="Create Agreement Purchase Order"
                         type="action"/>
             </button>
