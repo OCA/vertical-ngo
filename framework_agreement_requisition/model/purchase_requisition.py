@@ -51,6 +51,17 @@ class PurchaseRequisition(models.Model):
             'context': self.env.context,
         }
 
+    @api.model
+    def _prepare_purchase_order(self, requisition, supplier):
+        _super = super(PurchaseRequisition, self)
+        values = _super._prepare_purchase_order(requisition,
+                                                supplier)
+        values.update(
+            {'for_agreement': requisition.framework_agreement_tender,
+             'agreement_expected_date': requisition.agreement_end_date,
+             })
+        return values
+
 
 class PurchaseRequisitionClassic(orm.Model):
     """Add support to negociate LTA using tender process"""
