@@ -19,15 +19,17 @@ from openerp.tests.common import TransactionCase
 class TestCheckSourcing(TransactionCase):
     """Check the _check_sourcing method of the source. """
 
-    def test_agreement_sourcing_without_po_is_not_sourced(self):
+    def test_agreement_sourcing_without_agreement_is_not_sourced(self):
         self.source.procurement_method = 'fw_agreement'
         errors = self.source._check_sourcing()
         self.assertEquals(1, len(errors))
-        self.assertIn('No Purchase Order Lines', errors[0])
+        self.assertIn('No Framework Agreement', errors[0])
 
-    def test_agreement_sourcing_with_po_is_sourced(self):
+    def test_agreement_sourcing_with_running_agreement_is_sourced(self):
         self.source.procurement_method = 'fw_agreement'
-        self.source._get_purchase_order_lines = lambda: self.PO.new()
+        self.source.framework_agreement_id = self.Agreement.new({
+            'state': 'running'
+        })
         self.assertEquals([], self.source._check_sourcing())
 
     def test_other_sourcing_is_always_sourced(self):
@@ -45,4 +47,5 @@ class TestCheckSourcing(TransactionCase):
         Source = self.env['logistic.requisition.source']
         self.PO = self.env['purchase.order']
         self.PurcReq = self.env['purchase.requisition']
+        self.Agreement = self.env['framework.agreement']
         self.source = Source.new()
