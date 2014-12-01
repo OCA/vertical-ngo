@@ -60,6 +60,24 @@ class logistic_requisition_source(orm.Model):
         return self.pool['res.company']._company_default_get(
             cr, uid, self._name, context=context)
 
+    @api.model
+    def _get_po_picking_type_id(self, dest_address):
+        if not dest_address:
+            return False
+        PickType = self.env['stock.picking.type']
+        types = PickType.search([
+            ('warehouse_id.partner_id', '=', dest_address.id)])
+
+        picking_type_id = False
+        if types:
+            picking_type_id = types[0].id
+        elif dest_address.customer:
+            # if destination is not for a warehouse address,
+            # we set dropshipping picking type
+            ref = 'stock_dropshipping.picking_type_dropship'
+            picking_type_id = self.env['ir.model.data'].xmlid_to_res_id(ref)
+        return picking_type_id
+
     def _prepare_purchase_order(self, cr, uid, line, po_pricelist,
                                 context=None):
         """Prepare the dict of values to create the PO from a
@@ -72,6 +90,8 @@ class logistic_requisition_source(orm.Model):
         """
         supplier = line.framework_agreement_id.supplier_id
         add = line.requisition_id.consignee_shipping_id
+        pick_type_id = self._get_po_picking_type_id(
+            cr, uid, add, context=context)
         term = supplier.property_supplier_payment_term
         term = term.id if term else False
         position = supplier.property_account_position
@@ -83,6 +103,8 @@ class logistic_requisition_source(orm.Model):
         data['company_id'] = self._company(cr, uid, context)
         data['pricelist_id'] = po_pricelist.id
         data['dest_address_id'] = add.id
+        if pick_type_id:
+            data['picking_type_id'] = pick_type_id
         data['location_id'] = add.property_stock_customer.id
         data['payment_term_id'] = term
         data['fiscal_position'] = position
