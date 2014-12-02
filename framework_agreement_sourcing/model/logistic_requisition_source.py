@@ -66,7 +66,8 @@ class logistic_requisition_source(orm.Model):
             return False
         PickType = self.env['stock.picking.type']
         types = PickType.search([
-            ('warehouse_id.partner_id', '=', dest_address.id)])
+            ('warehouse_id.partner_id', '=', dest_address.id),
+            ('code', '=', 'incoming')])
 
         picking_type_id = False
         if types:
