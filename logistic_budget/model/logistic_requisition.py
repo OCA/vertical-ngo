@@ -35,7 +35,7 @@ class logistic_requisition(orm.Model):
                   }
 
     _columns = {
-        'amount_total': fields.function(
+        'total_budget': fields.function(
             lambda self, *args, **kwargs: self._get_amount(*args, **kwargs),
             digits_compute=dp.get_precision('Account'),
             string='Total Budget',

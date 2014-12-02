@@ -12,7 +12,7 @@
              </xpath>
              <xpath expr="//page[@string='Requisition Lines']/field[@name='line_ids']" position="after">
                 <group class="oe_subtotal_footer oe_right">
-                    <field name="amount_total"
+                    <field name="total_budget"
                         class="oe_subtotal_footer_separator"
                         widget="monetary"
                         options="{'currency_field': 'currency_id'}"/>
@@ -70,7 +70,7 @@
         <field name="inherit_id" ref="logistic_requisition.view_logistic_requisition_tree"/>
         <field name="arch" type="xml">
              <xpath expr="//field[@name='analytic_id']" position="after">
-                <field name="amount_total" sum="Total Budget"/>
+                <field name="total_budget" sum="Total Budget"/>
              </xpath>
         </field>
        </record>
