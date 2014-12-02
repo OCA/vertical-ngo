@@ -38,32 +38,39 @@ class logistic_requisition_source_po_creator(orm.TransientModel):
             readonly=True)
     }
 
-    def default_get(self, cr, uid, fields_list, context=None):
-        """ Take the pricelist of the lrs by default. Show the
-        available choice for the user.
-        """
+    def _get_source_ids(self, cr, uid, context=None):
         if context is None:
             context = {}
-        defaults = super(logistic_requisition_source_po_creator, self).\
-            default_get(cr, uid, fields_list, context=context)
-        source_model = self.pool['logistic.requisition.source']
-        line_model = self.pool['logistic.requisition.line']
-        fmwk_price_obj = self.pool['framework.agreement.pricelist']
         if context.get('active_model') == 'logistic.requisition.source':
             source_ids = context['active_ids']
-        else:
+        elif context.get('active_model') == 'logistic.requisition.line':
+            line_model = self.pool['logistic.requisition.line']
             line_ids = context['active_ids']
             lines = line_model.browse(cr, uid, line_ids, context=context)
             source_ids = [source.id for line in lines
                           for source in line.source_ids]
+        else:
+            raise except_orm(_('Wrong active model'),
+                             _('This wizard can only be used with '
+                               'Logistics Requisition Lines or Sources.'))
+        return source_ids
+
+    def default_get(self, cr, uid, fields_list, context=None):
+        """ Take the pricelist of the lrs by default. Show the
+        available choice for the user.
+        """
+        defaults = super(logistic_requisition_source_po_creator, self).\
+            default_get(cr, uid, fields_list, context=context)
+        source_model = self.pool['logistic.requisition.source']
+        fmwk_price_obj = self.pool['framework.agreement.pricelist']
+        source_ids = self._get_source_ids(cr, uid, context=context)
         pricelist_id = None
         source = next((x for x in source_model.browse(cr, uid, source_ids,
                                                       context=context) if
                       x.framework_agreement_id), None)
         if not source:
-            raise orm.except_orm(_('No sourcing line with agreement selected'),
-                                 _('Please correct selection'))
-
+            raise except_orm(_('No sourcing line with agreement selected'),
+                             _('Please correct selection'))
         pricelist_id = source_model._get_purchase_pricelist_from_currency(
             cr,
             uid,
@@ -93,14 +100,7 @@ class logistic_requisition_source_po_creator(orm.TransientModel):
                                                context=None):
         """ Implement buttons that create PO from selected source lines"""
         act_obj = self.pool['ir.actions.act_window']
-        lr_line_obj = self.pool['logistic.requisition.line']
-        if context.get('active_model') == 'logistic.requisition.line':
-            lr_lines = lr_line_obj.browse(cr, uid, context['active_ids'],
-                                          context=context)
-            source_ids = [source.id for line in lr_lines
-                          for source in line.source_ids]
-        else:
-            source_ids = context['active_ids']
+        source_ids = self._get_source_ids(cr, uid, context=context)
         if not source_ids:
             raise except_orm(_('No sourcing line Found'),
                              _('No sourcing line were found, '
@@ -111,7 +111,7 @@ class logistic_requisition_source_po_creator(orm.TransientModel):
         available_curr = [
             x.currency_id for x in form.framework_currency_ids]
         if available_curr and pricelist.currency_id not in available_curr:
-            raise orm.except_orm(_('User Error'), _(
+            raise except_orm(_('User Error'), _(
                 'You must chose a pricelist that is in the same currency '
                 'than one of the available in the framework agreement.'))
         po_id = self._make_purchase_order(cr, uid, pricelist, source_ids,
