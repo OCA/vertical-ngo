@@ -6,7 +6,7 @@
       <field name="model">logistic.requisition.source</field>
       <field name="inherit_id" ref="logistic_requisition.view_logistic_requisition_source_form"/>
       <field name="arch" type="xml">
-        <xpath expr="//header/group" position="after">
+        <xpath expr="//header" position="inside">
           <group attrs="{'invisible': [('procurement_method', '!=', 'fw_agreement')]}">
             <button name="%(action_view_create_agr_po_from_source)d"
               states="assigned,sourced"

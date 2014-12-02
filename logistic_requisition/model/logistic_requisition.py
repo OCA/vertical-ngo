@@ -505,19 +505,20 @@ class LogisticsRequisitionLine(models.Model):
                                      '\n'.join(errors))
         self.state = 'sourced'
 
-    @api.one
+    @api.multi
     def _do_create_po_requisition(self):
-        """ Create a call for bid for all sourcing lines with
+        """ Create a single call for bid for all sourcing lines with
             procurement_method = 'procurement' contained
             in the Line
         """
-        source_lines = self.source_ids
-        if not source_lines:
-            raise except_orm(_('No sourcing line found'),
-                             _('No sourcing lines were found, '
-                               'please create one.'))
-        pricelist = self.requisition_id.pricelist_id or None
-        source_lines._action_create_po_requisition(pricelist=pricelist)
+        sources = self.mapped('source_ids')
+        sources.filtered(lambda rec: rec.procurement_method == 'procurement')
+        if not sources:
+            raise except_orm(_('No sourcing line Found'),
+                             _('No sourcing lines with a Tender procurement '
+                               'method as were found, please create one.'))
+        pricelist = self[0].requisition_id.pricelist_id or None
+        return sources._action_create_po_requisition(pricelist=pricelist)
 
     @api.one
     def _do_draft(self):
@@ -692,8 +693,12 @@ class LogisticsRequisitionLine(models.Model):
 
     @api.multi
     def button_create_po_requisition(self):
-        self._do_create_po_requisition()
-        return True
+        """ Create a single purchase requisition for selected requisition lines
+        Then open the created purchase requisition
+        """
+        purch_req = self._do_create_po_requisition()
+        source_model = self.env['logistic.requisition.source']
+        return source_model.action_open_po_requisition(purch_req)
 
     @api.model
     def _open_cost_estimate(self):
@@ -1056,6 +1061,8 @@ class LogisticsRequisitionSource(models.Model):
 
     @api.multi
     def _prepare_po_requisition_line(self):
+        """ Prepare values to create a purchase requisition line from
+        a logistics requisition source """
         self.ensure_one()
         if self.po_requisition_id:
             raise except_orm(
@@ -1079,39 +1086,42 @@ class LogisticsRequisitionSource(models.Model):
     def _action_create_po_requisition(self, pricelist=None):
         purch_req_obj = self.env['purchase.requisition']
         purch_req_lines = []
-        if not next((line for line in self
-                     if line.procurement_method == 'procurement'), None):
+        if not next((source for source in self
+                     if source.procurement_method == 'procurement'), None):
             raise except_orm(_('There should be at least one selected'
                                ' line with procurement method Procurement'),
                              _('Please correct selection'))
-        for line in self:
-            if line.procurement_method not in ('other', 'procurement'):
+        for source in self:
+            if source.procurement_method not in ('other', 'procurement'):
                 raise except_orm(_('Selected line procurement method should'
                                    ' be procurement or other'),
                                  _('Please correct selection'))
-            line_vals = line._prepare_po_requisition_line()
+            line_vals = source._prepare_po_requisition_line()
             purch_req_lines.append(line_vals)
         vals = self._prepare_po_requisition(purch_req_lines,
                                             pricelist=pricelist)
         purch_req = purch_req_obj.create(vals)
-        for req in self:
-            req.po_requisition_id = purch_req.id
+        self.write({'po_requisition_id': purch_req.id})
         return purch_req
 
     @api.multi
     def action_create_po_requisition(self):
-        self._action_create_po_requisition()
-        return self.action_open_po_requisition()
+        """ Create a single purchase requisition for selected requisition
+        sources
+        Then open the created purchase requisition
+        """
+        purch_req = self._action_create_po_requisition()
+        return self.action_open_po_requisition(purch_req)
 
     @api.multi
-    def action_open_po_requisition(self):
-        self.ensure_one()
-        source = self
+    def action_open_po_requisition(self, purch_req=None):
+        if not purch_req:
+            purch_req = self.po_requisition_id
         return {
             'type': 'ir.actions.act_window',
             'name': _('Purchase Requisition'),
             'res_model': 'purchase.requisition',
-            'res_id': source.po_requisition_id.id,
+            'res_id': purch_req.id,
             'view_type': 'form',
             'view_mode': 'form',
             'target': 'current',

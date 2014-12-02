@@ -21,6 +21,7 @@
 
 {"name": "Logistics Requisition",
  "version": "1.1.1",
+ "version": "1.2",
  "author": "Camptocamp",
  "license": "AGPL-3",
  "category": "Purchase Management",
@@ -40,8 +41,7 @@
              "purchase_requisition_delivery_address",
              ],
  "demo": ['data/logistic_requisition_demo.xml'],
- "data": ["wizard/logistic_line_create_requisition_view.xml",
-          "wizard/assign_line_view.xml",
+ "data": ["wizard/assign_line_view.xml",
           "wizard/cost_estimate_view.xml",
           "wizard/logistic_requisition_cancel_view.xml",
           "security/logistic_requisition.xml",
