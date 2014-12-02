@@ -28,36 +28,38 @@
                  </group>
              </xpath>
 
-             <xpath expr="//notebook" position="after">
-               <div class="oe_clear"/>
-               <group string="Validation">
-                 <div colspan="4">
-                   <label for="budget_holder_id"/>
-                   <field name="budget_holder_id"
-                     on_change="onchange_validate(budget_holder_id, date_budget_holder, 'date_budget_holder')"
-                     class="oe_inline"/>
-                   <label string=" validated on "
-                     attrs="{'invisible': [('budget_holder_id', '=', False)]}" />
-                   <field name="date_budget_holder"
-                     attrs="{'invisible': [('budget_holder_id', '=', False)]}"
-                     class="oe_inline"/>
-                   <field name="budget_holder_remark"
-                     attrs="{'invisible': [('budget_holder_id', '=', False)]}"/>
-                 </div>
-                 <div colspan="4">
-                   <label for="finance_officer_id"/>
-                   <field name="finance_officer_id"
-                     on_change="onchange_validate(finance_officer_id, date_finance_officer, 'date_finance_officer')"
-                     class="oe_inline"/>
-                   <label string=" validated on "
-                     attrs="{'invisible': [('finance_officer_id', '=', False)]}"/>
-                   <field name="date_finance_officer"
-                     attrs="{'invisible': [('finance_officer_id', '=', False)]}"
-                     class="oe_inline"/>
-                   <field name="finance_officer_remark"
-                     attrs="{'invisible': [('finance_officer_id', '=', False)]}"/>
-                 </div>
-               </group>
+             <xpath expr="//notebook" position="inside">
+               <page string="Validation">
+                 <div class="oe_clear"/>
+                 <group string="Validation">
+                   <div colspan="4">
+                     <label for="budget_holder_id"/>
+                     <field name="budget_holder_id"
+                       on_change="onchange_validate(budget_holder_id, date_budget_holder, 'date_budget_holder')"
+                       class="oe_inline"/>
+                     <label string=" validated on "
+                       attrs="{'invisible': [('budget_holder_id', '=', False)]}" />
+                     <field name="date_budget_holder"
+                       attrs="{'invisible': [('budget_holder_id', '=', False)]}"
+                       class="oe_inline"/>
+                     <field name="budget_holder_remark"
+                       attrs="{'invisible': [('budget_holder_id', '=', False)]}"/>
+                   </div>
+                   <div colspan="4">
+                     <label for="finance_officer_id"/>
+                     <field name="finance_officer_id"
+                       on_change="onchange_validate(finance_officer_id, date_finance_officer, 'date_finance_officer')"
+                       class="oe_inline"/>
+                     <label string=" validated on "
+                       attrs="{'invisible': [('finance_officer_id', '=', False)]}"/>
+                     <field name="date_finance_officer"
+                       attrs="{'invisible': [('finance_officer_id', '=', False)]}"
+                       class="oe_inline"/>
+                     <field name="finance_officer_remark"
+                       attrs="{'invisible': [('finance_officer_id', '=', False)]}"/>
+                   </div>
+                 </group>
+               </page>
              </xpath>
         </field>
        </record>
