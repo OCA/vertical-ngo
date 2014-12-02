@@ -49,7 +49,6 @@ class logistic_requisition(orm.Model):
                     ['requested_qty', 'budget_unit_price',
                      'budget_tot_price', 'requisition_id'], 20),
             }),
-        'allowed_budget': fields.boolean('Allowed Budget'),
         'budget_holder_id': fields.many2one(
             'res.users',
             string='Budget Holder'),
