@@ -58,12 +58,12 @@ class TestSourceToPo(CommonSourcingSetUp):
         self.assertTrue(self.lta_source, 'no lta source found')
         self.lta_source.refresh()
         active_ids = [x.id for x in self.source_lines]
-        wiz_id = self.wiz_model.create(self.cr, self.uid, {},
-                                       context={'active_ids': active_ids})
+        wiz_ctx = {'active_model': 'logistic.requisition.source',
+                   'active_ids': active_ids}
+        wiz_id = self.wiz_model.create(self.cr, self.uid, {}, context=wiz_ctx)
 
         po_id = self.wiz_model.action_create_agreement_po_requisition(
-            cr, uid, [wiz_id], context={'active_ids': active_ids}
-        )['res_id']
+            cr, uid, [wiz_id], context=wiz_ctx)['res_id']
         self.assertTrue(po_id, "no PO created")
         supplier = self.lta_source.framework_agreement_id.supplier_id
         add = self.lta_source.requisition_id.consignee_shipping_id
