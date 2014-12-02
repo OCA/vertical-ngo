@@ -8,6 +8,7 @@
     bid_tendering_mode: 'open'
     schedule_date: '2013-09-30'
     req_validity: '2013-09-10'
+    agreement_end_date: '2016-12-31'
     framework_agreement_tender: True
     line_ids:
       - product_id: product.product_product_15
@@ -39,6 +40,8 @@
     assert len(purchase_req.purchase_ids) == 1, "There must be 1 RFQs linked to this Call for bids"
     price = 300
     for rfq in purchase_req.purchase_ids:
+        assert rfq.for_agreement, 'generated RFQ for_agreement must be True'
+        assert rfq.agreement_expected_date == '2016-12-31', 'wrong expected date in RFQ'
         for line in rfq.order_line:
             self.pool.get('purchase.order.line').write(cr, uid, [line.id], {'price_unit': price})
 
