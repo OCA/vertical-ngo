@@ -336,6 +336,7 @@ class logistic_requisition_source(orm.Model):
         self.unit_cost = price
         self.total_cost = price * self.proposed_qty
         self.supplier_id = agreement.supplier_id.id
+        self.price_is = 'fixed'
         return self._check_enought_qty(agreement)
 
     @api.onchange('procurement_method')
