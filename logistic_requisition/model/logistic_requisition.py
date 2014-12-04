@@ -398,7 +398,8 @@ class LogisticsRequisitionLine(models.Model):
         related='requisition_id.country_id',
         string='Country',
         comodel_name='res.country',
-        readonly=True)
+        readonly=True,
+        store=True)
     cost_estimate_only = fields.Boolean(
         related='requisition_id.cost_estimate_only',
         string='Cost Estimate Only',
