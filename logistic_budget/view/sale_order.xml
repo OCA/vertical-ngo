@@ -7,7 +7,7 @@
       <field name='model'>sale.order.line</field>
       <field name="inherit_id" ref='sale.view_order_line_form2'/>
       <field name='arch' type='xml'>
-        <field name='price_unit' position='after'>
+        <field name='price_subtotal' position='after'>
           <field name='budget_tot_price'/>
         </field>
       </field>
@@ -26,7 +26,8 @@
         <xpath expr="//field[@name='order_line']/tree//field[@name='price_is']" position="after">
           <field name="budget_tot_price"/>
         </xpath>
-        <xpath expr="//field[@name='order_line']/form//field[@name='price_unit']" position="after">
+        <xpath expr="//field[@name='order_line']/form//div[@name='discount']" position="after">
+          <field name="price_subtotal"/>
           <field name="budget_tot_price"/>
         </xpath>
 
