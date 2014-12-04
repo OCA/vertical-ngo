@@ -160,7 +160,8 @@ class LogisticsRequisition(models.Model):
         related='pricelist_id.currency_id',
         comodel_name='res.currency',
         string='Currency',
-        readonly=True)
+        readonly=True,
+        store=True)
     cancel_reason_id = fields.Many2one(
         'logistic.requisition.cancel.reason',
         string='Reason for Cancellation',
