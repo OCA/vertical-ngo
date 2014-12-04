@@ -421,7 +421,8 @@ class LogisticsRequisitionLine(models.Model):
         related='requisition_id.currency_id',
         comodel_name='res.currency',
         string='Currency',
-        readonly=True)
+        readonly=True,
+        store=True)
     company_currency_id = fields.Many2one(
         related='requisition_id.company_id.currency_id',
         comodel_name='res.currency',
