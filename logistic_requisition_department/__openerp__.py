@@ -23,6 +23,7 @@
     "license": "AGPL-3",
     'website': 'http://camptocamp.com',
     'depends': ['logistic_requisition', 'hr'],
-    'data': ['view/logistic_requisition.xml'],
+    'data': ['view/logistic_requisition.xml',
+             'view/logistic_requisition_line.xml'],
     'installable': True,
 }
