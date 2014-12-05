@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data noupdate="0">
+
+    <record id="view_order_form" model="ir.ui.view">
+      <field name="name">sale.order.form</field>
+      <field name="model">sale.order</field>
+      <field name="inherit_id" ref="logistic_order.view_order_form"/>
+      <field name="arch" type="xml">
+
+        <xpath expr="//label[@string='Cost Estimate ']" position="attributes">
+          <attribute name="attrs">{'invisible': ['|', ('order_type', '=', 'donation'), '&amp;', ('state','not in',('draft','sent')), ('order_type', '=', 'standard')]}</attribute>
+        </xpath>
+
+        <xpath expr="//label[@string='Logistics Order ']" position="attributes">
+          <attribute name="attrs">{'invisible': ['|', ('state','in',('draft','sent')), ('order_type', '!=', 'standard')]}</attribute>
+        </xpath>
+
+        <xpath expr="//label[@string='Logistics Order ']" position="after">
+          <label string="In-Kind Donation" attrs="{'invisible': [('order_type', '!=', 'donation')]}"/>
+        </xpath>
+
+        <field name="order_line" position="before">
+          <field name="line_route_id" insvisible="1"/>
+        </field>
+        <field name="order_line" position="attributes">
+          <attribute name="context">{'default_warehouse_id': warehouse_id, 'default_route_id': line_route_id}</attribute>
+        </field>
+
+      </field>
+    </record>
+
+    <record id="action_donation" model="ir.actions.act_window">
+      <field name="name">In-Kind Donations</field>
+      <field name="type">ir.actions.act_window</field>
+      <field name="res_model">sale.order</field>
+      <field name="view_type">form</field>
+      <field name="view_id" ref="sale.view_quotation_tree"/>
+      <field name="view_mode">tree,form,calendar,graph</field>
+      <field name="context" eval="{'default_order_type': 'donation'}"/>
+      <field name="domain">[('order_type','=','donation')]</field>
+      <field name="search_view_id" ref="sale.view_sales_order_filter"/>
+    </record>
+
+    <menuitem id="menu_donation"
+      action="action_donation" parent="logistic_order.menu_order_base"
+      sequence="10"/>
+
+    <!-- remove in-kind donations from cost estimate list -->
+    <record id="logistic_order.action_cost_estimate" model="ir.actions.act_window">
+      <field name="domain">['|','&amp;', ('order_type','!=','donation'), ('state','in',('draft','sent','cancel')), ('order_type','=','cost_estimate_only')]</field>
+    </record>
+
+  </data>
+</openerp>
