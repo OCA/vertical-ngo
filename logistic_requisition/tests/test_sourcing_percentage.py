@@ -24,9 +24,7 @@ class TestSourcingPercentage(TransactionCase):
                 self.LRL.new({'state': 'sourced'})
             )
         })
-        # "or 0.0" because odoo returns False instead of 0.0.
-        # I need float for assertAlmostEqual to give a good failure.
-        self.assertAlmostEqual(0.5, self.lr._get_sourced() or 0.0)
+        self.assertAlmostEqual(50.0, self.lr.sourced)
 
     def setUp(self):
         super(TestSourcingPercentage, self).setUp()
