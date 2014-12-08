@@ -1005,7 +1005,7 @@ class LogisticsRequisitionSource(models.Model):
             limit=1)
         return pricelist
 
-    @api.model
+    @api.multi
     def _prepare_po_requisition(self, purch_req_lines,
                                 pricelist=None):
         company_id = None
