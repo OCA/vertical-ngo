@@ -5,10 +5,6 @@
 
       <xpath expr='//table[@width="100%"]' position="after">
         <p><strong>Budget</strong></p>
-        <p>
-          <strong>Budget limit</strong>
-          <span t-field="o.allowed_budget"/>
-        </p>
         <table width="100%">
             <tr>
               <td><strong>Budget/financial holder:</strong></td>
