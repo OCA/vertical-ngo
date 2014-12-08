@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU Affero General Public Lice
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from openerp import models, fields
+from openerp import models, fields, api
 
 
 class LogisticRequisition(models.Model):
@@ -42,3 +42,11 @@ class LogisticRequisitionSource(models.Model):
     department_id = fields.Many2one(
         related='requisition_line_id.requisition_id.department_id',
         store=True)
+
+    @api.multi
+    def _prepare_po_requisition(self, purch_req_lines, pricelist=None):
+        res = super(LogisticRequisitionSource, self)._prepare_po_requisition(
+            purch_req_lines, pricelist)
+
+        res['department_id'] = self.department_id.id
+        return res
