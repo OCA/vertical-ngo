@@ -529,9 +529,71 @@ class LogisticsRequisitionLine(models.Model):
             vals['name'] = seq_obj.get('logistic.requisition.line') or '/'
         return super(LogisticsRequisitionLine, self).create(vals)
 
+    @api.multi
+    def _prepare_source(self, qty=None):
+        """Prepare data dict for source line creation.
+        If it's a stockable product we'll go to tender
+        by setting procurement_method as 'procurement'.
+        Finally mark the rest as 'other'.
+        Those are default value that can be changed afterward
+        by the user.
+
+        :param self: record set of origin requistion.line
+        :param qty: quantity to be set on source line
+
+        :returns: dict to be used by Model.create
+
+        """
+        return {
+            'proposed_product_id': self.product_id.id,
+            'requisition_line_id': self.id,
+            'proposed_uom_id': self.requested_uom_id.id,
+            'unit_cost': 0.0,
+            'proposed_qty': qty,
+            'price_is': 'fixed',
+        }
+
+    @api.multi
+    def _generate_default_source(self, force_qty=None):
+        """Generate a source line from a requisition line, see
+        _prepare_source for details.
+
+        :param self: record set of origin requistion.line
+
+        :param force_qty: if set this quantity will be used instead
+        of requested quantity
+        :returns: record set of generated source line
+
+        """
+        qty = force_qty if force_qty else self.requested_qty
+        src_model = self.env['logistic.requisition.source']
+        is_product = self.product_id.type == 'product'
+        vals = self._prepare_source(qty=qty)
+
+        sourcing_method = 'procurement' if is_product else 'other'
+        vals['procurement_method'] = sourcing_method
+
+        return src_model.create(vals)
+
+    @api.multi
+    def _generate_sources(self):
+        """Generate one or n source line(s) per requisition line.
+
+        By default we generate only one source line using tender or other
+        sourcing method.
+
+        :param self: record set of origin requistion.line
+
+        """
+        self.ensure_one()
+        if self.source_ids:
+            return
+        self._generate_default_source()
+
     @api.one
     def _do_confirm(self):
         self.state = 'confirmed'
+        self._generate_sources()
 
     @api.multi
     def _do_cancel(self):
