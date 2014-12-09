@@ -166,6 +166,12 @@ class logistic_requisition_source(orm.Model):
         """
         if context is None:
             context = {}
+        fa_po = main_source.framework_agreement_po_id
+        if fa_po and fa_po.state != 'cancel':
+            raise orm.except_orm(_('Agreement Purchase Order already exists.'),
+                                 _('If you want to create a new Purchase '
+                                   'Order, please cancel Purchase %s')
+                                 % fa_po.name)
         context['draft_po'] = True
         currency_obj = self.pool['res.currency']
         po_obj = self.pool['purchase.order']
