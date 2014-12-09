@@ -226,11 +226,21 @@ class LogisticsRequisition(models.Model):
 
     @api.multi
     def _do_done(self):
+        """ Set all Logistics Requisition to done if all lines are
+        quoted or cancel and if at least one is quoted.
+
+        Set Logistics Requisition to cancel if all lines are cancelled
+        """
         to_dones = self.browse()
+        to_cancels = self.browse()
         for req in self:
-            if all(line.state == 'quoted' for line in req.line_ids):
+            if all(line.state == 'cancel' for line in req.line_ids):
+                to_cancels |= req
+            elif all(line.state in ['quoted', 'cancel']
+                     for line in req.line_ids):
                 to_dones |= req
         to_dones.write({'state': 'done'})
+        to_cancels.write({'state': 'cancel'})
 
     @api.model
     def create(self, vals):
@@ -493,6 +503,9 @@ class LogisticsRequisitionLine(models.Model):
         vals = {'state': 'cancel',
                 'logistic_user_id': False}
         self.write(vals)
+        # When all lines of a requisition are 'quoted' or 'cancel',
+        # it should be done, so try to change the state
+        self.mapped('requisition_id')._do_done()
 
     @api.one
     def _do_sourced(self):
@@ -537,13 +550,10 @@ class LogisticsRequisitionLine(models.Model):
 
     @api.multi
     def _do_quoted(self):
-        req_ids = list(set(line.requisition_id.id for line in self))
-        for line in self:
-            line.state = 'quoted'
-        # When all lines of a requisition are 'quoted', it should be
+        self.write({'state': 'quoted'})
+        # When all lines of a requisition are 'quoted' or 'cancel, it should be
         # done, so try to change the state
-        reqs = self.env['logistic.requisition'].browse(req_ids)
-        reqs._do_done()
+        self.mapped('requisition_id')._do_done()
 
     @api.multi
     def _store_get_requisition_ids(self):
