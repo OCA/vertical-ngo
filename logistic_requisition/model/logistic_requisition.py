@@ -503,8 +503,8 @@ class LogisticsRequisitionLine(models.Model):
         vals = {'state': 'cancel',
                 'logistic_user_id': False}
         self.write(vals)
-        # When all lines of a requisition are 'quoted' or 'cancel', it should be
-        # done, so try to change the state
+        # When all lines of a requisition are 'quoted' or 'cancel',
+        # it should be done, so try to change the state
         self.mapped('requisition_id')._do_done()
 
     @api.one
