@@ -3,7 +3,7 @@
 -
   !record {model: logistic.requisition, id: logistic_requisition_cost_estimate_only_01}:
     partner_id: base.res_partner_4
-    cost_estimate_only: True
+    requisition_type: cost_estimate_only
     date: !eval "time.strftime('%Y-%m-%d')"
     date_delivery: !eval "time.strftime('%Y-%m-%d')"
     user_id: base.user_demo

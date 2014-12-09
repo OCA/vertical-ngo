@@ -50,6 +50,16 @@ class LogisticsRequisition(models.Model):
                   'cancel': [('readonly', True)]
                   }
 
+    @api.model
+    def get_requisition_type_selection(self):
+        """ Extendable selection list """
+        return [('standard', 'Standard'),
+                ('cost_estimate_only', 'Cost Estimate Only')]
+
+    @api.model
+    def _get_requisition_type_selection(self):
+        return self.get_requisition_type_selection()
+
     @api.multi
     def get_partner_requisition(self):
         return (self.env['res.partner']
@@ -111,10 +121,11 @@ class LogisticsRequisition(models.Model):
         'account.analytic.account',
         'Project',
         states=REQ_STATES)
-    cost_estimate_only = fields.Boolean(
-        'Cost Estimate Only',
+    requisition_type = fields.Selection(
+        selection=_get_requisition_type_selection,
+        string='Type',
         states=REQ_STATES,
-        default=False)
+        default='standard')
     note = fields.Text(
         'Remarks / Description',
         states=REQ_STATES)
@@ -418,9 +429,10 @@ class LogisticsRequisitionLine(models.Model):
         comodel_name='res.country',
         readonly=True,
         store=True)
-    cost_estimate_only = fields.Boolean(
-        related='requisition_id.cost_estimate_only',
-        string='Cost Estimate Only',
+    requisition_type = fields.Selection(
+        selection=LogisticsRequisition._get_requisition_type_selection,
+        related='requisition_id.requisition_type',
+        string='Requisition Type',
         readonly=True)
     state = fields.Selection(
         STATES,
