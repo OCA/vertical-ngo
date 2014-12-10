@@ -162,7 +162,8 @@ class LogisticsRequisition(models.Model):
         related='pricelist_id.currency_id',
         comodel_name='res.currency',
         string='Currency',
-        readonly=True)
+        readonly=True,
+        store=True)
     cancel_reason_id = fields.Many2one(
         'logistic.requisition.cancel.reason',
         string='Reason for Cancellation',
@@ -314,6 +315,20 @@ class LogisticsRequisition(models.Model):
         action_dict['domain'] = str([('requisition_id', 'in', self.ids)])
         return action_dict
 
+    @api.model
+    def read_group(self, domain, fields, groupby, offset=0, limit=None,
+                   orderby=False, lazy=True):
+        """ Remove computed Float fields from read_group to avoid
+        AttributeError: 'NoneType' object has no attribute '_classic_write'
+        due to odoo/odoo#3972
+        """
+        remove_fields = ('sourced',)
+        stored_fields = [f for f in fields if f not in remove_fields]
+        _super = super(LogisticsRequisition, self)
+        return _super.read_group(domain, stored_fields, groupby=groupby,
+                                 offset=offset, limit=limit,
+                                 orderby=orderby, lazy=lazy)
+
 
 class LogisticsRequisitionLine(models.Model):
     _name = "logistic.requisition.line"
@@ -395,7 +410,8 @@ class LogisticsRequisitionLine(models.Model):
         related='requisition_id.country_id',
         string='Country',
         comodel_name='res.country',
-        readonly=True)
+        readonly=True,
+        store=True)
     cost_estimate_only = fields.Boolean(
         related='requisition_id.cost_estimate_only',
         string='Cost Estimate Only',
@@ -418,7 +434,8 @@ class LogisticsRequisitionLine(models.Model):
         related='requisition_id.currency_id',
         comodel_name='res.currency',
         string='Currency',
-        readonly=True)
+        readonly=True,
+        store=True)
     company_currency_id = fields.Many2one(
         related='requisition_id.company_id.currency_id',
         comodel_name='res.currency',
