@@ -102,12 +102,15 @@
               <page string="Transportation and Delivery">
                 <group>
                   <group>
-                    <field name="picking_type_id" on_change="onchange_picking_type_id(picking_type_id, context)" domain="[('code','=','incoming')]" widget="selection" context="{'special_shortened_wh_name': True}" groups="stock.group_locations"/>
+                    <field name="picking_type_id" on_change="1" domain="[('code','=','incoming')]" widget="selection" context="{'special_shortened_wh_name': True}" groups="stock.group_locations"/>
                     <field name="location_id" groups="stock.group_locations"/>
                     <field name="related_location_id" invisible="1"/>
                     <!-- attrs and required domain removed by purchase_delivery_address -->
                     <!-- workaround odoo/odoo#2950 -->
-                    <field name="dest_address_id" on_change="onchange_dest_address_id(dest_address_id, context)"
+                    <field
+                      name="dest_address_id"
+                      on_change="1"
+                      string="Delivery Address"
                       groups="stock.group_locations"/>
                     <field name="origin_address_id"/>
                   </group>
@@ -320,7 +323,7 @@
         </xpath>
 
         <field name="picking_type_id" position="attributes">
-          <attribute name="on_change">onchange_picking_type_id(picking_type_id)</attribute>
+          <attribute name="on_change">1</attribute>
         </field>
 
         <button name="action_cancel" position="attributes">
