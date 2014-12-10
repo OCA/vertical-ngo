@@ -19,19 +19,15 @@
 ##############################################################################
 from openerp import models, fields, api, exceptions
 from openerp.tools.translate import _
+from openerp.addons.logistic_consignee.model.sale_order import (
+    SaleOrder as base_sale_order
+)
 
 
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
-    LO_STATES = {
-        'cancel': [('readonly', True)],
-        'progress': [('readonly', True)],
-        'manual': [('readonly', True)],
-        'shipping_except': [('readonly', True)],
-        'invoice_except': [('readonly', True)],
-        'done': [('readonly', True)],
-    }
+    LO_STATES = base_sale_order.LO_STATES
 
     # incoterm is overridden to add states
     incoterm = fields.Many2one(
