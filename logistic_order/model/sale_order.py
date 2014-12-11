@@ -19,12 +19,31 @@
 ##############################################################################
 from openerp import models, fields, api, exceptions
 from openerp.tools.translate import _
+from openerp.addons.logistic_consignee.model.sale_order import (
+    SaleOrder as base_sale_order
+)
 
 
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
-    LO_STATES = {'cancel': [('readonly', True)]}
+    LO_STATES = base_sale_order.LO_STATES
+
+    # incoterm is overridden to add states
+    incoterm = fields.Many2one(
+        'stock.incoterms',
+        'Incoterm',
+        states=LO_STATES,
+        help="International Commercial Terms are a series of predefined "
+        "commercial terms used in international transactions.")
+
+    # also carrier is overridden to add states
+    carrier_id = fields.Many2one(
+        "delivery.carrier",
+        string="Delivery Method",
+        states=LO_STATES,
+        help="Complete this field if you plan to invoice the shipping based "
+        "on picking.")
 
     incoterm_address = fields.Char(
         'Incoterm Place',

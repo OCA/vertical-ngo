@@ -25,10 +25,20 @@ from openerp import SUPERUSER_ID
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
+    LO_STATES = {
+        'cancel': [('readonly', True)],
+        'progress': [('readonly', True)],
+        'manual': [('readonly', True)],
+        'shipping_except': [('readonly', True)],
+        'invoice_except': [('readonly', True)],
+        'done': [('readonly', True)],
+    }
+
     consignee_id = fields.Many2one(
         'res.partner',
         string='Consignee',
         required=True,
+        states=LO_STATES,
         help="The person to whom the shipment is to be delivered.")
 
     @api.cr
