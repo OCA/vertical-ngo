@@ -124,6 +124,7 @@ class LogisticsRequisition(models.Model):
     requisition_type = fields.Selection(
         selection=_get_requisition_type_selection,
         string='Type',
+        required=True,
         states=REQ_STATES,
         default='standard')
     note = fields.Text(
