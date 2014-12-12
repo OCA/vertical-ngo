@@ -30,7 +30,7 @@
  'depends': ['logistic_requisition',
              ],
  'demo': [],
- 'data': [],
+ 'data': ['security/groups.xml'],
  'test': [],
  'installable': True,
  'auto_install': False,
