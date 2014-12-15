@@ -8,7 +8,7 @@ class TestPropagateDepartment(TransactionCase):
         self.lrs = self.env['logistic.requisition.source'].new({
             'name': '/',
         })
-        self.dep_rd = self.browse_ref('hr.dep_rd')
+        self.dep_rd = self.env.ref('hr.dep_rd')
 
     def test_it_propagates_empty_department(self):
         pr_data = self.lrs._prepare_po_requisition([])
