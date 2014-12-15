@@ -45,5 +45,10 @@ class LogisticRequisitionCostEstimate(models.TransientModel):
             LogisticRequisitionCostEstimate,
             self
         )._prepare_cost_estimate_line(source)
-        vals['budget_tot_price'] = source.requisition_line_id.budget_tot_price
+        req_line = source.requisition_line_id
+        if req_line.requested_qty:
+            # Compute the part of budget it consumes on pro-rata
+            budget_portion = source.proposed_qty / req_line.requested_qty
+            budget_tot_price = budget_portion * req_line.budget_tot_price
+            vals['budget_tot_price'] = budget_tot_price
         return vals
