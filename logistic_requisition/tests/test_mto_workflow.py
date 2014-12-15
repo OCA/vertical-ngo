@@ -122,13 +122,21 @@ class test_mto_workflow(common.TransactionCase):
         requisition = self.log_req_model.create(self.vals)
         lines = self.log_req_line_model.browse()
         purchase_orders = []
+        source_vals = {}
+
         for line_vals in lines_vals:
-            source_vals = line_vals.pop('source_ids')
+            line_src_vals = line_vals.pop('source_ids')
             line = logistic_requisition.add_line(
                 self, requisition, line_vals)
-            requisition.button_confirm()
+            lines |= line
+            source_vals[line.id] = line_src_vals
+
+        requisition.button_confirm()
+        # Remove auto generated sources to set custom ones
+        lines.write({'source_ids': [(5, None, None)]})
+        for line in lines:
             logistic_requisition.assign_lines(self, line, self.user_demo.id)
-            for src_vals in source_vals:
+            for src_vals in source_vals[line.id]:
                 source = logistic_requisition.add_source(
                     self, line, src_vals)
 
@@ -151,8 +159,6 @@ class test_mto_workflow(common.TransactionCase):
                      ('type', '=', 'purchase'),
                      ('state', 'in', ['draftpo'])])
                 purchase_orders.append(po)
-
-            lines |= line
 
         # set lines as sourced
         logistic_requisition.source_lines(self, lines)
