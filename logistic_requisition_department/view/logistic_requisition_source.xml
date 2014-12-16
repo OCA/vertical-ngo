@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+
+    <record id="view_logistic_requisition_source_form" model="ir.ui.view">
+      <field name="name">view_logistic_requisition_source_form</field>
+      <field name="model">logistic.requisition.source</field>
+      <field name="inherit_id" ref="logistic_requisition.view_logistic_requisition_source_form" />
+      <field name="arch" type="xml">
+        <field name="procurement_method" position="after">
+          <field name="department_id" />
+        </field>
+      </field>
+    </record>
+
+    <record id="view_logistic_requisition_source_tree" model="ir.ui.view">
+      <field name="name">view_logistic_requisition_source_tree</field>
+      <field name="model">logistic.requisition.source</field>
+      <field name="inherit_id" ref="logistic_requisition.view_logistic_requisition_source_tree" />
+      <field name="arch" type="xml">
+        <field name="name" position="after">
+          <field name="department_id" />
+        </field>
+      </field>
+    </record>
+
+    <record id="view_logistic_requisition_source_filter" model="ir.ui.view">
+      <field name="name">view_logistic_requisition_source_filter</field>
+      <field name="model">logistic.requisition.source</field>
+      <field name="inherit_id" ref="logistic_requisition.view_logistic_requisition_source_filter" />
+      <field name="arch" type="xml">
+        <xpath expr="//filter[@name='groupby_procurement_method']" position="after">
+          <filter string="Department" context="{'group_by': 'department_id'}"/>
+        </xpath>
+        <field name="name" position="after">
+          <field name="department_id" />
+        </field>
+      </field>
+    </record>
+
+  </data>
+</openerp>

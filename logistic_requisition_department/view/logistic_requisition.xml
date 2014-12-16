@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+
+    <record id="view_logistic_requisition_form" model="ir.ui.view">
+      <field name="name">view_logistic_requisition_form</field>
+      <field name="model">logistic.requisition</field>
+      <field name="inherit_id" ref="logistic_requisition.view_logistic_requisition_form" />
+      <field name="arch" type="xml">
+        <field name="user_id" position="after">
+          <field name="department_id" />
+        </field>
+      </field>
+    </record>
+
+    <record id="view_logistic_requisition_tree" model="ir.ui.view">
+      <field name="name">view_logistic_requisition_tree</field>
+      <field name="model">logistic.requisition</field>
+      <field name="inherit_id" ref="logistic_requisition.view_logistic_requisition_tree" />
+      <field name="arch" type="xml">
+        <field name="user_id" position="after">
+          <field name="department_id" />
+        </field>
+      </field>
+    </record>
+
+    <record id="view_logistic_requisition_filter" model="ir.ui.view">
+      <field name="name">view_logistic_requisition_filter</field>
+      <field name="model">logistic.requisition</field>
+      <field name="inherit_id" ref="logistic_requisition.view_logistic_requisition_filter" />
+      <field name="arch" type="xml">
+        <xpath expr="//filter[@string='Business Unit Officer']" position="after">
+          <filter string="Department" context="{'group_by': 'department_id'}"/>
+        </xpath>
+        <field name="user_id" position="after">
+          <field name="department_id" />
+        </field>
+      </field>
+    </record>
+
+  </data>
+</openerp>
