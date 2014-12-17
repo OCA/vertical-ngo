@@ -30,3 +30,6 @@ class LogisticsRequisitionSource(models.Model):
             raise exceptions.Warning(
                 _("Only 'Warehouse Dispatch' and 'Other' sourcing methods can "
                   "be used with Dispatch Donor Stock logistics requisition"))
+        if self.requisition_id.requisition_type == 'donor_stock':
+            owner = self.requisition_id.partner_id.commercial_partner_id
+            self.stock_owner_id = owner.id
