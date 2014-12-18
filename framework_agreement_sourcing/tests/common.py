@@ -35,12 +35,6 @@ class CommonSourcingSetUp(test_common.TransactionCase, BaseAgreementTestMixin):
         super(CommonSourcingSetUp, self).setUp()
         self.commonsetUp()
 
-        # classic API
-        self.requisition_model = self.registry('logistic.requisition')
-        self.requisition_line_model = self.registry(
-            'logistic.requisition.line')
-        self.source_line_model = self.registry('logistic.requisition.source')
-
         # new API
         self.Requisition = self.env['logistic.requisition']
 
@@ -108,7 +102,7 @@ class CommonSourcingSetUp(test_common.TransactionCase, BaseAgreementTestMixin):
         end_date = self.now + timedelta(days=20)
         end_date = end_date.strftime(DEFAULT_SERVER_DATE_FORMAT)
         # Agreement 1
-        agr_id = self.agreement_model.create({
+        agr = self.agreement_model.create({
             'supplier_id': self.supplier_id,
             'product_id': self.product_id,
             'start_date': start_date,
@@ -116,29 +110,29 @@ class CommonSourcingSetUp(test_common.TransactionCase, BaseAgreementTestMixin):
             'draft': False,
             'delay': 5,
             'quantity': 2000,
-        }).id
+        })
 
-        pl_id = self.agreement_pl_model.create({
-            'framework_agreement_id': agr_id,
+        pl = self.agreement_pl_model.create({
+            'framework_agreement_id': agr.id,
             'currency_id': self.ref('base.EUR')
-        }).id
+        })
 
         self.agreement_line_model.create({
-            'framework_agreement_pricelist_id': pl_id,
+            'framework_agreement_pricelist_id': pl.id,
             'quantity': 0,
             'price': 77.0,
         })
 
         self.agreement_line_model.create({
-            'framework_agreement_pricelist_id': pl_id,
+            'framework_agreement_pricelist_id': pl.id,
             'quantity': 1000,
             'price': 30.0,
         })
 
-        self.cheap_on_high_agreement = self.agreement_model.browse(agr_id)
+        self.cheap_on_high_agreement = agr
 
         # Agreement 2
-        agr_id = self.agreement_model.create({
+        agr = self.agreement_model.create({
             'supplier_id': self.ref('base.res_partner_3'),
             'product_id': self.product_id,
             'start_date': start_date,
@@ -146,23 +140,23 @@ class CommonSourcingSetUp(test_common.TransactionCase, BaseAgreementTestMixin):
             'draft': False,
             'delay': 5,
             'quantity': 1200,
-        }).id
+        })
 
-        pl_id = self.agreement_pl_model.create({
-            'framework_agreement_id': agr_id,
+        pl = self.agreement_pl_model.create({
+            'framework_agreement_id': agr.id,
             'currency_id': self.ref('base.EUR'),
-        }).id
+        })
 
         self.agreement_line_model.create({
-            'framework_agreement_pricelist_id': pl_id,
+            'framework_agreement_pricelist_id': pl.id,
             'quantity': 0,
             'price': 50.0,
         })
 
         self.agreement_line_model.create({
-            'framework_agreement_pricelist_id': pl_id,
+            'framework_agreement_pricelist_id': pl.id,
             'quantity': 1000,
             'price': 45.0,
         })
 
-        self.cheap_on_low_agreement = self.agreement_model.browse(agr_id)
+        self.cheap_on_low_agreement = agr

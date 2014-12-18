@@ -26,7 +26,6 @@ class TestSourceToPo(CommonSourcingSetUp):
     def setUp(self):
         # we generate a source line
         super(TestSourceToPo, self).setUp()
-        cr, uid = self.cr, self.uid
         lines = self.requisition.line_ids
         self.agr_line = None
         self.wiz_model = self.registry(
@@ -36,17 +35,14 @@ class TestSourceToPo(CommonSourcingSetUp):
                 self.agr_line = line
                 break
         self.assertTrue(self.agr_line, 'no agr line found')
-        self.agr_line.write({'requested_qty': 400})
-        self.agr_line.refresh()
-        source_ids = []
+        self.agr_line.requested_qty = 400
         for line in lines:
             if (line.product_id.id == self.product_id or
                     line.product_id.type == 'service'):
-                lid = self.requisition_line_model._generate_source_line(
-                    cr, uid, line)
-                source_ids += lid
-        self.assertEqual(len(source_ids), 2)
-        self.source_lines = self.source_line_model.browse(cr, uid, source_ids)
+                line._generate_sources()
+        sources = lines.mapped('source_ids')
+        self.assertEqual(len(sources), 2)
+        self.source_lines = sources
         self.lta_source = next(x for x in self.source_lines
                                if x.procurement_method == 'fw_agreement')
         self.other_source = next(x for x in self.source_lines
