@@ -209,6 +209,7 @@
                 <field name="state"/>
                 <field name="sourced" widget="progressbar"/>
                 <field name="partner_id" invisible="1"/>
+                <field name="requisition_type" invisible="1"/>
             </tree>
         </field>
     </record>
@@ -234,9 +235,6 @@
                     help="Your assigned Requisitions"/>
                 <filter string="Unassigned"  domain="[('user_id','=', False)]" help="Unassigned Requisitions"/>
                 <separator/>
-                <filter name="cost_estimate_only" string="Cost Estimate Only"
-                    domain="[('requisition_type', '=', 'cost_estimate_only')]" help="Show cost estimate only"/>
-                <separator/>
                 <field name="name"/>
                 <field name="user_id" />
                 <field name="partner_id" />
@@ -250,6 +248,8 @@
                     <filter string="Currency" domain="[]" context="{'group_by':'currency_id'}"/>
                     <separator/>
                     <filter string="State" domain="[]" context="{'group_by':'state'}"/>
+                    <filter name="groupby_requisition_type" string="Requisition Type"
+                      domain="[]" context="{'group_by': 'requisition_type'}"/>
                     <separator/>
                     <filter string="Requisition Date" domain="[]" context="{'group_by':'date'}"/>
                     <filter string="Delivery Date" domain="[]" context="{'group_by':'date_delivery'}"/>
@@ -291,6 +291,7 @@
              <field name="logistic_user_id"/>
              <field name="state"/>
              <field name="country_id" invisible="1"/>
+             <field name="requisition_type" invisible="1"/>
            </tree>
         </field>
     </record>
@@ -524,9 +525,6 @@
                     domain="[('logistic_user_id','=', False)]"
                     help="Unassigned Requisitions"/>
                 <separator/>
-                <filter name="cost_estimate_only" string="Cost Estimate Only"
-                    domain="[('requisition_type', '=', 'cost_estimate_only')]" help="Show cost estimate only"/>
-                <separator/>
                 <field name="requisition_id" />
                 <field name="name"/>
                 <field name="description" />
@@ -541,6 +539,8 @@
                     <separator/>
                     <filter name="groupby_state" string="State"
                         domain="[]" context="{'group_by':'state'}"/>
+                      <filter name="groupby_requisition_type" string="Requisition Type"
+                        domain="[]" context="{'group_by': 'requisition_type'}"/>
                     <separator/>
                     <filter name="groupby_product_id" string="Product"
                         domain="[]" context="{'group_by':'product_id'}"/>
