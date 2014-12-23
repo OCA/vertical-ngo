@@ -73,7 +73,7 @@
                   <form string="Products">
                     <group>
                       <group>
-                        <field name="product_id" />
+                        <field name="product_id" on_change="onchange_product_id(product_id,product_uom_id,parent.account_analytic_id,account_analytic_id,parent.schedule_date,schedule_date)"/>
                         <field name="account_analytic_id" groups="purchase.group_analytic_accounting"/>
                       </group>
                       <group>
