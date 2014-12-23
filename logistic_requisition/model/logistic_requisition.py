@@ -1150,7 +1150,7 @@ class LogisticsRequisitionSource(models.Model):
 
     @api.multi
     def action_open_po_requisition(self, purch_req=None):
-        if not purch_req:
+        if not purch_req or not isinstance(purch_req, int):
             purch_req = self.po_requisition_id
         return {
             'type': 'ir.actions.act_window',
