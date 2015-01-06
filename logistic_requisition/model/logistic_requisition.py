@@ -733,7 +733,7 @@ class LogisticsRequisitionLine(models.Model):
         """
         purch_req = self._do_create_po_requisition()
         source_model = self.env['logistic.requisition.source']
-        return source_model.action_open_po_requisition(purch_req)
+        return source_model.open_po_requisition(purch_req)
 
     @api.model
     def _open_cost_estimate(self):
@@ -1146,10 +1146,10 @@ class LogisticsRequisitionSource(models.Model):
         Then open the created purchase requisition
         """
         purch_req = self._action_create_po_requisition()
-        return self.action_open_po_requisition(purch_req)
+        return self.open_po_requisition(purch_req)
 
     @api.multi
-    def action_open_po_requisition(self, purch_req=None):
+    def open_po_requisition(self, purch_req=None):
         if not purch_req:
             purch_req = self.po_requisition_id
         return {
@@ -1164,9 +1164,9 @@ class LogisticsRequisitionSource(models.Model):
         }
 
     @api.multi
-    def action_open_po_requisition_from_view(self):
+    def action_open_po_requisition(self):
         """Method called from view"""
-        return self.action_open_po_requisition()
+        return self.open_po_requisition()
 
     @api.multi
     @api.depends('unit_cost', 'proposed_qty')

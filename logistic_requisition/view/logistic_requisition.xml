@@ -448,7 +448,7 @@
                                         <field name="unit_cost"/>
                                         <field name="total_cost" sum="Total Budget"/>
                                         <field name="po_requisition_id" invisible="1"/>
-                                        <button name="action_open_po_requisition_from_view" icon="terp-stock_zoom"
+                                        <button name="action_open_po_requisition" icon="terp-stock_zoom"
                                             string="Purchase Requisition" type="object"
                                             attrs="{'invisible': [('po_requisition_id', '=', False)]}" />
                                     </tree>
