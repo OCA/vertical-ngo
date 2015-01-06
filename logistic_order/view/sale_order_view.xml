@@ -33,7 +33,7 @@
         </filter>
 
         <filter name="my_sale_orders_filter">
-          <filter string="Cost Estimate Only" domain="[('cost_estimate_only','=', True)]" name="cost_estimate_only_filter"/>
+          <filter string="Cost Estimate Only" domain="[('order_type', '=', 'cost_estimate_only')]" name="cost_estimate_only_filter"/>
         </filter>
       </field>
     </record>
@@ -47,7 +47,7 @@
       <field name="view_id" ref="sale.view_quotation_tree"/>
       <field name="view_mode">tree,form,calendar,graph</field>
       <field name="context">{}</field>
-      <field name="domain">['|', ('state','in',('draft','sent','cancel')), ('cost_estimate_only', '=', True)]</field>
+      <field name="domain">['|', ('state','in',('draft','sent','cancel')), ('order_type', '=', 'cost_estimate_only')]</field>
       <field name="search_view_id" ref="sale.view_sales_order_filter"/>
     </record>
 
@@ -63,7 +63,7 @@
       <field name="view_mode">tree,form,calendar,graph</field>
       <field name="search_view_id" ref="sale.view_sales_order_filter"/>
       <field name="context">{}</field>
-      <field name="domain">[('state','not in',('draft','sent','cancel')), ('cost_estimate_only', '=', False)]</field>
+      <field name="domain">[('state','not in',('draft','sent','cancel')), ('order_type', '=', 'standard')]</field>
     </record>
     <menuitem action="action_orders" id="menu_logistic_order" parent="menu_order_base" sequence="5" />
 
@@ -74,7 +74,7 @@
       <field name="inherit_id" ref="sale_stock.view_order_form_inherit"/>
       <field name="arch" type="xml">
         <xpath expr="//button[@name='action_button_confirm' and @states='draft']" position="attributes">
-          <attribute name="attrs">{'invisible': ['|', ('cost_estimate_only', '=', True)]}</attribute>
+          <attribute name="attrs">{'invisible': ['|', ('order_type', '=', 'cost_estimate_only')]}</attribute>
         </xpath>
         <xpath expr="//label[@string='Quotation ']" position="attributes">
           <attribute name="string">Cost Estimate </attribute>
@@ -84,7 +84,7 @@
         </xpath>
         <xpath expr="//field[@name='partner_id']/../.." position="before">
           <group colspan="4">
-            <field name="cost_estimate_only"/>
+            <field name="order_type"/>
           </group>
         </xpath>
 

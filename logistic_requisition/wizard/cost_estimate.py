@@ -207,11 +207,13 @@ class LogisticsRequisitionCostEstimate(models.TransientModel):
         """
         sale_obj = self.env['sale.order']
         partner_id = requisition.partner_id.id
+        order_type = ('cost_estimate_only' if requisition.cost_estimate_only
+                      else 'standard')
         vals = {'partner_id': partner_id,
                 'partner_invoice_id': partner_id,
                 'partner_shipping_id': requisition.consignee_shipping_id.id,
                 'consignee_id': requisition.consignee_id.id,
-                'cost_estimate_only': requisition.cost_estimate_only,
+                'order_type': order_type,
                 'order_line': [(0, 0, x) for x in estimate_lines],
                 'incoterm': requisition.incoterm_id.id,
                 'incoterm_address': requisition.incoterm_address,

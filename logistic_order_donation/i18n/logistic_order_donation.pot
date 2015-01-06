@@ -1,0 +1,59 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* logistic_order_donation
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 8.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-12-08 15:29+0000\n"
+"PO-Revision-Date: 2014-12-08 15:29+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: logistic_order_donation
+#: model:stock.location,name:logistic_order_donation.stock_location_donors
+msgid "Donors Locations"
+msgstr ""
+
+#. module: logistic_order_donation
+#: view:sale.order:logistic_order_donation.view_order_form
+#: model:stock.picking.type,name:logistic_order_donation.picking_type_donation
+msgid "In-Kind Donation"
+msgstr ""
+
+#. module: logistic_order_donation
+#: model:ir.actions.act_window,name:logistic_order_donation.action_donation
+#: model:ir.ui.menu,name:logistic_order_donation.menu_donation
+msgid "In-Kind Donations"
+msgstr ""
+
+#. module: logistic_order_donation
+#: model:ir.model,name:logistic_order_donation.model_sale_order
+msgid "Sales Order"
+msgstr ""
+
+#. module: logistic_order_donation
+#: field:sale.order,order_type:0
+msgid "Type"
+msgstr ""
+
+#. module: logistic_order_donation
+#: view:sale.order:logistic_order_donation.view_order_form
+msgid "{'default_warehouse_id': warehouse_id, 'default_route_id': line_route_id}"
+msgstr ""
+
+#. module: logistic_order_donation
+#: view:sale.order:logistic_order_donation.view_order_form
+msgid "{'invisible': ['|', ('order_type', '=', 'donation'), '&', ('state','not in',('draft','sent')), ('order_type', '=', 'standard')]}"
+msgstr ""
+
+#. module: logistic_order_donation
+#: view:sale.order:logistic_order_donation.view_order_form
+msgid "{'invisible': ['|', ('state','in',('draft','sent')), ('order_type', '!=', 'standard')]}"
+msgstr ""
+

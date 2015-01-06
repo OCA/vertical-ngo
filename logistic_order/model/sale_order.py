@@ -45,6 +45,22 @@ class SaleOrder(models.Model):
         help="Complete this field if you plan to invoice the shipping based "
         "on picking.")
 
+    @api.model
+    def get_order_type_selection(self):
+        """ Extendable selection list """
+        return [('standard', 'Standard'),
+                ('cost_estimate_only', 'Cost Estimate Only')]
+
+    @api.model
+    def _get_order_type_selection(self):
+        return self.get_order_type_selection()
+
+    order_type = fields.Selection(
+        selection=_get_order_type_selection,
+        string='Type',
+        states=LO_STATES,
+        default='standard')
+
     incoterm_address = fields.Char(
         'Incoterm Place',
         states=LO_STATES,
@@ -53,10 +69,6 @@ class SaleOrder(models.Model):
              "predefined commercial terms used in "
              "international transactions.")
     delivery_time = fields.Char('Delivery time', states=LO_STATES)
-    cost_estimate_only = fields.Boolean(
-        'Cost Estimate Only',
-        states=LO_STATES,
-        default=False)
     currency_id = fields.Many2one(
         related='pricelist_id.currency_id',
         co_model='res.currency',
@@ -78,7 +90,7 @@ class SaleOrder(models.Model):
 
     # redefine consignee_id with required=False
     # we have a constraint to make it
-    # required only if cost_estimate_only is False
+    # required only if is cost_estimate_only
     consignee_id = fields.Many2one(
         'res.partner',
         string='Consignee',
@@ -86,9 +98,9 @@ class SaleOrder(models.Model):
         help="The person to whom the shipment is to be delivered.")
 
     @api.one
-    @api.constrains('cost_estimate_only', 'consignee_id')
+    @api.constrains('order_type', 'consignee_id')
     def _check_consignee(self):
-        if not self.cost_estimate_only and not self.consignee_id:
+        if self.order_type != 'cost_estimate_only' and not self.consignee_id:
             raise exceptions.Warning(_('If this is not only for Cost Estimate,'
                                        ' you must provide a Consignee'))
 
@@ -104,7 +116,7 @@ class SaleOrder(models.Model):
 
         """
         res = super(SaleOrder, self).action_quotation_send()
-        if self.cost_estimate_only:
+        if self.order_type == 'cost_estimate_only':
             res['context'].update(mark_cost_estimate_as_done=True)
         return res
 
