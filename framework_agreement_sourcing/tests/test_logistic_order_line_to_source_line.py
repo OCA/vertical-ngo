@@ -25,7 +25,6 @@ class TestTransformation(CommonSourcingSetUp):
 
     def test_01_enough_qty_on_first_agr(self):
         """Test that we can source a line with one agreement and low qty"""
-        cr, uid = self.cr, self.uid
         lines = self.requisition.line_ids
         agr_line = None
         for line in lines:
@@ -33,21 +32,17 @@ class TestTransformation(CommonSourcingSetUp):
                 agr_line = line
                 break
         self.assertTrue(agr_line, 'no agr line found')
-        agr_line.write({'requested_qty': 400})
-        agr_line.refresh()
-        to_validate_ids = self.requisition_line_model._generate_source_line(
-            cr, uid, agr_line)
-        self.assertEqual(len(to_validate_ids), 1,
+        agr_line.requested_qty = 400
+        agr_line._generate_sources()
+        self.assertEqual(len(agr_line.source_ids), 1,
                          'wrong number of source line to validate')
-        to_validate = self.source_line_model.browse(
-            cr, uid, to_validate_ids[0])
+        to_validate = agr_line.source_ids
         self.assertEqual(to_validate.procurement_method, 'fw_agreement')
         self.assertAlmostEqual(to_validate.unit_cost, 50.0)
         self.assertEqual(to_validate.proposed_qty, 400)
 
     def test_02_enough_qty_on_high_agr(self):
         """Test that we can source a line correctly on both agreement"""
-        cr, uid = self.cr, self.uid
         lines = self.requisition.line_ids
         agr_line = None
         for line in lines:
@@ -55,21 +50,18 @@ class TestTransformation(CommonSourcingSetUp):
                 agr_line = line
                 break
         self.assertTrue(agr_line, 'no agr line found')
-        agr_line.write({'requested_qty': 1500})
+        agr_line.requested_qty = 1500
         agr_line.refresh()
-        to_validate_ids = self.requisition_line_model._generate_source_line(
-            cr, uid, agr_line)
-        self.assertEqual(len(to_validate_ids), 1,
+        agr_line._generate_sources()
+        self.assertEqual(len(agr_line.source_ids), 1,
                          'wrong number of source line to validate')
-        to_validate = self.source_line_model.browse(
-            cr, uid, to_validate_ids[0])
+        to_validate = agr_line.source_ids
         self.assertEqual(to_validate.procurement_method, 'fw_agreement')
         self.assertAlmostEqual(to_validate.unit_cost, 30.0)
         self.assertEqual(to_validate.proposed_qty, 1500)
 
     def test_03_not_enough_qty_on_high_agreement(self):
         """Test that we can source a line with one agreement and high qty"""
-        cr, uid = self.cr, self.uid
         lines = self.requisition.line_ids
         agr_line = None
         for line in lines:
@@ -77,14 +69,12 @@ class TestTransformation(CommonSourcingSetUp):
                 agr_line = line
                 break
         self.assertTrue(agr_line, 'no agr line found')
-        agr_line.write({'requested_qty': 2400})
-        agr_line.refresh()
-        to_validate_ids = self.requisition_line_model._generate_source_line(
-            cr, uid, agr_line)
-        self.assertEqual(len(to_validate_ids), 2,
+        agr_line.requested_qty = 2400
+        agr_line._generate_sources()
+        self.assertEqual(len(agr_line.source_ids), 2,
                          'wrong number of source line to validate')
         # We validate generated line
-        to_validates = self.source_line_model.browse(cr, uid, to_validate_ids)
+        to_validates = agr_line.source_ids
         # high_line
         # idiom taken from Python cookbook
         high_line = next((x for x in to_validates
@@ -110,7 +100,6 @@ class TestTransformation(CommonSourcingSetUp):
 
         That means last source line must be of type other or procurement
         """
-        cr, uid = self.cr, self.uid
         lines = self.requisition.line_ids
         agr_line = None
         for line in lines:
@@ -118,14 +107,12 @@ class TestTransformation(CommonSourcingSetUp):
                 agr_line = line
                 break
         self.assertTrue(agr_line, 'no agr line found')
-        agr_line.write({'requested_qty': 5000})
-        agr_line.refresh()
-        to_validate_ids = self.requisition_line_model._generate_source_line(
-            cr, uid, agr_line)
-        self.assertEqual(len(to_validate_ids), 3,
+        agr_line.requested_qty = 5000
+        agr_line._generate_sources()
+        self.assertEqual(len(agr_line.source_ids), 3,
                          'wrong number of source line to validate')
         # We validate generated line
-        to_validates = self.source_line_model.browse(cr, uid, to_validate_ids)
+        to_validates = agr_line.source_ids
         # high_line
         # idiom taken from Python cookbook
         high_line = next((x for x in to_validates

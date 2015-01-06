@@ -18,19 +18,17 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from collections import namedtuple
-from openerp.osv import orm
+from openerp import models, api, exceptions
 
 
-class logistic_requisition_line(orm.Model):
+class LogisticsRequisitionLine(models.Model):
 
     """Override to enable generation of source line"""
 
     _inherit = "logistic.requisition.line"
 
-    def _prepare_line_source(self, cr, uid, line,
-                             qty=None, agreement=None,
-                             context=None):
+    @api.multi
+    def _prepare_agreement_source(self, agreement, qty=None):
         """Prepare data dict for source line creation. If an agreement
         is given, the procurement_method will be an LTA ('fw_agreement').
         Otherwise, if it's a stockable product we'll go to tender
@@ -38,37 +36,25 @@ class logistic_requisition_line(orm.Model):
         rest as 'other'. Those are default value that can be changed afterward
         by the user.
 
-        :params line: browse record of origin requistion.line
-        :params agreement: browse record of origin agreement
-        :params qty: quantity to be set on source line
+        :param agreement: browse record of origin agreement
+        :param qty: quantity to be set on source line
 
         :returns: dict to be used by Model.create
 
         """
-        res = {}
-        res['proposed_product_id'] = line.product_id.id
-        res['requisition_line_id'] = line.id
-        res['proposed_uom_id'] = line.requested_uom_id.id
-        res['unit_cost'] = 0.0
-        res['proposed_qty'] = qty
-        res['framework_agreement_id'] = False
-        res['price_is'] = 'fixed'
-        if agreement:
-            if not agreement.product_id.id == line.product_id.id:
-                raise ValueError(
-                    "Product mismatch for agreement and requisition line")
-            res.update({
-                'framework_agreement_id': agreement.id,
-                'procurement_method': 'fw_agreement',
-                'unit_cost': agreement.get_price(qty, line.currency_id),
-            })
-        else:
-            if line.product_id.type == 'product':
-                res['procurement_method'] = 'procurement'
-            else:
-                res['procurement_method'] = 'other'
-        return res
 
+        if not agreement.product_id == self.product_id:
+            raise exceptions.ValueError(
+                "Product mismatch for agreement and requisition line")
+        values = self._prepare_source(qty)
+        values.update(
+            framework_agreement_id=agreement.id,
+            procurement_method='fw_agreement',
+            unit_cost=agreement.get_price(qty, self.currency_id),
+        )
+        return values
+
+    # XXX to extract on agreement model
     def _sort_agreements(self, cr, uid, agreements, qty, currency=None,
                          context=None):
         """Sort agreements to be proposed
@@ -117,9 +103,8 @@ class logistic_requisition_line(orm.Model):
             agreements.sort(key=lambda x: _best_company_price(cr, uid, x, qty))
             return agreements
 
-    def _generate_lines_from_agreements(self, cr, uid, container, line,
-                                        agreements, qty, currency=None,
-                                        context=None):
+    @api.multi
+    def _generate_agreement_sources(self, agreements, currency=None):
         """Generate 1/n source line(s) for one requisition line.
 
         This is done using available agreements.
@@ -130,127 +115,54 @@ class logistic_requisition_line(orm.Model):
         if they are cheaper in other currences. Then it will choose remaining
         agreements ordered by price converted in company currency
 
-        :param container: list of agreements browse
-        :param qty: quantity to be sourced
-        :param line: origin requisition line
+        :param agreements: list of agreement which can be used
+        :param currency: preferred currency for agreement sorting
 
         :returns: remaining quantity to source
 
         """
-        agreements = agreements if agreements is not None else []
-        agreements = self._sort_agreements(cr, uid, agreements, qty,
-                                           currency=currency)
+        qty = self.requested_qty
         if not agreements:
             return qty
-        current_agr = agreements.pop(0)
-        avail = current_agr.available_quantity
-        if not avail:
-            return qty
-        avail_sold = avail - qty
-        to_consume = qty if avail_sold >= 0 else avail
+        agreements = self._sort_agreements(agreements, qty,
+                                           currency=currency)
+        src_model = self.env['logistic.requisition.source']
+        remaining_qty = qty
+        while remaining_qty and agreements:
+            current_agr = agreements.pop(0)
+            avail = current_agr.available_quantity
+            if not avail:
+                continue
+            avail_sold = avail - remaining_qty
+            to_consume = remaining_qty if avail_sold >= 0 else avail
+            remaining_qty -= to_consume
 
-        source_id = self.make_source_line(cr, uid, line, force_qty=to_consume,
-                                          agreement=current_agr,
-                                          context=context)
-        container.append(source_id)
-        difference = qty - to_consume
-        if difference:
-            return self._generate_lines_from_agreements(cr, uid, container,
-                                                        line, agreements,
-                                                        difference,
-                                                        context=context)
-        else:
-            return 0
+            values = self._prepare_agreement_source(current_agr,
+                                                    qty=to_consume)
+            src_model.create(values)
 
-    def _source_lines_for_agreements(self, cr, uid, line, agreements,
-                                     currency=None, context=None):
-        """Generate 1/n source line(s) for one requisition line
+        return remaining_qty
 
-        This is done using available agreements.
-        We first look for cheapeast agreement.
-        Then if no more quantity are available and there is still remaining
-        needs we look for next cheapest agreement or we create a tender source
-        line
-
-        :param line: requisition line browse record
-        :returns: (generated line ids, remaining qty not covered by agreement)
-
-        """
-        Sourced = namedtuple('Sourced', ['generated', 'remaining'])
-        qty = line.requested_qty
-        generated = []
-        remaining_qty = self._generate_lines_from_agreements(cr, uid,
-                                                             generated, line,
-                                                             agreements, qty,
-                                                             currency=currency,
-                                                             context=context)
-        return Sourced(generated, remaining_qty)
-
-    def make_source_line(self, cr, uid, line, force_qty=None, agreement=None,
-                         context=None):
-        """Generate a source line from a requisition line, see
-        _prepare_line_source for details.
-
-        :param line: browse record of origin logistic.request
-        :param force_qty: if set this quantity will be used instead
-        of requested quantity
-        :returns: id of generated source line
-
-        """
-        qty = force_qty if force_qty else line.requested_qty
-        src_obj = self.pool['logistic.requisition.source']
-        vals = self._prepare_line_source(cr, uid, line,
-                                         qty=qty,
-                                         agreement=agreement,
-                                         context=None)
-        return src_obj.create(cr, uid, vals, context=context)
-
-    def _generate_source_line(self, cr, uid, line, context=None):
+    @api.multi
+    def _generate_sources(self):
         """Generate one or n source line(s) per requisition line.
 
         Depending on the available resources. If there is framework
         agreement(s) running we generate one or n source line using agreements
         otherwise we generate one source line using tender process
 
-        :param line: browse record of origin logistic.request
-
-        :returns: list of generated source line ids
-
         """
-        if line.source_ids:
+        self.ensure_one()
+        if self.source_ids:
             return None
-        agr_obj = self.pool['framework.agreement']
-        date = line.requisition_id.date
-        currency = line.currency_id
-        product_id = line.product_id.id
-        agreements = agr_obj.get_all_product_agreements(cr, uid, product_id,
-                                                        date,
-                                                        context=context)
-        generated_lines = []
+        Agreement = self.env['framework.agreement']
+        date = self.requisition_id.date
+        product_id = self.product_id.id
+        agreements = Agreement.get_all_product_agreements(product_id, date)
         if agreements:
-            line_ids, missing_qty = self._source_lines_for_agreements(
-                cr, uid, line, agreements, currency=currency)
-            generated_lines.extend(line_ids)
+            currency = self.currency_id
+            missing_qty = self._generate_agreement_sources(
+                agreements, currency=currency)
             if missing_qty:
-                generated_lines.append(self.make_source_line(
-                    cr, uid, line, force_qty=missing_qty))
-        else:
-            generated_lines.append(self.make_source_line(cr, uid, line))
-
-        return generated_lines
-
-    def _do_confirm(self, cr, uid, ids, context=None):
-        """Override to generate source lines from requision line.
-
-        Please refer to _generate_source_line documentation
-
-        """
-        # TODO refactor
-        # this should probably be in logistic_requisition module
-        # providing a mechanism to allow each type of sourcing method
-        # to generate source line
-        res = super(logistic_requisition_line, self)._do_confirm(
-            cr, uid, ids, context=context)
-        for line_br in self.browse(cr, uid, ids, context=context):
-            self._generate_source_line(cr, uid, line_br, context=context)
-        return res
+                self._generate_default_source(force_qty=missing_qty)
+        super(LogisticsRequisitionLine, self)._generate_sources()

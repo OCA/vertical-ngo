@@ -1,0 +1,43 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* logistic_requisition_donation
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 8.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-12-11 14:29+0000\n"
+"PO-Revision-Date: 2014-12-11 14:29+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: logistic_requisition_donation
+#: model:ir.model,name:logistic_requisition_donation.model_logistic_requisition_cost_estimate
+msgid "Create cost estimate of logistic requisition lines"
+msgstr ""
+
+#. module: logistic_requisition_donation
+#: model:ir.model,name:logistic_requisition_donation.model_logistic_requisition
+msgid "Logistics Requisition"
+msgstr ""
+
+#. module: logistic_requisition_donation
+#: model:ir.model,name:logistic_requisition_donation.model_logistic_requisition_line
+msgid "Logistics Requisition Line"
+msgstr ""
+
+#. module: logistic_requisition_donation
+#: model:ir.model,name:logistic_requisition_donation.model_logistic_requisition_source
+msgid "Logistics Requisition Source"
+msgstr ""
+
+#. module: logistic_requisition_donation
+#: code:addons/logistic_requisition_donation/model/logistic_requisition_source.py:31
+#, python-format
+msgid "Only 'Warehouse Dispatch' and 'Other' sourcing methods can be used with Dispatch Donor Stock logistics requisition"
+msgstr ""
+
