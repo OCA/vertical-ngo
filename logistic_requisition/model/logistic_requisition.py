@@ -1150,7 +1150,7 @@ class LogisticsRequisitionSource(models.Model):
 
     @api.multi
     def action_open_po_requisition(self, purch_req=None):
-        if not purch_req or not isinstance(purch_req, int):
+        if not purch_req:
             purch_req = self.po_requisition_id
         return {
             'type': 'ir.actions.act_window',
@@ -1162,6 +1162,11 @@ class LogisticsRequisitionSource(models.Model):
             'target': 'current',
             'nodestroy': True,
         }
+
+    @api.multi
+    def action_open_po_requisition_from_view(self):
+        """Method called from view"""
+        return self.action_open_po_requisition()
 
     @api.multi
     @api.depends('unit_cost', 'proposed_qty')
