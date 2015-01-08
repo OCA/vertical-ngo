@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data noupdate="0">
+
+    <record id="view_order_form" model="ir.ui.view">
+      <field name="name">sale.order.form</field>
+      <field name="model">sale.order</field>
+      <field name="inherit_id" ref="logistic_order.view_order_form"/>
+      <field name="arch" type="xml">
+
+        <field name="amount_total" position="after">
+          <field name="company_currency_id" invisible="1"/>
+          <field name="amount_total_co"
+              string="in company currency"
+              widget='monetary' options="{'currency_field': 'company_currency_id'}"/>
+        </field>
+
+      </field>
+    </record>
+
+    <record id="view_order_tree" model="ir.ui.view">
+      <field name="name">sale.order.tree</field>
+      <field name="model">sale.order</field>
+      <field name="inherit_id" ref="sale.view_order_tree"/>
+      <field name="arch" type="xml">
+        <field name="amount_total" position="after">
+          <field name="stored_currency_id"/>
+        </field>
+      </field>
+    </record>
+
+    <record id="view_quotation_tree" model="ir.ui.view">
+      <field name="name">sale.order.tree</field>
+      <field name="model">sale.order</field>
+      <field name="inherit_id" ref="sale.view_quotation_tree"/>
+      <field name="arch" type="xml">
+        <field name="amount_total" position="after">
+          <field name="stored_currency_id"/>
+        </field>
+      </field>
+    </record>
+
+    <record id="view_sales_order_filter" model="ir.ui.view">
+      <field name="name">sale.order.list.select</field>
+      <field name="model">sale.order</field>
+      <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+      <field name="arch" type="xml">
+        <filter string="Order Month" position="after">
+          <filter string="Currency" domain="[]" context="{'group_by':'stored_currency_id'}"/>
+        </filter>
+      </field>
+    </record>
+
+  </data>
+</openerp>
