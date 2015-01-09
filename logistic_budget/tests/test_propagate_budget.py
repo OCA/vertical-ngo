@@ -19,11 +19,29 @@ from mock import Mock
 
 class TestPropagateBudget(TransactionCase):
     def test_propagate_budget_to_cost_estimate(self):
-        self.source.requisition_line_id.budget_tot_price = 120.0
         cel_data = self.wizard_model._prepare_cost_estimate_line(self.source)
         self.assertEqual(cel_data['budget_tot_price'], 120.0)
         for key in cel_data:
             self.assertIn(key, dir(self.env['sale.order.line']))
+
+    def test_propagate_budget_to_cost_estimate_2_sources(self):
+        source2 = Mock(
+            spec_set=self.env['logistic.requisition.source'],
+            dispatch_location_id=False,
+            procurement_method='other',
+            proposed_product_id=self.env['product.product'],
+            proposed_qty=80,
+            requisition_line_id=self.line,
+        )
+        self.line.requested_qty = 100
+        cel_data1 = self.wizard_model._prepare_cost_estimate_line(self.source)
+        cel_data2 = self.wizard_model._prepare_cost_estimate_line(source2)
+        self.assertEqual(cel_data1['budget_tot_price'] +
+                         cel_data2['budget_tot_price'], 120.0)
+        # 20% of 120 = 24
+        self.assertEqual(cel_data1['budget_tot_price'], 24.0)
+        # 80% of 120 = 96
+        self.assertEqual(cel_data2['budget_tot_price'], 96.0)
 
     def test_propagate_holder_to_cost_estimate(self):
         ce_data = self.wizard_model._prepare_cost_estimate(
@@ -44,16 +62,14 @@ class TestPropagateBudget(TransactionCase):
     def setUp(self):
         super(TestPropagateBudget, self).setUp()
         self.wizard_model = self.env['logistic.requisition.cost.estimate']
-        partner1_id = self.env['ir.model.data'].xmlid_to_res_id(
-            'base.res_partner_1')
+        self.partner1 = self.env.ref('base.res_partner_1')
         self.source = Mock(
             spec_set=self.env['logistic.requisition.source'],
             dispatch_location_id=False,
             procurement_method='other',
             proposed_product_id=self.env['product.product'],
+            proposed_qty=20,
         )
-        self.source.requisition_line_id.requisition_id.partner_id.id = \
-            partner1_id
         self.request = self.env['logistic.requisition'].new({
             'budget_holder_id': 1,
             'finance_officer_id': 2,
@@ -62,3 +78,10 @@ class TestPropagateBudget(TransactionCase):
             'budget_holder_remark': 'LGTM',
             'finance_officer_remark': 'not bad',
         })
+        self.line = self.env['logistic.requisition.line'].new({
+            'requisition_id': self.request,
+            'requested_qty': 20,
+            'budget_tot_price': 120.0,
+        })
+        self.source.requisition_line_id = self.line
+        self.line.requisition_id.partner_id = self.partner1
