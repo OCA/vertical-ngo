@@ -17,6 +17,7 @@
                         widget="monetary"
                         options="{'currency_field': 'currency_id'}"/>
                 </group>
+                 <div class="oe_clear"/>
              </xpath>
 
              <xpath expr="//page[@string='Requisition Lines']/field/form//field[@name='date_delivery']/.." position="before">
