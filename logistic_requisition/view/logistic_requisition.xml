@@ -426,7 +426,6 @@
                             <field name="date_delivery"/>
                             <field name="logistic_user_id"/>
                         </group>
-                        <field name="company_currency_id" invisible="1"/>
                         <field name="currency_id" invisible="1"/>
                     </group>
                     <group string="Accounting" colspan="4">
@@ -459,10 +458,6 @@
                                         class="oe_subtotal_footer_separator"
                                         widget="monetary"
                                         options="{'currency_field': 'currency_id'}"/>
-                                    <field name="amount_total_company"
-                                        string="in company currency"
-                                        widget="monetary"
-                                        options="{'currency_field': 'company_currency_id'}"/>
                                 </group>
                                 <group string="Remarks / Conditions">
                                     <field name="note"
