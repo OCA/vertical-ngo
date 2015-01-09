@@ -1,0 +1,66 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* logistic_requisition_multicurrency
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 8.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-01-09 14:34+0000\n"
+"PO-Revision-Date: 2015-01-09 14:34+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: logistic_requisition_multicurrency
+#: model:ir.model,name:logistic_requisition_multicurrency.model_logistic_requisition
+msgid "Logistics Requisition"
+msgstr ""
+
+#. module: logistic_requisition_multicurrency
+#: model:ir.model,name:logistic_requisition_multicurrency.model_logistic_requisition_line
+msgid "Logistics Requisition Line"
+msgstr ""
+
+#. module: logistic_requisition_multicurrency
+#: model:ir.model,name:logistic_requisition_multicurrency.model_logistic_requisition_source
+msgid "Logistics Requisition Source"
+msgstr ""
+
+#. module: logistic_requisition_multicurrency
+#: field:logistic.requisition.line,amount_total_co:0
+msgid "Tot. Amount in Company currency"
+msgstr ""
+
+#. module: logistic_requisition_multicurrency
+#: field:logistic.requisition.source,total_cost_co:0
+msgid "Total Cost in Company currency"
+msgstr ""
+
+#. module: logistic_requisition_multicurrency
+#: help:logistic.requisition.line,amount_total_co:0
+msgid "Total amount converted to company currency using rates at requisition date"
+msgstr ""
+
+#. module: logistic_requisition_multicurrency
+#: help:logistic.requisition.source,total_cost_co:0
+msgid "Total cost converted to company currency using rates at requisition date"
+msgstr ""
+
+#. module: logistic_requisition_multicurrency
+#: code:addons/logistic_requisition_multicurrency/model/logistic_requisition_line.py:58
+#: code:addons/logistic_requisition_multicurrency/model/logistic_requisition_source.py:58
+#, python-format
+msgid "You must set a pricelist on the Requisition, or configure a default pricelist for this requestor."
+msgstr ""
+
+#. module: logistic_requisition_multicurrency
+#: view:logistic.requisition:logistic_requisition_multicurrency.view_logistic_requisition_form
+#: view:logistic.requisition.line:logistic_requisition_multicurrency.view_logistic_requisition_line_form
+#: view:logistic.requisition.source:logistic_requisition_multicurrency.view_logistic_requisition_source_form
+msgid "in company currency"
+msgstr ""
+
