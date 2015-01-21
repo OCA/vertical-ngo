@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
-<data>
+  <data>
 
     <record id="view_order_line_form2_lr" model="ir.ui.view">
         <field name="name">sale.order.line.form2.lr</field>
@@ -28,12 +28,18 @@
           <field name="consignee_id" position="attributes">
             <attribute name="attrs">{'required': [('order_type', '!=', 'cost_estimate_only')]}</attribute>
           </field>
+          <xpath expr="//field[@name='order_line']/tree" position="attributes">
+            <attribute name="editable" eval="0"/>
+          </xpath>
           <xpath expr="//field[@name='order_line']/tree//field[@name='price_unit']"
               position="after">
               <field name="price_is"/>
           </xpath>
+          <xpath expr="//field[@name='order_line']/form//field[@name='warehouse_id']" position="after">
+              <field name="lr_source_id" groups="base.group_no_one"/>
+          </xpath>
         </field>
     </record>
 
-</data>
+  </data>
 </openerp>

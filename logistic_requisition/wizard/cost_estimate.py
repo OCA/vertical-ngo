@@ -121,6 +121,7 @@ class LogisticsRequisitionCostEstimate(models.TransientModel):
         sale_line_obj = self.env['sale.order.line']
         vals = {'product_id': sourcing.proposed_product_id.id,
                 'name': sourcing.requisition_line_id.description,
+                'lr_source_id': sourcing.id,
                 'price_unit': sourcing.unit_cost,
                 'price_is': sourcing.price_is,
                 'product_uom_qty': sourcing.proposed_qty,
