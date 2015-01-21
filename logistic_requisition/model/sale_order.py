@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 #
-#    Copyright 2013-2014 Camptocamp SA
+#    Copyright 2013-2015 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -43,6 +43,15 @@ class SaleOrderLine(models.Model):
         'logistic.requisition.source',
         'Logistics Requisition Source',
         )
+    sourcing_method = fields.Selection(
+        related='lr_source_id.sourcing_method',
+        selection=[
+            ('procurement', 'Tender'),
+            ('wh_dispatch', 'Warehouse Dispatch'),
+            ('fw_agreement', 'Framework Agreement'),
+            ('other', 'Other'),
+            ],
+    )
     # Replace draft by draftpo in domain
     # This to bridge sale_quotation_sourcing and purchase_rfq_bid_workflow
     sourced_by = fields.Many2one(
