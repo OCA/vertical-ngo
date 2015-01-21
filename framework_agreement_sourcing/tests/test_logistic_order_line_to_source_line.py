@@ -37,7 +37,7 @@ class TestTransformation(CommonSourcingSetUp):
         self.assertEqual(len(agr_line.source_ids), 1,
                          'wrong number of source line to validate')
         to_validate = agr_line.source_ids
-        self.assertEqual(to_validate.procurement_method, 'fw_agreement')
+        self.assertEqual(to_validate.sourcing_method, 'fw_agreement')
         self.assertAlmostEqual(to_validate.unit_cost, 50.0)
         self.assertEqual(to_validate.proposed_qty, 400)
 
@@ -56,7 +56,7 @@ class TestTransformation(CommonSourcingSetUp):
         self.assertEqual(len(agr_line.source_ids), 1,
                          'wrong number of source line to validate')
         to_validate = agr_line.source_ids
-        self.assertEqual(to_validate.procurement_method, 'fw_agreement')
+        self.assertEqual(to_validate.sourcing_method, 'fw_agreement')
         self.assertAlmostEqual(to_validate.unit_cost, 30.0)
         self.assertEqual(to_validate.proposed_qty, 1500)
 
@@ -81,7 +81,7 @@ class TestTransformation(CommonSourcingSetUp):
                           if x.framework_agreement_id ==
                           self.cheap_on_high_agreement), None)
         self.assertTrue(high_line, msg="High agreement was not used")
-        self.assertEqual(high_line.procurement_method, 'fw_agreement')
+        self.assertEqual(high_line.sourcing_method, 'fw_agreement')
         self.assertEqual(high_line.proposed_qty, 2000)
         self.assertAlmostEqual(high_line.unit_cost, 30.0)
 
@@ -90,7 +90,7 @@ class TestTransformation(CommonSourcingSetUp):
                          if x.framework_agreement_id ==
                          self.cheap_on_low_agreement), None)
         self.assertTrue(low_line, msg="Low agreement was not used")
-        self.assertEqual(low_line.procurement_method, 'fw_agreement')
+        self.assertEqual(low_line.sourcing_method, 'fw_agreement')
         self.assertEqual(low_line.proposed_qty, 400)
         self.assertAlmostEqual(low_line.unit_cost, 50.0)
 
@@ -119,7 +119,7 @@ class TestTransformation(CommonSourcingSetUp):
                           if x.framework_agreement_id ==
                           self.cheap_on_high_agreement), None)
         self.assertTrue(high_line, msg="High agreement was not used")
-        self.assertEqual(high_line.procurement_method, 'fw_agreement')
+        self.assertEqual(high_line.sourcing_method, 'fw_agreement')
         self.assertEqual(high_line.proposed_qty, 2000)
         self.assertAlmostEqual(high_line.unit_cost, 30.0)
 
@@ -128,7 +128,7 @@ class TestTransformation(CommonSourcingSetUp):
                          if x.framework_agreement_id ==
                          self.cheap_on_low_agreement), None)
         self.assertTrue(low_line, msg="Low agreement was not used")
-        self.assertEqual(low_line.procurement_method, 'fw_agreement')
+        self.assertEqual(low_line.sourcing_method, 'fw_agreement')
         self.assertEqual(low_line.proposed_qty, 1200)
         self.assertAlmostEqual(low_line.unit_cost, 45.0)
 
@@ -136,4 +136,4 @@ class TestTransformation(CommonSourcingSetUp):
         tender_line = next((x for x in to_validates
                             if not x.framework_agreement_id), None)
         self.assertTrue(tender_line, msg="Tender line was not generated")
-        self.assertNotEqual(tender_line.procurement_method, 'fw_agreement')
+        self.assertNotEqual(tender_line.sourcing_method, 'fw_agreement')

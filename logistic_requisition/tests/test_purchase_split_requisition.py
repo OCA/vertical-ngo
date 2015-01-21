@@ -2,7 +2,7 @@
 ##############################################################################
 #
 #    Author: Guewen Baconnier
-#    Copyright 2013-2014 Camptocamp SA
+#    Copyright 2013-2015 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -88,7 +88,7 @@ class test_purchase_split_requisition(common.TransactionCase):
             'proposed_qty': 100,
             'proposed_product_id': self.product_32.id,
             'proposed_uom_id': self.product_uom_pce.id,
-            'procurement_method': 'procurement',
+            'sourcing_method': 'procurement',
             'price_is': 'estimated',
         }
         self.requisition = self.log_req.create(vals)

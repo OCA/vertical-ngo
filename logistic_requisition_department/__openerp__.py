@@ -17,7 +17,7 @@
 
 {
     'name': 'Logistic Requisitions with Department Categorization',
-    'version': '1.0',
+    'version': '1.1',
     "category": "Purchase Management",
     'author': 'Camptocamp',
     "license": "AGPL-3",

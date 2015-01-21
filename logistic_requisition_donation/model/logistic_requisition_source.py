@@ -2,7 +2,7 @@
 #
 #
 #    Author: Yannick Vaucher
-#    Copyright 2014 Camptocamp SA
+#    Copyright 2014-2015 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -24,10 +24,10 @@ from openerp import models, api, exceptions, _
 class LogisticsRequisitionSource(models.Model):
     _inherit = 'logistic.requisition.source'
 
-    @api.onchange('procurement_method')
+    @api.onchange('sourcing_method')
     def onchange_source_type_warning(self):
         if self.requisition_id.requisition_type == 'donor_stock':
-            if self.procurement_method not in ('wh_dispatch', 'other'):
+            if self.sourcing_method not in ('wh_dispatch', 'other'):
                 raise exceptions.Warning(_(
                     "Only 'Warehouse Dispatch' and 'Other' sourcing methods "
                     "can be used with Dispatch Donor Stock logistics "

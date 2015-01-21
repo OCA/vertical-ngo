@@ -2,7 +2,7 @@
 #
 #
 #    Author: Yannick Vaucher
-#    Copyright 2014 Camptocamp SA
+#    Copyright 2014-2015 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -42,7 +42,7 @@ class TestAutoCreateSources(TransactionCase):
         self.lrl._generate_sources()
         sources = self.lrl.source_ids
         self.assertEquals(len(sources), 1)
-        self.assertEquals(sources.procurement_method, 'other')
+        self.assertEquals(sources.sourcing_method, 'other')
 
     def test_create_source_for_single_location(self):
         """ Have product on a single location to check
@@ -57,7 +57,7 @@ class TestAutoCreateSources(TransactionCase):
         self.lrl._generate_sources()
         sources = self.lrl.source_ids
         self.assertEquals(len(sources), 1)
-        self.assertEquals(sources.procurement_method, 'wh_dispatch')
+        self.assertEquals(sources.sourcing_method, 'wh_dispatch')
         self.assertEquals(
             sources.dispatch_location_id.id,
             self.ref('stock.stock_location_14')
@@ -80,7 +80,7 @@ class TestAutoCreateSources(TransactionCase):
         self.lrl._generate_sources()
         sources = self.lrl.source_ids
         self.assertEquals(len(sources), 1)
-        self.assertEquals(sources.procurement_method, 'wh_dispatch')
+        self.assertEquals(sources.sourcing_method, 'wh_dispatch')
         self.assertFalse(sources.dispatch_location_id.id)
 
     def setUp(self):

@@ -2,7 +2,7 @@
 ##############################################################################
 #
 #    Author: Nicolas Bessi
-#    Copyright 2013 Camptocamp SA
+#    Copyright 2013-2015 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -44,9 +44,9 @@ class TestSourceToPo(CommonSourcingSetUp):
         self.assertEqual(len(sources), 2)
         self.source_lines = sources
         self.lta_source = next(x for x in self.source_lines
-                               if x.procurement_method == 'fw_agreement')
+                               if x.sourcing_method == 'fw_agreement')
         self.other_source = next(x for x in self.source_lines
-                                 if x.procurement_method == 'other')
+                                 if x.sourcing_method == 'other')
 
     def test_01_transform_source_to_agreement_wh_dest(self):
         """Test transformation of an agreement source line into PO"""

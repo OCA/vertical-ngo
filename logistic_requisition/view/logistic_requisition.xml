@@ -441,7 +441,7 @@
                                     <tree string="Sourcing Lines">
                                         <field name="state" invisible="1"/>
                                         <field name="name"/>
-                                        <field name="procurement_method"/>
+                                        <field name="sourcing_method"/>
                                         <field name="proposed_product_id"/>
                                         <field name="proposed_uom_id"/>
                                         <field name="proposed_qty" sum="Total Proposed"/>
@@ -573,7 +573,7 @@
                <field name="state" invisible="1"/>
                <field name="requisition_line_id"/>
                <field name="name"/>
-               <field name="procurement_method"/>
+               <field name="sourcing_method"/>
                <field name="proposed_product_id"/>
                <field name="proposed_qty"/>
                <field name="proposed_uom_id"/>
@@ -609,7 +609,7 @@
                     <field name="location_partner_id" invisible="1"/>
                     <group string="Sourcing">
                         <group>
-                            <field name="procurement_method"/>
+                            <field name="sourcing_method"/>
                         </group>
                     </group>
                     <group>
@@ -632,12 +632,12 @@
                     </group>
                     <group colspan="4">
                         <group string="Document Reference"
-                            attrs="{'invisible': [('procurement_method', '!=', 'other')]}">
+                            attrs="{'invisible': [('sourcing_method', '!=', 'other')]}">
                             <field name="origin"
-                                attrs="{'required': [('procurement_method', '=', 'other')]}"/>
+                                attrs="{'required': [('sourcing_method', '=', 'other')]}"/>
                         </group>
                         <group string="Purchase Requisition"
-                            attrs="{'invisible': [('procurement_method', 'not in', ['procurement','other'])]}">
+                            attrs="{'invisible': [('sourcing_method', 'not in', ['procurement','other'])]}">
                             <label for="po_requisition_id"/>
                             <div>
                                 <field name="po_requisition_id" class="oe_inline"/>
@@ -645,9 +645,9 @@
                             <field name="selected_bid_id"/>
                         </group>
                         <group string="Warehouse Dispatch"
-                            attrs="{'invisible': [('procurement_method', '!=', 'wh_dispatch')]}">
+                            attrs="{'invisible': [('sourcing_method', '!=', 'wh_dispatch')]}">
                             <field name="dispatch_location_id"
-                                attrs="{'required': [('procurement_method', '=', 'wh_dispatch')]}"
+                                attrs="{'required': [('sourcing_method', '=', 'wh_dispatch')]}"
                                 domain="[('usage', '=', 'internal')]"/>
                             <field name="stock_owner_id"/>
                         </group>
@@ -666,8 +666,8 @@
                 <group expand="0" string="Group By...">
                     <filter string="Requisition Line" name="groupby_requisition_line_id"
                       domain="[]" context="{'group_by': 'requisition_line_id'}"/>
-                    <filter string="Sourcing Method" name="groupby_procurement_method"
-                       domain="[]" context="{'group_by': 'procurement_method'}"/>
+                    <filter string="Sourcing Method" name="groupby_sourcing_method"
+                       domain="[]" context="{'group_by': 'sourcing_method'}"/>
                 </group>
             </search>
         </field>

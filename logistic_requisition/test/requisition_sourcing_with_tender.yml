@@ -31,7 +31,7 @@
     proposed_product_id: product.product_product_32
     proposed_uom_id: product.product_uom_unit
     unit_cost: 8
-    procurement_method: procurement
+    sourcing_method: procurement
     price_is: fixed
     dispatch_location_id: stock.stock_location_components
 -
@@ -54,7 +54,7 @@
     proposed_product_id: product.product_product_25
     proposed_uom_id: product.product_uom_unit
     unit_cost: 8
-    procurement_method: procurement
+    sourcing_method: procurement
     price_is: estimated
     dispatch_location_id: stock.stock_location_components
 -
@@ -174,7 +174,7 @@
         assert sale_line.price_is == source.price_is, (
             "price_is should be %s, received %s" %
             (source.price_is, sale_line.price_is))
-        if source.procurement_method != 'procurement':
+        if source.sourcing_method != 'procurement':
           # XXX find useful assertions here
           pass
         loc = source.dispatch_location_id

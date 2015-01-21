@@ -2,7 +2,7 @@
 #
 #
 #    Author: Joël Grand-Guillaume, Jacques-Etienne Baudoux, Guewen Baconnier
-#    Copyright 2013-2014 Camptocamp SA
+#    Copyright 2013-2015 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -523,7 +523,7 @@ class LogisticsRequisitionLine(models.Model):
     def _prepare_source(self, qty=None):
         """Prepare data dict for source line creation.
         If it's a stockable product we'll go to tender
-        by setting procurement_method as 'procurement'.
+        by setting sourcing_method as 'procurement'.
         Finally mark the rest as 'other'.
         Those are default value that can be changed afterward
         by the user.
@@ -561,7 +561,7 @@ class LogisticsRequisitionLine(models.Model):
         vals = self._prepare_source(qty=qty)
 
         sourcing_method = 'procurement' if is_product else 'other'
-        vals['procurement_method'] = sourcing_method
+        vals['sourcing_method'] = sourcing_method
 
         return src_model.create(vals)
 
@@ -610,11 +610,11 @@ class LogisticsRequisitionLine(models.Model):
     @api.multi
     def _do_create_po_requisition(self):
         """ Create a single call for bid for all sourcing lines with
-            procurement_method = 'procurement' contained
+            sourcing_method = 'procurement' contained
             in the Line
         """
         sources = self.mapped('source_ids')
-        sources.filtered(lambda rec: rec.procurement_method == 'procurement')
+        sources.filtered(lambda rec: rec.sourcing_method == 'procurement')
         if not sources:
             raise except_orm(_('No sourcing line Found'),
                              _('No sourcing lines with a Tender procurement '
@@ -824,7 +824,7 @@ class LogisticsRequisitionSource(models.Model):
         """
         for line in self:
             address = False
-            if line.procurement_method == 'wh_dispatch':
+            if line.sourcing_method == 'wh_dispatch':
                 loc = line.location_partner_id
                 if loc:
                     address = loc.id
@@ -870,7 +870,7 @@ class LogisticsRequisitionSource(models.Model):
         states=SOURCED_STATES,
         digits_compute=dp.get_precision('Product UoM'),
         default=1)
-    procurement_method = fields.Selection(
+    sourcing_method = fields.Selection(
         [('procurement', 'Tender'),
          ('wh_dispatch', 'Warehouse Dispatch'),
          ('fw_agreement', 'Framework Agreement'),
@@ -879,7 +879,8 @@ class LogisticsRequisitionSource(models.Model):
         string='Sourcing Method',
         required=True,
         states=SOURCED_STATES,
-        default='other')
+        default='other',
+        oldname='procurement_method')
     dispatch_location_id = fields.Many2one(
         'stock.location',
         string='Dispatch From',
@@ -1009,13 +1010,13 @@ class LogisticsRequisitionSource(models.Model):
     def _check_sourcing(self):
         """Check sourcing for all methods.
 
-        Delegates to methods _check_sourcing_ + procurement_method.
+        Delegates to methods _check_sourcing_ + sourcing_method.
 
         :returns: list of error strings
 
         """
         self.ensure_one()
-        callable_name = "_check_sourcing_%s" % self.procurement_method
+        callable_name = "_check_sourcing_%s" % self.sourcing_method
         return getattr(self, callable_name)()
 
     @api.multi
@@ -1164,12 +1165,12 @@ class LogisticsRequisitionSource(models.Model):
         purch_req_obj = self.env['purchase.requisition']
         purch_req_lines = []
         if not next((source for source in self
-                     if source.procurement_method == 'procurement'), None):
+                     if source.sourcing_method == 'procurement'), None):
             raise except_orm(_('There should be at least one selected'
                                ' line with procurement method Procurement'),
                              _('Please correct selection'))
         for source in self:
-            if source.procurement_method not in ('other', 'procurement'):
+            if source.sourcing_method not in ('other', 'procurement'):
                 raise except_orm(_('Selected line procurement method should'
                                    ' be procurement or other'),
                                  _('Please correct selection'))

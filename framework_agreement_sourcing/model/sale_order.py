@@ -2,7 +2,7 @@
 ##############################################################################
 #
 #    Author: Nicolas Bessi
-#    Copyright 2013 Camptocamp SA
+#    Copyright 2013-2015 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -40,7 +40,7 @@ class sale_order_line(orm.Model):
         wf_service = netsvc.LocalService("workflow")
 
         def source_valid(source):
-            if source and source.procurement_method == 'fw_agreement':
+            if source and source.sourcing_method == 'fw_agreement':
                 return True
             return False
 

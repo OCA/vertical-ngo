@@ -392,7 +392,7 @@ msgid "Followers"
 msgstr ""
 
 #. module: logistic_requisition
-#: selection:logistic.requisition.source,procurement_method:0
+#: selection:logistic.requisition.source,sourcing_method:0
 msgid "Framework Agreement"
 msgstr ""
 
@@ -727,7 +727,7 @@ msgid "Origin"
 msgstr ""
 
 #. module: logistic_requisition
-#: selection:logistic.requisition.source,procurement_method:0
+#: selection:logistic.requisition.source,sourcing_method:0
 msgid "Other"
 msgstr ""
 
@@ -786,7 +786,7 @@ msgstr ""
 
 #. module: logistic_requisition
 #: view:logistic.requisition.source:logistic_requisition.view_logistic_requisition_source_filter
-#: field:logistic.requisition.source,procurement_method:0
+#: field:logistic.requisition.source,sourcing_method:0
 msgid "Sourcing Method"
 msgstr ""
 
@@ -1133,7 +1133,7 @@ msgid "Summary"
 msgstr ""
 
 #. module: logistic_requisition
-#: selection:logistic.requisition.source,procurement_method:0
+#: selection:logistic.requisition.source,sourcing_method:0
 msgid "Tender"
 msgstr ""
 
@@ -1298,7 +1298,7 @@ msgstr ""
 
 #. module: logistic_requisition
 #: view:logistic.requisition.source:logistic_requisition.view_logistic_requisition_source_form
-#: selection:logistic.requisition.source,procurement_method:0
+#: selection:logistic.requisition.source,sourcing_method:0
 msgid "Warehouse Dispatch"
 msgstr ""
 

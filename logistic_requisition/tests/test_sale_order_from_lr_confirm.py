@@ -75,7 +75,7 @@ class test_sale_order_from_lr_confirm(common.TransactionCase):
             'proposed_product_id': self.product_16.id,
             'proposed_uom_id': self.product_uom_pce.id,
             'unit_cost': 10,
-            'procurement_method': 'procurement',
+            'sourcing_method': 'procurement',
             'price_is': 'estimated',
         }
 

@@ -2,7 +2,7 @@
 ##############################################################################
 #
 #    Author: Nicolas Bessi
-#    Copyright 2013 Camptocamp SA
+#    Copyright 2013-2015 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -30,9 +30,9 @@ class LogisticsRequisitionLine(models.Model):
     @api.multi
     def _prepare_agreement_source(self, agreement, qty=None):
         """Prepare data dict for source line creation. If an agreement
-        is given, the procurement_method will be an LTA ('fw_agreement').
+        is given, the sourcing_method will be an LTA ('fw_agreement').
         Otherwise, if it's a stockable product we'll go to tender
-        by setting procurement_method as 'procurement'. Finally marke the
+        by setting sourcing_method as 'procurement'. Finally marke the
         rest as 'other'. Those are default value that can be changed afterward
         by the user.
 
@@ -49,7 +49,7 @@ class LogisticsRequisitionLine(models.Model):
         values = self._prepare_source(qty)
         values.update(
             framework_agreement_id=agreement.id,
-            procurement_method='fw_agreement',
+            sourcing_method='fw_agreement',
             unit_cost=agreement.get_price(qty, self.currency_id),
         )
         return values

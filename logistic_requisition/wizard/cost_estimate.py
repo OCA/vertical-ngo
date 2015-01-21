@@ -2,7 +2,7 @@
 #
 #
 #    Author:  Joël Grand-Guillaume
-#    Copyright 2013-2014 Camptocamp SA
+#    Copyright 2013-2015 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -114,7 +114,7 @@ class LogisticsRequisitionCostEstimate(models.TransientModel):
         Other and Warehouse Dispatch doesn't need a Purchase order line.
 
         """
-        return sourcing.procurement_method in ['procurement', 'fw_agreement']
+        return sourcing.sourcing_method in ['procurement', 'fw_agreement']
 
     @api.model
     def _prepare_cost_estimate_line(self, sourcing):
@@ -134,7 +134,7 @@ class LogisticsRequisitionCostEstimate(models.TransientModel):
             warehouse_id = self.env['stock.location'].get_warehouse(
                 sourcing.dispatch_location_id)
             vals['warehouse_id'] = warehouse_id
-        elif sourcing.procurement_method not in ('wh_dispatch'):
+        elif sourcing.sourcing_method not in ('wh_dispatch'):
             vals['route_id'] = self._get_route_drop_shipping()
 
         requisition = sourcing.requisition_line_id.requisition_id

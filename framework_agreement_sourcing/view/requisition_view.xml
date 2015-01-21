@@ -7,7 +7,7 @@
       <field name="inherit_id" ref="logistic_requisition.view_logistic_requisition_source_form"/>
       <field name="arch" type="xml">
         <xpath expr="//header" position="inside">
-          <group attrs="{'invisible': [('procurement_method', '!=', 'fw_agreement')]}">
+          <group attrs="{'invisible': [('sourcing_method', '!=', 'fw_agreement')]}">
             <button name="%(action_view_create_agr_po_from_source)d"
               states="assigned,sourced"
               string="Create Agreement Purchase Order"
@@ -19,11 +19,11 @@
                position="before">
           <field name="framework_agreement_id"
                  domain="[('draft', '=', False), ('product_id', '=', proposed_product_id)]"
-                 attrs="{'required': [('procurement_method', '=', 'fw_agreement')],
-                        'invisible': [('procurement_method', '!=', 'fw_agreement')]}" />
+                 attrs="{'required': [('sourcing_method', '=', 'fw_agreement')],
+                        'invisible': [('sourcing_method', '!=', 'fw_agreement')]}" />
           <field name="framework_agreement_po_id"
                  readonly="1"
-                 attrs="{'invisible': [('procurement_method', 'not in', ['fw_agreement','other'])]}"
+                 attrs="{'invisible': [('sourcing_method', 'not in', ['fw_agreement','other'])]}"
                  />
 
           <field name="supplier_id"
@@ -31,11 +31,11 @@
         </field>
         <field name="proposed_uom_id"
                position="attributes">
-          <attribute name="attrs">{'invisible': [('procurement_method', '=', 'fw_agreement')]}</attribute>
+          <attribute name="attrs">{'invisible': [('sourcing_method', '=', 'fw_agreement')]}</attribute>
         </field>
         <field name="price_is"
                position="attributes">
-          <attribute name="attrs">{'invisible': [('procurement_method', '=', 'fw_agreement')]}</attribute>
+          <attribute name="attrs">{'invisible': [('sourcing_method', '=', 'fw_agreement')]}</attribute>
         </field>
       </field>
     </record>
