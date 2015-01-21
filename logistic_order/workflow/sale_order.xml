@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
+        <record id="act_cost_estimate_accepted" model="workflow.activity">
+            <field name="wkf_id" ref="sale.wkf_sale"/>
+            <field name="name">cost_estimate_accepted</field>
+            <field name="kind">function</field>
+            <field name="action">write({'state':'accepted'})</field>
+        </record>
         <record id="act_cost_estimate_done" model="workflow.activity">
             <field name="wkf_id" ref="sale.wkf_sale"/>
             <field name="name">cost_estimate_done</field>
@@ -11,6 +17,21 @@
 
         <!-- Transistion -->
 
+        <record id="trans_draft_accepted" model="workflow.transition">
+            <field name="act_from" ref="sale.act_draft"/>
+            <field name="act_to" ref="act_cost_estimate_accepted"/>
+            <field name="signal">accepted</field>
+        </record>
+        <record id="trans_sent_accepted" model="workflow.transition">
+            <field name="act_from" ref="sale.act_sent"/>
+            <field name="act_to" ref="act_cost_estimate_accepted"/>
+            <field name="signal">accepted</field>
+        </record>
+        <record id="trans_accepted_router" model="workflow.transition">
+            <field name="act_from" ref="act_cost_estimate_accepted"/>
+            <field name="act_to" ref="sale.act_router"/>
+            <field name="signal">order_confirm</field>
+        </record>
         <record id="trans_cost_estimate_only_done" model="workflow.transition">
             <field name="act_from" ref="sale.act_draft"/>
             <field name="act_to" ref="act_cost_estimate_done"/>
