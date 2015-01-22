@@ -48,6 +48,9 @@ coverage.xml
 # Rope
 .ropeproject
 
+# Sphinx documentation
+docs/_build/
+
 # Backup files
 *~
 *.swp
