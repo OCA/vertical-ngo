@@ -141,6 +141,10 @@ class SaleOrder(models.Model):
             res['context'].update(mark_cost_estimate_as_done=True)
         return res
 
+    @api.multi
+    def action_accepted(self):
+        self.write({'state': 'accepted'})
+
 
 class mail_compose_message(models.Model):
     _inherit = 'mail.compose.message'

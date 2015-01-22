@@ -5,7 +5,7 @@
             <field name="wkf_id" ref="sale.wkf_sale"/>
             <field name="name">cost_estimate_accepted</field>
             <field name="kind">function</field>
-            <field name="action">write({'state':'accepted'})</field>
+            <field name="action">action_accepted()</field>
         </record>
         <record id="act_cost_estimate_done" model="workflow.activity">
             <field name="wkf_id" ref="sale.wkf_sale"/>
