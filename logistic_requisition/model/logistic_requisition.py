@@ -411,14 +411,8 @@ class LogisticsRequisitionLine(models.Model):
         compute='_get_total_cost',
         string='Total Amount',
         digits_compute=dp.get_precision('Account'),
-        store=True)
-    amount_total_company = fields.Float(
-        compute='_get_total_cost',
-        string='Tot. Amount in Company currency',
-        digits_compute=dp.get_precision('Account'),
-        store=True,
-        help="Total amount converted to company currency using rates at "
-             "requisition date")
+        store=True
+    )
     date_delivery = fields.Date(
         'Desired Delivery Date',
         states=REQUEST_STATES,
@@ -455,11 +449,6 @@ class LogisticsRequisitionLine(models.Model):
         string='Currency',
         readonly=True,
         store=True)
-    company_currency_id = fields.Many2one(
-        related='requisition_id.company_id.currency_id',
-        comodel_name='res.currency',
-        string='Company currency',
-        readonly=True)
     note = fields.Text('Remarks / Conditions')
     account_id = fields.Many2one(
         related='product_id.property_account_income',
@@ -669,38 +658,13 @@ class LogisticsRequisitionLine(models.Model):
             if not isinstance(line.id, models.NewId):
                 line.display_requisition_id = line.requisition_id
 
-    @api.multi
-    @api.depends('source_ids.total_cost',
-                 'requisition_id.currency_id',
-                 'requisition_id.date',
-                 'requisition_id.company_id.currency_id')
+    @api.one
+    @api.depends('source_ids.total_cost')
     def _get_total_cost(self):
-        for line in self:
-
-            total_cost = 0.0
-            total_cost_company = 0.0
-            for source_line in line.source_ids:
-                total_cost += source_line.total_cost
-            line.amount_total = total_cost
-
-            requisition = line.requisition_id
-            if requisition and requisition.currency_id:
-                date = requisition.date
-                from_curr = requisition.currency_id.with_context(date=date)
-                to_curr = requisition.company_id.currency_id
-                total_cost_company += from_curr.compute(total_cost, to_curr,
-                                                        round=False)
-                line.amount_total_company = total_cost_company
-            elif not requisition:
-                _logger.warning(
-                    "Total in currency not computed: requisition not passed "
-                    "to the onchange method. This can probably be avoided "
-                    "improving the view."
-                )
-            else:
-                raise exceptions.Warning(
-                    _('You must set a pricelist on the Requisition, '
-                      'or configure a default pricelist for this requestor.'))
+        total_cost = 0.0
+        for source_line in self.source_ids:
+            total_cost += source_line.total_cost
+        self.amount_total = total_cost
 
     @api.multi
     def _stock_count(self):
