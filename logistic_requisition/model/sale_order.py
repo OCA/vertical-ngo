@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 #
+#    Author: Yannick Vaucher
 #    Copyright 2013-2015 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -17,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #
-from openerp import models, fields
+from openerp import models, fields, api
 from .logistic_requisition import LogisticsRequisitionSource
 
 
@@ -28,6 +29,30 @@ class SaleOrder(models.Model):
                                      'Logistics Requisition',
                                      ondelete='restrict',
                                      copy=False)
+
+    @api.multi
+    def action_accepted(self):
+        """ On acceptation of Cost Estimate, we generate PO
+        for all line sourced by a tender
+
+        """
+        res = super(SaleOrder, self).action_accepted()
+        purchase_line_model = self.env['purchase.order.line']
+        purch_req_so_lines = self.mapped('order_line').filtered(
+            lambda rec: (rec.sourcing_method == 'procurement'
+                         and not rec.sourced_by))
+        todo = self.env['purchase.requisition'].browse()
+        for line in purch_req_so_lines:
+            source = line.lr_source_id
+            if not source.purchase_line_id:
+                todo |= source.po_requisition_id
+
+        for purch_req in todo:
+            purch_req.generate_po()
+
+        for line in purch_req_so_lines:
+            line.sourced_by = line.lr_source_id.purchase_line_id
+        return res
 
 
 class SaleOrderLine(models.Model):
@@ -42,7 +67,7 @@ class SaleOrderLine(models.Model):
     lr_source_id = fields.Many2one(
         'logistic.requisition.source',
         'Logistics Requisition Source',
-        )
+    )
     sourcing_method = fields.Selection(
         related='lr_source_id.sourcing_method',
         selection=[
