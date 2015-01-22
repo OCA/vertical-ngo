@@ -29,6 +29,7 @@ AGR_SELECT = 'agreement_selected'
 
 
 class purchase_requisition(orm.Model):
+
     """Add support to negociate LTA using tender process"""
 
     def __init__(self, pool, cr):

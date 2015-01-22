@@ -2,7 +2,6 @@
 
 from itertools import groupby
 from openerp.osv import orm, fields
-from openerp import netsvc
 from openerp.tools.translate import _
 from .logistic_requisition import logistic_requisition_source
 
@@ -177,7 +176,8 @@ class sale_order_line(orm.Model):
         back to the logistic requisition line, and generate the purchase
         order for the purchase requisition.
         """
-        result = super(sale_order_line, self).button_confirm(cr, uid, ids, context=context)
+        result = super(sale_order_line, self).button_confirm(
+            cr, uid, ids, context=context)
         purchase_requisitions = set()
         for line in self.browse(cr, uid, ids, context=context):
             if not line.logistic_requisition_source_id:

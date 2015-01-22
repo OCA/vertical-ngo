@@ -24,10 +24,10 @@ from .logistic_requisition_source import AGR_PROC
 
 
 class logistic_requisition_cost_estimate(orm.Model):
+
     """Add update of agreement price"""
 
     _inherit = "logistic.requisition.cost.estimate"
-
 
     def _prepare_cost_estimate_line(self, cr, uid, sourcing, context=None):
         """Override in order to update agreement source line
@@ -64,7 +64,8 @@ class logistic_requisition_cost_estimate(orm.Model):
                                  _('Please add one'))
         for po_line in po_lines:
             key = po_line.product_id.id if po_line.product_id else False
-            po_line.write({'sale_order_line_id': product_dict.get(key, default)})
+            po_line.write(
+                {'sale_order_line_id': product_dict.get(key, default)})
 
     def cost_estimate(self, cr, uid, ids, context=None):
         """Override to link PO to cost_estimate$
@@ -95,5 +96,6 @@ class logistic_requisition_cost_estimate(orm.Model):
         po_model.write(cr, uid, list(po_ids),
                        {'sale_id': so_id,
                         'sale_flow': 'direct_delivery'})
-        self._link_po_lines_to_so_lines(cr, uid, order, sources, context=context)
+        self._link_po_lines_to_so_lines(
+            cr, uid, order, sources, context=context)
         return res

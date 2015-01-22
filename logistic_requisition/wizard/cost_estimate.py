@@ -244,7 +244,7 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
         onchange_vals = sale_obj.onchange_partner_id(
             cr, uid, [], partner_id, context=context).get('value', {})
         vals.update(onchange_vals)
-        vals.update({'pricelist_id':requisition.pricelist_id.id})
+        vals.update({'pricelist_id': requisition.pricelist_id.id})
         return vals
 
     def cost_estimate(self, cr, uid, ids, context=None):
@@ -252,7 +252,6 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
             assert len(ids) == 1, "Only 1 ID accepted"
             ids = ids[0]
         line_obj = self.pool.get('logistic.requisition.line')
-        source_obj = self.pool.get('logistic.requisition.source')
         sale_obj = self.pool.get('sale.order')
         form = self.browse(cr, uid, ids, context=context)
         requisition = form.requisition_id

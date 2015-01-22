@@ -27,11 +27,10 @@ class LogisticRequisitionSourceCreateRequisition(orm.TransientModel):
     _name = "logistic.requisition.source.create.requisition"
     _description = "Create Purchase Requisition From Requisition Source"
 
-
     _columns = {
         'pricelist_id': fields.many2one('product.pricelist',
-                                          string='Pricelist / Currency',
-                                          required=True),
+                                        string='Pricelist / Currency',
+                                        required=True),
     }
 
     def default_get(self, cr, uid, fields_list, context=None):
@@ -45,11 +44,11 @@ class LogisticRequisitionSourceCreateRequisition(orm.TransientModel):
         pricelist_id = None
         line = line_obj.browse(cr, uid, line_ids, context=context)[0]
         pricelist_id = line_obj._get_purchase_pricelist_from_currency(
-                cr,
-                uid,
-                line.requisition_id.pricelist_id.currency_id.id,
-                context=context
-                )
+            cr,
+            uid,
+            line.requisition_id.pricelist_id.currency_id.id,
+            context=context
+        )
         defaults['pricelist_id'] = pricelist_id
         return defaults
 
@@ -57,7 +56,7 @@ class LogisticRequisitionSourceCreateRequisition(orm.TransientModel):
         form = self.browse(cr, uid, ids, context=context)[0]
         source_obj = self.pool.get('logistic.requisition.source')
         requisition_id = source_obj._action_create_po_requisition(
-            cr, uid, context.get('active_ids', []), 
+            cr, uid, context.get('active_ids', []),
             pricelist=form.pricelist_id.id, context=context)
         return {
             'name': _('Purchase Requisition'),

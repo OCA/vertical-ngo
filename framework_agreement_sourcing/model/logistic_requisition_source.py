@@ -1,4 +1,4 @@
- # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 ##############################################################################
 #
 #    Author: Nicolas Bessi
@@ -30,6 +30,7 @@ AGR_PROC = 'fw_agreement'
 
 
 class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
+
     """Adds support of framework agreement to source line"""
 
     _inherit = "logistic.requisition.source"
@@ -75,7 +76,7 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
                     res[line.id] = False
         return res
 
-    #------------------ adapting source line to po -----------------------------
+    #------------------ adapting source line to po ---------------------------
     def _company(self, cr, uid, context):
         """Return company id
 
@@ -120,7 +121,7 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
         return data
 
     def _prepare_purchase_order_line(self, cr, uid, po_id, line,
-                               po_supplier, po_pricelist, context=None):
+                                     po_supplier, po_pricelist, context=None):
         """Prepare the dict of values to create the PO Line from args.
 
         :param integer po_id: ids of purchase.order
@@ -136,7 +137,8 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
         currency = po_pricelist.currency_id
 
         if line.framework_agreement_id:
-            price = line.framework_agreement_id.get_price(line.proposed_qty, currency=currency)
+            price = line.framework_agreement_id.get_price(
+                line.proposed_qty, currency=currency)
             lead_time = line.framework_agreement_id.delay
             supplier = line.framework_agreement_id.supplier_id
             data['framework_agreement_id'] = line.framework_agreement_id.id
@@ -162,7 +164,7 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
         data['product_qty'] = line.proposed_qty
         data['product_id'] = line.proposed_product_id.id
         data['product_uom'] = line.proposed_uom_id.id
-        data['lr_source_line_id']= line.id
+        data['lr_source_line_id'] = line.id
         data['product_lead_time'] = lead_time
         data['price_unit'] = price
         data['name'] = line.proposed_product_id.name
@@ -196,20 +198,21 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
         supplier = main_source.framework_agreement_id.supplier_id
         to_curr = pricelist.currency_id.id
         po_vals = self._prepare_purchase_order(cr, uid, main_source,
-                                         pricelist, context=context)
+                                               pricelist, context=context)
         po_id = po_obj.create(cr, uid, po_vals, context=context)
         other_sources = other_sources if other_sources else []
         for source in chain([main_source], other_sources):
             line_vals = self._prepare_purchase_order_line(cr, uid, po_id,
-                                                    source, supplier,
-                                                    pricelist, context=context)
+                                                          source, supplier,
+                                                          pricelist, context=context)
             po_l_obj.create(cr, uid, line_vals, context=context)
             # TODO: Update LRS unit_cost from po line, with currency conversion
             from_curr = source.requisition_id.currency_id.id
             # Compute from bid currency to LRS currency
             price = currency_obj.compute(cr, uid, from_curr, to_curr,
-                    line_vals['price_unit'], False)
-            source.write({'framework_agreement_po_id': po_id, 'unit_cost':price})
+                                         line_vals['price_unit'], False)
+            source.write(
+                {'framework_agreement_po_id': po_id, 'unit_cost': price})
         return po_id
 
     def make_purchase_order(self, cr, uid, ids, pricelist, context=None):
@@ -232,7 +235,7 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
         # LRS of type LTA (framework agreement)
         agreement_sources = []
         # LRS of type other
-        other_sources =  []
+        other_sources = []
         for source in sources:
             if source.procurement_method == AGR_PROC:
                 agreement_sources.append(source)
@@ -261,7 +264,7 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
         tender_ok = self._is_sourced_procurement(cr, uid, source,
                                                  context=context)
         agr_ok = self._is_sourced_fw_agreement(cr, uid, source,
-                                                 context=context)
+                                               context=context)
         return (tender_ok or agr_ok)
 
     def _is_sourced_fw_agreement(self, cr, uid, source, context=None):
@@ -272,12 +275,13 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
         """
         po_line_obj = self.pool['purchase.order.line']
         sources_ids = po_line_obj.search(cr, uid,
-                                         [('lr_source_line_id', '=', source.id)],
+                                         [('lr_source_line_id', '=', source.id)
+                                          ],
                                          context=context)
         # predicate
         return bool(sources_ids)
 
-    #---------------OpenERP tedious onchange management ------------------------
+    #---------------OpenERP tedious onchange management ----------------------
 
     def _get_date(self, cr, uid, requision_line_id, context=None):
         """helper to retrive date to be used by framework agreement
@@ -364,7 +368,8 @@ class logistic_requisition_source(orm.Model, FrameworkAgreementObservable):
                 value = {'proposed_uom_id': ''}
                 if proposed_product_id:
                     prod_obj = self.pool.get('product.product')
-                    prod = prod_obj.browse(cr, uid, proposed_product_id, context=context)
+                    prod = prod_obj.browse(
+                        cr, uid, proposed_product_id, context=context)
                     value = {
                         'proposed_uom_id': prod.uom_id.id,
                     }

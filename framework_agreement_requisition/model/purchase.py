@@ -26,6 +26,7 @@ AGR_SELECT = 'agreement_selected'
 
 
 class purchase_order(orm.Model):
+
     """Add workflow behavior"""
 
     _inherit = "purchase.order"
@@ -52,6 +53,7 @@ class purchase_order(orm.Model):
 
 
 class purchase_order_line(orm.Model):
+
     """Add make_agreement function"""
 
     _inherit = "purchase.order.line"
@@ -67,7 +69,7 @@ class purchase_order_line(orm.Model):
         for line in self.browse(cr, uid, ids, context=context):
             if line.order_id.framework_agreement_id:
                 continue
-            if line.product_id.type == 'product' and  not line.quantity_bid <= line.product_qty:
+            if line.product_id.type == 'product' and not line.quantity_bid <= line.product_qty:
                 return False
         return True
 
@@ -76,6 +78,7 @@ class purchase_order_line(orm.Model):
          'Selected quantity must be less or equal than the quantity in the bid',
          [])
     ]
+
     def _agreement_data(self, cr, uid, po_line, origin, context=None):
         """Get agreement values from PO line
 

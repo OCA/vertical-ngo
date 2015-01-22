@@ -25,7 +25,7 @@
  "category": "Transportation",
  "license": 'AGPL-3',
  'complexity': "normal",
- "images" : [],
+ "images": [],
  "website": "http://www.camptocamp.com",
  "description": """
 This module allows you to manage your transport
@@ -33,10 +33,10 @@ This module allows you to manage your transport
 
 A transport plan represent a kind of "contract" with your carrier.
 """,
- "depends" : ["sale",
-              "purchase",
-              "stock",
-              ],
+ "depends": ["sale",
+             "purchase",
+             "stock",
+             ],
  "demo": [],
  "data": ["data/tranport_plan_sequence.xml",
           "data/tranport_mode_data.xml",

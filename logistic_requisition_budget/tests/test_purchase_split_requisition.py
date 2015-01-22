@@ -20,7 +20,6 @@
 ##############################################################################
 
 import time
-import unittest2
 from functools import partial
 
 from openerp.tools import DEFAULT_SERVER_DATE_FORMAT as D_FMT
@@ -33,6 +32,7 @@ from openerp.addons.logistic_requisition.tests import purchase_order
 
 
 class test_purchase_split_requisition(common.TransactionCase):
+
     """ Test the split of the logistics requisition lines
     according to the purchase order lines choosed during the
     purchase requisition process.
@@ -71,8 +71,8 @@ class test_purchase_split_requisition(common.TransactionCase):
         __, self.user_demo = self.get_ref('base', 'user_demo')
         __, self.product_7 = self.get_ref('product', 'product_product_7')
         __, self.product_uom_pce = self.get_ref('product', 'product_uom_unit')
-        __, self.pricelist_sale = self.get_ref('product','list0')
-        
+        __, self.pricelist_sale = self.get_ref('product', 'list0')
+
         vals = {
             'partner_id': self.partner_4,
             'consignee_id': self.partner_3,
