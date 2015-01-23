@@ -22,6 +22,20 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="logistic_consignee.view_order_form"/>
         <field name="arch" type="xml">
+
+          <h1 position="before">
+            <div class="oe_right oe_button_box" style="width: 300px;" name="buttons">
+              <button class="oe_inline oe_stat_button" name="action_open_logistic_requisition"
+                type="object" icon="fa-thumb-tack">
+                <field string="Linked LR" name="lr_count" widget="statinfo" />
+              </button>
+              <button class="oe_inline oe_stat_button" name="action_open_lr_sources"
+                type="object" icon="fa-search">
+                <field string="Linked LRS" name="lr_source_count" widget="statinfo" />
+              </button>
+            </div>
+          </h1>
+
           <field name="consignee_id" position="before">
             <field name='order_type'/>
           </field>

@@ -30,6 +30,14 @@ class SaleOrder(models.Model):
                                      ondelete='restrict',
                                      copy=False)
 
+    lr_count = fields.Integer(
+        compute='_count_logistic_requisition'
+    )
+    lr_source_count = fields.Integer(
+        compute='_count_lr_source'
+    )
+
+
     @api.multi
     def action_accepted(self):
         """ On acceptation of Cost Estimate, we generate PO
@@ -54,6 +62,33 @@ class SaleOrder(models.Model):
             line.sourced_by = line.lr_source_id.purchase_line_id
         return res
 
+    @api.one
+    @api.depends('requisition_id')
+    def _count_logistic_requisition(self):
+        """ Set lr_count field """
+        self.lr_count = len(self.requisition_id.ids)
+
+    @api.one
+    @api.depends('order_line.lr_source_id')
+    def _count_lr_source(self):
+        """ Set lr_source_count field """
+        sources = self.order_line.mapped('lr_source_id')
+        self.lr_source_count = len(sources)
+
+    @api.multi
+    def action_open_logistic_requisition(self):
+        action_ref = 'logistic_requisition.action_logistic_requisition'
+        action_dict = self.env.ref(action_ref).read()[0]
+        action_dict['domain'] = [('id', 'in', [self.requisition_id.id])]
+        return action_dict
+
+    @api.multi
+    def action_open_lr_sources(self):
+        action_ref = 'logistic_requisition.action_logistic_requisition_source'
+        action_dict = self.env.ref(action_ref).read()[0]
+        sources = self.order_line.mapped('lr_source_id')
+        action_dict['domain'] = [('id', 'in', sources.ids)]
+        return action_dict
 
 class SaleOrderLine(models.Model):
     _inherit = "sale.order.line"
