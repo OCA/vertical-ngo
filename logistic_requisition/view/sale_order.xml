@@ -33,6 +33,14 @@
                 type="object" icon="fa-search">
                 <field string="Linked LRS" name="lr_source_count" widget="statinfo" />
               </button>
+              <button class="oe_inline oe_stat_button" name="action_open_lr_purchases"
+                type="object" icon="fa-shopping-cart" states="draft">
+                <field string="Relevant Bid &amp; PO" name="lr_purchase_count" widget="statinfo" />
+              </button>
+              <button class="oe_inline oe_stat_button" name="action_open_lr_purchases"
+                type="object" icon="fa-shopping-cart" states="accepted,waiting_date,progress,manual,shipping_except,invoice_except">
+                <field string="Relevant PO" name="lr_purchase_count" widget="statinfo" />
+              </button>
             </div>
           </h1>
 

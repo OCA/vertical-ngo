@@ -36,7 +36,9 @@ class SaleOrder(models.Model):
     lr_source_count = fields.Integer(
         compute='_count_lr_source'
     )
-
+    lr_purchase_count = fields.Integer(
+        compute='_count_lr_purchase'
+    )
 
     @api.multi
     def action_accepted(self):
@@ -45,7 +47,6 @@ class SaleOrder(models.Model):
 
         """
         res = super(SaleOrder, self).action_accepted()
-        purchase_line_model = self.env['purchase.order.line']
         purch_req_so_lines = self.mapped('order_line').filtered(
             lambda rec: (rec.sourcing_method == 'procurement'
                          and not rec.sourced_by))
@@ -62,11 +63,26 @@ class SaleOrder(models.Model):
             line.sourced_by = line.lr_source_id.purchase_line_id
         return res
 
+    @api.multi
+    def _get_relevant_purchases(self):
+        sourced_lines = self.order_line.filtered(lambda rec: rec.sourced_by)
+        purchases = sourced_lines.mapped('sourced_by.order_id')
+
+        if self.state == 'draft':
+            # If line is not sourced and is tender,
+            # check for existing bid
+            unsourced_lines = self.order_line - sourced_lines
+            unsourced_lines = unsourced_lines.filtered(
+                lambda rec: rec.sourcing_method == 'procurement')
+            bids = unsourced_lines.mapped('lr_source_id.selected_bid_id')
+            purchases |= bids
+        return purchases
+
     @api.one
     @api.depends('requisition_id')
     def _count_logistic_requisition(self):
         """ Set lr_count field """
-        self.lr_count = len(self.requisition_id.ids)
+        self.lr_count = len(self.requisition_id)
 
     @api.one
     @api.depends('order_line.lr_source_id')
@@ -74,6 +90,14 @@ class SaleOrder(models.Model):
         """ Set lr_source_count field """
         sources = self.order_line.mapped('lr_source_id')
         self.lr_source_count = len(sources)
+
+    @api.one
+    @api.depends('order_line.sourced_by',
+                 'order_line.lr_source_id.selected_bid_id')
+    def _count_lr_purchase(self):
+        """ Set lr_purchase_count field """
+        purchases = self._get_relevant_purchases()
+        self.lr_purchase_count = len(purchases)
 
     @api.multi
     def action_open_logistic_requisition(self):
@@ -89,6 +113,19 @@ class SaleOrder(models.Model):
         sources = self.order_line.mapped('lr_source_id')
         action_dict['domain'] = [('id', 'in', sources.ids)]
         return action_dict
+
+    @api.multi
+    def action_open_lr_purchases(self):
+        """ Open Bids and Purchase order sourcing this cost estimate """
+        self.ensure_one()
+        action_ref = 'purchase.purchase_form_action'
+        action_dict = self.env.ref(action_ref).read()[0]
+        purchases = self._get_relevant_purchases()
+        action_dict['domain'] = [('id', 'in', purchases.ids)]
+        del action_dict['help']
+
+        return action_dict
+
 
 class SaleOrderLine(models.Model):
     _inherit = "sale.order.line"
