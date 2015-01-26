@@ -28,8 +28,9 @@ class LogisticsRequisitionSource(models.Model):
     def onchange_source_type_warning(self):
         if self.requisition_id.requisition_type == 'donor_stock':
             if self.procurement_method not in ('wh_dispatch', 'other'):
-                raise exceptions.Warning(
-                    _("Only 'Warehouse Dispatch' and 'Other' sourcing methods can "
-                    "be used with Dispatch Donor Stock logistics requisition"))
+                raise exceptions.Warning(_(
+                    "Only 'Warehouse Dispatch' and 'Other' sourcing methods "
+                    "can be used with Dispatch Donor Stock logistics "
+                    "requisition"))
             owner = self.requisition_id.partner_id.commercial_partner_id
             self.stock_owner_id = owner.id
