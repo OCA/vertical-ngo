@@ -649,6 +649,7 @@
                             <field name="dispatch_location_id"
                                 attrs="{'required': [('procurement_method', '=', 'wh_dispatch')]}"
                                 domain="[('usage', '=', 'internal')]"/>
+                            <field name="stock_owner_id"/>
                         </group>
                     </group>
                 </sheet>

@@ -884,6 +884,9 @@ class LogisticsRequisitionSource(models.Model):
         'stock.location',
         string='Dispatch From',
         states=SOURCED_STATES)
+    stock_owner_id = fields.Many2one(
+        comodel_name='res.partner',
+        string='Stock owner')
     unit_cost = fields.Float(
         'Unit Cost',
         states=SOURCED_STATES,

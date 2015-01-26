@@ -48,6 +48,8 @@ class LogisticsRequisitionLine(models.Model):
         location_ids = [q['location_id'][0] for q in quant_groups]
         sourcing_method = 'wh_dispatch' if location_ids else 'other'
         values['procurement_method'] = sourcing_method
+        if sourcing_method == 'wh_dispatch':
+            values['stock_owner_id'] = owner.id
         if len(location_ids) == 1:
             values['dispatch_location_id'] = location_ids[0]
         return values

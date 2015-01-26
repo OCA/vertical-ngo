@@ -29,6 +29,7 @@
  "images": [],
  "website": "http://www.camptocamp.com",
  "depends": ["sale_sourced_by_line",
+             "sale_owner_stock_sourcing",
              "stock_dropshipping",
              "purchase",
              "purchase_requisition_bid_selection",
