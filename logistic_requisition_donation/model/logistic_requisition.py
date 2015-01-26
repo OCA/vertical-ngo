@@ -26,8 +26,8 @@ class LogisticsRequisition(models.Model):
 
     @api.model
     def get_requisition_type_selection(self):
-        """ Add type Dispatch Donor Stock """
+        """ Add type Requestor Stock Dispatch """
         _super = super(LogisticsRequisition, self)
         selection = _super.get_requisition_type_selection()
-        selection.append(('donor_stock', 'Dispatch Donor Stock'))
+        selection.append(('donor_stock', 'Requestor Stock Dispatch'))
         return selection

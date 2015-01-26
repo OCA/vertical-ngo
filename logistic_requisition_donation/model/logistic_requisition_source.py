@@ -30,7 +30,7 @@ class LogisticsRequisitionSource(models.Model):
             if self.sourcing_method not in ('wh_dispatch', 'other'):
                 raise exceptions.Warning(_(
                     "Only 'Warehouse Dispatch' and 'Other' sourcing methods "
-                    "can be used with Dispatch Donor Stock logistics "
+                    "can be used with Requestor Stock Dispatch logistics "
                     "requisition"))
             owner = self.requisition_id.partner_id.commercial_partner_id
             self.stock_owner_id = owner.id
