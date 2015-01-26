@@ -28,7 +28,6 @@ class logistic_requisition_cost_estimate(orm.Model):
 
     _inherit = "logistic.requisition.cost.estimate"
 
-
     def _prepare_cost_estimate_line(self, cr, uid, sourcing, context=None):
         """Override in order to update agreement source line
 
