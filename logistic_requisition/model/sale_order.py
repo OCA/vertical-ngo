@@ -50,6 +50,9 @@ class SaleOrder(models.Model):
         purch_req_so_lines = self.mapped('order_line').filtered(
             lambda rec: (rec.sourcing_method == 'procurement'
                          and not rec.sourced_by))
+        # As multiple source lines can lead to the same purchase
+        # requisition. First we list them. And then we generate
+        # PO only once for each purchase requisition.
         todo = self.env['purchase.requisition']
         for line in purch_req_so_lines:
             source = line.lr_source_id
