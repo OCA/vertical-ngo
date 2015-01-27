@@ -50,7 +50,7 @@ class SaleOrder(models.Model):
         purch_req_so_lines = self.mapped('order_line').filtered(
             lambda rec: (rec.sourcing_method == 'procurement'
                          and not rec.sourced_by))
-        todo = self.env['purchase.requisition'].browse()
+        todo = self.env['purchase.requisition']
         for line in purch_req_so_lines:
             source = line.lr_source_id
             if not source.purchase_line_id:
