@@ -172,8 +172,8 @@ class LogisticsRequisition(models.Model):
         'Pricelist',
         required=True,
         states=REQ_STATES,
-        help="Pricelist that represent the currency for current logistic "
-             "request.")
+        help="Pricelist that represents the currency for current logistics "
+             "requisition.")
     # ValueError: Wrong value for logistic.requisition.currency_id:
     # res.currency() on create
     currency_id = fields.Many2one(
@@ -367,7 +367,7 @@ class LogisticsRequisitionLine(models.Model):
               ]
 
     name = fields.Char(
-        u'Line N°',
+        u'Line No.',
         readonly=True,
         default='/',
         copy=False)
@@ -616,7 +616,7 @@ class LogisticsRequisitionLine(models.Model):
         sources = self.mapped('source_ids')
         sources.filtered(lambda rec: rec.sourcing_method == 'procurement')
         if not sources:
-            raise except_orm(_('No sourcing line Found'),
+            raise except_orm(_('No sourcing line found'),
                              _('No sourcing lines with a Tender procurement '
                                'method as were found, please create one.'))
         pricelist = self[0].requisition_id.pricelist_id or None
