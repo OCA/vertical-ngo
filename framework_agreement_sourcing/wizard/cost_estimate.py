@@ -2,7 +2,7 @@
 ##############################################################################
 #
 #    Author: Nicolas Bessi
-#    Copyright 2013, 2014 Camptocamp SA
+#    Copyright 2013-2015 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -36,7 +36,7 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
                     self)._prepare_cost_estimate_line(cr, uid, sourcing,
                                                       context=context)
 
-        if sourcing.procurement_method == 'fw_agreement':
+        if sourcing.sourcing_method == 'fw_agreement':
             res['type'] = 'make_to_order'
             res['sale_flow'] = 'direct_delivery'
         return res
@@ -95,7 +95,7 @@ class logistic_requisition_cost_estimate(orm.TransientModel):
 
         for lrl in wizard.line_ids:
             for source in lrl.source_ids:
-                if source.procurement_method == 'fw_agreement':
+                if source.sourcing_method == 'fw_agreement':
                     sources.append(source)
 
         po_ids = set(x.purchase_line_id.order_id.id for x in sources

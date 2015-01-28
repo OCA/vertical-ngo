@@ -38,44 +38,37 @@ class test_sale_order_from_lr_confirm(common.TransactionCase):
 
     def setUp(self):
         super(test_sale_order_from_lr_confirm, self).setUp()
-        self.purch_req_model = self.env['purchase.requisition']
         self.log_req_model = self.env['logistic.requisition']
-        self.log_req_line_model = self.env['logistic.requisition.line']
-        self.sale_model = self.env['sale.order']
-        self.purchase_model = self.env['purchase.order']
-        data_model = self.env['ir.model.data']
-        self.partner_1 = data_model.xmlid_to_object('base.res_partner_1')
-        self.partner_3 = data_model.xmlid_to_object('base.res_partner_3')
-        self.partner_4 = data_model.xmlid_to_object('base.res_partner_4')
-        self.user_demo = data_model.xmlid_to_object('base.user_demo')
+        self.partner_1 = self.env.ref('base.res_partner_1')
+        self.partner_3 = self.env.ref('base.res_partner_3')
+        partner_4 = self.env.ref('base.res_partner_4')
+        self.user_demo = self.env.ref('base.user_demo')
         # Computer Case: make_to_order
-        self.product_16 = data_model.xmlid_to_object(
-            'product.product_product_16')
-        self.product_uom_pce = data_model.xmlid_to_object(
-            'product.product_uom_unit')
-        self.pricelist_sale = data_model.xmlid_to_object('product.list0')
+        product_16 = self.env.ref('product.product_product_16')
+        product_uom_pce = self.env.ref('product.product_uom_unit')
+        pricelist_sale = self.env.ref('product.list0')
         self.vals = {
-            'partner_id': self.partner_4.id,
+            'partner_id': partner_4.id,
             'consignee_id': self.partner_3.id,
             'date': time.strftime(D_FMT),
             'date_delivery': time.strftime(D_FMT),
             'user_id': self.user_demo.id,
-            'pricelist_id': self.pricelist_sale.id,
+            'pricelist_id': pricelist_sale.id,
         }
 
         self.line1 = {
-            'product_id': self.product_16.id,  # MTO
+            'product_id': product_16.id,  # MTO
             'description': "[C-Case] Computer Case",
             'requested_qty': 100,
-            'requested_uom_id': self.product_uom_pce.id,
+            'requested_uom_id': product_uom_pce.id,
             'date_delivery': time.strftime(D_FMT),
         }
         self.source1 = {
             'proposed_qty': 100,
-            'proposed_product_id': self.product_16.id,
-            'proposed_uom_id': self.product_uom_pce.id,
+            'proposed_product_id': product_16.id,
+            'proposed_uom_id': product_uom_pce.id,
             'unit_cost': 10,
-            'procurement_method': 'procurement',
+            'sourcing_method': 'procurement',
             'price_is': 'estimated',
         }
 
@@ -106,16 +99,22 @@ class test_sale_order_from_lr_confirm(common.TransactionCase):
         logistic_requisition.source_lines(self, line)
         sale, __ = logistic_requisition.create_quotation(
             self, requisition, line)
-        # the confirmation of the sale order should generate the
+        # when accepting the cost estimate it should generate the
         # purchase order of the purchase requisition
-        # XXX generate_po by hand then select lines on sale order lines
-        # sale.action_button_confirm()
-        # self.assertEquals(purch_req.state,
-        #                   'done',
-        #                   "The purchase requisition should be in 'done' "
-        #                   "state.")
-        # self.assertEquals(len(purch_req.purchase_ids), 1,
-        #                   "We should have only 1 purchase order.")
+        sale.signal_workflow('accepted')
+        self.assertEquals(purch_req.state,
+                          'done',
+                          "The purchase requisition should be in 'done' "
+                          "state.")
+        self.assertEquals(len(purch_req.generated_order_ids), 1,
+                          "We should have only 1 purchase order.")
+        self.assertEquals(purch_req.generated_order_ids.state, "draftpo",
+                          "The purchase order should be in state draftpo.")
+        # Purchase order line must have been set in sourced_by field
+        # on sale.order.line
+        self.assertIsNotNone(sale.order_line.sourced_by)
+        self.assertEquals(sale.order_line.sourced_by,
+                          purch_req.generated_order_ids.order_line)
 
     def test_mto_sales_order_line_per_source_line(self):
         """ 1 sales order line is generated for each source line """
@@ -149,8 +148,7 @@ class test_sale_order_from_lr_confirm(common.TransactionCase):
                           "We should have one sales order line per "
                           "logistic requisition source")
         self.assertEquals(len(line.source_ids), 2)
-        # XXX link on logistic_requisition_source_id is obsolete
-        # self.assertEquals(sorted([line.source_ids[0].id,
-        #                   line.source_ids[1].id]),
-        #                   sorted([sl.logistic_requisition_source_id.id for sl
-        #                           in sale_lines]))
+        self.assertEquals(sorted([line.source_ids[0].id,
+                          line.source_ids[1].id]),
+                          sorted([sl.lr_source_id.id for sl
+                                  in sale_lines]))

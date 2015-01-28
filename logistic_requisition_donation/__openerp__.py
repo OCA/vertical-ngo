@@ -20,7 +20,7 @@
 #
 {'name': "Logistics Requisition - Donation",
  'summary': "Manage Donor Warehouse Dispatch with Logistics Requisition",
- 'version': "0.0.1",
+ 'version': "0.1",
  'author': "Camptocamp",
  'license': "AGPL-3",
  'category': "Purchase Management",

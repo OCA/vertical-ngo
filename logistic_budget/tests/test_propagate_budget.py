@@ -1,5 +1,5 @@
 #    Author: Leonardo Pistone
-#    Copyright 2014 Camptocamp SA
+#    Copyright 2014-2015 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -28,7 +28,7 @@ class TestPropagateBudget(TransactionCase):
         source2 = Mock(
             spec_set=self.env['logistic.requisition.source'],
             dispatch_location_id=False,
-            procurement_method='other',
+            sourcing_method='other',
             proposed_product_id=self.env['product.product'],
             proposed_qty=80,
             requisition_line_id=self.line,
@@ -66,7 +66,7 @@ class TestPropagateBudget(TransactionCase):
         self.source = Mock(
             spec_set=self.env['logistic.requisition.source'],
             dispatch_location_id=False,
-            procurement_method='other',
+            sourcing_method='other',
             proposed_product_id=self.env['product.product'],
             proposed_qty=20,
         )

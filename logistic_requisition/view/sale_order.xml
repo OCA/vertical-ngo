@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
-<data>
+  <data>
 
     <record id="view_order_line_form2_lr" model="ir.ui.view">
         <field name="name">sale.order.line.form2.lr</field>
@@ -22,18 +22,46 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="logistic_consignee.view_order_form"/>
         <field name="arch" type="xml">
+
+          <h1 position="before">
+            <div class="oe_right oe_button_box" style="width: 300px;" name="buttons">
+              <button class="oe_inline oe_stat_button" name="action_open_logistic_requisition"
+                type="object" icon="fa-thumb-tack">
+                <field string="Linked LR" name="lr_count" widget="statinfo" />
+              </button>
+              <button class="oe_inline oe_stat_button" name="action_open_lr_sources"
+                type="object" icon="fa-search">
+                <field string="Linked LRS" name="lr_source_count" widget="statinfo" />
+              </button>
+              <button class="oe_inline oe_stat_button" name="action_open_lr_purchases"
+                type="object" icon="fa-shopping-cart" states="draft">
+                <field string="Relevant Bid &amp; PO" name="lr_purchase_count" widget="statinfo" />
+              </button>
+              <button class="oe_inline oe_stat_button" name="action_open_lr_purchases"
+                type="object" icon="fa-shopping-cart" states="accepted,waiting_date,progress,manual,shipping_except,invoice_except">
+                <field string="Relevant PO" name="lr_purchase_count" widget="statinfo" />
+              </button>
+            </div>
+          </h1>
+
           <field name="consignee_id" position="before">
             <field name='order_type'/>
           </field>
           <field name="consignee_id" position="attributes">
             <attribute name="attrs">{'required': [('order_type', '!=', 'cost_estimate_only')]}</attribute>
           </field>
+          <xpath expr="//field[@name='order_line']/tree" position="attributes">
+            <attribute name="editable" eval="0"/>
+          </xpath>
           <xpath expr="//field[@name='order_line']/tree//field[@name='price_unit']"
               position="after">
               <field name="price_is"/>
           </xpath>
+          <xpath expr="//field[@name='order_line']/form//field[@name='warehouse_id']" position="after">
+              <field name="lr_source_id" groups="base.group_no_one"/>
+          </xpath>
         </field>
     </record>
 
-</data>
+  </data>
 </openerp>

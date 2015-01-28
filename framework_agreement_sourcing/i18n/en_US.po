@@ -56,13 +56,13 @@ msgstr "Logistics Requisition Line"
 
 #. module: framework_agreement_sourcing
 #: view:logistic.requisition.source:0
-msgid "{'invisible': [('procurement_method', '=', 'fw_agreement')]}"
-msgstr "{'invisible': [('procurement_method', '=', 'fw_agreement')]}"
+msgid "{'invisible': [('sourcing_method', '=', 'fw_agreement')]}"
+msgstr "{'invisible': [('sourcing_method', '=', 'fw_agreement')]}"
 
 #. module: framework_agreement_sourcing
 #: view:logistic.requisition.source:0
-msgid "onchange_sourcing_method(procurement_method, requisition_line_id, proposed_product_id, proposed_qty)"
-msgstr "onchange_sourcing_method(procurement_method, requisition_line_id, proposed_product_id, proposed_qty)"
+msgid "onchange_sourcing_method(sourcing_method, requisition_line_id, proposed_product_id, proposed_qty)"
+msgstr "onchange_sourcing_method(sourcing_method, requisition_line_id, proposed_product_id, proposed_qty)"
 
 #. module: framework_agreement_sourcing
 #: model:ir.model,name:framework_agreement_sourcing.model_logistic_requisition_cost_estimate
@@ -174,8 +174,8 @@ msgstr "You can only chose a pricelist with a currency that is included         
 
 #. module: framework_agreement_sourcing
 #: view:logistic.requisition.source:0
-msgid "onchange_quantity(procurement_method, requisition_line_id, proposed_qty, proposed_product_id)"
-msgstr "onchange_quantity(procurement_method, requisition_line_id, proposed_qty, proposed_product_id)"
+msgid "onchange_quantity(sourcing_method, requisition_line_id, proposed_qty, proposed_product_id)"
+msgstr "onchange_quantity(sourcing_method, requisition_line_id, proposed_qty, proposed_product_id)"
 
 #. module: framework_agreement_sourcing
 #: view:logistic.requisition.source.create.agr.po:0
@@ -200,8 +200,8 @@ msgstr "Cancel"
 
 #. module: framework_agreement_sourcing
 #: view:logistic.requisition.source:0
-msgid "onchange_product_id(procurement_method, requisition_line_id, proposed_product_id, proposed_qty)"
-msgstr "onchange_product_id(procurement_method, requisition_line_id, proposed_product_id, proposed_qty)"
+msgid "onchange_product_id(sourcing_method, requisition_line_id, proposed_product_id, proposed_qty)"
+msgstr "onchange_product_id(sourcing_method, requisition_line_id, proposed_product_id, proposed_qty)"
 
 #. module: framework_agreement_sourcing
 #: view:logistic.requisition.source.create.agr.po:0

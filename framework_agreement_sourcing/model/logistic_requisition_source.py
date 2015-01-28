@@ -2,7 +2,7 @@
 ##############################################################################
 #
 #    Author: Nicolas Bessi
-#    Copyright 2013-2014 Camptocamp SA
+#    Copyright 2013-2015 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -242,9 +242,9 @@ class logistic_requisition_source(orm.Model):
         # LRS of type other
         other_sources = []
         for source in sources:
-            if source.procurement_method == 'fw_agreement':
+            if source.sourcing_method == 'fw_agreement':
                 agreement_sources.append(source)
-            elif source.procurement_method == 'other':
+            elif source.sourcing_method == 'other':
                 other_sources.append(source)
             else:
                 raise orm.except_orm(
@@ -368,7 +368,7 @@ class logistic_requisition_source(orm.Model):
         self.price_is = 'fixed'
         return self._check_enought_qty(agreement)
 
-    @api.onchange('procurement_method')
+    @api.onchange('sourcing_method')
     def onchange_sourcing_method(self):
         """
         Called when source method is set on a source line.
@@ -378,7 +378,7 @@ class logistic_requisition_source(orm.Model):
         and raise quantity warning.
 
         """
-        if (self.procurement_method != 'fw_agreement'
+        if (self.sourcing_method != 'fw_agreement'
                 or not self.proposed_product_id):
             self.framework_agreement_id = False
             return
@@ -387,7 +387,7 @@ class logistic_requisition_source(orm.Model):
     @api.onchange('proposed_qty')
     def onchange_quantity(self):
         """Raise a warning if agreed qty is not sufficient"""
-        if (self.procurement_method != 'fw_agreement'
+        if (self.sourcing_method != 'fw_agreement'
                 or not self.proposed_product_id):
             return
         agreement = self._get_best_agreement()
@@ -404,7 +404,7 @@ class logistic_requisition_source(orm.Model):
         and raise quantity warning.
 
         """
-        if self.procurement_method != 'fw_agreement':
+        if self.sourcing_method != 'fw_agreement':
             if self.proposed_product_id:
                 self.proposed_uom_id = self.proposed_product_id.uom_id or False
             return

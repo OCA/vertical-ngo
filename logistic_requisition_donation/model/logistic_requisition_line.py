@@ -2,7 +2,7 @@
 #
 #
 #    Author: Yannick Vaucher
-#    Copyright 2014 Camptocamp SA
+#    Copyright 2014-2015 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -47,7 +47,7 @@ class LogisticsRequisitionLine(models.Model):
             search_domain, ['location_id', 'qty'], ['location_id'])
         location_ids = [q['location_id'][0] for q in quant_groups]
         sourcing_method = 'wh_dispatch' if location_ids else 'other'
-        values['procurement_method'] = sourcing_method
+        values['sourcing_method'] = sourcing_method
         if sourcing_method == 'wh_dispatch':
             values['stock_owner_id'] = owner.id
         if len(location_ids) == 1:

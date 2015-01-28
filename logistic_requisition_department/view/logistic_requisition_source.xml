@@ -7,7 +7,7 @@
       <field name="model">logistic.requisition.source</field>
       <field name="inherit_id" ref="logistic_requisition.view_logistic_requisition_source_form" />
       <field name="arch" type="xml">
-        <field name="procurement_method" position="after">
+        <field name="sourcing_method" position="after">
           <field name="department_id" />
         </field>
       </field>
@@ -29,7 +29,7 @@
       <field name="model">logistic.requisition.source</field>
       <field name="inherit_id" ref="logistic_requisition.view_logistic_requisition_source_filter" />
       <field name="arch" type="xml">
-        <xpath expr="//filter[@name='groupby_procurement_method']" position="after">
+        <xpath expr="//filter[@name='groupby_sourcing_method']" position="after">
           <filter string="Department" context="{'group_by': 'department_id'}"/>
         </xpath>
         <field name="name" position="after">

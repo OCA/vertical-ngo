@@ -1,5 +1,5 @@
 #    Author: Leonardo Pistone
-#    Copyright 2014 Camptocamp SA
+#    Copyright 2014-2015 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -20,20 +20,20 @@ class TestCheckSourcing(TransactionCase):
     """Check the _check_sourcing method of the source. """
 
     def test_agreement_sourcing_without_agreement_is_not_sourced(self):
-        self.source.procurement_method = 'fw_agreement'
+        self.source.sourcing_method = 'fw_agreement'
         errors = self.source._check_sourcing()
         self.assertEquals(1, len(errors))
         self.assertIn('No Framework Agreement', errors[0])
 
     def test_agreement_sourcing_with_running_agreement_is_sourced(self):
-        self.source.procurement_method = 'fw_agreement'
+        self.source.sourcing_method = 'fw_agreement'
         self.source.framework_agreement_id = self.Agreement.new({
             'state': 'running'
         })
         self.assertEquals([], self.source._check_sourcing())
 
     def test_other_sourcing_is_always_sourced(self):
-        self.source.procurement_method = 'other'
+        self.source.sourcing_method = 'other'
         self.assertEquals([], self.source._check_sourcing())
 
     def setUp(self):

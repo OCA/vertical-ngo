@@ -31,7 +31,7 @@
     proposed_product_id: product.product_product_32
     proposed_uom_id: product.product_uom_unit
     unit_cost: 8
-    procurement_method: wh_dispatch
+    sourcing_method: wh_dispatch
     price_is: fixed
     dispatch_location_id: stock.stock_location_components
 -

@@ -1,5 +1,5 @@
 #    Author: Leonardo Pistone
-#    Copyright 2014 Camptocamp SA
+#    Copyright 2014-2015 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -26,7 +26,7 @@ class TestButtonSourced(TransactionCase):
     """
     def test_line_with_procurement_sourcing_but_no_procurement_fails(self):
         self.lrl.source_ids = self.LRS.new({
-            'procurement_method': 'procurement',
+            'sourcing_method': 'procurement',
             'name': 'my source',
         })
         with self.assertRaises(exceptions.Warning) as cm:
@@ -42,7 +42,7 @@ class TestButtonSourced(TransactionCase):
 
     def test_it_can_pass(self):
         self.lrl.source_ids = self.LRS.new({
-            'procurement_method': 'wh_dispatch',
+            'sourcing_method': 'wh_dispatch',
         })
         self.lrl.button_sourced()
         self.assertEquals('sourced', self.lrl.state)

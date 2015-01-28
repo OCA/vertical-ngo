@@ -47,7 +47,7 @@
       <field name="view_id" ref="sale.view_quotation_tree"/>
       <field name="view_mode">tree,form,calendar,graph</field>
       <field name="context">{}</field>
-      <field name="domain">['|', ('state','in',('draft','sent','cancel')), ('order_type', '=', 'cost_estimate_only')]</field>
+      <field name="domain">['|', ('state','in',('draft','sent','accepted','cancel')), ('order_type', '=', 'cost_estimate_only')]</field>
       <field name="search_view_id" ref="sale.view_sales_order_filter"/>
     </record>
 
@@ -63,7 +63,7 @@
       <field name="view_mode">tree,form,calendar,graph</field>
       <field name="search_view_id" ref="sale.view_sales_order_filter"/>
       <field name="context">{}</field>
-      <field name="domain">[('state','not in',('draft','sent','cancel')), ('order_type', '=', 'standard')]</field>
+      <field name="domain">[('state','not in',('draft','sent','accepted','cancel')), ('order_type', '=', 'standard')]</field>
     </record>
     <menuitem action="action_orders" id="menu_logistic_order" parent="menu_order_base" sequence="5" />
 
@@ -73,9 +73,23 @@
       <field name="model">sale.order</field>
       <field name="inherit_id" ref="sale_stock.view_order_form_inherit"/>
       <field name="arch" type="xml">
-        <xpath expr="//button[@name='action_button_confirm' and @states='draft']" position="attributes">
-          <attribute name="attrs">{'invisible': ['|', ('order_type', '=', 'cost_estimate_only')]}</attribute>
+        <xpath expr="//button[@name='action_quotation_send' and @states='sent,progress,manual']" position="after">
+          <button name="accepted" string="Cost Estimate Accepted" states="draft,sent" class="oe_highlight" groups="base.group_user"/>
         </xpath>
+        <xpath expr="//button[@name='action_button_confirm' and @states='draft']" position="attributes">
+          <attribute name="invisible" eval="1"/>
+        </xpath>
+        <xpath expr="//button[@name='action_button_confirm' and @states='sent']" position="attributes">
+          <attribute name="invisible" eval="1"/>
+        </xpath>
+        <xpath expr="//button[@name='action_button_confirm' and @states='sent']" position="after">
+          <button name="action_button_confirm" states="accepted" string="Confirm Cost Estimate" class="oe_highlight" type="object"
+              groups="base.group_user"
+              attrs="{'invisible': ['|', ('order_type', '=', 'cost_estimate_only')]}"/>
+        </xpath>
+        <button name="cancel" position="attributes">
+          <attribute name="states">draft,sent,accepted</attribute>
+        </button>
         <xpath expr="//label[@string='Quotation ']" position="attributes">
           <attribute name="string">Cost Estimate </attribute>
         </xpath>
@@ -87,10 +101,6 @@
             <field name="order_type"/>
           </group>
         </xpath>
-
-        <button name="action_button_confirm" position="attributes">
-          <attribute name="string">Confirm Cost Estimate</attribute>
-        </button>
 
         <field name="origin" position="replace"/>
         <field name="user_id" position="replace"/>
