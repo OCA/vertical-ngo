@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 8.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-01-29 15:27+0000\n"
-"PO-Revision-Date: 2015-01-29 15:27+0000\n"
+"POT-Creation-Date: 2015-01-29 15:40+0000\n"
+"PO-Revision-Date: 2015-01-29 15:40+0000\n"
 "Last-Translator: <>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -18,26 +18,26 @@ msgstr ""
 #. module: logistic_requisition_donation
 #: model:ir.model,name:logistic_requisition_donation.model_logistic_requisition_cost_estimate
 msgid "Create cost estimate of logistic requisition lines"
-msgstr ""
+msgstr "Create cost estimate of logistic requisition lines"
 
 #. module: logistic_requisition_donation
 #: model:ir.model,name:logistic_requisition_donation.model_logistic_requisition
 msgid "Logistics Requisition"
-msgstr ""
+msgstr "Logistics Requisition"
 
 #. module: logistic_requisition_donation
 #: model:ir.model,name:logistic_requisition_donation.model_logistic_requisition_line
 msgid "Logistics Requisition Line"
-msgstr ""
+msgstr "Logistics Requisition Line"
 
 #. module: logistic_requisition_donation
 #: model:ir.model,name:logistic_requisition_donation.model_logistic_requisition_source
 msgid "Logistics Requisition Source"
-msgstr ""
+msgstr "Logistics Requisition Source"
 
 #. module: logistic_requisition_donation
 #: code:addons/logistic_requisition_donation/model/logistic_requisition_source.py:31
 #, python-format
 msgid "Only 'Warehouse Dispatch' and 'Other' sourcing methods can be used with Requestor Stock Dispatch logistics requisition"
-msgstr ""
+msgstr "Only 'Warehouse Dispatch' and 'Other' sourcing methods can be used with Requestor Stock Dispatch logistics requisition"
 
