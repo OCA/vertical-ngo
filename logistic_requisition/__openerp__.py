@@ -64,6 +64,7 @@
           'test/requisition_cancel_reason.yml',
           'test/logistic_requisition_report_test.yml',
           ],
+ 'css': ['static/src/css/logistic_requisition.css'],
  'installable': True,
  'auto_install': False,
  }
