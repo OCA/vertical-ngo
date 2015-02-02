@@ -108,7 +108,8 @@ class sale_order_line(orm.Model):
         sources = []
 
         for lrl in LRL.browse(cr, uid, lrl_ids, context=context):
-            sources.append(lrl.source_ids)
+            for lrs in lrl.source_ids:
+                sources.append(lrs)
 
         source_ids = [source.id for source in sources if source_valid(source)]
 
