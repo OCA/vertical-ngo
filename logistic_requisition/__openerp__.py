@@ -20,7 +20,7 @@
 #
 
 {"name": "Logistics Requisition",
- "version": "1.3",
+ "version": "1.4",
  "author": "Camptocamp",
  "license": "AGPL-3",
  "category": "Purchase Management",
