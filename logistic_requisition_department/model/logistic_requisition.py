@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Author: Leonardo Pistone
-# Copyright 2014 Camptocamp SA (http://www.camptocamp.com)
+# Copyright 2014-2015 Camptocamp SA (http://www.camptocamp.com)
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -22,7 +22,9 @@ class LogisticRequisition(models.Model):
     _inherit = 'logistic.requisition'
 
     def _get_my_department(self):
-        return self.env.user.employee_ids[0].department_id
+        employees = self.env.user.employee_ids
+        return (employees and employees[0].department_id
+                or self.env['hr.department'])
 
     department_id = fields.Many2one('hr.department', 'Department',
                                     default=_get_my_department)
