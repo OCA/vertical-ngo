@@ -118,13 +118,16 @@
     wizard_id = self.create(cr, uid, {}, context=context)
     open_action = self.cost_estimate(cr, uid, wizard_id)
     cost_estimate_id = open_action['res_id']
-    cost_estimate_obj = self.pool.get('sale.order')
+    cost_estimate_obj = self.pool['sale.order']
     cost_estimate = cost_estimate_obj.browse(cr, uid, cost_estimate_id)
     assert len(cost_estimate.order_line) == 2, (
         "Cost Estimate should have 2 lines, 1 per logistic requisition line")
     for line in cost_estimate.order_line:
-        po_line = line.sourced_by
-        assert po_line, 'missing sourced by'
+        assert not line.sourced_by, 'sourced by should by empty'
+    # I accept the cost estimate
+    cost_estimate.signal_workflow('accepted')
+    for line in cost_estimate.order_line:
+        assert line.sourced_by, 'missing sourced by'
 
 -
   I check if the information of the logistic requisition are propagated correctly
