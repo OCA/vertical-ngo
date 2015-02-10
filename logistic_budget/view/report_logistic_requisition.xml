@@ -3,34 +3,68 @@
   <data>
     <template id="report_logistic_requisition_document" inherit_id="logistic_requisition.report_logistic_requisition_document">
 
-      <xpath expr='//table[@width="100%"]' position="after">
-        <p><strong>Budget</strong></p>
-        <table width="100%">
-            <tr>
-              <td><strong>Budget/financial holder:</strong></td>
-              <td><strong>Validation date:</strong></td>
-              <td><strong>Signature:</strong></td>
-            </tr>
-            <tr t-if="o.budget_holder_id">
-              <td>
-                <span t-field="o.budget_holder_id"/>
-              </td>
-              <td>
-                <span t-if="o.date_budget_holder" t-field="o.date_budget_holder"/>
-                <span t-if="not o.date_budget_holder">N/A</span>
-              </td>
-              <td></td>
-            </tr>
-            <tr t-if="o.finance_officer_id">
-              <td>
-                <span t-field="o.finance_officer_id"/>
-              </td>
-              <td>
-                <span t-if="o.date_finance_officer" t-field="o.date_finance_officer"/>
-                <span t-if="not o.date_finance_officer">N/A</span>
-              </td>
-              <td></td>
-            </tr>
+      <xpath expr="//table[@class='table table-condensed']/thead/tr" position="inside">
+        <th class="text-right">Budget unit price</th>
+        <th class="text-right">Total price</th>
+      </xpath>
+
+      <xpath expr="//table[@class='table table-condensed']/tbody/tr" position="inside">
+        <td class="text-right">
+          <span t-field="l.budget_unit_price"/>
+        </td>
+        <td class="text-right">
+          <span t-field="l.budget_tot_price"/>
+        </td>
+      </xpath>
+
+
+      <xpath expr="//table[@class='table table-condensed']" position="after">
+        <div class="row">
+          <div class="col-xs-4 pull-right">
+            <table class="table table-condensed">
+              <tr class="border-black">
+                <td><strong>Total</strong></td>
+                <td class="text-right">
+                  <span t-field="o.total_budget"
+                    t-field-options='{"widget": "monetary", "display_currency": "o.pricelist_id.currency_id"}'/>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </xpath>
+
+      <xpath expr="//table[@id='incoterm-info']" position="before">
+
+        <table class="table table-bordered" width="100%">
+          <tr>
+            <th></th>
+            <th><strong>Name:</strong></th>
+            <th><strong>Date:</strong></th>
+            <th><strong>Signature:</strong></th>
+          </tr>
+          <tr t-if="o.budget_holder_id">
+            <td><strong>Budget holder:</strong></td>
+            <td>
+              <span t-field="o.budget_holder_id"/>
+            </td>
+            <td>
+              <span t-if="o.date_budget_holder" t-field="o.date_budget_holder"/>
+              <span t-if="not o.date_budget_holder" class="input-lg col-xs-3"/>
+            </td>
+            <td class="input-lg col-xs-3"/>
+          </tr>
+          <tr t-if="o.finance_officer_id">
+            <td><strong>Finance Officer:</strong></td>
+            <td>
+              <span t-field="o.finance_officer_id"/>
+            </td>
+            <td>
+              <span t-if="o.date_finance_officer" t-field="o.date_finance_officer"/>
+              <span t-if="not o.date_finance_officer" class="input-lg col-xs-3"/>
+            </td>
+            <td class="input-lg col-xs-3"/>
+          </tr>
         </table>
       </xpath>
 
