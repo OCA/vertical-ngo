@@ -44,7 +44,8 @@ class LogisticsRequisition(models.Model):
     company_currency_id = fields.Many2one(
         related='company_id.currency_id',
         comodel_name='res.currency',
-        string='Currency'
+        string='Currency',
+        readonly=True,
     )
 
     total_budget_co = fields.Float(
