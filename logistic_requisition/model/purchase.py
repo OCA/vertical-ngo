@@ -106,10 +106,10 @@ class PurchaseOrderLine(models.Model):
         LRL is not marked as sourced
         Once done, nobody should be able to change the PO line infos
         """
-        if (vals.get('product_qty')
-                or vals.get('product_id')
-                or vals.get('product_uom')
-                or vals.get('price_unit')):
+        if (vals.get('product_qty') or
+                vals.get('product_id') or
+                vals.get('product_uom') or
+                vals.get('price_unit')):
             for line in self:
                 source_line = line.lr_source_line_id
                 if source_line:

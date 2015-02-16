@@ -62,14 +62,14 @@ class PurchaseRequisition(models.Model):
                     'unit_cost': price,
                     }
                 if not pr_bid_line.lr_source_line_id:
-                    if (not pr_bid_line.quantity_bid
-                            or pr_bid_line.state not in ('confirmed', 'done')):
+                    if (not pr_bid_line.quantity_bid or
+                            pr_bid_line.state not in ('confirmed', 'done')):
                         # this bid line is not selected
                         continue
                     # We need to set the quantity on the LR source line and
                     # create the one2one link with this bid line
-                    if (not source.selected_bid_line_id
-                            and source.id not in set_sources):
+                    if (not source.selected_bid_line_id and
+                            source.id not in set_sources):
                         pr_line.logistic_requisition_source_ids[0].write(vals)
                         pr_bid_line.write({'lr_source_line_id': source.id})
                         set_sources.add(source.id)
@@ -80,8 +80,8 @@ class PurchaseRequisition(models.Model):
                         new_id = source.copy(default=vals)
                         pr_bid_line.lr_source_line_id = new_id
                 else:
-                    if (not pr_bid_line.quantity_bid
-                            or pr_bid_line.state not in ('confirmed', 'done')):
+                    if (not pr_bid_line.quantity_bid or
+                            pr_bid_line.state not in ('confirmed', 'done')):
                         # this bid line is not anymore selected
                         pr_bid_line.lr_source_line_id.proposed_qty = 0
                     else:

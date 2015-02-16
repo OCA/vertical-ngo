@@ -38,8 +38,8 @@ class SaleOrder(models.Model):
         """
         res = super(SaleOrder, self).action_accepted()
         fa_so_lines = self.mapped('order_line').filtered(
-            lambda rec: (rec.sourcing_method == 'fw_agreement'
-                         and not rec.sourced_by))
+            lambda rec: (rec.sourcing_method == 'fw_agreement' and
+                         not rec.sourced_by))
         for line in fa_so_lines:
             source = line.lr_source_id
             # If no po has been generated yet
