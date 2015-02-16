@@ -156,9 +156,9 @@ class mail_compose_message(models.Model):
 
         """
         context = self.env.context
-        if (context.get('default_model') == 'sale.order'
-                and 'default_res_id' in context
-                and 'mark_cost_estimate_as_done' in context):
+        if (context.get('default_model') == 'sale.order' and
+                'default_res_id' in context and
+                'mark_cost_estimate_as_done' in context):
             res_id = context.get('default_res_id')
             sale_order = self.env['sale.order'].browse(res_id)
             sale_order.signal_workflow('cost_estimate_only_sent')

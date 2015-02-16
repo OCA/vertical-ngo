@@ -75,8 +75,8 @@ class purchase_order_line(orm.Model):
             if line.order_id.framework_agreement_id:
                 continue
             if (
-                line.product_id.type == 'product'
-                and not line.quantity_bid <= line.product_qty
+                line.product_id.type == 'product' and
+                not line.quantity_bid <= line.product_qty
             ):
                 return False
         return True

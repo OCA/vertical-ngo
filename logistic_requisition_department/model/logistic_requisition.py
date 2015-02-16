@@ -23,8 +23,8 @@ class LogisticRequisition(models.Model):
 
     def _get_my_department(self):
         employees = self.env.user.employee_ids
-        return (employees and employees[0].department_id
-                or self.env['hr.department'])
+        return (employees and employees[0].department_id or
+                self.env['hr.department'])
 
     department_id = fields.Many2one('hr.department', 'Department',
                                     default=_get_my_department)

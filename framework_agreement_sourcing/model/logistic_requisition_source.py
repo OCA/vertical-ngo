@@ -378,8 +378,8 @@ class logistic_requisition_source(orm.Model):
         and raise quantity warning.
 
         """
-        if (self.sourcing_method != 'fw_agreement'
-                or not self.proposed_product_id):
+        if (self.sourcing_method != 'fw_agreement' or
+                not self.proposed_product_id):
             self.framework_agreement_id = False
             return
         return self._onchange_base_agreement_method()
@@ -387,8 +387,8 @@ class logistic_requisition_source(orm.Model):
     @api.onchange('proposed_qty')
     def onchange_quantity(self):
         """Raise a warning if agreed qty is not sufficient"""
-        if (self.sourcing_method != 'fw_agreement'
-                or not self.proposed_product_id):
+        if (self.sourcing_method != 'fw_agreement' or
+                not self.proposed_product_id):
             return
         agreement = self._get_best_agreement()
         if agreement:
