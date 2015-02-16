@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<openerp>
+  <data>
+
+    <!-- change parent -->
+    <menuitem
+      name="Shipment"
+      id="stock_shipment_management.menu_shipment"
+      parent="logistic_order.menu_order"/>
+
+  </data>
+</openerp>
