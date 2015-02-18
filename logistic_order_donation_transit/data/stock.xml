@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+   <!-- update donation route and rules -->
+    <record id="logistic_order_donation.procurement_rule_donation"
+            model="procurement.rule">
+      <field name="name">Donor → Transit</field>
+      <field name="location_id" ref="stock_route_transit.transit_outgoing"/>
+    </record>
+
+    <record id="procurement_rule_drop_shipping_reception" model="procurement.rule">
+      <field name="name">Transit → Customer</field>
+      <field name="action">move</field>
+      <field name="location_id" ref="stock.stock_location_customers"/>
+      <field name="location_src_id" ref="stock_route_transit.transit_outgoing"/>
+      <field name="procure_method">make_to_order</field>
+      <field name="route_id" ref="logistic_order_donation.route_donation"/>
+      <field name="picking_type_id" ref="logistic_order_donation.picking_type_donation"/>
+    </record>
+
+  </data>
+</openerp>
