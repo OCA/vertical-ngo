@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 #
-#    Copyright 2013-2014 Camptocamp SA
+#    Copyright 2013-2015 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -17,6 +17,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #
+from openerp import api
 from openerp.osv import orm
 
 
@@ -46,3 +47,24 @@ class stock_incoterms(orm.Model):
             name = "%s - (%s)" % (rs.code, rs.name)
             res += [(rs.id, name)]
         return res
+
+    @api.model
+    def name_search(self, name, args=None, operator='ilike', limit=100):
+        """
+        Allows to search incoterms by code
+
+        Show results by code on top as they are more accurate.
+        """
+        if args is None:
+            args = []
+        results = []
+        if name:
+            recs = self.search([('code', operator, name)], limit=limit)
+            results = recs.name_get()
+            limit -= len(results)
+            # Do not search for same records
+            args.insert(0, ('id', 'not in', recs.ids))
+
+        results.extend(super(stock_incoterms, self).name_search(
+            name, args=args, operator=operator, limit=limit))
+        return results
