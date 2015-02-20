@@ -5,9 +5,9 @@
     <record model="ir.ui.view" id="purchase_order_form">
       <field name="name">purchase_order_form</field>
       <field name="model">purchase.order</field>
-      <field name="inherit_id" ref="purchase.purchase_order_form" />
+      <field name="inherit_id" ref="framework_agreement.purchase_order_form" />
       <field name="arch" type="xml">
-        <field name="framework_agreement_id" position="after">
+        <field name="portfolio_id" position="after">
           <field name="for_agreement"/>
           <field name="agreement_expected_date" 
             attrs="{'invisible': [('for_agreement', '=', False)]}" />

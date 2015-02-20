@@ -61,9 +61,7 @@
                   attrs="{'invisible': [('for_agreement', '=', False)]}" />
                 <field name="agreement_promised_date"
                   attrs="{'invisible': [('for_agreement', '=', False)]}" />
-                <field name="framework_agreement_id"
-                  domain="[('draft', '=', False),
-                  ('supplier_id', '=', partner_id)]"/><!-- purchase-workflow/framework_agreement -->
+                <field name="portfolio_id"/>
               </group>
               <group>
                 <field name="date_order"/>
@@ -210,10 +208,10 @@
       <field name="inherit_id" ref="ngo_purchase.purchase_order_form" />
       <field name="arch" type="xml">
         <field name="pricelist_id" position="attributes">
-          <attribute name="context_agreement">{'order_line_ids': order_line}</attribute>
+          <attribute name="on_change" eval="1"/>
         </field>
         <field name="partner_id" position="attributes">
-          <attribute name="context_agreement">{'agreement_id': framework_agreement_id}</attribute>
+          <attribute name="context_agreement">{'portfolio_id': portfolio_id}</attribute>
         </field>
         <field name="product_id"
                position="attributes">
@@ -221,11 +219,11 @@
         </field>
         <field name="product_qty"
                position="attributes">
-          <attribute name="context_agreement">{'agreement_id': parent.framework_agreement_id}</attribute>
+          <attribute name="context_agreement">{'agreement_id': framework_agreement_id, 'incoterm_id': parent.incoterm_id, 'currency_id': parent.currency_id, 'portfolio_id': parent.portfolio_id}</attribute>
         </field>
 
         <field name="price_unit" position="attributes">
-          <attribute name="on_change">onchange_price(price_unit, parent.framework_agreement_id, product_qty, parent.pricelist_id, product_id)</attribute>
+          <attribute name="on_change">1</attribute>
         </field>
       </field>
 
