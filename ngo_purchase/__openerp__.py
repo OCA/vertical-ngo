@@ -20,7 +20,7 @@
 #
 {"name": "NGO - Purchase Order",
  "summary": "Base Purchase Order view for NGO",
- "version": "1.0.1",
+ "version": "1.2",
  "author": "Camptocamp,Odoo Community Association (OCA)",
  "license": "AGPL-3",
  "category": "Purchase Management",
