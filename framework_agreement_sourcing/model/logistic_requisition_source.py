@@ -42,14 +42,6 @@ class logistic_requisition_source(orm.Model):
             type='many2one',  relation='res.partner',
             string='Agreement Supplier')}
 
-    def _get_procur_method_hook(self, cr, uid, context=None):
-        """Adds framework agreement as a procurement method in selection
-        field"""
-        res = super(logistic_requisition_source, self)._get_procur_method_hook(
-            cr, uid, context=context)
-        res.append(('fw_agreement', 'Framework agreement'))
-        return res
-
     # ----------------- adapting source line to po --------------------------
     def _company(self, cr, uid, context):
         """Return company id
