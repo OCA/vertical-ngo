@@ -345,9 +345,7 @@ class logistic_requisition_source(orm.Model):
             self.requisition_id.incoterm_id.id,
         )
 
-        good_agreements = Agreement.search(ag_domain).filtered(
-            lambda a: a.has_currency(self.currency_id))
-
+        good_agreements = Agreement.search(ag_domain)
         if self.framework_agreement_id in good_agreements:
             pass  # it's good! let's keep it!
         else:
