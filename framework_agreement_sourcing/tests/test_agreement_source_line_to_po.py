@@ -24,8 +24,7 @@ class TestSourceToPo(CommonSourcingSetUp):
         super(TestSourceToPo, self).setUp()
         lines = self.requisition.line_ids
         self.agr_line = None
-        self.wiz_model = self.registry(
-            'logistic.requisition.source.create.agr.po')
+        self.wiz_model = self.env['logistic.requisition.source.create.agr.po']
         for line in lines:
             if line.product_id == self.cheap_on_low_agreement.product_id:
                 self.agr_line = line
@@ -48,8 +47,6 @@ class TestSourceToPo(CommonSourcingSetUp):
         self.wh = warehouse
 
     def test_transform_source_to_agreement_wh_dest(self):
-        cr, uid = self.cr, self.uid
-
         # Set destination address
         partner_vals = {
             'name': 'Warehouse address',
@@ -60,20 +57,16 @@ class TestSourceToPo(CommonSourcingSetUp):
         self.agr_line.consignee_shipping_id = partner_wh
 
         self.assertTrue(self.lta_source, 'no lta source found')
-        self.lta_source.refresh()
-        active_ids = [x.id for x in self.source_lines]
-        wiz_ctx = {'active_model': 'logistic.requisition.source',
-                   'active_ids': active_ids}
-        wiz_id = self.wiz_model.create(self.cr, self.uid, {},
-                                       context=wiz_ctx)
-
-        po_id = self.wiz_model.action_create_agreement_po_requisition(
-            cr, uid, [wiz_id], context=wiz_ctx)['res_id']
-        self.assertTrue(po_id, "no PO created")
+        wiz = self.wiz_model.with_context({
+            'active_model': 'logistic.requisition.source',
+            'active_ids': [x.id for x in self.source_lines],
+        }).create({})
+        po = self.env['purchase.order'].browse(
+            wiz.action_create_agreement_po_requisition()['res_id'])
+        self.assertTrue(po, "no PO created")
         supplier = self.lta_source.framework_agreement_id.supplier_id
         add = self.lta_source.requisition_id.consignee_shipping_id
         consignee = self.lta_source.requisition_id.consignee_id
-        po = self.registry('purchase.order').browse(cr, uid, po_id)
         date_order = self.lta_source.requisition_id.date
         date_delivery = self.lta_source.requisition_id.date_delivery
         self.assertEqual(po.partner_id, supplier)
@@ -112,26 +105,22 @@ class TestSourceToPo(CommonSourcingSetUp):
         self.assertEqual(po_line.lr_source_line_id, self.other_source)
 
     def test_transform_source_to_agreement_dropshipping(self):
-        cr, uid = self.cr, self.uid
-
         # Set destination address
         partner_dropship = self.ref('base.res_partner_12')
         self.agr_line.consignee_shipping_id = partner_dropship
 
         self.assertTrue(self.lta_source, 'no lta source found')
         self.lta_source.refresh()
-        active_ids = [x.id for x in self.source_lines]
-        wiz_ctx = {'active_model': 'logistic.requisition.source',
-                   'active_ids': active_ids}
-        wiz_id = self.wiz_model.create(self.cr, self.uid, {}, context=wiz_ctx)
-
-        po_id = self.wiz_model.action_create_agreement_po_requisition(
-            cr, uid, [wiz_id], context=wiz_ctx)['res_id']
-        self.assertTrue(po_id, "no PO created")
+        wiz = self.wiz_model.with_context({
+            'active_model': 'logistic.requisition.source',
+            'active_ids': [x.id for x in self.source_lines],
+        }).create({})
+        po = self.env['purchase.order'].browse(
+            wiz.action_create_agreement_po_requisition()['res_id'])
+        self.assertTrue(po, "no PO created")
         supplier = self.lta_source.framework_agreement_id.supplier_id
         add = self.lta_source.requisition_id.consignee_shipping_id
         consignee = self.lta_source.requisition_id.consignee_id
-        po = self.registry('purchase.order').browse(cr, uid, po_id)
         date_order = self.lta_source.requisition_id.date
         date_delivery = self.lta_source.requisition_id.date_delivery
         self.assertEqual(po.partner_id, supplier)

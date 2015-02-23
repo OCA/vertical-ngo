@@ -1,5 +1,5 @@
 #    Author: Nicolas Bessi, Leonardo Pistone
-#    Copyright 2013, 2015 Camptocamp SA
+#    Copyright 2013-2015 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -88,12 +88,13 @@ class CommonSourcingSetUp(test_common.TransactionCase, BaseAgreementTestMixin):
         And one line of other product
 
         """
-
+        Portfolio = self.env['framework.agreement.portfolio']
         start_date = date.today() + timedelta(days=10)
         end_date = date.today() + timedelta(days=20)
+
         # Agreement 1
         agr = self.agreement_model.create({
-            'supplier_id': self.supplier.id,
+            'portfolio_id': self.portfolio.id,
             'product_id': self.product.id,
             'start_date': fields.Date.to_string(start_date),
             'end_date': fields.Date.to_string(end_date),
@@ -121,9 +122,14 @@ class CommonSourcingSetUp(test_common.TransactionCase, BaseAgreementTestMixin):
 
         self.cheap_on_high_agreement = agr
 
+        self.portfolio_2 = Portfolio.create({
+            'name': '/',
+            'supplier_id': self.ref('base.res_partner_3'),
+        })
+
         # Agreement 2
         agr = self.agreement_model.create({
-            'supplier_id': self.ref('base.res_partner_3'),
+            'portfolio_id': self.portfolio_2.id,
             'product_id': self.product.id,
             'start_date': fields.Date.to_string(start_date),
             'end_date': fields.Date.to_string(end_date),
