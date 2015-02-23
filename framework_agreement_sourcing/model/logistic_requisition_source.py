@@ -93,7 +93,7 @@ class logistic_requisition_source(orm.Model):
         position = position.id if position else False
         requisition = line.requisition_id
         data = {}
-        data['framework_agreement_id'] = line.framework_agreement_id.id
+        data['portfolio_id'] = line.portfolio_id.id
         data['partner_id'] = supplier.id
         data['company_id'] = self._company(cr, uid, context)
         data['pricelist_id'] = po_pricelist.id
@@ -130,12 +130,10 @@ class logistic_requisition_source(orm.Model):
         if line.framework_agreement_id:
             price = line.framework_agreement_id.get_price(
                 line.proposed_qty, currency=currency)
-            lead_time = line.framework_agreement_id.delay
             supplier = line.framework_agreement_id.supplier_id
             data['framework_agreement_id'] = line.framework_agreement_id.id
         else:
             supplier = po_supplier
-            lead_time = 0
             price = 0.0
             if po_pricelist:
                 price = pl_model.price_get(
@@ -157,7 +155,7 @@ class logistic_requisition_source(orm.Model):
         data['product_id'] = line.proposed_product_id.id
         data['product_uom'] = line.proposed_uom_id.id
         data['lr_source_line_id'] = line.id
-        data['product_lead_time'] = lead_time
+        data['framework_agreement_id'] = line.framework_agreement_id.id
         data['price_unit'] = price
         data['name'] = line.proposed_product_id.name
         data['date_planned'] = line.requisition_id.date_delivery
