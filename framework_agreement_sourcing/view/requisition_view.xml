@@ -8,10 +8,15 @@
       <field name="arch" type="xml">
         <field name="unit_cost"
                position="before">
-          <field name="framework_agreement_id"
-                 domain="[('draft', '=', False), ('product_id', '=', proposed_product_id)]"
+          <field name="portfolio_id"
                  attrs="{'required': [('sourcing_method', '=', 'fw_agreement')],
                         'invisible': [('sourcing_method', '!=', 'fw_agreement')]}" />
+          <field name="framework_agreement_id"
+                 domain="[('draft', '=', False),
+                          ('product_id', '=', proposed_product_id),
+                          ('portfolio_id', '=', portfolio_id)]"
+                 attrs="{'required': [('sourcing_method', '=', 'fw_agreement')],
+                         'invisible': [('sourcing_method', '!=', 'fw_agreement')]}" />
           <field name="framework_agreement_po_id"
                  readonly="1"
                  attrs="{'invisible': [('sourcing_method', 'not in', ['fw_agreement','other'])]}"

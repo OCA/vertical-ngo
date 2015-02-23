@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    Author: Nicolas Bessi
+#    Author: Nicolas Bessi, Leonardo Pistone
 #    Copyright 2013-2015 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -32,6 +32,8 @@ class logistic_requisition_source(orm.Model):
     _inherit = "logistic.requisition.source"
 
     _columns = {
+        'portfolio_id': osv.fields.many2one('framework.agreement.portfolio',
+                                            'Agreement Portfolio'),
         'framework_agreement_id': osv.fields.many2one('framework.agreement',
                                                       'Agreement'),
         'framework_agreement_po_id': osv.fields.many2one(
@@ -320,84 +322,52 @@ class logistic_requisition_source(orm.Model):
 
             return {'warning': {'message': msg}}
 
-    @api.multi
-    def _get_best_agreement(self):
-        """ Search for an agreement with enough quantity
-        and if not find, search for an agreement without
-        specifying qty
+    @api.onchange('sourcing_method', 'portfolio_id', 'proposed_qty',
+                  'proposed_product_id')
+    def update_agreement(self):
+        """Update the choice of agreement depending on other fields.
 
-        :returns: agreement record
+        Like in the purchase order with framework_agreement 2.0, we do not
+        choose automatically the cheapest agreement, except when there is only
+        one that is suitable.
 
-        """
-        agreement_obj = self.env['framework.agreement']
-        date = self._get_date()
-        agreement, __ = agreement_obj.get_cheapest_agreement_for_qty(
-            self.proposed_product_id.id, date, qty=self.proposed_qty,
-            currency=self.currency_id)
-        if not agreement:
-            agreement, __ = agreement_obj.get_cheapest_agreement_for_qty(
-                self.proposed_product_id.id, date, qty=None,
-                currency=self.currency_id)
-        return agreement
-
-    @api.multi
-    def _onchange_base_agreement_method(self):
-        """ When agreement method basics change,
-        we want to find a proper agreement,
-        update price and supplier based on this agreement.
-
-        """
-        agreement = self._get_best_agreement()
-        if not agreement:
-            self.framework_agreement_id = False
-            return
-        price = agreement.get_price(self.proposed_qty,
-                                    currency=self.currency_id)
-        self.framework_agreement_id = agreement.id
-        self.unit_cost = price
-        self.total_cost = price * self.proposed_qty
-        self.supplier_id = agreement.supplier_id.id
-        self.price_is = 'fixed'
-        return self._check_enought_qty(agreement)
-
-    @api.onchange('sourcing_method')
-    def onchange_sourcing_method(self):
-        """
-        Called when source method is set on a source line.
-
-        If sourcing method is framework agreement
-        it will set price, agreement and supplier if possible
-        and raise quantity warning.
+        If the current choice is suitable, keep it.
 
         """
         if (self.sourcing_method != 'fw_agreement' or
                 not self.proposed_product_id):
             self.framework_agreement_id = False
             return
-        return self._onchange_base_agreement_method()
+        Agreement = self.env['framework.agreement']
+        ag_domain = Agreement.get_agreement_domain(
+            self.proposed_product_id.id,
+            self.proposed_qty,
+            self.portfolio_id.id,
+            self.requisition_id.date,
+            self.requisition_id.incoterm_id.id,
+        )
 
-    @api.onchange('proposed_qty')
-    def onchange_quantity(self):
-        """Raise a warning if agreed qty is not sufficient"""
-        if (self.sourcing_method != 'fw_agreement' or
-                not self.proposed_product_id):
-            return
-        agreement = self._get_best_agreement()
+        good_agreements = Agreement.search(ag_domain).filtered(
+            lambda a: a.has_currency(self.currency_id))
+
+        if self.framework_agreement_id in good_agreements:
+            pass  # it's good! let's keep it!
+        else:
+            if len(good_agreements) == 1:
+                agreement = good_agreements
+            else:
+                agreement = Agreement
+
         if agreement:
-            self.framework_agreement_id = agreement.id
-            return self._check_enought_qty(agreement)
+            self.unit_cost = agreement.get_price(self.proposed_qty,
+                                                 self.currency_id)
+        else:
+            self.unit_cost = 0.0
 
-    @api.onchange('proposed_product_id')
-    def onchange_product_id(self):
-        """Call when product is set on a source line.
+        self.framework_agreement_id = agreement.id
 
-        If sourcing method is framework agreement
-        it will set price, agreement and supplier if possible
-        and raise quantity warning.
+        self.total_cost = self.unit_cost * self.proposed_qty
+        self.price_is = 'fixed'
+        self._check_enought_qty(agreement)
 
-        """
-        if self.sourcing_method != 'fw_agreement':
-            if self.proposed_product_id:
-                self.proposed_uom_id = self.proposed_product_id.uom_id or False
-            return
-        return self._onchange_base_agreement_method()
+        return {'domain': {'framework_agreement_id': ag_domain}}
