@@ -45,7 +45,5 @@ class TestCheckSourcing(TransactionCase):
         """
         super(TestCheckSourcing, self).setUp()
         Source = self.env['logistic.requisition.source']
-        self.PO = self.env['purchase.order']
-        self.PurcReq = self.env['purchase.requisition']
         self.Agreement = self.env['framework.agreement']
         self.source = Source.new()
