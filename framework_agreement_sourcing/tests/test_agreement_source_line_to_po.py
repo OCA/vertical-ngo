@@ -56,6 +56,7 @@ class TestSourceToPo(CommonSourcingSetUp):
         picking_type_wh = self.ref('stock.picking_type_in')
         self.agr_line.consignee_shipping_id = partner_wh
 
+        self.lta_source.framework_agreement_id = self.cheap_on_low_agreement
         self.assertTrue(self.lta_source, 'no lta source found')
         wiz = self.wiz_model.with_context({
             'active_model': 'logistic.requisition.source',
@@ -109,8 +110,7 @@ class TestSourceToPo(CommonSourcingSetUp):
         partner_dropship = self.ref('base.res_partner_12')
         self.agr_line.consignee_shipping_id = partner_dropship
 
-        self.assertTrue(self.lta_source, 'no lta source found')
-        self.lta_source.refresh()
+        self.lta_source.framework_agreement_id = self.cheap_on_low_agreement
         wiz = self.wiz_model.with_context({
             'active_model': 'logistic.requisition.source',
             'active_ids': [x.id for x in self.source_lines],
