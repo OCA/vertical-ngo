@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-##############################################################################
-#
-#    Author: Nicolas Bessi
+#    Author: Nicolas Bessi, Leonardo Pistone
 #    Copyright 2013-2015 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -16,8 +13,7 @@
 #
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-##############################################################################
+
 from .common import CommonSourcingSetUp
 
 
@@ -37,7 +33,7 @@ class TestSourceToPo(CommonSourcingSetUp):
         self.assertTrue(self.agr_line, 'no agr line found')
         self.agr_line.requested_qty = 400
         for line in lines:
-            if (line.product_id.id == self.product_id or
+            if (line.product_id.id == self.product.id or
                     line.product_id.type == 'service'):
                 line._generate_sources()
         sources = lines.mapped('source_ids')
