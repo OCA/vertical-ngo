@@ -343,6 +343,7 @@ class logistic_requisition_source(orm.Model):
             self.portfolio_id.id,
             self.requisition_id.date,
             self.requisition_id.incoterm_id.id,
+            self.requisition_id.incoterm_address,
         )
 
         good_agreements = Agreement.search(ag_domain)
