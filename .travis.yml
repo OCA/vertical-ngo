@@ -5,8 +5,10 @@ python:
 
 env:
   - VERSION="8.0" LINT_CHECK="1"
-  - VERSION="8.0" ODOO_REPO="odoo/odoo" EXCLUDE="logistic_consignee" LINT_CHECK="0"
-  - VERSION="8.0" ODOO_REPO="OCA/OCB" EXCLUDE="logistic_consignee" LINT_CHECK="0"
+  - VERSION="8.0" ODOO_REPO="odoo/odoo" EXCLUDE="logistic_consignee,framework_agreement_sourcing_stock_route_transit" LINT_CHECK="0"
+  - VERSION="8.0" ODOO_REPO="OCA/OCB" EXCLUDE="logistic_consignee,framework_agreement_sourcing_stock_route_transit" LINT_CHECK="0"
+  - VERSION="8.0" ODOO_REPO="odoo/odoo" INCLUDE="framework_agreement_sourcing_stock_route_transit" LINT_CHECK="0"
+  - VERSION="8.0" ODOO_REPO="OCA/OCB" INCLUDE="framework_agreement_sourcing_stock_route_transit" LINT_CHECK="0"
   - VERSION="8.0" ODOO_REPO="odoo/odoo" INCLUDE="logistic_consignee" LINT_CHECK="0"
   - VERSION="8.0" ODOO_REPO="OCA/OCB" INCLUDE="logistic_consignee" LINT_CHECK="0"
 
