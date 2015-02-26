@@ -27,7 +27,7 @@ class TestPropagateBudget(TransactionCase):
     def test_propagate_budget_to_cost_estimate_2_sources(self):
         source2 = Mock(
             spec_set=self.env['logistic.requisition.source'],
-            dispatch_location_id=False,
+            dispatch_warehouse_id=False,
             sourcing_method='other',
             proposed_product_id=self.env['product.product'],
             proposed_qty=80,
@@ -65,7 +65,7 @@ class TestPropagateBudget(TransactionCase):
         self.partner1 = self.env.ref('base.res_partner_1')
         self.source = Mock(
             spec_set=self.env['logistic.requisition.source'],
-            dispatch_location_id=False,
+            dispatch_warehouse_id=False,
             sourcing_method='other',
             proposed_product_id=self.env['product.product'],
             proposed_qty=20,

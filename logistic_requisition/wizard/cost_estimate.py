@@ -130,10 +130,8 @@ class LogisticsRequisitionCostEstimate(models.TransientModel):
                 'manually_sourced': self._is_manually_source(sourcing),
                 'sourced_by': sourcing.purchase_line_id.id,
                 'stock_owner_id': sourcing.stock_owner_id.id}
-        if sourcing.dispatch_location_id:
-            warehouse_id = self.env['stock.location'].get_warehouse(
-                sourcing.dispatch_location_id)
-            vals['warehouse_id'] = warehouse_id
+        if sourcing.dispatch_warehouse_id:
+            vals['warehouse_id'] = sourcing.dispatch_warehouse_id.id
         elif sourcing.sourcing_method not in ('wh_dispatch'):
             vals['route_id'] = self._get_route_drop_shipping()
 

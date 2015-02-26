@@ -51,7 +51,9 @@ class LogisticsRequisitionLine(models.Model):
         if sourcing_method == 'wh_dispatch':
             values['stock_owner_id'] = owner.id
         if len(location_ids) == 1:
-            values['dispatch_location_id'] = location_ids[0]
+            wh_model = self.env['stock.warehouse']
+            wh_id = wh_model.search([('lot_stock_id', '=', location_ids[0])])
+            values['dispatch_warehouse_id'] = wh_id
         return values
 
     @api.multi

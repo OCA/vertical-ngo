@@ -867,10 +867,16 @@ class LogisticsRequisitionSource(models.Model):
         states=SOURCED_STATES,
         default='other',
         oldname='procurement_method')
-    dispatch_location_id = fields.Many2one(
-        'stock.location',
+    dispatch_warehouse_id = fields.Many2one(
+        'stock.warehouse',
         string='Dispatch From',
         states=SOURCED_STATES)
+    dispatch_location_id = fields.Many2one(
+        related='dispatch_warehouse_id.lot_stock_id',
+        comodel_name='stock.location',
+        string='Dispatch Location',
+        readonly=True,
+        store=True)
     stock_owner_id = fields.Many2one(
         comodel_name='res.partner',
         string='Stock owner')
@@ -939,7 +945,7 @@ class LogisticsRequisitionSource(models.Model):
         string='Supplier Address',
         readonly=True)
     location_partner_id = fields.Many2one(
-        related='dispatch_location_id.partner_id',
+        related='dispatch_warehouse_id.partner_id',
         comodel_name='res.partner',
         string='Location Address',
         readonly=True)
@@ -1203,19 +1209,19 @@ class LogisticsRequisitionSource(models.Model):
         for line in self:
             line.total_cost = line.unit_cost * line.proposed_qty
 
-    @api.onchange('dispatch_location_id')
-    def onchange_dispatch_location_id(self):
-        """ Get the address of the location and write it in the
+    @api.onchange('dispatch_warehouse_id')
+    def onchange_dispatch_warehouse_id(self):
+        """ Get the address of the warehouse and write it in the
         location_partner_id field, this field is a related read-only, so
         this change will never be submitted to the server. But it is
         necessary to set the default "from address" of the transport
         plan in the context.
         """
-        location_partner_id = False
-        if self.dispatch_location_id:
-            location = self.dispatch_location_id
-            location_partner_id = location.partner_id.id
-        self.location_partner_id = location_partner_id
+        warehouse_partner_id = False
+        if self.dispatch_warehouse_id:
+            warehouse = self.dispatch_warehouse_id
+            warehouse_partner_id = warehouse.partner_id.id
+        self.location_partner_id = warehouse_partner_id
 
     @api.onchange('selected_bid_id')
     def onchange_selected_bid_id(self):
