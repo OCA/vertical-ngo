@@ -53,7 +53,7 @@ class LogisticsRequisitionLine(models.Model):
         if len(location_ids) == 1:
             wh_model = self.env['stock.warehouse']
             wh_id = wh_model.search([('lot_stock_id', '=', location_ids[0])])
-            values['dispatch_warehouse_id'] = wh_id
+            values['dispatch_warehouse_id'] = wh_id or Flase
         return values
 
     @api.multi
