@@ -62,7 +62,8 @@
                 <field name="agreement_promised_date"
                   attrs="{'invisible': [('for_agreement', '=', False)]}" />
                 <field name="framework_agreement_id"
-                  domain="[('draft', '=', False)]"/><!-- vertical-ngo/framework_agreement -->
+                  domain="[('draft', '=', False),
+                  ('supplier_id', '=', partner_id)]"/><!-- purchase-workflow/framework_agreement -->
               </group>
               <group>
                 <field name="date_order"/>
