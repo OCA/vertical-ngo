@@ -115,7 +115,7 @@ class TestSourceToPo(CommonSourcingSetUp):
         self.assertAlmostEqual(po_line.price_unit, 1.0)
         self.assertEqual(po_line.lr_source_line_id, self.other_source)
 
-    def test_01_transform_source_to_agreement_dropshipping(self):
+    def test_02_transform_source_to_agreement_dropshipping(self):
         """Test transformation of an agreement source line into PO"""
         cr, uid = self.cr, self.uid
 
