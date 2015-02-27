@@ -66,6 +66,7 @@ class TestConsigneePurchaseOrder(common.TransactionCase):
 
         self.po.consignee_id = self.part1_id
         self.po.signal_workflow('purchase_confirm')
+        self.assertTrue(self.po.picking_ids)
         self.assertEquals(self.po.picking_ids.consignee_id,
                           self.po.consignee_id)
 
