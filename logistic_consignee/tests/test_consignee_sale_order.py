@@ -47,6 +47,10 @@ class TestConsigneeSaleOrder(common.TransactionCase):
 
         self.so = SO.create(so_vals)
 
+        # sale exceptions, if installed, is irrelevant here. If it isn't this
+        # is no-op
+        self.so.ignore_exceptions = True
+
         sol_vals = {
             'order_id': self.so.id,
             'product_id': ref('product.product_product_33'),
