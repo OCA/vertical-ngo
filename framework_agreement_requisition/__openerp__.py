@@ -20,7 +20,7 @@
 ##############################################################################
 {'name': 'Framework Agreement Negociation in the Tender',
  'version': '1.0',
- 'author': 'Camptocamp',
+ 'author': "Camptocamp,Odoo Community Association (OCA)",
  'maintainer': 'Camptocamp',
  'category': 'NGO',
  'complexity': 'normal',

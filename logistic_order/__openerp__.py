@@ -21,7 +21,7 @@
 {"name": "Logistics Order",
  "summary": "Sales Order as Logistics Order",
  "version": "0.3",
- "author": "Camptocamp",
+ "author": "Camptocamp,Odoo Community Association (OCA)",
  "license": "AGPL-3",
  "category": "Purchase Management",
  'complexity': "normal",

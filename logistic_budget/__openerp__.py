@@ -20,7 +20,7 @@
 #
 {"name": "Logistics Budget",
  "version": "2.2",
- "author": "Camptocamp",
+ "author": "Camptocamp,Odoo Community Association (OCA)",
  "license": "AGPL-3",
  "category": "Purchase Management",
  'complexity': "normal",

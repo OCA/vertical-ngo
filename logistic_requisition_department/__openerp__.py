@@ -19,7 +19,7 @@
     'name': 'Logistic Requisitions with Department Categorization',
     'version': '1.1',
     "category": "Purchase Management",
-    'author': 'Camptocamp',
+    'author': "Camptocamp,Odoo Community Association (OCA)",
     "license": "AGPL-3",
     'website': 'http://camptocamp.com',
     'depends': ['logistic_requisition', 'hr',

@@ -20,7 +20,7 @@
 ##############################################################################
 {'name': 'Framework agreement integration in sourcing',
  'version': '1.3',
- 'author': 'Camptocamp',
+ 'author': "Camptocamp,Odoo Community Association (OCA)",
  'maintainer': 'Camptocamp',
  'category': 'NGO',
  'complexity': 'normal',

@@ -21,7 +21,7 @@
 
 {"name": "Logistics Requisition",
  "version": "1.4",
- "author": "Camptocamp",
+ "author": "Camptocamp,Odoo Community Association (OCA)",
  "license": "AGPL-3",
  "category": "Purchase Management",
  'complexity': "normal",

@@ -22,7 +22,7 @@
 {"name": "Logistics Consignee",
  "summary": "Consignee on Sales, Purchases, Purchase requisition for Pickings",
  "version": "0.1",
- "author": "Camptocamp",
+ "author": "Camptocamp,Odoo Community Association (OCA)",
  "license": "AGPL-3",
  "category": "Logistics",
  'complexity': "normal",

@@ -21,7 +21,7 @@
 {"name": "NGO - Shipment Management",
  "summary": "Adaptations of Shipment Management for NGO",
  "version": "0.1",
- "author": "Camptocamp",
+ "author": "Camptocamp,Odoo Community Association (OCA)",
  "category": "NGO",
  "license": 'AGPL-3',
  "complexity": "normal",
