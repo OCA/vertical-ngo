@@ -61,7 +61,6 @@
                   attrs="{'invisible': [('for_agreement', '=', False)]}" />
                 <field name="agreement_promised_date"
                   attrs="{'invisible': [('for_agreement', '=', False)]}" />
-                <field name="portfolio_id"/>
               </group>
               <group>
                 <field name="date_order"/>
@@ -80,8 +79,6 @@
                     <field name="company_id" invisible="1"/>
                     <field name="account_analytic_id" groups="purchase.group_analytic_accounting" domain="[('type','not in',('view','template'))]"/>
                     <field name="product_qty" on_change="onchange_product_id(parent.pricelist_id,product_id,product_qty,product_uom,parent.partner_id,parent.date_order,parent.fiscal_position,date_planned,name,price_unit,parent.state,context)"/>
-                    <field name="portfolio_id" invisible="1"/> <!-- used by attrs below -->
-                    <field name="framework_agreement_id" attrs="{'required': [('portfolio_id', '!=', False)], 'readonly': [('portfolio_id', '=', False)]}" />
                     <field name="product_uom" groups="product.group_uom" on_change="onchange_product_uom(parent.pricelist_id,product_id,product_qty,product_uom,parent.partner_id, parent.date_order,parent.fiscal_position,date_planned,name,price_unit,parent.state,context)"/>
                     <field name="price_unit"/>
                     <field name="taxes_id" widget="many2many_tags" domain="[('parent_id','=',False),('type_tax_use','!=','sale')]"/>
@@ -209,24 +206,32 @@
       <field name="model">purchase.order</field>
       <field name="inherit_id" ref="ngo_purchase.purchase_order_form" />
       <field name="arch" type="xml">
-        <field name="pricelist_id" position="attributes">
-          <attribute name="on_change" eval="1"/>
+
+        <field name="partner_id" position="after">
+          <field name="portfolio_id" />
         </field>
+
+        <field name="pricelist_id" position="attributes">
+          <attribute name="on_change">1</attribute>
+        </field>
+
         <field name="partner_id" position="attributes">
           <attribute name="context_agreement">{'portfolio_id': portfolio_id}</attribute>
         </field>
-        <field name="product_id"
-               position="attributes">
-          <attribute name="context_agreement">{'agreement_id': parent.framework_agreement_id}</attribute>
-        </field>
-        <field name="product_qty"
-               position="attributes">
+
+        <field name="product_id" position="attributes">
           <attribute name="context_agreement">{'agreement_id': framework_agreement_id, 'incoterm_id': parent.incoterm_id, 'currency_id': parent.currency_id, 'portfolio_id': parent.portfolio_id}</attribute>
         </field>
 
-        <field name="price_unit" position="attributes">
-          <attribute name="on_change">1</attribute>
+        <field name="product_qty" position="after">
+          <field name="portfolio_id" invisible="1"/> <!-- used by attrs below -->
+          <field name="framework_agreement_id" attrs="{'required': [('portfolio_id', '!=', False)], 'readonly': [('portfolio_id', '=', False)]}" />
         </field>
+
+        <field name="product_qty" position="attributes">
+          <attribute name="context_agreement">{'agreement_id': framework_agreement_id, 'incoterm_id': parent.incoterm_id, 'currency_id': parent.currency_id, 'portfolio_id': parent.portfolio_id}</attribute>
+        </field>
+
       </field>
 
     </record>
