@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
-#    Author: Nicolas Bessi, Leonardo Pistone
-#    Copyright 2013, 2014 Camptocamp SA
+##############################################################################
+#
+#    Author: Alexandre Fayolle
+#    Copyright 2015 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -14,6 +16,22 @@
 #
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-from . import test_logistic_order_line_to_source_line
-from . import test_agreement_source_line_to_po
-from . import test_check_sourcing
+#
+##############################################################################
+{'name': 'Sourcing for Framework Agreement with Transit routes',
+ 'version': '0.1',
+ "author": "Camptocamp,Odoo Community Association (OCA)",
+ 'maintainer': 'Camptocamp',
+ 'category': 'NGO',
+ 'complexity': 'normal',
+ 'depends': ['framework_agreement_sourcing', 'stock_route_transit'],
+ 'website': 'http://www.camptocamp.com',
+ 'data': [
+ ],
+ 'demo': [],
+ 'test': [],
+ 'installable': True,
+ 'auto_install': True,
+ 'license': 'AGPL-3',
+ 'application': False,
+ }

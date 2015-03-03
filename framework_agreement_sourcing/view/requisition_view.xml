@@ -6,15 +6,6 @@
       <field name="model">logistic.requisition.source</field>
       <field name="inherit_id" ref="logistic_requisition.view_logistic_requisition_source_form"/>
       <field name="arch" type="xml">
-        <xpath expr="//header" position="inside">
-          <group attrs="{'invisible': [('sourcing_method', '!=', 'fw_agreement')]}">
-            <button name="%(action_view_create_agr_po_from_source)d"
-              states="assigned,sourced"
-              string="Create Agreement Purchase Order"
-              class="oe_highlight"
-              type="action"/>
-          </group>
-        </xpath>
         <field name="unit_cost"
                position="before">
           <field name="framework_agreement_id"
@@ -48,10 +39,6 @@
             <button name="button_create_po_requisition" states="assigned"
                         string="Create Call for Bids"
                         type="object" position="after">
-              <button name="%(action_view_create_agr_po_from_source)d"
-                        states="assigned,sourced"
-                        string="Create Agreement Purchase Order"
-                        type="action"/>
             </button>
         </field>
       </record>

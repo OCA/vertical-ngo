@@ -38,15 +38,5 @@
       </field>
     </record>
 
-    <act_window
-        name="Create Agreement Purchase Order"
-        res_model="logistic.requisition.source.create.agr.po"
-        src_model="logistic.requisition.source"
-        view_mode="form"
-        target="new"
-        multi="True"
-        key2="client_action_multi"
-        id="action_view_create_agr_po_from_source"/>
-
   </data>
 </openerp>
