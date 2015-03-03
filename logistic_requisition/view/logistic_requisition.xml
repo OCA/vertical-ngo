@@ -646,9 +646,9 @@
                         </group>
                         <group string="Warehouse Dispatch"
                             attrs="{'invisible': [('sourcing_method', '!=', 'wh_dispatch')]}">
-                            <field name="dispatch_location_id"
-                                attrs="{'required': [('sourcing_method', '=', 'wh_dispatch')]}"
-                                domain="[('usage', '=', 'internal')]"/>
+                            <field name="dispatch_warehouse_id"
+                                attrs="{'required': [('sourcing_method', '=', 'wh_dispatch')]}"/>
+                            <field name="dispatch_location_id" invisible="1"/>
                             <field name="stock_owner_id"/>
                         </group>
                     </group>

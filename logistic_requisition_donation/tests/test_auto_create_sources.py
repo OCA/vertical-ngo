@@ -52,15 +52,15 @@ class TestAutoCreateSources(TransactionCase):
             'product_id': self.product_id,
             'owner_id': self.owner_id,
             'qty': 100,
-            'location_id': self.ref('stock.stock_location_14'),
+            'location_id': self.ref('stock.stock_location_stock'),
         })
         self.lrl._generate_sources()
         sources = self.lrl.source_ids
         self.assertEquals(len(sources), 1)
         self.assertEquals(sources.sourcing_method, 'wh_dispatch')
         self.assertEquals(
-            sources.dispatch_location_id.id,
-            self.ref('stock.stock_location_14')
+            sources.dispatch_warehouse_id.lot_stock_id.id,
+            self.ref('stock.stock_location_stock')
         )
 
     def test_create_source_for_multiple_location(self):
@@ -69,7 +69,7 @@ class TestAutoCreateSources(TransactionCase):
             'product_id': self.product_id,
             'owner_id': self.owner_id,
             'qty': 100,
-            'location_id': self.ref('stock.stock_location_14'),
+            'location_id': self.ref('stock.stock_location_stock'),
         })
         Quant.create({
             'product_id': self.product_id,
