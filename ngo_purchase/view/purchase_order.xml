@@ -374,5 +374,28 @@
       </field>
     </record>
 
+    <!-- purchase-workflow/framework_agreement -->
+    <record model="ir.ui.view" id="purchase_order_line_agreement_view_form">
+      <field name="name">purchase_order_line_agreement_view_form</field>
+      <field name="model">purchase.order.line</field>
+      <field name="inherit_id" ref="ngo_purchase.purchase_order_line_form"/>
+      <field name="arch" type="xml">
+
+        <field name="product_id" position="attributes">
+          <attribute name="context_agreement">{'agreement_id': framework_agreement_id, 'incoterm_id': parent.incoterm_id, 'currency_id': parent.currency_id, 'portfolio_id': parent.portfolio_id}</attribute>
+        </field>
+
+        <field name="product_id" position="after">
+          <field name="portfolio_id" invisible="1"/> <!-- used by attrs below -->
+          <field name="framework_agreement_id" attrs="{'required': [('portfolio_id', '!=', False)], 'readonly': [('portfolio_id', '=', False)]}" />
+        </field>
+
+        <field name="product_qty" position="attributes">
+          <attribute name="context_agreement">{'agreement_id': framework_agreement_id, 'incoterm_id': parent.incoterm_id, 'currency_id': parent.currency_id, 'portfolio_id': parent.portfolio_id}</attribute>
+        </field>
+
+      </field>
+    </record>
+
   </data>
 </openerp>
