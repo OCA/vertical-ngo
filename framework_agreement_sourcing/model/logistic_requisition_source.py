@@ -348,7 +348,7 @@ class logistic_requisition_source(orm.Model):
 
         good_agreements = Agreement.search(ag_domain)
         if self.framework_agreement_id in good_agreements:
-            pass  # it's good! let's keep it!
+            agreement = self.framework_agreement_id
         else:
             if len(good_agreements) == 1:
                 agreement = good_agreements
