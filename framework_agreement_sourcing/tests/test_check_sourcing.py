@@ -28,8 +28,9 @@ class TestCheckSourcing(TransactionCase):
     def test_agreement_sourcing_with_running_agreement_is_sourced(self):
         self.source.sourcing_method = 'fw_agreement'
         self.source.framework_agreement_id = self.Agreement.new({
-            'state': 'running'
+            'state': 'running',
         })
+        self.source.framework_agreement_id.available_quantity = 20
         self.assertEquals([], self.source._check_sourcing())
 
     def test_other_sourcing_is_always_sourced(self):
@@ -48,4 +49,4 @@ class TestCheckSourcing(TransactionCase):
         self.PO = self.env['purchase.order']
         self.PurcReq = self.env['purchase.requisition']
         self.Agreement = self.env['framework.agreement']
-        self.source = Source.new()
+        self.source = Source.new({'proposed_qty': 1, 'unit_cost': 1})

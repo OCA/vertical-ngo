@@ -27,6 +27,8 @@ class TestButtonSourced(TransactionCase):
     def test_line_with_procurement_sourcing_but_no_procurement_fails(self):
         self.lrl.source_ids = self.LRS.new({
             'sourcing_method': 'procurement',
+            'proposed_qty': '1',
+            'unit_cost': '1',
             'name': 'my source',
         })
         with self.assertRaises(exceptions.Warning) as cm:
@@ -40,9 +42,32 @@ class TestButtonSourced(TransactionCase):
         self.assertEqual("Incorrect Sourcing", cm.exception.args[0])
         self.assertEqual("No Sourcing Lines", cm.exception.args[1])
 
+    def test_line_with_zero_proposed_product(self):
+        self.lrl.source_ids = self.LRS.new({
+            'sourcing_method': 'wh_dispatch',
+        })
+        with self.assertRaises(exceptions.Warning) as cm:
+            self.lrl.button_sourced()
+        self.assertEqual("Incorrect Sourcing", cm.exception.args[0])
+        self.assertEqual("Invalid source with a zero quantity.",
+                         cm.exception.args[1])
+
+    def test_line_with_zero_unit_cost(self):
+        self.lrl.source_ids = self.LRS.new({
+            'sourcing_method': 'wh_dispatch',
+            'proposed_qty': 1,
+        })
+        with self.assertRaises(exceptions.Warning) as cm:
+            self.lrl.button_sourced()
+        self.assertEqual("Incorrect Sourcing", cm.exception.args[0])
+        self.assertEqual("Invalid source with product cost at zero.",
+                         cm.exception.args[1])
+
     def test_it_can_pass(self):
         self.lrl.source_ids = self.LRS.new({
             'sourcing_method': 'wh_dispatch',
+            'proposed_qty': 1,
+            'unit_cost': 1,
         })
         self.lrl.button_sourced()
         self.assertEquals('sourced', self.lrl.state)

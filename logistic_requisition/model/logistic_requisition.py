@@ -1008,6 +1008,13 @@ class LogisticsRequisitionSource(models.Model):
 
         """
         self.ensure_one()
+        if not self.proposed_qty:
+            raise exceptions.Warning(_('Incorrect Sourcing'),
+                                     _("Invalid source with a zero quantity."))
+        if not self.unit_cost:
+            raise exceptions.Warning(_('Incorrect Sourcing'),
+                                     _("Invalid source with product cost at"
+                                       " zero."))
         callable_name = "_check_sourcing_%s" % self.sourcing_method
         return getattr(self, callable_name)()
 
