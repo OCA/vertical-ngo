@@ -16,6 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from openerp import models, fields, api
+from openerp import exceptions
 
 
 class LogisticRequisition(models.Model):
@@ -48,6 +49,11 @@ class LogisticRequisitionSource(models.Model):
     def _prepare_po_requisition(self, purch_req_lines, pricelist=None):
         res = super(LogisticRequisitionSource, self)._prepare_po_requisition(
             purch_req_lines, pricelist)
-
-        res['department_id'] = self.department_id.id
+        departments = self.mapped('department_id')
+        if len(departments) > 1:
+            raise exceptions.Warning(
+                'Cannot generate Purchase Order: '
+                'the sourcing lines are from '
+                'different departments.')
+        res['department_id'] = departments.id
         return res
