@@ -21,8 +21,3 @@
 
 from . import test_consignee_purchase_order
 from . import test_consignee_sale_order
-
-checks = [
-    test_consignee_purchase_order,
-    test_consignee_sale_order,
-]

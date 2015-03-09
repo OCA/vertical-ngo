@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 #
 #
-#    Author: Yannick Vaucher
-#    Copyright 2014 Camptocamp SA
+#    Author: Yannick Vaucher, Leonardo Pistone
+#    Copyright 2014-2015 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -18,8 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #
-from openerp import models, fields, api
-from openerp import SUPERUSER_ID
+from openerp import models, fields
 
 
 class SaleOrder(models.Model):
@@ -37,19 +36,5 @@ class SaleOrder(models.Model):
     consignee_id = fields.Many2one(
         'res.partner',
         string='Consignee',
-        required=True,
         states=LO_STATES,
         help="The person to whom the shipment is to be delivered.")
-
-    @api.cr
-    def init(self, cr):
-        """set SUPERUSER_ID as consignee_id for existing sale orders
-        """
-        cr.execute('SELECT COUNT(id) FROM sale_order'
-                   ' WHERE consignee_id IS NULL')
-        count = cr.fetchone()[0]
-        if count:
-            cr.execute('UPDATE sale_order SET consignee_id=%s'
-                       ' WHERE consignee_id IS NULL', (SUPERUSER_ID,))
-            cr.execute('ALTER TABLE sale_order ALTER COLUMN consignee_id'
-                       ' SET NOT NULL')
