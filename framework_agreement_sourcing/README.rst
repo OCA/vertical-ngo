@@ -2,7 +2,7 @@ Sourcing with Framework Agreements
 ==================================
 
 If you have a framework agreement negociated for the current product in
-your logistic requisition, a sourcing of type "agreement" will generated.
+your logistic requisition, a sourcing of type "agreement" will be generated.
 
 This sourcing allows the user to choose an agreement that will be used to
 create directly a purchase order at the validation of the requisition. This
