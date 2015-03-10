@@ -26,7 +26,6 @@ base_test = fa_sourcing_test.test_agreement_source_line_to_po
 class TestSourceToPoTransit(base_test.TestSourceToPo):
 
     def setUp(self):
-        # we generate a source line
         super(TestSourceToPoTransit, self).setUp()
         self.wh.write({'reception_steps': 'transit_three_steps',
                        'delivery_steps': 'pick_pack_ship_transit'})
