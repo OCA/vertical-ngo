@@ -164,6 +164,7 @@
                   </group>
                   <group>
                     <field name="req_payment_term_id"/>
+                    <field name="req_terms_of_payment"/>
                     <field name="account_analytic_id" invisible="1"/>
                   </group>
                 </group>
