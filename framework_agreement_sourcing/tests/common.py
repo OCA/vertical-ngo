@@ -1,8 +1,5 @@
-# -*- coding: utf-8 -*-
-##############################################################################
-#
-#    Author: Nicolas Bessi
-#    Copyright 2013 Camptocamp SA
+#    Author: Nicolas Bessi, Leonardo Pistone
+#    Copyright 2013-2015 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -16,10 +13,9 @@
 #
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-##############################################################################
-from datetime import timedelta
-from openerp.tools import DEFAULT_SERVER_DATE_FORMAT
+
+from datetime import timedelta, date
+from openerp import fields
 import openerp.tests.common as test_common
 from openerp.addons.logistic_requisition.tests import logistic_requisition
 from openerp.addons.framework_agreement.tests.common \
@@ -29,9 +25,6 @@ from openerp.addons.framework_agreement.tests.common \
 class CommonSourcingSetUp(test_common.TransactionCase, BaseAgreementTestMixin):
 
     def setUp(self):
-        """
-        Setup a standard configuration for test
-        """
         super(CommonSourcingSetUp, self).setUp()
         self.commonsetUp()
 
@@ -43,28 +36,27 @@ class CommonSourcingSetUp(test_common.TransactionCase, BaseAgreementTestMixin):
 
     def make_common_requisition(self):
         """Create a standard logistic requisition"""
-        start_date = self.now + timedelta(days=12)
-        start_date = start_date.strftime(DEFAULT_SERVER_DATE_FORMAT)
+        start_date = date.today() + timedelta(days=12)
         req = {
             'partner_id': self.ref('base.res_partner_1'),
             'consignee_id': self.ref('base.res_partner_3'),
-            'date_delivery': start_date,
-            'date': start_date,
+            'date_delivery': fields.Date.to_string(start_date),
+            'date': fields.Date.to_string(start_date),
             'user_id': self.uid,
             'pricelist_id': self.ref('product.list0'),
         }
         agr_line = {
-            'product_id': self.product_id,
+            'product_id': self.product.id,
             'requested_qty': 100,
             'requested_uom_id': self.ref('product.product_uom_unit'),
-            'date_delivery': self.now.strftime(DEFAULT_SERVER_DATE_FORMAT),
+            'date_delivery': fields.Date.today(),
             'description': '/',
         }
         product_line = {
             'product_id': self.ref('product.product_product_7'),
             'requested_qty': 10,
             'requested_uom_id': self.ref('product.product_uom_unit'),
-            'date_delivery': self.now.strftime(DEFAULT_SERVER_DATE_FORMAT),
+            'date_delivery': fields.Date.today(),
             'description': '/',
         }
 
@@ -72,7 +64,7 @@ class CommonSourcingSetUp(test_common.TransactionCase, BaseAgreementTestMixin):
             'product_id': self.ref('logistic_requisition.product_transport'),
             'requested_qty': 1,
             'requested_uom_id': self.ref('product.product_uom_unit'),
-            'date_delivery': self.now.strftime(DEFAULT_SERVER_DATE_FORMAT),
+            'date_delivery': fields.Date.today(),
             'description': '/',
         }
 
@@ -96,17 +88,16 @@ class CommonSourcingSetUp(test_common.TransactionCase, BaseAgreementTestMixin):
         And one line of other product
 
         """
+        Portfolio = self.env['framework.agreement.portfolio']
+        start_date = date.today() + timedelta(days=10)
+        end_date = date.today() + timedelta(days=20)
 
-        start_date = self.now + timedelta(days=10)
-        start_date = start_date.strftime(DEFAULT_SERVER_DATE_FORMAT)
-        end_date = self.now + timedelta(days=20)
-        end_date = end_date.strftime(DEFAULT_SERVER_DATE_FORMAT)
         # Agreement 1
         agr = self.agreement_model.create({
-            'supplier_id': self.supplier_id,
-            'product_id': self.product_id,
-            'start_date': start_date,
-            'end_date': end_date,
+            'portfolio_id': self.portfolio.id,
+            'product_id': self.product.id,
+            'start_date': fields.Date.to_string(start_date),
+            'end_date': fields.Date.to_string(end_date),
             'draft': False,
             'delay': 5,
             'quantity': 2000,
@@ -131,12 +122,17 @@ class CommonSourcingSetUp(test_common.TransactionCase, BaseAgreementTestMixin):
 
         self.cheap_on_high_agreement = agr
 
+        self.portfolio_2 = Portfolio.create({
+            'name': '/',
+            'supplier_id': self.ref('base.res_partner_3'),
+        })
+
         # Agreement 2
         agr = self.agreement_model.create({
-            'supplier_id': self.ref('base.res_partner_3'),
-            'product_id': self.product_id,
-            'start_date': start_date,
-            'end_date': end_date,
+            'portfolio_id': self.portfolio_2.id,
+            'product_id': self.product.id,
+            'start_date': fields.Date.to_string(start_date),
+            'end_date': fields.Date.to_string(end_date),
             'draft': False,
             'delay': 5,
             'quantity': 1200,
