@@ -30,9 +30,7 @@ class TestSourceToPoTransit(base_test.TestSourceToPo):
         self.wh.write({'reception_steps': 'transit_three_steps',
                        'delivery_steps': 'pick_pack_ship_transit'})
 
-    def test_01_transform_source_to_agreement_wh_dest(self):
-        """Test transformation of an LRS sourced by FA to PO
-        delivering to WH"""
+    def test_transform_source_to_agreement_wh_dest(self):
         # Set destination address
         partner_vals = {
             'name': 'Warehouse address',
@@ -94,8 +92,7 @@ class TestSourceToPoTransit(base_test.TestSourceToPo):
         self.assertAlmostEqual(po_line.price_unit, 1.0)
         self.assertEqual(po_line.lr_source_line_id, self.other_source)
 
-    def test_02_transform_source_to_agreement_dropshipping(self):
-        """Test transformation of an LRS sourced by FA to PO dropshipping"""
+    def test_transform_source_to_agreement_dropshipping(self):
         # Set destination address
         partner_dropship = self.ref('base.res_partner_12')
         self.agr_line.consignee_shipping_id = partner_dropship
