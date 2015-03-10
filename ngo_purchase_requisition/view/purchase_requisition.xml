@@ -9,9 +9,10 @@
         <form string="Call for Bids">
           <header>
             <button name="sent_suppliers" states="draft" string="Confirm Call" class="oe_highlight"/>
+            <button type="object" name="ask_confirmation_to_close_selection" states="selected" string="Accept selection" class="oe_highlight"/>
             <button name="open_bid" states="in_progress" string="Close Call for Bids" class="oe_highlight"/>
             <!-- added by purchase_requisition_bid_selection -->
-            <button name="reopen_bid" states="closed" string="Re-Open Bids Selection"/>
+            <button name="reopen_bid" states="selected" string="Re-Open Bids Selection"/>
             <button name="tender_reset" states="cancel" string="Reset to Draft" type="object" />
             <button name="open_product_line" states="open" string="Choose product lines" type="object" class="oe_highlight" groups="purchase.group_advance_bidding" />
             <!-- extended by purchase_requisition_bid_selection -->
@@ -114,18 +115,21 @@
                     <field name="name" string="Reference"/>
                     <field name="date_order" string="Order Date"/>
                     <field name="partner_id"/>
-                    <field name="company_id" groups="base.group_multi_company" widget="selection"/>
-                    <field name="location_id" groups="stock.group_locations"/>
                     <field name="minimum_planned_date" invisible="1"/>
-                    <field name="origin"/>
                     <field name="state"/>
                     <!-- purchase_requisition_bid_selection removed button purchase_cancel -->
                     <!-- purchase_requisition_bid_selection removed button purchase_confirm -->
                     <!-- purchase_requisition_bid_selection removed button purchase_approve -->
                     <!-- purchase_requisition_bid_selection change button icon -->
+                    <field name="bid_selection_remark"/>
                     <button name="wkf_send_rfq" states="draft" string="Send RFQ by Email" type="object" context="{'send_rfq':True}" icon="gtk-apply"/>
                   </tree>
                 </field>
+
+                <group string="Selection reasons" attrs="{'invisible': [('state','not in',('open', 'selected', 'closed', 'done', 'cancel'))], 'readonly': [('state','in',('closed', 'done'))]}">
+                  <field name="selection_reasons" nolabel="1"/>
+                </group>
+
               </page>
               <page string="Transportation and delivery">
                 <group>
@@ -159,6 +163,7 @@
                 <group>
                   <group>
                     <!-- added by purchase_requisition_bid_selecton -->
+                    <field name="budget" attrs="{'readonly': [('state','!=','draft')]}"/>
                     <field name="pricelist_id" attrs="{'readonly': [('state','!=','draft')]}"/>
                     <field name="company_id" groups="base.group_multi_company" widget="selection" attrs="{'readonly': [('state','!=','draft')]}"/>
                   </group>
