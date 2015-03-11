@@ -208,7 +208,6 @@ class LogisticsRequisitionCostEstimate(models.TransientModel):
         partner_id = requisition.partner_id.id
         vals = {'partner_id': partner_id,
                 'partner_invoice_id': partner_id,
-                'partner_shipping_id': requisition.consignee_shipping_id.id,
                 'consignee_id': requisition.consignee_id.id,
                 'order_type': requisition.requisition_type,
                 'order_line': [(0, 0, x) for x in estimate_lines],
@@ -221,7 +220,9 @@ class LogisticsRequisitionCostEstimate(models.TransientModel):
         onchange_vals = (sale_obj.onchange_partner_id(partner_id)
                          .get('value', {}))
         vals.update(onchange_vals)
-        vals.update({'pricelist_id': requisition.pricelist_id.id})
+        if requisition.consignee_shipping_id:
+            vals['partner_shipping_id'] = requisition.consignee_shipping_id.id
+        vals['pricelist_id'] = requisition.pricelist_id.id
         return vals
 
     @api.multi
