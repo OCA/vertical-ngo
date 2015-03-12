@@ -17,6 +17,7 @@
           <field name="bid_eligible" invisible="not context.get('selection_view')"/>
           <field name="incoterm_id" invisible="not context.get('selection_view')"/>
           <field name="incoterm_address" invisible="not context.get('selection_view')"/>
+          <field name="date_planned" invisible="not context.get('selection_view')"/>
         </field>
 
         <field name="product_qty" position="before">
