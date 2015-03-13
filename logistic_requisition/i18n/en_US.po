@@ -493,10 +493,6 @@ msgstr "Invoice and shipping address:"
 msgid "Is a Follower"
 msgstr "Is a Follower"
 
-#. module: logistic_requisition
-#: model:logistic.requisition.cancel.reason,name:logistic_requisition.cancel_reason_only_quotation
-msgid "Just for Quotation"
-msgstr "Just for Quotation"
 
 #. module: logistic_requisition
 #: field:logistic.requisition,message_last_post:0
@@ -711,11 +707,6 @@ msgid "No Sourcing Lines"
 msgstr "No Sourcing Lines"
 
 #. module: logistic_requisition
-#: model:logistic.requisition.cancel.reason,name:logistic_requisition.cancel_reason_no_service_needed
-msgid "No service needed anymore"
-msgstr "No service needed anymore"
-
-#. module: logistic_requisition
 #: code:addons/logistic_requisition/model/logistic_requisition.py:619
 #, python-format
 msgid "No sourcing line found"
@@ -755,11 +746,6 @@ msgstr "Origin"
 #: selection:logistic.requisition.source,sourcing_method:0
 msgid "Other"
 msgstr "Other"
-
-#. module: logistic_requisition
-#: model:logistic.requisition.cancel.reason,name:logistic_requisition.cancel_reason_other_provider
-msgid "Other Service Provider selected"
-msgstr "Other Service Provider selected"
 
 #. module: logistic_requisition
 #: view:stock.quant:logistic_requisition.quant_search_view
