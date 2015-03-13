@@ -333,9 +333,8 @@
         </field>
 
         <button name="action_cancel" position="attributes">
-          <!-- approved,except_picking,except_invoice removed -->
           <!-- draftbid,draftpo added -->
-          <attribute name="states">draft,confirmed,sent,bid,draftbid,draftpo</attribute>
+          <attribute name="states">draft,confirmed,sent,bid,draftbid,draftpo,approved,except_picking,except_invoice</attribute>
         </button>
 
         <xpath expr="//button[@name='purchase_confirm']" position="after">
