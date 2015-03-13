@@ -52,8 +52,8 @@ class LogisticsRequisitionLine(models.Model):
             values['stock_owner_id'] = owner.id
         if len(location_ids) == 1:
             wh_model = self.env['stock.warehouse']
-            wh_id = wh_model.search([('lot_stock_id', '=', location_ids[0])])
-            values['dispatch_warehouse_id'] = wh_id or False
+            wh = wh_model.search([('lot_stock_id', '=', location_ids[0])])
+            values['dispatch_warehouse_id'] = wh.id
         return values
 
     @api.multi
