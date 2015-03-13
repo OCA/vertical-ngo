@@ -17,6 +17,10 @@
 
 from openerp import models, fields, api
 
+from openerp.addons.logistic_requisition.model.logistic_requisition import (
+    LogisticsRequisition as base_requisition
+)
+
 
 class LogisticRequisition(models.Model):
     _inherit = 'logistic.requisition'
@@ -27,6 +31,7 @@ class LogisticRequisition(models.Model):
                 self.env['hr.department'])
 
     department_id = fields.Many2one('hr.department', 'Department',
+                                    states=base_requisition.REQ_STATES,
                                     default=_get_my_department)
 
 
@@ -34,6 +39,7 @@ class LogisticRequisitionLine(models.Model):
     _inherit = 'logistic.requisition.line'
 
     department_id = fields.Many2one(related='requisition_id.department_id',
+                                    readonly=True,
                                     store=True)
 
 
@@ -42,6 +48,7 @@ class LogisticRequisitionSource(models.Model):
 
     department_id = fields.Many2one(
         related='requisition_line_id.requisition_id.department_id',
+        readonly=True,
         store=True)
 
     @api.multi
