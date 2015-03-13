@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-#
-#
 #    Copyright 2015 Camptocamp SA
-#    Author: Alexandre Fayolle
+#    Author: Alexandre Fayolle, Leonardo Pistone
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -16,24 +14,18 @@
 #
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#
 
-{"name": "Logistics Order - Donation Transit management",
- "summary": "Transit management for Logistic Order Donations",
+{"name": "Logistics Order - Donation Shipment",
+ "summary": "Shipment management for Logistic Order Donations",
  "version": "0.1",
  "author": "Camptocamp,Odoo Community Association (OCA)",
  "license": "AGPL-3",
  "category": "Purchase Management",
  'complexity': "normal",
- "images": [],
  "website": "http://www.camptocamp.com",
- "depends": ["logistic_order_donation",
-             "stock_route_transit",
+ "depends": ["logistic_order_donation_transit",
+             "stock_shipment_management",
              ],
- "demo": [],
- "data": ['data/stock.xml',
-          ],
  'installable': True,
  "auto_install": True,
  }
