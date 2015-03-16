@@ -84,8 +84,9 @@
 -
   I close the call for bids
 -
-  !python {model: purchase.requisition}: |
-    self.close_callforbids(cr, uid, [ref("purchase_requisition_agreement")])
+  !python {model: purchase.requisition, id: purchase_requisition_agreement}: |
+    self.signal_workflow('bid_selected')
+    self.signal_workflow('close_bid')
 -
   I mark the tender as agreement selected
 -
