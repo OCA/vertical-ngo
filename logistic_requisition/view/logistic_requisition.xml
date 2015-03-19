@@ -637,11 +637,18 @@
                                 attrs="{'required': [('sourcing_method', '=', 'other')]}"/>
                         </group>
                         <group string="Purchase Requisition"
-                            attrs="{'invisible': [('sourcing_method', 'not in', ['procurement','other'])]}">
+                            attrs="{'invisible': [('sourcing_method', 'not in', ['procurement', 'reuse_bid', 'other'])]}">
                             <label for="po_requisition_id"/>
                             <div>
-                                <field name="po_requisition_id" class="oe_inline"/>
+                              <field name="selectable_purchase_req_ids" invisible="1"/>
+                              <field name="po_requisition_id" class="oe_inline"
+                                attrs="{'readonly': [('sourcing_method', '!=', 'reuse_bid')], 'required': [('sourcing_method', '=', 'reuse_bid')], 'invisible': [('sourcing_method', '!=', 'reuse_bid')]}"
+                                domain="[('id', 'in', selectable_purchase_req_ids[0][2])]"/>
                             </div>
+                            <field name="selectable_bid_line_ids" invisible="1"/>
+                            <field name="selected_bid_line_id"
+                              attrs="{'readonly': [('sourcing_method', '!=', 'reuse_bid')], 'required': [('sourcing_method', '=', 'reuse_bid')]}"
+                              domain="[('id', 'in', selectable_bid_line_ids[0][2])]"/>
                             <field name="selected_bid_id"/>
                         </group>
                         <group string="Warehouse Dispatch"

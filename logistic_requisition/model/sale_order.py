@@ -41,15 +41,10 @@ class SaleOrder(models.Model):
     )
 
     @api.multi
-    def action_accepted(self):
-        """ On acceptation of Cost Estimate, we generate PO
-        for all line sourced by a tender
-
-        """
-        res = super(SaleOrder, self).action_accepted()
+    def _generate_tender_pos(self):
         purch_req_so_lines = self.mapped('order_line').filtered(
-            lambda rec: (rec.sourcing_method == 'procurement' and
-                         not rec.sourced_by))
+            lambda rec: (
+                rec.sourcing_method == 'procurement' and not rec.sourced_by))
         # As multiple source lines can lead to the same purchase
         # requisition. First we list them. And then we generate
         # PO only once for each purchase requisition.
@@ -64,6 +59,42 @@ class SaleOrder(models.Model):
 
         for line in purch_req_so_lines:
             line.sourced_by = line.lr_source_id.purchase_line_id
+
+    @api.multi
+    def _duplicate_reused_bids(self):
+        """ Duplicate selected bid """
+        reuse_bid_so_lines = self.mapped('order_line').filtered(
+            lambda rec: (
+                rec.sourcing_method == 'reuse_bid'))
+        tocopy = self.env['purchase.order']
+        reverselink = {}
+        for line in reuse_bid_so_lines:
+            source = line.lr_source_id
+            tocopy |= source.selected_bid_id
+            reverselink[source.selected_bid_line_id.id] = source.id
+
+        new_pos = self.env['purchase.order']
+        for bid in tocopy:
+            new_pos |= bid.with_context(reuse_from_source=reverselink).copy()
+        po_lines = new_pos.mapped('order_line')
+        for sol in reuse_bid_so_lines:
+            for pol in po_lines:
+                if sol.lr_source_id == pol.lr_source_line_id:
+                    sol.sourced_by = pol
+                    po_lines = po_lines - pol
+                    break
+
+    @api.multi
+    def action_accepted(self):
+        """ On acceptation of Cost Estimate, we generate PO
+        for all line sourced by a tender
+
+        Plus, we duplicate PO for reused bids
+
+        """
+        res = super(SaleOrder, self).action_accepted()
+        self._generate_tender_pos()
+        self._duplicate_reused_bids()
         return res
 
     @api.multi
@@ -76,7 +107,8 @@ class SaleOrder(models.Model):
             # check for existing bid
             unsourced_lines = self.order_line - sourced_lines
             unsourced_lines = unsourced_lines.filtered(
-                lambda rec: rec.sourcing_method == 'procurement')
+                lambda rec: rec.sourcing_method in ('procurement', 'reuse_bid')
+            )
             bids = unsourced_lines.mapped('lr_source_id.selected_bid_id')
             purchases |= bids
         return purchases
@@ -146,7 +178,8 @@ class SaleOrderLine(models.Model):
     sourcing_method = fields.Selection(
         related='lr_source_id.sourcing_method',
         selection=[
-            ('procurement', 'Tender'),
+            ('procurement', 'Go to Tender'),
+            ('reuse_bid', 'Use Existing Bid'),
             ('wh_dispatch', 'Warehouse Dispatch'),
             ('fw_agreement', 'Framework Agreement'),
             ('other', 'Other'),

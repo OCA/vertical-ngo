@@ -1,5 +1,5 @@
-#    Author: Leonardo Pistone
-#    Copyright 2014 Camptocamp SA
+#    Authors: Leonardo Pistone, Yannick Vaucher
+#    Copyright 2014-2015 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -39,6 +39,12 @@ class TestCheckSourcing(TransactionCase):
         self.assertEquals(1, len(errors))
         self.assertIn('Purchase Requisition state should', errors[0])
 
+    def test_reuse_bid_sourcing_without_purchase_line_is_not_sourced(self):
+        self.source.sourcing_method = 'reuse_bid'
+        errors = self.source._check_sourcing()
+        self.assertEquals(1, len(errors))
+        self.assertIn('No bid line selected', errors[0])
+
     def test_procurement_sourcing_with_closed_pr_is_sourced(self):
         self.source.sourcing_method = 'procurement'
         self.source.po_requisition_id = self.PurcReq.new({'state': 'closed'})
@@ -47,6 +53,12 @@ class TestCheckSourcing(TransactionCase):
     def test_procurement_sourcing_with_done_pr_is_sourced(self):
         self.source.sourcing_method = 'procurement'
         self.source.po_requisition_id = self.PurcReq.new({'state': 'done'})
+
+    def test_reuse_bid_sourcing_with_purchase_line_is_sourced(self):
+        self.source.sourcing_method = 'reuse_bid'
+        po_line = self.env['purchase.order.line'].new()
+        self.source.selected_bid_line_id = po_line
+        self.assertEquals([], self.source._check_sourcing())
 
     def test_other_sourcing_without_pr_is_sourced(self):
         self.source.sourcing_method = 'other'

@@ -820,6 +820,35 @@ class LogisticsRequisitionSource(models.Model):
                     address = sup.id
             line.default_source_address = address
 
+    @api.depends('po_requisition_id',
+                 'proposed_product_id',
+                 'sourcing_method')
+    def _get_selectable_purchase_req_ids(self):
+        purchase_reqs = False
+        if (self.sourcing_method == 'reuse_bid' and self.proposed_product_id):
+            domain = [('requisition_id.state', '=', 'done'),
+                      ('product_id', '=', self.proposed_product_id.id)]
+            p_req_lines = self.env['purchase.requisition.line'].search(domain)
+            purchase_reqs = p_req_lines.mapped('requisition_id')
+        self.selectable_purchase_req_ids = (purchase_reqs.ids if purchase_reqs
+                                            else False)
+
+    @api.depends('po_requisition_id',
+                 'proposed_product_id',
+                 'sourcing_method')
+    def _get_selectable_bid_line_ids(self):
+        bid_lines = False
+        if (self.sourcing_method == 'reuse_bid' and self.po_requisition_id and
+                self.proposed_product_id):
+            domain = [
+                ('order_id.requisition_id', '=', self.po_requisition_id.id),
+                ('product_id', '=', self.proposed_product_id.id),
+                ('order_id.state', '=', 'bid_selected')
+            ]
+            bid_lines = self.env['purchase.order.line'].search(domain)
+        self.selectable_bid_line_ids = (bid_lines.ids if bid_lines
+                                        else False)
+
     name = fields.Char(
         'Source Name',
         readonly=True,
@@ -857,7 +886,8 @@ class LogisticsRequisitionSource(models.Model):
         digits_compute=dp.get_precision('Product UoM'),
         default=1)
     sourcing_method = fields.Selection(
-        [('procurement', 'Tender'),
+        [('procurement', 'Go to Tender'),
+         ('reuse_bid', 'Use Existing Bid'),
          ('wh_dispatch', 'Warehouse Dispatch'),
          ('fw_agreement', 'Framework Agreement'),
          ('other', 'Other'),
@@ -958,6 +988,16 @@ class LogisticsRequisitionSource(models.Model):
     # Procument Method = Other field
     origin = fields.Char("Origin")
 
+    # domain limitation fields
+    selectable_purchase_req_ids = fields.Many2many(
+        comodel_name='purchase.order',
+        compute='_get_selectable_purchase_req_ids',
+    )
+    selectable_bid_line_ids = fields.Many2many(
+        comodel_name='purchase.requisition.line',
+        compute='_get_selectable_bid_line_ids',
+    )
+
     _constraints = [
         (lambda self, cr, uid, ids: self._check_purchase_requisition_unique(
             cr, uid, ids),
@@ -978,6 +1018,17 @@ class LogisticsRequisitionSource(models.Model):
         if self.po_requisition_id.state not in ['done', 'closed']:
             return ['{0}: Purchase Requisition state should be '
                     '"Bids Selected" or "PO Created"'.format(self.name)]
+        return []
+
+    @api.multi
+    def _check_sourcing_reuse_bid(self):
+        """Check sourcing for "reuse_bid" method.
+
+        :returns: list of error strings
+
+        """
+        if not self.selected_bid_line_id:
+            return ['{0}: No bid line selected'.format(self.name)]
         return []
 
     @api.multi
@@ -1245,3 +1296,27 @@ class LogisticsRequisitionSource(models.Model):
             purchase = self.selected_bid_id
             supplier_partner_id = purchase.partner_id.id
         self.supplier_partner_id = supplier_partner_id
+
+    @api.onchange('sourcing_method')
+    def onchange_sourcing_method(self):
+        """ Set `price_is` to fixed when reusing a bid
+        """
+        self.price_is = ('fixed' if self.sourcing_method == 'reuse_bid'
+                         else False)
+
+    @api.onchange('po_requisition_id')
+    def onchange_po_requisition_id(self):
+        """ Empty selected_bid_line when po_requisition_id is manually changed
+        """
+        self.selected_bid_line_id = False
+
+    @api.onchange('selected_bid_line_id')
+    def onchange_selected_bid_line_id(self):
+        """ Copy unit cost from bid line """
+        unit_cost = 0.0
+        to_curr = self.currency_id
+        from_curr = self.selected_bid_line_id.order_id.pricelist_id.currency_id
+        if from_curr:
+            unit_cost = from_curr.compute(self.selected_bid_line_id.price_unit,
+                                          to_curr, round=False)
+        self.unit_cost = unit_cost

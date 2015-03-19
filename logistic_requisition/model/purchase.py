@@ -140,3 +140,16 @@ class PurchaseOrderLine(models.Model):
                         % (line.lr_source_line_id.name)
                     )
         return super(PurchaseOrderLine, self).unlink()
+
+    def copy_data(self, cr, uid, res_id, default=None, context=None):
+        """ When copying purchase order lines to reuse a bid
+        Link them to logistic requisition lines
+        """
+        if context is None:
+            context = {}
+        res = super(PurchaseOrderLine, self).copy_data(
+            cr, uid, res_id, default=default, context=context)
+        if 'reuse_from_source' in context:
+            source_id = context['reuse_from_source'].get(res_id)
+            res['lr_source_line_id'] = source_id
+        return res

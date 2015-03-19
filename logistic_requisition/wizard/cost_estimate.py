@@ -114,7 +114,8 @@ class LogisticsRequisitionCostEstimate(models.TransientModel):
         Other and Warehouse Dispatch doesn't need a Purchase order line.
 
         """
-        return sourcing.sourcing_method in ['procurement', 'fw_agreement']
+        manual_methods = ['procurement', 'reuse_bid', 'fw_agreement']
+        return sourcing.sourcing_method in manual_methods
 
     @api.model
     def _prepare_cost_estimate_line(self, sourcing):
