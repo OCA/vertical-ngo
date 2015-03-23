@@ -20,7 +20,7 @@
     <record id="view_order_form" model="ir.ui.view">
         <field name="name">sale.order.form</field>
         <field name="model">sale.order</field>
-        <field name="inherit_id" ref="sale_addresses.view_order_form"/>
+        <field name="inherit_id" ref="sale_transport_multi_address.view_order_form"/>
         <field name="arch" type="xml">
 
           <h1 position="before">

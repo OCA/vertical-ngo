@@ -19,7 +19,7 @@
 ##############################################################################
 from openerp import models, fields, api, exceptions
 from openerp.tools.translate import _
-from openerp.addons.logistic_consignee.model.sale_order import (
+from openerp.addons.sale_transport_multi_address.model.sale_order import (
     SaleOrder as base_sale_order
 )
 

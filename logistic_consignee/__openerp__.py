@@ -20,8 +20,9 @@
 #
 
 {"name": "Logistics Consignee [DEPRECATED]",
- "summary": "Deprecated: use purchase_requisition_addresses, "
-            "purchase_addresses, sale_addresses, stock_addresses",
+ "summary": "Deprecated: use purchase_requisition_transport_multi_address, "
+            "purchase_transport_multi_address, sale_transport_multi_address, "
+            "stock_transport_multi_address",
  "version": "0.1",
  "author": "Camptocamp,Odoo Community Association (OCA)",
  "license": "AGPL-3",
@@ -29,8 +30,8 @@
  'complexity': "normal",
  "images": [],
  "website": "http://www.camptocamp.com",
- "depends": ["purchase_requisition_addresses",
-             "sale_addresses",
+ "depends": ["purchase_requisition_transport_multi_address",
+             "sale_transport_multi_address",
              ],
  "demo": [],
  "data": [],
