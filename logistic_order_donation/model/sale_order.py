@@ -43,3 +43,15 @@ class SaleOrder(models.Model):
         selection = super(SaleOrder, self).get_order_type_selection()
         selection.append(('donation', 'In-Kind Donation'))
         return selection
+
+
+class SaleOrderLine(models.Model):
+    _inherit = 'sale.order.line'
+
+    @api.one
+    def _origin_address(self):
+        super(SaleOrderLine, self)._origin_address()
+        donation_route = self.env.ref('logistic_order_donation.route_donation')
+        if self.route_id == donation_route:
+            address = self.order_id.partner_id
+            self.origin_address_id = address
