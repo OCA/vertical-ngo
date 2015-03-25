@@ -99,7 +99,8 @@
     rfq = requisition.purchase_ids[0]
     for line in rfq.order_line:
       line.action_confirm()
-    requisition.close_callforbids()
+    requisition.signal_workflow('bid_selected')
+    requisition.signal_workflow('close_bid')
 -
  And I source the lines
 -

@@ -111,6 +111,8 @@
                       string="Delivery Address"
                       groups="stock.group_locations"/>
                     <field name="origin_address_id"/>
+                    <field name="volume_estimated"/>
+                    <field name="weight_estimated"/>
                   </group>
                   <group>
                     <field name="minimum_planned_date"/>
@@ -138,6 +140,7 @@
                   </group>
                   <group>
                     <field name="payment_term_id" options="{'no_open': True, 'no_create': True}"/>
+                    <field name="terms_of_payment"/><!-- purchase-workflow/purchase_requisition_bid_selection -->
                     <field name="fiscal_position" attrs="{'readonly': [('invoiced','=', True)]}" />
                     <field name="invoice_method"/>
                     <field name="invoiced"/>
@@ -161,6 +164,9 @@
                     <field name="req_date_end"/><!-- added related field -->
                     <field name="bid_date"/>
                     <field name="bid_validity"/>
+                    <field name="country_of_origin"/><!-- purchase-workflow/purchase_requisition_bid_selection -->
+                    <field name="meets_specifications"/><!-- purchase-workflow/purchase_requisition_bid_selection -->
+                    <field name="bid_eligible"/><!-- purchase-workflow/purchase_requisition_bid_selection -->
                   </group>
                 </group>
               </page>
@@ -231,6 +237,11 @@
         <field name="product_qty" position="attributes">
           <attribute name="context_agreement">{'agreement_id': framework_agreement_id, 'incoterm_id': parent.incoterm_id, 'currency_id': parent.currency_id, 'portfolio_id': parent.portfolio_id}</attribute>
         </field>
+
+        <xpath expr="//page[@string='Bid Information']" position="inside">
+          <separator string="Selection remarks"/>
+          <field name="bid_selection_remark"/>
+        </xpath>
 
       </field>
 

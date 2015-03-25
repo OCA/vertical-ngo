@@ -19,4 +19,5 @@
 #
 #
 from . import logistic_requisition
+from . import source
 from . import sale_order

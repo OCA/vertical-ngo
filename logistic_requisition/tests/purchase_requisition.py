@@ -36,7 +36,8 @@ def close_call(test, purchase_requisition):
 
 def bids_selected(test, purchase_requisition):
     """ Close the purchase requisition, after selection of purchase lines """
-    purchase_requisition.close_callforbids_ok()
+    purchase_requisition.signal_workflow('bid_selected')
+    purchase_requisition.signal_workflow('close_bid')
 
 
 def create_draft_purchase_order(test, purchase_requisition, partner_id):

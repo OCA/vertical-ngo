@@ -90,12 +90,12 @@ class PurchaseRequisition(models.Model):
         return
 
     @api.multi
-    def close_callforbids_ok(self):
+    def tender_closed(self):
         """ We have to split the logistic requisition lines according to
         the selected lines after the selection of the lines, when we
         click on the 'Confirm selection of lines'.
         """
-        result = super(PurchaseRequisition, self).close_callforbids_ok()
+        result = super(PurchaseRequisition, self).tender_closed()
         self._split_requisition_sources()
         return result
 
