@@ -48,7 +48,7 @@
 
     <!-- remove in-kind donations from cost estimate list -->
     <record id="logistic_order.action_cost_estimate" model="ir.actions.act_window">
-      <field name="domain">['|','&amp;', ('order_type','!=','donation'), ('state','in',('draft','sent','cancel')), ('order_type','=','cost_estimate_only')]</field>
+      <field name="domain">['|','&amp;', ('order_type','!=','donation'), ('state','in',('draft','sent','accepted','cancel')), ('order_type','=','cost_estimate_only')]</field>
     </record>
 
   </data>
