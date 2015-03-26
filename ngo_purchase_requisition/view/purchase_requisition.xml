@@ -23,9 +23,9 @@
           </header>
           <sheet>
             <div class="oe_right oe_button_box" style="margin-top: 10px">
-              <!-- extended by purchase_requisition_bid_selection adds state 'closed' -->
+              <!-- extended by purchase_requisition_bid_selection adds states 'selected' and 'closed' -->
               <button name="open_product_line" type="object" string="View Products Lines"
-                attrs="{'invisible': ['|', ('state', 'not in', ('open','closed','done')), ('exclusive', '=', 'exclusive')]}" groups="purchase.group_advance_bidding"/>
+                attrs="{'invisible': ['|', ('state', 'not in', ('open','selected','closed','done')), ('exclusive', '=', 'exclusive')]}" groups="purchase.group_advance_bidding"/>
               <!-- added by purchase_requisition_bid_selection -->
               <button name="open_po" type="object" string="View Generated PO" states="open,closed,done"/>
             </div>
