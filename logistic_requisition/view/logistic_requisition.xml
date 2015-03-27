@@ -638,9 +638,9 @@
                         </group>
                         <group string="Purchase Requisition"
                             attrs="{'invisible': [('sourcing_method', 'not in', ['procurement', 'reuse_bid', 'other'])]}">
-                            <label for="po_requisition_id"/>
+                            <field name="selectable_purchase_req_ids" invisible="1"/>
+                            <label for="po_requisition_id" string="Tender" attrs="{'invisible': [('sourcing_method', '!=', 'reuse_bid')]}"/>
                             <div>
-                              <field name="selectable_purchase_req_ids" invisible="1"/>
                               <field name="po_requisition_id" class="oe_inline"
                                 attrs="{'readonly': [('sourcing_method', '!=', 'reuse_bid')], 'required': [('sourcing_method', '=', 'reuse_bid')], 'invisible': [('sourcing_method', '!=', 'reuse_bid')]}"
                                 domain="[('id', 'in', selectable_purchase_req_ids[0][2])]"/>
