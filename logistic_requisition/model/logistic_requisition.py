@@ -530,6 +530,13 @@ class LogisticsRequisitionLine(models.Model):
         }
 
     @api.multi
+    def _prepare_duplicated_bid_data(self):
+        return {
+            'state': 'draftpo',
+            'dest_address_id': self.consignee_shipping_id.id,
+            }
+
+    @api.multi
     def _generate_default_source(self, force_qty=None):
         """Generate a source line from a requisition line, see
         _prepare_source for details.
@@ -826,7 +833,7 @@ class LogisticsRequisitionSource(models.Model):
     def _get_selectable_purchase_req_ids(self):
         purchase_reqs = False
         if (self.sourcing_method == 'reuse_bid' and self.proposed_product_id):
-            domain = [('requisition_id.state', '=', 'done'),
+            domain = [('requisition_id.state', 'in', ('done', 'closed')),
                       ('product_id', '=', self.proposed_product_id.id)]
             p_req_lines = self.env['purchase.requisition.line'].search(domain)
             purchase_reqs = p_req_lines.mapped('requisition_id')
@@ -1209,6 +1216,14 @@ class LogisticsRequisitionSource(models.Model):
                 'schedule_date': self.requisition_line_id.date_delivery,
                 'logistic_requisition_source_ids': [(4, self.id)],
                 }
+
+    @api.multi
+    def _prepare_duplicated_bid_line_data(self):
+        lrl = self.requisition_line_id
+        return {
+            'product_qty': lrl.requested_qty,
+            'date_planned': lrl.date_delivery,
+            }
 
     @api.multi
     def _action_create_po_requisition(self, pricelist=None):

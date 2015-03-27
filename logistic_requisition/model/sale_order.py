@@ -67,21 +67,45 @@ class SaleOrder(models.Model):
             lambda rec: (
                 rec.sourcing_method == 'reuse_bid'))
         tocopy = self.env['purchase.order']
-        reverselink = {}
+        sources_per_bid = {}
+        lrl_per_bid = {}
         for line in reuse_bid_so_lines:
             source = line.lr_source_id
             tocopy |= source.selected_bid_id
-            reverselink[source.selected_bid_line_id.id] = source.id
+            bid_id = source.selected_bid_id.id
+            if bid_id not in sources_per_bid:
+                sources_per_bid[bid_id] = {}
+            sources_per_bid[bid_id][source.selected_bid_line_id.id] = source.id
+            lrl_per_bid[bid_id] = source.requisition_line_id
 
+        # Copy bid and bid lines to a new draft po
         new_pos = self.env['purchase.order']
         for bid in tocopy:
-            new_pos |= bid.with_context(reuse_from_source=reverselink).copy()
+            from_sources = sources_per_bid[bid.id]
+            lrl = lrl_per_bid[bid.id]
+            new_po = bid.with_context(reuse_from_source=from_sources).copy()
+            data = lrl._prepare_duplicated_bid_data()
+            new_po.write(data)
+            new_pos |= new_po
         po_lines = new_pos.mapped('order_line')
+
+        # Update po lines with values of lr and lrs
+        for pol in po_lines:
+            source = pol.lr_source_line_id
+            # remove purchase line which source nothing
+            if not source:
+                po_lines -= pol
+                pol.unlink()
+                continue
+            data = source._prepare_duplicated_bid_line_data()
+            pol.write(data)
+
+        # Update source_by on sale order lines
         for sol in reuse_bid_so_lines:
             for pol in po_lines:
                 if sol.lr_source_id == pol.lr_source_line_id:
                     sol.sourced_by = pol
-                    po_lines = po_lines - pol
+                    po_lines -= pol
                     break
 
     @api.multi

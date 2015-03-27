@@ -113,7 +113,7 @@ class PurchaseOrderLine(models.Model):
             for line in self:
                 source_line = line.lr_source_line_id
                 if source_line:
-                    if (source_line.requisition_line_id in
+                    if (source_line.requisition_line_id.state in
                             ('sourced', 'quoted')):
                         raise exceptions.Warning(
                             _("You cannot change the informations because "
