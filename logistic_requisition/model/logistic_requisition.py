@@ -946,7 +946,7 @@ class LogisticsRequisitionSource(models.Model):
     # bid order line during the split process
     selected_bid_line_id = fields.Many2one(
         'purchase.order.line',  # one2one relation with lr_source_line_id
-        'Purchase Order Line',
+        'Bid Selected Line',
         readonly=True,
         ondelete='restrict',
         copy=False)
