@@ -850,7 +850,9 @@ class LogisticsRequisitionSource(models.Model):
             domain = [
                 ('order_id.requisition_id', '=', self.po_requisition_id.id),
                 ('product_id', '=', self.proposed_product_id.id),
-                ('order_id.state', '=', 'bid_selected')
+                ('order_id.state', '=', 'bid_selected'),
+                ('order_id.dest_address_id', '=',
+                 self.consignee_shipping_id.id),
             ]
             bid_lines = self.env['purchase.order.line'].search(domain)
         self.selectable_bid_line_ids = (bid_lines.ids if bid_lines
