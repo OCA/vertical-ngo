@@ -192,3 +192,12 @@ class sale_order_line(orm.Model):
         for purchase_requisition in purchase_requisitions:
             purchase_requisition.generate_po()
         return result
+
+    def copy_data(self, cr, uid, id, default=None, context=None):
+        if not default:
+            default = {}
+        default.update({
+            'logistic_requisition_source_id': False,
+        })
+        return super(sale_order_line, self).copy_data(
+            cr, uid, id, default=default, context=context)
