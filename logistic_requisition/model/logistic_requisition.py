@@ -1023,10 +1023,10 @@ class LogisticsRequisitionSource(models.Model):
 
         """
         if not self.po_requisition_id:
-            return ['{0}: Missing Purchase Requisition'.format(self.name)]
+            return [_('{0}: Missing Purchase Requisition').format(self.name)]
         if self.po_requisition_id.state not in ['done', 'closed']:
-            return ['{0}: Purchase Requisition state should be '
-                    '"Bids Selected" or "PO Created"'.format(self.name)]
+            return [_('{0}: Purchase Requisition state should be '
+                      '"Bids Selected" or "PO Created"').format(self.name)]
         return []
 
     @api.multi
@@ -1037,7 +1037,7 @@ class LogisticsRequisitionSource(models.Model):
 
         """
         if not self.selected_bid_line_id:
-            return ['{0}: No bid line selected'.format(self.name)]
+            return [_('{0}: No bid line selected').format(self.name)]
         return []
 
     @api.multi
