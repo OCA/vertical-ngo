@@ -34,13 +34,13 @@ class logistic_requisition_source(orm.Model):
     _columns = {
         'portfolio_id': osv.fields.many2one('framework.agreement.portfolio',
                                             'Agreement Portfolio'),
-        'framework_agreement_id': osv.fields.many2one('framework.agreement',
+        'framework_agreement_id': osv.fields.many2one('product.pricelist',
                                                       'Agreement'),
         'framework_agreement_po_id': osv.fields.many2one(
             'purchase.order',
             'Agreement Purchase'),
         'supplier_id': osv.fields.related(
-            'framework_agreement_id', 'supplier_id',
+            'portfolio_id', 'supplier_id',
             type='many2one',  relation='res.partner',
             string='Agreement Supplier')}
 
@@ -271,7 +271,7 @@ class logistic_requisition_source(orm.Model):
         """
         if self.framework_agreement_po_id:
             return []
-        agreement = self.framework_agreement_id
+        agreement = self.portfolio_id
         if not agreement:
             return ['{0}: No Framework Agreement associated with this '
                     'source'.format(self.name)]
