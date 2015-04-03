@@ -320,8 +320,9 @@ class logistic_requisition_source(orm.Model):
 
             return {'warning': {'message': msg}}
 
-    @api.onchange('sourcing_method', 'portfolio_id', 'proposed_qty',
-                  'proposed_product_id')
+    # XXX disable automatic choice of agreement depending on other fields
+    # @api.onchange('sourcing_method', 'portfolio_id', 'proposed_qty',
+    #               'proposed_product_id')
     def update_agreement(self):
         """Update the choice of agreement depending on other fields.
 
