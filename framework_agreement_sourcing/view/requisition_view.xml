@@ -12,9 +12,7 @@
                  attrs="{'required': [('sourcing_method', '=', 'fw_agreement')],
                         'invisible': [('sourcing_method', '!=', 'fw_agreement')]}" />
           <field name="framework_agreement_id"
-                 domain="[('draft', '=', False),
-                          ('product_id', '=', proposed_product_id),
-                          ('portfolio_id', '=', portfolio_id)]"
+                 domain="[('portfolio_id', '=', portfolio_id)]"
                  attrs="{'required': [('sourcing_method', '=', 'fw_agreement')],
                          'invisible': [('sourcing_method', '!=', 'fw_agreement')]}" />
           <field name="framework_agreement_po_id"
