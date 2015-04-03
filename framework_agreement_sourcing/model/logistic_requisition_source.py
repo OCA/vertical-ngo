@@ -271,21 +271,28 @@ class logistic_requisition_source(orm.Model):
         """
         if self.framework_agreement_po_id:
             return []
-        agreement = self.portfolio_id
-        if not agreement:
+        portfolio = self.portfolio_id
+        if not portfolio:
             return ['{0}: No Framework Agreement associated with this '
                     'source'.format(self.name)]
-        if agreement.state != 'running':
-            return ['{0}: Selected Framework Agreement is {1} for this source,'
-                    ' it must be Running'.format(self.name, agreement.state)]
-        if agreement.available_quantity < self.proposed_qty:
+        if portfolio.state != 'running':
+            return ['{0}: Selected Portfolio is {1} for this source,'
+                    ' it must be Running'.format(self.name, portfolio.state)]
+        product = self.requisition_line_id.product_id
+        product_line = portfolio.get_line_for_product(product)
+        if not product_line:
+            return ['{0}: Selected Portfolio has no lines for product '
+                    '{1} '.format(self.name, product.name)]
+
+        if product_line.available_quantity < self.proposed_qty:
             return ['{0}: Selected Framework Agreement available quantity is '
                     'only {1} and this source proposed quantity is {2}. You '
                     'need to:'
                     '\n * Reduce proposed quantity of this source'
                     '\n * Fill remaining quantity with aditional(s) source(s)'
-                    .format(self.name, agreement.available_quantity,
+                    .format(self.name, product_line.available_quantity,
                             self.proposed_qty)]
+
         return []
 
     # ---------------Odoo onchange management ----------------------
