@@ -10,6 +10,7 @@
     req_validity: '2013-09-10'
     agreement_end_date: '2016-12-31'
     framework_agreement_tender: True
+    pricelist_id: purchase.list0
     line_ids:
       - product_id: product.product_product_15
         product_qty: 2500.0
