@@ -83,7 +83,7 @@ class logistic_requisition_source(orm.Model):
         :returns: data dict to be used by orm.Model.create
 
         """
-        supplier = line.framework_agreement_id.supplier_id
+        supplier = line.portfolio_id.supplier_id
         add = line.requisition_id.consignee_shipping_id
         pick_type_id = self._get_po_picking_type_id(
             cr, uid, add, context=context)
@@ -125,24 +125,17 @@ class logistic_requisition_source(orm.Model):
         data = {}
         acc_pos_obj = self.pool['account.fiscal.position']
         pl_model = self.pool['product.pricelist']
-        currency = po_pricelist.currency_id
 
-        if line.framework_agreement_id:
-            price = line.framework_agreement_id.get_price(
-                line.proposed_qty, currency=currency)
-            supplier = line.framework_agreement_id.supplier_id
-            data['framework_agreement_id'] = line.framework_agreement_id.id
-        else:
-            supplier = po_supplier
-            price = 0.0
-            if po_pricelist:
-                price = pl_model.price_get(
-                    cr, uid,
-                    [po_pricelist.id],
-                    line.proposed_product_id.id,
-                    line.proposed_qty or 1.0,
-                    po_supplier.id,
-                    {'uom': line.proposed_uom_id.id})[po_pricelist.id]
+        supplier = po_supplier
+        price = 0.0
+        if po_pricelist:
+            price = pl_model.price_get(
+                cr, uid,
+                [po_pricelist.id],
+                line.proposed_product_id.id,
+                line.proposed_qty or 1.0,
+                po_supplier.id,
+                {'uom': line.proposed_uom_id.id})[po_pricelist.id]
 
         if not price:
             price = line.proposed_product_id.standard_price or 1.00
@@ -155,7 +148,6 @@ class logistic_requisition_source(orm.Model):
         data['product_id'] = line.proposed_product_id.id
         data['product_uom'] = line.proposed_uom_id.id
         data['lr_source_line_id'] = line.id
-        data['framework_agreement_id'] = line.framework_agreement_id.id
         data['price_unit'] = price
         data['name'] = line.proposed_product_id.name
         data['date_planned'] = line.requisition_id.date_delivery
@@ -191,7 +183,7 @@ class logistic_requisition_source(orm.Model):
         currency_obj = self.pool['res.currency']
         po_obj = self.pool['purchase.order']
         po_l_obj = self.pool['purchase.order.line']
-        supplier = main_source.framework_agreement_id.supplier_id
+        supplier = main_source.portfolio_id.supplier_id
         to_curr = pricelist.currency_id.id
         po_vals = self._prepare_purchase_order(cr, uid, main_source,
                                                pricelist, context=context)
@@ -252,7 +244,7 @@ class logistic_requisition_source(orm.Model):
                 _('There should be at least one agreement line'),
                 _('Please correct selection'))
 
-        supplier = main_source.framework_agreement_id.supplier_id
+        supplier = main_source.portfolio_id.supplier_id
         fback = supplier.property_product_pricelist_purchase
         pricelist = pricelist if pricelist else fback
         po_id = self._make_po_from_source_lines(
