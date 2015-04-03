@@ -39,15 +39,19 @@ class LogisticsRequisitionLine(models.Model):
         _super = super(LogisticsRequisitionLine, self)
         new_source = _super._generate_default_source()
 
-        Agreement = self.env['framework.agreement']
-        ag_domain = Agreement.get_agreement_domain(
-            self.product_id.id,
-            self.requested_qty,
-            None,
-            self.requisition_id.date,
-            self.requisition_id.incoterm_id.id,
-            self.requisition_id.incoterm_address,
-        )
-        if Agreement.search(ag_domain):
-            new_source.sourcing_method = 'fw_agreement'
         return new_source
+        # XXX the following unported logic is to find if there is a suitable
+        #  agreement, and if so create a source of type agreement
+
+        # Agreement = self.env['framework.agreement']
+        # ag_domain = Agreement.get_agreement_domain(
+        #     self.product_id.id,
+        #     self.requested_qty,
+        #     None,
+        #     self.requisition_id.date,
+        #     self.requisition_id.incoterm_id.id,
+        #     self.requisition_id.incoterm_address,
+        # )
+        # if Agreement.search(ag_domain):
+        #     new_source.sourcing_method = 'fw_agreement'
+        # return new_source
