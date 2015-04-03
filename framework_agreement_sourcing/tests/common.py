@@ -16,17 +16,15 @@
 
 from datetime import timedelta, date
 from openerp import fields
-import openerp.tests.common as test_common
 from openerp.addons.logistic_requisition.tests import logistic_requisition
 from openerp.addons.framework_agreement.tests.common \
-    import BaseAgreementTestMixin
+    import AgreementTransactionCase
 
 
-class CommonSourcingSetUp(test_common.TransactionCase, BaseAgreementTestMixin):
+class CommonSourcingSetUp(AgreementTransactionCase):
 
     def setUp(self):
         super(CommonSourcingSetUp, self).setUp()
-        self.commonsetUp()
 
         # new API
         self.Requisition = self.env['logistic.requisition']
