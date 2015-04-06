@@ -124,31 +124,17 @@ class logistic_requisition_source(orm.Model):
         """
         data = {}
         acc_pos_obj = self.pool['account.fiscal.position']
-        pl_model = self.pool['product.pricelist']
 
-        supplier = po_supplier
-        price = 0.0
-        if po_pricelist:
-            price = pl_model.price_get(
-                cr, uid,
-                [po_pricelist.id],
-                line.proposed_product_id.id,
-                line.proposed_qty or 1.0,
-                po_supplier.id,
-                {'uom': line.proposed_uom_id.id})[po_pricelist.id]
-
-        if not price:
-            price = line.proposed_product_id.standard_price or 1.00
         taxes_ids = line.proposed_product_id.supplier_taxes_id
         taxes = acc_pos_obj.map_tax(
-            cr, uid, supplier.property_account_position, taxes_ids)
+            cr, uid, po_supplier.property_account_position, taxes_ids)
 
         data['order_id'] = po_id
         data['product_qty'] = line.proposed_qty
         data['product_id'] = line.proposed_product_id.id
         data['product_uom'] = line.proposed_uom_id.id
         data['lr_source_line_id'] = line.id
-        data['price_unit'] = price
+        data['pricelist_id'] = line.framework_agreement_id.id
         data['name'] = line.proposed_product_id.name
         data['date_planned'] = line.requisition_id.date_delivery
         data['taxes_id'] = [(6, 0, taxes)]
