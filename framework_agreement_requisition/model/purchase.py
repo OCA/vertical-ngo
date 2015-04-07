@@ -89,17 +89,21 @@ class PurchaseOrderLine(models.Model):
     @api.multi
     def _agreement_data(self, origin):
         self.ensure_one()
-        Portfolio = self.pool['framework.agreement.portfolio']
+        pf = self.env['framework.agreement.portfolio'].get_from_supplier(
+            self.order_id.partner_id)
         return {
-            'portfolio_id': Portfolio.get_from_supplier(
-                self.order_id.partner_id)[0],
+            'name': 'Pricelist generated from {0}'.format(origin),
+            'portfolio_id': pf and pf.ids[0] or False,
             'product_id': self.product_id.id,
             'quantity': self.product_qty,
             'delay': self.product_id.seller_delay,
             'origin': origin if origin else False,
+            'type': 'purchase',
         }
 
     @api.multi
     def make_agreement(self, origin):
-        return self.pool['framework.agreement'].create(
+        # XXX this should actually create agreement product lines as needed,
+        # and then call Portfolio.create_new_agreement
+        return self.env['product.pricelist'].create(
             self._agreement_data(origin))

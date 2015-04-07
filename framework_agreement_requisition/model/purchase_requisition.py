@@ -146,7 +146,7 @@ class PurchaseRequisitionClassic(orm.Model):
         return {
             'name': _('Generated Agreements'),
             'view_mode': 'tree,form',
-            'res_model': 'framework.agreement',
+            'res_model': 'product.pricelist',
             'domain': [('id', 'in', a_ids)],
             'target': 'current',
             'view_id': False,
