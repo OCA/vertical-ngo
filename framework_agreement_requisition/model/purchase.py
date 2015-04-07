@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from openerp import api
+from openerp import api, models
 from openerp.osv import orm, fields
 
 SELECTED_STATE = ('agreement_selected', 'Agreement selected')
@@ -57,9 +57,7 @@ class purchase_order(orm.Model):
                           context=context)
 
 
-class purchase_order_line(orm.Model):
-    """Add make_agreement function"""
-
+class PurchaseOrderLine(models.Model):
     _inherit = "purchase.order.line"
 
     # Did you know a good way to supress SQL constraint to add
@@ -70,8 +68,9 @@ class purchase_order_line(orm.Model):
         'Selected quantity must be less or equal than the quantity in the bid'
     )]
 
-    def _check_quantity_bid(self, cr, uid, ids, context=None):
-        for line in self.browse(cr, uid, ids, context=context):
+    @api.multi
+    def _check_quantity_bid(self):
+        for line in self:
             if line.order_id.framework_agreement_id:
                 continue
             if (
@@ -87,34 +86,20 @@ class purchase_order_line(orm.Model):
         []
     )]
 
-    def _agreement_data(self, cr, uid, po_line, origin, context=None):
-        """Get agreement values from PO line
+    @api.multi
+    def _agreement_data(self, origin):
+        self.ensure_one()
+        Portfolio = self.pool['framework.agreement.portfolio']
+        return {
+            'portfolio_id': Portfolio.get_from_supplier(
+                self.order_id.partner_id)[0],
+            'product_id': self.product_id.id,
+            'quantity': self.product_qty,
+            'delay': self.product_id.seller_delay,
+            'origin': origin if origin else False,
+        }
 
-        :param po_line: Po line records
-
-        :returns: agreement dict to be used by orm.Model.create
-        """
-        portfolio_model = self.pool['framework.agreement.portfolio']
-        vals = {}
-        vals['portfolio_id'] = portfolio_model.get_from_supplier(
-            cr, uid, po_line.order_id.partner_id, context=context)[0]
-        vals['product_id'] = po_line.product_id.id
-        vals['quantity'] = po_line.product_qty
-        vals['delay'] = po_line.product_id.seller_delay
-        vals['origin'] = origin if origin else False
-        return vals
-
-    def make_agreement(self, cr, uid, line_id, origin, context=None):
-        """ generate a draft framework agreement
-
-        :returns: a record of LTA
-
-        """
-        agr_model = self.pool['framework.agreement']
-        if isinstance(line_id, (list, tuple)):
-            assert len(line_id) == 1
-            line_id = line_id[0]
-        current = self.browse(cr, uid, line_id, context=context)
-        vals = self._agreement_data(cr, uid, current, origin, context=context)
-        agr_id = agr_model.create(cr, uid, vals, context=context)
-        return agr_model.browse(cr, uid, agr_id, context=context)
+    @api.multi
+    def make_agreement(self, origin):
+        return self.pool['framework.agreement'].create(
+            self._agreement_data(origin))

@@ -118,7 +118,7 @@ class PurchaseRequisitionClassic(orm.Model):
             po_to_cancel = []
             for rfq in rfqs:
                 if rfq.state == 'confirmed':
-                    agr_record = rfq.make_agreement(rfq.id, req.name)
+                    agr_record = rfq.make_agreement(req.name)
                     generated.append(agr_record)
                     po_to_select.append(rfq.order_id)
                 else:
