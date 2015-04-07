@@ -46,7 +46,7 @@ class TestSourceToPo(CommonSourcingSetUp):
         warehouse = self.env['stock.warehouse'].browse(warehouse_id)
         self.wh = warehouse
 
-    def test_transform_source_to_agreement_wh_dest(self):
+    def XXX_unported_test_transform_source_to_agreement_wh_dest(self):
         # Set destination address
         partner_vals = {
             'name': 'Warehouse address',
@@ -105,7 +105,7 @@ class TestSourceToPo(CommonSourcingSetUp):
         self.assertAlmostEqual(po_line.price_unit, 1.0)
         self.assertEqual(po_line.lr_source_line_id, self.other_source)
 
-    def test_transform_source_to_agreement_dropshipping(self):
+    def XXX_unported_test_transform_source_to_agreement_dropshipping(self):
         # Set destination address
         partner_dropship = self.ref('base.res_partner_12')
         self.agr_line.consignee_shipping_id = partner_dropship
