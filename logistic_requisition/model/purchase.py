@@ -112,7 +112,8 @@ class PurchaseOrderLine(models.Model):
                 vals.get('price_unit')):
             for line in self:
                 source_line = line.lr_source_line_id
-                if source_line:
+                if (source_line and
+                        not source_line.sourcing_method == 'reuse_bid'):
                     if (source_line.requisition_line_id.state in
                             ('sourced', 'quoted')):
                         raise exceptions.Warning(
