@@ -830,6 +830,7 @@ class LogisticsRequisitionSource(models.Model):
     @api.depends('po_requisition_id',
                  'proposed_product_id',
                  'sourcing_method')
+    @api.one
     def _get_selectable_purchase_req_ids(self):
         purchase_reqs = False
         if (self.sourcing_method == 'reuse_bid' and self.proposed_product_id):
@@ -843,6 +844,7 @@ class LogisticsRequisitionSource(models.Model):
     @api.depends('po_requisition_id',
                  'proposed_product_id',
                  'sourcing_method')
+    @api.one
     def _get_selectable_bid_line_ids(self):
         bid_lines = False
         if (self.sourcing_method == 'reuse_bid' and self.po_requisition_id and
