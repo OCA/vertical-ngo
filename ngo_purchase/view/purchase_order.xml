@@ -239,8 +239,8 @@
         </field>
 
         <xpath expr="//page[@string='Bid Information']" position="inside">
-          <separator string="Selection remarks"/>
-          <field name="bid_selection_remark"/>
+          <separator string="Internal remarks"/>
+          <field name="bid_internal_remark"/>
         </xpath>
 
       </field>
