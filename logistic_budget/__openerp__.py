@@ -32,6 +32,7 @@
              ],
  "demo": [],
  "data": ["view/logistic_requisition.xml",
+          "view/sale_order_budget_update.xml",
           "view/sale_order.xml",
           "view/report_logistic_requisition.xml",
           "data/exceptions.xml",

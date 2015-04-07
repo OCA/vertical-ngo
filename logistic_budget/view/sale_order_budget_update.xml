@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <record id="view_change_line_sale_order_line_budget" model="ir.ui.view">
+            <field name="name">Update Sale Order Budget</field>
+            <field name="model">sale.order.line.budget.update</field>
+            <field name="arch" type="xml">
+                <form string="Update Budget">
+                    <group>
+                        <field name="new_budget" />
+                    </group>
+                    <footer>
+                        <button name="update_budget" string="_Apply" type="object" class="oe_highlight"/>
+                        or
+                        <button string="_Cancel" class="oe_link" special="cancel" />
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_update_budget" model="ir.actions.act_window">
+            <field name="name">Update Budget</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">sale.order.line.budget.update</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_change_line_sale_order_line_budget"/>
+            <field name="target">new</field>
+        </record>
+
+    </data>
+</openerp>
