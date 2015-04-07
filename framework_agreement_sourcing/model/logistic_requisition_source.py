@@ -249,10 +249,11 @@ class logistic_requisition_source(orm.Model):
         """
         if self.framework_agreement_po_id:
             return []
+        pricelist = self.framework_agreement_id
         portfolio = self.portfolio_id
-        if not portfolio:
-            return ['{0}: No Framework Agreement associated with this '
-                    'source'.format(self.name)]
+        if not pricelist:
+            return ['{0}: No Framework Agreement (pricelist) associated with '
+                    'this source'.format(self.name)]
         if portfolio.state != 'running':
             return ['{0}: Selected Portfolio is {1} for this source,'
                     ' it must be Running'.format(self.name, portfolio.state)]

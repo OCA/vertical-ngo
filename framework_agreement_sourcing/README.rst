@@ -19,6 +19,8 @@ Version 3.0, as you might expect, brings compatibility with version 3.0 of
 framework_agreement. This makes the concept of agreements closer to standard
 odoo pricelists, with the extra features of agreements added.
 
+Note that only for running unit tests, the mock module is needed.
+
 Bug Tracker
 ===========
 
