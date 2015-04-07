@@ -24,5 +24,6 @@ from . import test_mto_workflow
 from . import test_multicurrency_update_po_line
 from . import test_check_sourcing
 from . import test_button_sourced
+from . import test_accept_cost_estimate
 from . import test_sourcing_percentage
 from . import test_propagate_owner_to_cost_estimate

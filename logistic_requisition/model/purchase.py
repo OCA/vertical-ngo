@@ -112,8 +112,9 @@ class PurchaseOrderLine(models.Model):
                 vals.get('price_unit')):
             for line in self:
                 source_line = line.lr_source_line_id
-                if source_line:
-                    if (source_line.requisition_line_id in
+                if (source_line and
+                        not source_line.sourcing_method == 'reuse_bid'):
+                    if (source_line.requisition_line_id.state in
                             ('sourced', 'quoted')):
                         raise exceptions.Warning(
                             _("You cannot change the informations because "
@@ -140,3 +141,16 @@ class PurchaseOrderLine(models.Model):
                         % (line.lr_source_line_id.name)
                     )
         return super(PurchaseOrderLine, self).unlink()
+
+    def copy_data(self, cr, uid, res_id, default=None, context=None):
+        """ When copying purchase order lines to reuse a bid
+        Link them to logistic requisition lines
+        """
+        if context is None:
+            context = {}
+        res = super(PurchaseOrderLine, self).copy_data(
+            cr, uid, res_id, default=default, context=context)
+        if 'reuse_from_source' in context:
+            source_id = context['reuse_from_source'].get(res_id)
+            res['lr_source_line_id'] = source_id
+        return res

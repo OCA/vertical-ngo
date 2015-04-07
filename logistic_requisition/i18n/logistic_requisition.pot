@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 8.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-01-27 15:31+0000\n"
-"PO-Revision-Date: 2015-01-27 15:31+0000\n"
+"POT-Creation-Date: 2015-04-02 13:03+0000\n"
+"PO-Revision-Date: 2015-04-02 13:03+0000\n"
 "Last-Translator: <>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -54,11 +54,6 @@ msgid "All the lines should belong to the same requisition."
 msgstr ""
 
 #. module: logistic_requisition
-#: view:website:logistic_requisition.report_logistic_requisition_document
-msgid "Approval"
-msgstr ""
-
-#. module: logistic_requisition
 #: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_form
 #: view:logistic.requisition.line.assign:logistic_requisition.view_logistic_requisition_line_assign_wizard
 msgid "Assign"
@@ -98,6 +93,11 @@ msgid "Assigned To"
 msgstr ""
 
 #. module: logistic_requisition
+#: field:logistic.requisition.source,selected_bid_line_id:0
+msgid "Bid Selected Line"
+msgstr ""
+
+#. module: logistic_requisition
 #: view:logistic.requisition:logistic_requisition.view_logistic_requisition_filter
 #: field:logistic.requisition,user_id:0
 msgid "Business Unit Officer"
@@ -124,7 +124,7 @@ msgid "Cancelled"
 msgstr ""
 
 #. module: logistic_requisition
-#: code:addons/logistic_requisition/wizard/cost_estimate.py:197
+#: code:addons/logistic_requisition/wizard/cost_estimate.py:196
 #, python-format
 msgid "Cannot create a cost estimate because:"
 msgstr ""
@@ -170,8 +170,18 @@ msgid "Consignee"
 msgstr ""
 
 #. module: logistic_requisition
-#: code:addons/logistic_requisition/model/logistic_requisition.py:780
-#: code:addons/logistic_requisition/wizard/cost_estimate.py:257
+#: view:website:logistic_requisition.report_logistic_requisition_document
+msgid "Consignee and delivery address:"
+msgstr ""
+
+#. module: logistic_requisition
+#: view:website:logistic_requisition.report_logistic_requisition_document
+msgid "Consignee:"
+msgstr ""
+
+#. module: logistic_requisition
+#: code:addons/logistic_requisition/model/logistic_requisition.py:773
+#: code:addons/logistic_requisition/wizard/cost_estimate.py:256
 #: view:logistic.requisition.cost.estimate:logistic_requisition.view_logistic_requisition_cost_estimate
 #: field:logistic.requisition.line,cost_estimate_id:0
 #, python-format
@@ -276,7 +286,12 @@ msgstr ""
 
 #. module: logistic_requisition
 #: view:website:logistic_requisition.report_logistic_requisition_document
-msgid "Delivery Remarks:"
+msgid "Delivery address:"
+msgstr ""
+
+#. module: logistic_requisition
+#: view:website:logistic_requisition.report_logistic_requisition_document
+msgid "Delivery/shipping remarks"
 msgstr ""
 
 #. module: logistic_requisition
@@ -302,8 +317,13 @@ msgid "Desired delivery date:"
 msgstr ""
 
 #. module: logistic_requisition
-#: field:logistic.requisition.source,dispatch_location_id:0
+#: field:logistic.requisition.source,dispatch_warehouse_id:0
 msgid "Dispatch From"
+msgstr ""
+
+#. module: logistic_requisition
+#: field:logistic.requisition.source,dispatch_location_id:0
+msgid "Dispatch Location"
 msgstr ""
 
 #. module: logistic_requisition
@@ -334,11 +354,11 @@ msgid "Draft: Created\n"
 msgstr ""
 
 #. module: logistic_requisition
-#: code:addons/logistic_requisition/model/logistic_requisition.py:1099
-#: code:addons/logistic_requisition/model/logistic_requisition.py:1107
-#: code:addons/logistic_requisition/model/logistic_requisition.py:1114
-#: code:addons/logistic_requisition/model/logistic_requisition.py:1121
-#: code:addons/logistic_requisition/wizard/cost_estimate.py:236
+#: code:addons/logistic_requisition/model/logistic_requisition.py:1157
+#: code:addons/logistic_requisition/model/logistic_requisition.py:1165
+#: code:addons/logistic_requisition/model/logistic_requisition.py:1172
+#: code:addons/logistic_requisition/model/logistic_requisition.py:1179
+#: code:addons/logistic_requisition/wizard/cost_estimate.py:235
 #, python-format
 msgid "Error"
 msgstr ""
@@ -350,7 +370,7 @@ msgid "Estimated"
 msgstr ""
 
 #. module: logistic_requisition
-#: code:addons/logistic_requisition/model/logistic_requisition.py:1147
+#: code:addons/logistic_requisition/model/logistic_requisition.py:1205
 #, python-format
 msgid "Existing"
 msgstr ""
@@ -374,13 +394,13 @@ msgid "Framework Agreement"
 msgstr ""
 
 #. module: logistic_requisition
-#: view:website:logistic_requisition.report_logistic_requisition_document
-msgid "General Remarks:"
+#: field:purchase.order.line,from_bid_line_id:0
+msgid "Generated from bid"
 msgstr ""
 
 #. module: logistic_requisition
-#: field:purchase.order.line,from_bid_line_id:0
-msgid "Generated from bid"
+#: selection:logistic.requisition.source,sourcing_method:0
+msgid "Go to Tender"
 msgstr ""
 
 #. module: logistic_requisition
@@ -416,8 +436,10 @@ msgid "If checked new messages require your attention."
 msgstr ""
 
 #. module: logistic_requisition
-#: code:addons/logistic_requisition/model/logistic_requisition.py:601
-#: code:addons/logistic_requisition/model/logistic_requisition.py:606
+#: code:addons/logistic_requisition/model/logistic_requisition.py:594
+#: code:addons/logistic_requisition/model/logistic_requisition.py:599
+#: code:addons/logistic_requisition/model/logistic_requisition.py:1071
+#: code:addons/logistic_requisition/model/logistic_requisition.py:1074
 #, python-format
 msgid "Incorrect Sourcing"
 msgstr ""
@@ -438,6 +460,16 @@ msgid "Incoterm Place of Delivery. International Commercial Terms are a series o
 msgstr ""
 
 #. module: logistic_requisition
+#: view:website:logistic_requisition.report_logistic_requisition_document
+msgid "Incoterm place:"
+msgstr ""
+
+#. module: logistic_requisition
+#: view:website:logistic_requisition.report_logistic_requisition_document
+msgid "Incoterm:"
+msgstr ""
+
+#. module: logistic_requisition
 #: model:ir.model,name:logistic_requisition.model_stock_incoterms
 msgid "Incoterms"
 msgstr ""
@@ -448,13 +480,15 @@ msgid "International Commercial Terms are a series of predefined commercial term
 msgstr ""
 
 #. module: logistic_requisition
-#: view:website:logistic_requisition.report_logistic_requisition_document
-msgid "Invoice address:"
+#: code:addons/logistic_requisition/model/logistic_requisition.py:1072
+#, python-format
+msgid "Invalid source with a zero quantity."
 msgstr ""
 
 #. module: logistic_requisition
-#: view:website:logistic_requisition.report_logistic_requisition_document
-msgid "Invoice and shipping address:"
+#: code:addons/logistic_requisition/model/logistic_requisition.py:1075
+#, python-format
+msgid "Invalid source with product cost at zero."
 msgstr ""
 
 #. module: logistic_requisition
@@ -567,7 +601,7 @@ msgid "Logistics Requisition Line"
 msgstr ""
 
 #. module: logistic_requisition
-#: code:addons/logistic_requisition/model/logistic_requisition.py:717
+#: code:addons/logistic_requisition/model/logistic_requisition.py:710
 #, python-format
 msgid "Logistics Requisition Line %s Assigned"
 msgstr ""
@@ -630,7 +664,7 @@ msgid "Messages and communication history"
 msgstr ""
 
 #. module: logistic_requisition
-#: code:addons/logistic_requisition/model/logistic_requisition.py:1152
+#: code:addons/logistic_requisition/model/logistic_requisition.py:1210
 #, python-format
 msgid "Missing information"
 msgstr ""
@@ -651,11 +685,6 @@ msgid "My Requisitions"
 msgstr ""
 
 #. module: logistic_requisition
-#: view:website:logistic_requisition.report_logistic_requisition_document
-msgid "N/A"
-msgstr ""
-
-#. module: logistic_requisition
 #: view:logistic.requisition:logistic_requisition.view_logistic_requisition_filter
 #: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_filter
 msgid "New"
@@ -672,7 +701,7 @@ msgid "New Logistics Requisitions"
 msgstr ""
 
 #. module: logistic_requisition
-#: code:addons/logistic_requisition/model/logistic_requisition.py:602
+#: code:addons/logistic_requisition/model/logistic_requisition.py:595
 #, python-format
 msgid "No Sourcing Lines"
 msgstr ""
@@ -683,13 +712,13 @@ msgid "No service needed anymore"
 msgstr ""
 
 #. module: logistic_requisition
-#: code:addons/logistic_requisition/model/logistic_requisition.py:619
+#: code:addons/logistic_requisition/model/logistic_requisition.py:612
 #, python-format
 msgid "No sourcing line found"
 msgstr ""
 
 #. module: logistic_requisition
-#: code:addons/logistic_requisition/model/logistic_requisition.py:620
+#: code:addons/logistic_requisition/model/logistic_requisition.py:613
 #, python-format
 msgid "No sourcing lines with a Tender procurement method as were found, please create one."
 msgstr ""
@@ -735,8 +764,8 @@ msgid "Partner"
 msgstr ""
 
 #. module: logistic_requisition
-#: code:addons/logistic_requisition/model/logistic_requisition.py:1171
-#: code:addons/logistic_requisition/model/logistic_requisition.py:1176
+#: code:addons/logistic_requisition/model/logistic_requisition.py:1237
+#: code:addons/logistic_requisition/model/logistic_requisition.py:1242
 #, python-format
 msgid "Please correct selection"
 msgstr ""
@@ -754,7 +783,7 @@ msgstr ""
 
 #. module: logistic_requisition
 #: help:logistic.requisition,pricelist_id:0
-msgid "Pricelist that represents the currency for the current logistics requisition."
+msgid "Pricelist that represents the currency for current logistics requisition."
 msgstr ""
 
 #. module: logistic_requisition
@@ -816,12 +845,11 @@ msgstr ""
 
 #. module: logistic_requisition
 #: model:ir.model,name:logistic_requisition.model_purchase_order_line
-#: field:logistic.requisition.source,selected_bid_line_id:0
 msgid "Purchase Order Line"
 msgstr ""
 
 #. module: logistic_requisition
-#: code:addons/logistic_requisition/model/logistic_requisition.py:1200
+#: code:addons/logistic_requisition/model/logistic_requisition.py:1267
 #: model:ir.model,name:logistic_requisition.model_purchase_requisition
 #: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_form
 #: view:logistic.requisition.source:logistic_requisition.view_logistic_requisition_source_form
@@ -886,6 +914,11 @@ msgid "Relevant PO"
 msgstr ""
 
 #. module: logistic_requisition
+#: view:website:logistic_requisition.report_logistic_requisition_document
+msgid "Remarks"
+msgstr ""
+
+#. module: logistic_requisition
 #: view:logistic.requisition:logistic_requisition.view_logistic_requisition_form
 #: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_form
 #: field:logistic.requisition.line,note:0
@@ -909,23 +942,18 @@ msgid "Req. Qty:"
 msgstr ""
 
 #. module: logistic_requisition
-#: view:website:logistic_requisition.report_logistic_requisition_document
-msgid "Requested date:"
-msgstr ""
-
-#. module: logistic_requisition
 #: view:logistic.requisition:logistic_requisition.view_logistic_requisition_filter
 msgid "Requesting Entity"
 msgstr ""
 
 #. module: logistic_requisition
-#: view:website:logistic_requisition.report_logistic_requisition_document
-msgid "Requesting entity:"
+#: field:logistic.requisition,partner_id:0
+msgid "Requestor"
 msgstr ""
 
 #. module: logistic_requisition
-#: field:logistic.requisition,partner_id:0
-msgid "Requestor"
+#: view:website:logistic_requisition.report_logistic_requisition_document
+msgid "Requestor:"
 msgstr ""
 
 #. module: logistic_requisition
@@ -1026,7 +1054,7 @@ msgid "Select the assignee"
 msgstr ""
 
 #. module: logistic_requisition
-#: code:addons/logistic_requisition/model/logistic_requisition.py:1174
+#: code:addons/logistic_requisition/model/logistic_requisition.py:1240
 #, python-format
 msgid "Selected line procurement method should be procurement or other"
 msgstr ""
@@ -1039,16 +1067,6 @@ msgstr ""
 #. module: logistic_requisition
 #: model:product.template,name:logistic_requisition.product_transport_product_template
 msgid "Shipping / Transport"
-msgstr ""
-
-#. module: logistic_requisition
-#: view:website:logistic_requisition.report_logistic_requisition_document
-msgid "Shipping address:"
-msgstr ""
-
-#. module: logistic_requisition
-#: view:website:logistic_requisition.report_logistic_requisition_document
-msgid "Signature:"
 msgstr ""
 
 #. module: logistic_requisition
@@ -1094,7 +1112,7 @@ msgid "Sourcing"
 msgstr ""
 
 #. module: logistic_requisition
-#: code:addons/logistic_requisition/wizard/cost_estimate.py:172
+#: code:addons/logistic_requisition/wizard/cost_estimate.py:171
 #, python-format
 msgid "Sourcing %s: no quantity has been proposed"
 msgstr ""
@@ -1141,18 +1159,18 @@ msgid "Summary"
 msgstr ""
 
 #. module: logistic_requisition
-#: selection:logistic.requisition.source,sourcing_method:0
+#: view:logistic.requisition.source:logistic_requisition.view_logistic_requisition_source_form
 msgid "Tender"
 msgstr ""
 
 #. module: logistic_requisition
-#: code:addons/logistic_requisition/wizard/cost_estimate.py:237
+#: code:addons/logistic_requisition/wizard/cost_estimate.py:236
 #, python-format
 msgid "The cost estimate cannot be created, because no lines are sourced."
 msgstr ""
 
 #. module: logistic_requisition
-#: code:addons/logistic_requisition/model/logistic_requisition.py:1100
+#: code:addons/logistic_requisition/model/logistic_requisition.py:1158
 #, python-format
 msgid "The lines are not assigned to the same User."
 msgstr ""
@@ -1165,43 +1183,43 @@ msgid "The lines in the Skipped section will be ignored\n"
 msgstr ""
 
 #. module: logistic_requisition
-#: code:addons/logistic_requisition/model/logistic_requisition.py:1148
+#: code:addons/logistic_requisition/model/logistic_requisition.py:1206
 #, python-format
 msgid "The logistic requisition sourcing line %s is already linked to a Purchase Requisition."
 msgstr ""
 
 #. module: logistic_requisition
-#: code:addons/logistic_requisition/model/logistic_requisition.py:1153
+#: code:addons/logistic_requisition/model/logistic_requisition.py:1211
 #, python-format
 msgid "The sourcing line %d does not have any product defined, please choose one."
 msgstr ""
 
 #. module: logistic_requisition
-#: code:addons/logistic_requisition/model/logistic_requisition.py:1108
+#: code:addons/logistic_requisition/model/logistic_requisition.py:1166
 #, python-format
 msgid "The sourcing lines do not belong to the same company."
 msgstr ""
 
 #. module: logistic_requisition
-#: code:addons/logistic_requisition/model/logistic_requisition.py:1115
+#: code:addons/logistic_requisition/model/logistic_requisition.py:1173
 #, python-format
 msgid "The sourcing lines do not have the same consignee."
 msgstr ""
 
 #. module: logistic_requisition
-#: code:addons/logistic_requisition/model/logistic_requisition.py:1122
+#: code:addons/logistic_requisition/model/logistic_requisition.py:1180
 #, python-format
 msgid "The sourcing lines do not have the same delivery address."
 msgstr ""
 
 #. module: logistic_requisition
-#: code:addons/logistic_requisition/model/logistic_requisition.py:1169
+#: code:addons/logistic_requisition/model/logistic_requisition.py:1235
 #, python-format
 msgid "There should be at least one selected line with procurement method Procurement"
 msgstr ""
 
 #. module: logistic_requisition
-#: code:addons/logistic_requisition/model/logistic_requisition.py:719
+#: code:addons/logistic_requisition/model/logistic_requisition.py:712
 #, python-format
 msgid "This new requisition concerns %s and is due for %s."
 msgstr ""
@@ -1280,6 +1298,11 @@ msgid "UoM"
 msgstr ""
 
 #. module: logistic_requisition
+#: selection:logistic.requisition.source,sourcing_method:0
+msgid "Use Existing Bid"
+msgstr ""
+
+#. module: logistic_requisition
 #: help:logistic.requisition.line,logistic_user_id:0
 msgid "User in charge of the Logistics Requisition Line"
 msgstr ""
@@ -1353,5 +1376,23 @@ msgstr ""
 #. module: logistic_requisition
 #: view:sale.order:logistic_requisition.view_order_form
 msgid "{'required': [('order_type', '!=', 'cost_estimate_only')]}"
+msgstr ""
+
+#. module: logistic_requisition
+#: code:addons/logistic_requisition/model/logistic_requisition.py:1025
+#, python-format
+msgid "{0}: Missing Purchase Requisition"
+msgstr ""
+
+#. module: logistic_requisition
+#: code:addons/logistic_requisition/model/logistic_requisition.py:1039
+#, python-format
+msgid "{0}: No bid line selected"
+msgstr ""
+
+#. module: logistic_requisition
+#: code:addons/logistic_requisition/model/logistic_requisition.py:1027
+#, python-format
+msgid "{0}: Purchase Requisition state should be \"Bids Selected\" or \"PO Created\""
 msgstr ""
 

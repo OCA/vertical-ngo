@@ -24,6 +24,8 @@ from openerp import models, fields, api
 class PurchaseRequisition(models.Model):
     _inherit = 'purchase.requisition'
 
+    _order = "create_date DESC"
+
     transport_mode_id = fields.Many2one('transport.mode', 'Transport Mode')
     transport_vehicle_id = fields.Many2one('transport.vehicle',
                                            'Transport Vehicle')

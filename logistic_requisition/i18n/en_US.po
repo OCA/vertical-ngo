@@ -106,6 +106,11 @@ msgid "Assigned To"
 msgstr "Assigned To"
 
 #. module: logistic_requisition
+#: field:logistic.requisition.source,selected_bid_line_id:0
+msgid "Bid Selected Line"
+msgstr ""
+
+#. module: logistic_requisition
 #: view:logistic.requisition:logistic_requisition.view_logistic_requisition_filter
 #: field:logistic.requisition,user_id:0
 msgid "Business Unit Officer"
@@ -841,7 +846,6 @@ msgstr "Purchase Order"
 
 #. module: logistic_requisition
 #: model:ir.model,name:logistic_requisition.model_purchase_order_line
-#: field:logistic.requisition.source,selected_bid_line_id:0
 msgid "Purchase Order Line"
 msgstr "Purchase Order Line"
 
