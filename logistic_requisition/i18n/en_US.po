@@ -1363,20 +1363,20 @@ msgstr "Yes"
 #, python-format
 msgid ""
 "You cannot change the informations because this PO line is already linked to "
-"a Logistics Requsition Line %s marked as sourced or quoted."
+"a Logistics Requisition Line %s marked as sourced or quoted."
 msgstr ""
 "You cannot change the informations because this PO line is already linked to "
-"a Logistics Requsition Line %s marked as sourced or quoted."
+"a Logistics Requisition Line %s marked as sourced or quoted."
 
 #. module: logistic_requisition
 #: code:addons/logistic_requisition/model/purchase.py:137
 #, python-format
 msgid ""
 "You cannot delete this PO line because it is already linked to a Logistics "
-"Requsition Line %s marked as sourced or quoted."
+"Requisition Line %s marked as sourced or quoted."
 msgstr ""
 "You cannot delete this PO line because it is already linked to a Logistics "
-"Requsition Line %s marked as sourced or quoted."
+"Requisition Line %s marked as sourced or quoted."
 
 #. module: logistic_requisition
 #: view:logistic.requisition.line:logistic_requisition.view_logistic_requisition_line_filter
