@@ -119,7 +119,7 @@ class PurchaseOrderLine(models.Model):
                         raise exceptions.Warning(
                             _("You cannot change the informations because "
                               "this PO line is already linked to a Logistics "
-                              "Requsition Line %s marked as sourced or "
+                              "Requisition Line %s marked as sourced or "
                               "quoted.") % (line.lr_source_line_id.name)
                         )
                     else:
@@ -136,7 +136,7 @@ class PurchaseOrderLine(models.Model):
                 if (source_line.requisition_line_id in ('sourced', 'quoted')):
                     raise Warning(
                         _("You cannot delete this PO line because it is "
-                          "already linked to a Logistics Requsition Line %s "
+                          "already linked to a Logistics Requisition Line %s "
                           "marked as sourced or quoted.")
                         % (line.lr_source_line_id.name)
                     )
