@@ -86,6 +86,7 @@ class SaleOrder(models.Model):
             new_po = bid.with_context(reuse_from_source=from_sources).copy()
             data = lrl._prepare_duplicated_bid_data()
             new_po.write(data)
+            new_po.signal_workflow('draft_po')
             new_pos |= new_po
         po_lines = new_pos.mapped('order_line')
 
