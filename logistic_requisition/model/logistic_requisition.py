@@ -532,7 +532,6 @@ class LogisticsRequisitionLine(models.Model):
     @api.multi
     def _prepare_duplicated_bid_data(self):
         return {
-            'state': 'draftpo',
             'dest_address_id': self.consignee_shipping_id.id,
             }
 
