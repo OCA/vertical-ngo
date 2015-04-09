@@ -1,8 +1,9 @@
-Logistics Order - Donation - Shipment
-=====================================
+Logistics Order - Donation - Shipment Tests
+============================================
 
-
-This glue module adds Shipment management for In-Kind Donations.
+This module is a test module to check that Shipment Management and In-Kind
+Donations work well together. You normally don't need to install it on your
+instance (but it will not cause problems if you do as it only contains tests).
 
 Credits
 =======

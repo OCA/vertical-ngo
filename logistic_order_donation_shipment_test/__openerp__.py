@@ -15,8 +15,9 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-{"name": "Logistics Order - Donation Shipment",
- "summary": "Shipment management for Logistic Order Donations",
+{"name": "Logistics Order - Donation Shipment Tests",
+ "summary": "Test coexistence of Shipment management "
+            "and Logistic Order Donations",
  "version": "0.1",
  "author": "Camptocamp,Odoo Community Association (OCA)",
  "license": "AGPL-3",
@@ -27,5 +28,5 @@
              "stock_shipment_management",
              ],
  'installable': True,
- "auto_install": True,
+ "auto_install": False,
  }
