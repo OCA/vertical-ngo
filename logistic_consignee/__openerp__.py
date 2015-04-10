@@ -19,8 +19,10 @@
 #
 #
 
-{"name": "Logistics Consignee",
- "summary": "Consignee on Sales, Purchases, Purchase requisition for Pickings",
+{"name": "Logistics Consignee [DEPRECATED]",
+ "summary": "Deprecated: use purchase_requisition_transport_multi_address, "
+            "purchase_transport_multi_address, sale_transport_multi_address, "
+            "stock_transport_multi_address",
  "version": "0.1",
  "author": "Camptocamp,Odoo Community Association (OCA)",
  "license": "AGPL-3",
@@ -28,20 +30,12 @@
  'complexity': "normal",
  "images": [],
  "website": "http://www.camptocamp.com",
- "depends": ["base",
-             "sale_stock",
-             "purchase",
-             "purchase_requisition",
+ "depends": ["purchase_requisition_transport_multi_address",
+             "sale_transport_multi_address",
              ],
  "demo": [],
- "data": ['view/res_partner.xml',
-          'view/purchase_order.xml',
-          'view/purchase_requisition.xml',
-          'view/sale_order.xml',
-          'view/stock_picking.xml',
-          'view/report_saleorder.xml',
-          ],
- "test": ['test/test_report.yml'],
+ "data": [],
+ "test": [],
  'installable': True,
  "auto_install": False,
  }

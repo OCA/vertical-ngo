@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-#
-#
-#    Author: Yannick Vaucher, Leonardo Pistone
-#    Copyright 2014-2015 Camptocamp SA
+#    Copyright 2015 Camptocamp SA
+#    Author: Alexandre Fayolle, Leonardo Pistone
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -16,25 +14,19 @@
 #
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#
-from openerp import models, fields
 
-
-class SaleOrder(models.Model):
-    _inherit = 'sale.order'
-
-    LO_STATES = {
-        'cancel': [('readonly', True)],
-        'progress': [('readonly', True)],
-        'manual': [('readonly', True)],
-        'shipping_except': [('readonly', True)],
-        'invoice_except': [('readonly', True)],
-        'done': [('readonly', True)],
-    }
-
-    consignee_id = fields.Many2one(
-        'res.partner',
-        string='Consignee',
-        states=LO_STATES,
-        help="The person to whom the shipment is to be delivered.")
+{"name": "Logistics Order - Donation Shipment Tests",
+ "summary": "Test coexistence of Shipment management "
+            "and Logistic Order Donations",
+ "version": "0.1",
+ "author": "Camptocamp,Odoo Community Association (OCA)",
+ "license": "AGPL-3",
+ "category": "Purchase Management",
+ 'complexity': "normal",
+ "website": "http://www.camptocamp.com",
+ "depends": ["logistic_order_donation_transit",
+             "stock_shipment_management",
+             ],
+ 'installable': True,
+ "auto_install": False,
+ }

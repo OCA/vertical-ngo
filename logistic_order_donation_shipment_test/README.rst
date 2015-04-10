@@ -1,10 +1,9 @@
-Logistics Consignee
-===================
+Logistics Order - Donation - Shipment Tests
+============================================
 
-This module is deprecated. The management of consignees has been moved to
-sale_addresses, purchase_addreses, stock_addresses and
-purchase_requisition_addresses. 
-
+This module is a test module to check that Shipment Management and In-Kind
+Donations work well together. You normally don't need to install it on your
+instance (but it will not cause problems if you do as it only contains tests).
 
 Credits
 =======
@@ -12,7 +11,9 @@ Credits
 Contributors
 ------------
 
-* Yannick Vaucher <yannick.vaucher@camptocamp.com>
+* Alexandre Fayolle <alexandre.fayolle@camptocamp.com>
+* Leonardo Pistone <leonardo.pistone@camptocamp.com>
+
 
 Maintainer
 ----------
