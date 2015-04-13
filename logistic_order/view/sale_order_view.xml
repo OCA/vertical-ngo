@@ -121,6 +121,14 @@
         <field name="company_id" position="replace"/>
         <field name="note" position="replace"/>
 
+        <!-- remove field delay -->
+        <xpath expr="//page[@string='Order Lines']/field[@name='order_line']/form//label[@for='delay']" position="replace"/>
+        <xpath expr="//page[@string='Order Lines']/field[@name='order_line']/form//field[@name='delay']/.." position="replace">
+          <div>
+            <field name="delay" invisible="1"/>
+          </div>
+        </xpath>
+
         <xpath expr="//notebook/page[@string='Order Lines']" position="after">
           <page string="Transportation and Delivery">
             <group>
