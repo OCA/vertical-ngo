@@ -114,7 +114,9 @@
         <field name="currency_id" position="replace"/>
         <field name="project_id" position="replace"/>
         <field name="order_policy" position="replace"/>
-        <field name="carrier_id" position="replace"/>
+        <field name="carrier_id" position="attributes">
+          <attribute name="invisible" eval="1"/>
+        </field>
         <field name="incoterm" position="replace"/>
         <field name="payment_term" position="replace"/>
         <field name="fiscal_position" position="replace"/>
@@ -153,7 +155,6 @@
               </group>
               <group>
                 <field name="delivery_time"/>
-                <field name="carrier_id"/>
               </group>
             </group>
             <group string="Delivery Remarks">
