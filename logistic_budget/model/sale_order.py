@@ -25,23 +25,29 @@ class SaleOrder(models.Model):
     budget_holder_id = fields.Many2one(
         'res.users',
         string='Budget Holder',
-        states=base_logistics_order.LO_STATES)
+        states=base_logistics_order.LO_STATES,
+        copy=False)
     date_budget_holder = fields.Datetime(
         'Budget Holder Validation Date',
-        states=base_logistics_order.LO_STATES)
+        states=base_logistics_order.LO_STATES,
+        copy=False)
     budget_holder_remark = fields.Text(
         'Budget Holder Remark',
-        states=base_logistics_order.LO_STATES)
+        states=base_logistics_order.LO_STATES,
+        copy=False)
     finance_officer_id = fields.Many2one(
         'res.users',
         string='Finance Officer',
-        states=base_logistics_order.LO_STATES)
+        states=base_logistics_order.LO_STATES,
+        copy=False)
     date_finance_officer = fields.Datetime(
         'Finance Officer Validation Date',
-        states=base_logistics_order.LO_STATES)
+        states=base_logistics_order.LO_STATES,
+        copy=False)
     finance_officer_remark = fields.Text(
         'Finance Officer Remark',
-        states=base_logistics_order.LO_STATES)
+        states=base_logistics_order.LO_STATES,
+        copy=False)
     total_budget = fields.Float("Total Budget", compute='_total_budget',
                                 store=True)
 
@@ -72,4 +78,4 @@ class SaleOrder(models.Model):
 class SaleOrderLine(models.Model):
     _inherit = "sale.order.line"
 
-    budget_tot_price = fields.Float("Budget Amount")
+    budget_tot_price = fields.Float("Budget Amount", copy=False)
