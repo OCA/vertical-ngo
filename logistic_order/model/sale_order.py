@@ -58,6 +58,18 @@ class SaleOrder(models.Model):
         help="International Commercial Terms are a series of predefined "
         "commercial terms used in international transactions.")
 
+    volume = fields.Float(
+        string=u'Volume (m³)',
+        compute='_get_volume',
+        store=True,
+    )
+
+    weight = fields.Float(
+        string='Weight (kg)',
+        compute='_get_weight',
+        store=True,
+    )
+
     # also carrier is overridden to add states
     carrier_id = fields.Many2one(
         "delivery.carrier",
@@ -119,6 +131,20 @@ class SaleOrder(models.Model):
         help="The person to whom the shipment is to be delivered.")
 
     @api.one
+    @api.depends('order_line.product_id.volume',
+                 'order_line.product_uom_qty')
+    def _get_volume(self):
+        self.volume = sum(l.product_uom_qty * l.product_id.volume
+                          for l in self.order_line)
+
+    @api.one
+    @api.depends('order_line.product_id.weight',
+                 'order_line.product_uom_qty')
+    def _get_weight(self):
+        self.weight = sum(l.product_uom_qty * l.product_id.weight
+                          for l in self.order_line)
+
+    @api.one
     @api.constrains('order_type', 'consignee_id')
     def _check_consignee(self):
         if self.order_type != 'cost_estimate_only' and not self.consignee_id:
@@ -144,6 +170,29 @@ class SaleOrder(models.Model):
     @api.multi
     def action_accepted(self):
         self.write({'state': 'accepted'})
+
+
+class SaleOrderLine(models.Model):
+    _inherit = 'sale.order.line'
+
+    volume = fields.Float(
+        string=u'Volume (m³)',
+        compute='_get_volume',
+    )
+    weight = fields.Float(
+        string='Weight (kg)',
+        compute='_get_weight',
+    )
+
+    @api.one
+    @api.depends('product_id.volume', 'product_uom_qty')
+    def _get_volume(self):
+        self.volume = self.product_id.volume * self.product_uom_qty
+
+    @api.one
+    @api.depends('product_id.weight', 'product_uom_qty')
+    def _get_weight(self):
+        self.weight = self.product_id.weight * self.product_uom_qty
 
 
 class mail_compose_message(models.Model):

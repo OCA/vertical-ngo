@@ -123,6 +123,11 @@
         <field name="company_id" position="replace"/>
         <field name="note" position="replace"/>
 
+        <xpath expr="//page[@string='Order Lines']/field[@name='order_line']/form//field[@name='product_uos']" position="after">
+          <field name="volume"/>
+          <field name="weight"/>
+        </xpath>
+
         <!-- hide taxes -->
         <xpath expr="//page[@string='Order Lines']/field[@name='order_line']/form//field[@name='tax_id']" position="attributes">
           <attribute name="invisible" eval="1"/>
@@ -152,6 +157,8 @@
               <group>
                 <field name="incoterm"/>
                 <field name="incoterm_address"/>
+                <field name="volume"/>
+                <field name="weight"/>
               </group>
               <group>
                 <field name="delivery_time"/>
