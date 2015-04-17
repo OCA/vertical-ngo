@@ -1,4 +1,4 @@
-Logistics Order - Donation - Shipment Tests
+Logistics Order - Donation - Shipment: Tests
 ============================================
 
 This module is a test module to check that Shipment Management and In-Kind
