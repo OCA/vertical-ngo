@@ -24,6 +24,72 @@
         </div>
       </xpath>
 
+      <!-- remove taxes -->
+      <xpath expr="//table//th[text()='Taxes']" position="replace"/>
+      <xpath expr="//tbody[@class='sale_tbody']//span[@t-esc=&quot;', '.join(map(lambda x: x.name, l.tax_id))&quot;]/.." position="replace"/>
+
+      <xpath expr="//table//th[text()='Quantity']" position="after">
+        <th class="text-right col-xs-1">Weight per unit (kg)</th>
+        <th class="text-right col-xs-1">Total weight (kg)</th>
+        <th class="text-right col-xs-1">Volume per unit (m³)</th>
+        <th class="text-right col-xs-1">Total volume (m³)</th>
+      </xpath>
+
+      <xpath expr="//tbody[@class='sale_tbody']//span[@t-field='l.product_uom_qty']/.." position="after">
+        <td class="text-right">
+          <t t-if="l.product_id">
+            <span t-field="l.product_id.weight"/>
+          </t>
+        </td>
+        <td class="text-right">
+          <t t-if="l.product_id">
+            <span t-esc="l.product_id.weight * l.product_uom_qty"/>
+          </t>
+        </td>
+        <td class="text-right">
+          <t t-if="l.product_id">
+            <span t-field="l.product_id.volume"/>
+          </t>
+        </td>
+        <td class="text-right">
+          <t t-if="l.product_id">
+            <span t-esc="l.product_id.volume * l.product_uom_qty"/>
+          </t>
+        </td>
+      </xpath>
+
+      <!-- remove taxes -->
+      <xpath expr="//td/strong[text()='Total Without Taxes']/../.." position="replace"/>
+      <xpath expr="//td[text()='Taxes']/.." position="replace"/>
+
+      <!-- position is reversed due to "pull-right" -->
+      <xpath expr="//td/strong[text()='Total']/../../../.." position="after">
+        <div class="col-xs-3 pull-right">
+          <table class="table table-condensed">
+            <tr class="border-black">
+              <td>
+                <strong>Weight</strong>
+              </td>
+              <td class="text-right">
+                <span t-esc="sum(l.product_id.weight * l.product_uom_qty for l in o.order_line)"/>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <div class="col-xs-3 pull-right">
+          <table class="table table-condensed">
+            <tr class="border-black">
+              <td>
+                <strong>Volume</strong>
+              </td>
+              <td class="text-right">
+                <span t-esc="sum(l.product_id.volume * l.product_uom_qty for l in o.order_line)"/>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </xpath>
+
       <xpath expr='//p[@t-field="o.note"]' position="before">
         <table class="table table-condensed">
           <tr class="border-black">
