@@ -28,7 +28,14 @@
         </xpath>
         <xpath expr="//field[@name='order_line']/form//div[@name='discount']" position="after">
           <field name="price_subtotal"/>
-          <field name="budget_tot_price"/>
+          <label for="budget_tot_price"/>
+          <div>
+            <field name="budget_tot_price"/>
+            <button name="%(action_update_budget)d"
+                    string="⇒ Update"
+                    type="action"
+                    class="oe_link"/>
+          </div>
         </xpath>
 
         <xpath expr="//notebook" position="after">
