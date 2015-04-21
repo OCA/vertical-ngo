@@ -188,6 +188,10 @@ class LogisticsRequisition(models.Model):
         ondelete='restrict',
         readonly=True,
         copy=False)
+    ce_count = fields.Integer(compute='_count_cost_estimates',
+                              string='CE count')
+    po_count = fields.Integer(compute='_count_purchase_orders',
+                              string='PO count')
 
     _sql_constraints = [
         ('name_uniq',
@@ -332,6 +336,72 @@ class LogisticsRequisition(models.Model):
         action_dict = action.read()[0]
         action_dict['domain'] = str([('requisition_id', 'in', self.ids)])
         return action_dict
+
+    @api.multi
+    def _get_relevant_purchases(self):
+        sourced_lines = self.line_ids.filtered(
+            lambda rec: rec.state == 'Sourced'
+            )
+        purchases = sourced_lines.mapped(
+            'source_ids.purchase_line_id.order_id'
+            )
+
+        unsourced_lines = self.env['logistic.requisition.line']
+        for line in self.line_ids - sourced_lines:
+            for method in line.mapped('source_ids.sourcing_method'):
+                if method in ('procurement', 'reuse_bid'):
+                    unsourced_lines |= line
+                    break
+        bids = unsourced_lines.mapped('source_ids.selected_bid_id')
+        purchases |= bids
+        return purchases
+
+    @api.multi
+    def action_open_lr_purchases(self):
+        """ Open Bids and Purchase order sourcing this LR"""
+        self.ensure_one()
+        action_ref = 'purchase.purchase_form_action'
+        action_dict = self.env.ref(action_ref).read()[0]
+        purchases = self._get_relevant_purchases()
+        action_dict['domain'] = [('id', 'in', purchases.ids)]
+        del action_dict['help']
+
+        return action_dict
+
+    @api.one
+    @api.depends('line_ids.source_ids.purchase_line_id.order_id',
+                 'line_ids.source_ids.selected_bid_id')
+    def _count_purchase_orders(self):
+        """ Set lr_count field """
+        self.po_count = len(self._get_relevant_purchases())
+
+    @api.multi
+    def _get_relevant_cost_estimates(self):
+        return self.mapped('line_ids.cost_estimate_id')
+
+    @api.multi
+    def action_open_lr_cost_estimate(self):
+        """ Open cost estimates generated from this LR """
+        self.ensure_one()
+        cost_estimates = self._get_relevant_cost_estimates()
+        action_dict = {
+            'name': _('Cost Estimate'),
+            'view_mode': 'tree,form',
+            'res_model': 'sale.order',
+            'target': 'current',
+            'res_id': cost_estimates.ids[0] if cost_estimates else 1,
+            'domain': [('id', 'in', cost_estimates.ids)],
+            'view_id': False,
+            'context': {},
+            'type': 'ir.actions.act_window',
+        }
+        return action_dict
+
+    @api.one
+    @api.depends('line_ids.cost_estimate_id')
+    def _count_cost_estimates(self):
+        """ Set lr_count field """
+        self.ce_count = len(self._get_relevant_cost_estimates())
 
 
 class LogisticsRequisitionLine(models.Model):

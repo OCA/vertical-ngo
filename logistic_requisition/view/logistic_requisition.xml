@@ -60,6 +60,18 @@
                               options='{"no_open": True}' />
                         </h2>
                     </div>
+
+                    <div class="oe_right oe_button_box" style="width: 300px;" name="buttons">
+                        <button class="oe_inline oe_stat_button" name="action_open_lr_cost_estimate"
+                                type="object" icon="fa-file-text">
+                          <field string="Cost Estimate" name="ce_count" widget="statinfo" />
+                        </button>
+                        <button class="oe_inline oe_stat_button" name="action_open_lr_purchases"
+                                type="object" icon="fa-shopping-cart">
+                          <field string="PO" name="po_count" widget="statinfo" />
+                        </button>
+                    </div>
+
                     <group>
                         <group colspan="4">
                             <field name="requisition_type"/>
