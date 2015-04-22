@@ -53,5 +53,6 @@ class LogisticsRequisitionLine(models.Model):
             new_source.sourcing_method = 'fw_agreement'
             if len(suitable_agreements) == 1:
                 new_source.framework_agreement_id = suitable_agreements
+                new_source.portfolio_id = suitable.agreement.portfolio_id
 
         return new_source

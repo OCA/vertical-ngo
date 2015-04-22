@@ -25,7 +25,7 @@ from openerp.osv import orm
 from openerp.tools.translate import _
 
 
-class logistic_requisition_source(orm.Model):
+class Source(orm.Model):
 
     """Adds support of framework agreement to source line"""
 
@@ -289,6 +289,12 @@ class logistic_requisition_source(orm.Model):
         """
         now = fields.datetime.now()
         return self.requisition_id.date or now
+
+    @api.onchange('sourcing_method')
+    def onchange_sourcing_method(self):
+        super(Source, self).onchange_sourcing_method()
+        if self.sourcing_method == 'fw_agreement':
+            self.price_is = 'fixed'
 
     @api.multi
     def _check_enought_qty(self, agreement):
