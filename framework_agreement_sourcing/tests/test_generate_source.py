@@ -19,7 +19,7 @@ from .common import CommonSourcingSetUp
 
 class TestGenerateSource(CommonSourcingSetUp):
 
-    def XXX_unported_test_if_there_are_agreements_source_by_agreement(self):
+    def test_if_there_are_agreements_source_by_agreement(self):
         """We choose an existing lrl for a product that has an agreement"""
         lrl = next(line for line in self.requisition.line_ids
                    if line.product_id == self.product)
@@ -27,7 +27,7 @@ class TestGenerateSource(CommonSourcingSetUp):
         source = lrl._generate_default_source()
         self.assertEqual('fw_agreement', source.sourcing_method)
 
-    def XXX_disabled_test_if_no_agreements_dont_source_by_agreement(self):
+    def test_if_no_agreements_dont_source_by_agreement(self):
         """We choose an existing lrl for a product that has an agreement"""
         product_without_agreement = self.env.ref('product.product_product_7')
 
