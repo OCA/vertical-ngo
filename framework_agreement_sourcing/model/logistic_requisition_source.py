@@ -312,6 +312,15 @@ class Source(orm.Model):
 
             return {'warning': {'message': msg}}
 
+    @api.onchange('framework_agreement_id')
+    def onchange_agreement(self):
+        if self.framework_agreement_id and self.proposed_product_id:
+            self.unit_cost = self.framework_agreement_id.price_get(
+                self.proposed_product_id.id,
+                self.proposed_qty or 1.0,
+                self.portfolio_id.supplier_id.id,
+            )[self.framework_agreement_id.id]
+
     # XXX disable automatic choice of agreement depending on other fields
     # @api.onchange('sourcing_method', 'portfolio_id', 'proposed_qty',
     #               'proposed_product_id')

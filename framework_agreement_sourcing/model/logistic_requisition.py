@@ -17,7 +17,6 @@
 from datetime import datetime
 
 from openerp import models, api
-from openerp.tools import DEFAULT_SERVER_DATE_FORMAT as DATE_FORMAT
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DATETIME_FORMAT
 
 
@@ -53,6 +52,7 @@ class LogisticsRequisitionLine(models.Model):
             new_source.sourcing_method = 'fw_agreement'
             if len(suitable_agreements) == 1:
                 new_source.framework_agreement_id = suitable_agreements
-                new_source.portfolio_id = suitable.agreement.portfolio_id
+                new_source.portfolio_id = suitable_agreements.portfolio_id
+                new_source.onchange_agreement()
 
         return new_source
