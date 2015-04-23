@@ -135,6 +135,7 @@ class Source(orm.Model):
         data['product_uom'] = line.proposed_uom_id.id
         data['lr_source_line_id'] = line.id
         data['pricelist_id'] = line.framework_agreement_id.id
+        data['price_unit'] = line.unit_cost
         data['name'] = line.proposed_product_id.name
         data['date_planned'] = line.requisition_id.date_delivery
         data['taxes_id'] = [(6, 0, taxes)]
