@@ -26,7 +26,26 @@
         <field name="order_line" position="attributes">
           <attribute name="context">{'default_warehouse_id': warehouse_id, 'default_route_id': line_route_id}</attribute>
         </field>
-
+        <xpath
+            expr="//field[@name='order_line']/form//field[@name='product_id']"
+            position="attributes">
+          <attribute name='context_ikd'>{'order_type': order_type}</attribute>
+        </xpath>
+        <xpath
+            expr="//field[@name='order_line']/tree//field[@name='product_id']"
+            position="attributes">
+          <attribute name='context_ikd'>{'order_type': order_type}</attribute>
+        </xpath>
+        <xpath
+            expr="//field[@name='order_line']/tree//field[@name='product_uom_qty']"
+            position="attributes">
+          <attribute name='context_ikd'>{'order_type': order_type}</attribute>
+        </xpath>
+        <xpath
+            expr="//field[@name='order_line']/form//field[@name='product_uos_qty']"
+            position="attributes">
+          <attribute name='context_ikd'>{'order_type': order_type}</attribute>
+        </xpath>
       </field>
     </record>
 

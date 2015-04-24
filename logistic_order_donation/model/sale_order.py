@@ -19,6 +19,7 @@
 #
 #
 from openerp import models, fields, api
+from openerp.tools.translate import _
 
 
 class SaleOrder(models.Model):
@@ -55,3 +56,40 @@ class SaleOrderLine(models.Model):
         if self.route_id == donation_route:
             address = self.order_id.partner_id
             self.origin_address_id = address
+
+    def product_id_change_with_wh(self, cr, uid, ids,
+                                  pricelist, product,
+                                  qty=0,
+                                  uom=False,
+                                  qty_uos=0,
+                                  uos=False,
+                                  name='',
+                                  partner_id=False,
+                                  lang=False,
+                                  update_tax=True,
+                                  date_order=False,
+                                  packaging=False,
+                                  fiscal_position=False,
+                                  flag=False,
+                                  warehouse_id=False,
+                                  context=None):
+        res = super(SaleOrderLine, self).product_id_change_with_wh(
+            cr, uid, ids,
+            pricelist, product, qty, uom,
+            qty_uos, uos, name, partner_id,
+            lang, update_tax, date_order,
+            packaging, fiscal_position, flag,
+            warehouse_id,
+            context=context)
+        # use web_context_tunnel
+        if context.get('order_type') == 'donation' and res['warning']:
+            warning = res['warning']['message']
+            warning_start = warning.find(_("Not enough stock ! : "))
+            if warning_start != -1:
+                warning_end = warning.find('\n\n', warning_start) + 2
+                warning = warning[:warning_start] + warning[warning_end:]
+                if warning:
+                    res['warning']['message'] = warning
+                else:
+                    del res['warning']
+        return res
