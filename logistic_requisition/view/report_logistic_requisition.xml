@@ -55,7 +55,7 @@
                 </div>
             </div>
 
-            <table class="table table-condensed">
+            <table id="requisition_lines" class="table table-condensed">
                 <thead>
                     <tr>
                         <th>Number</th>
@@ -92,20 +92,30 @@
                 </td>
               </tr>
             </table>
-            <table id="remarks" class="table table-bordered" width="100%">
-              <tr>
-                <th>Delivery/shipping remarks</th>
-                <th>Remarks</th>
-              </tr>
-              <tr>
-                <td class="col-xs-3">
-                  <span t-field="o.shipping_note"/>
-                </td>
-                <td class="col-xs-3">
-                  <span t-field="o.note"/>
-                </td>
-              </tr>
-            </table>
+            <t t-if="o.shipping_note and o.note">
+              <table id="remarks" class="table table-bordered" width="100%">
+                <tr>
+                  <t t-if="o.shipping_note">
+                    <th>Delivery/shipping remarks</th>
+                  </t>
+                  <t t-if="o.note">
+                    <th>Remarks</th>
+                  </t>
+                </tr>
+                <tr>
+                  <t t-if="o.shipping_note">
+                    <td class="col-xs-3">
+                      <span t-field="o.shipping_note"/>
+                    </td>
+                  </t>
+                  <t t-if="o.note">
+                    <td class="col-xs-3">
+                      <span t-field="o.note"/>
+                    </td>
+                  </t>
+                </tr>
+              </table>
+            </t>
             <div class="oe_structure"/>
         </div>
     </t>
