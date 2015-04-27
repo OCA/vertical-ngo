@@ -38,9 +38,8 @@
                   <p t-field="o.date_delivery"/>
                 </div>
                 <div class="col-xs-3">
-                    <strong>Cost estimate only:</strong>
-                    <p t-if="o.requisition_type == 'cost_estimate_only'">Yes</p>
-                    <p t-if="o.requisition_type != 'cost_estimate_only'">No</p>
+                    <strong>Type</strong>
+                    <p t-field="o.requisition_type"/>
                 </div>
                 <div class="col-xs-3">
                   <strong>Project:</strong>
