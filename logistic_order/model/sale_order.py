@@ -121,15 +121,6 @@ class SaleOrder(models.Model):
     section_id = fields.Many2one(states=LO_STATES)
     procurement_group_id = fields.Many2one(states=LO_STATES)
 
-    # redefine consignee_id with required=False
-    # we have a constraint to make it
-    # required only if is cost_estimate_only
-    consignee_id = fields.Many2one(
-        'res.partner',
-        string='Consignee',
-        required=False,
-        help="The person to whom the shipment is to be delivered.")
-
     @api.one
     @api.depends('order_line.product_id.volume',
                  'order_line.product_uom_qty')
