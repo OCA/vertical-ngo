@@ -73,13 +73,19 @@
               <page string="Products">
                 <field name="order_line" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" >
                   <tree string="Purchase Order Lines" editable="bottom">
+                    <!-- quite surprisingly, we always pass None as price_unit
+                        and name. If we don't, the price stays at 0.0, and in
+                        the onchange_product_id, the price is never computer.
+                        All that comes from upstream:
+                        https://github.com/odoo-dev/odoo/commit/7e454bef
+                        -->
                     <field name="product_id" on_change="onchange_product_id(parent.pricelist_id,product_id,0,False,parent.partner_id, parent.date_order,parent.fiscal_position,date_planned,name,False,parent.state,context)"/>
                     <field name="name" invisible="1"/>
                     <field name="date_planned"/>
                     <field name="company_id" invisible="1"/>
                     <field name="account_analytic_id" groups="purchase.group_analytic_accounting" domain="[('type','not in',('view','template'))]"/>
-                    <field name="product_qty" on_change="onchange_product_id(parent.pricelist_id,product_id,product_qty,product_uom,parent.partner_id,parent.date_order,parent.fiscal_position,date_planned,name,price_unit,parent.state,context)"/>
-                    <field name="product_uom" groups="product.group_uom" on_change="onchange_product_uom(parent.pricelist_id,product_id,product_qty,product_uom,parent.partner_id, parent.date_order,parent.fiscal_position,date_planned,name,price_unit,parent.state,context)"/>
+                    <field name="product_qty" on_change="onchange_product_id(parent.pricelist_id,product_id,product_qty,product_uom,parent.partner_id,parent.date_order,parent.fiscal_position,date_planned,None,None,parent.state,context)"/>
+                    <field name="product_uom" groups="product.group_uom" on_change="onchange_product_uom(parent.pricelist_id,product_id,product_qty,product_uom,parent.partner_id, parent.date_order,parent.fiscal_position,date_planned,None,None,parent.state,context)"/>
                     <field name="price_unit"/>
                     <field name="price_subtotal"/>
                     <field name="state" invisible="1"/>
@@ -254,13 +260,19 @@
           <sheet>
             <group>
               <group>
-                <field name="product_id" on_change="onchange_product_id(parent.pricelist_id,product_id,0,product_uom,parent.partner_id, parent.date_order,parent.fiscal_position,date_planned,name,price_unit,'draft',context)"/>
+                <!-- quite surprisingly, we always pass None as price_unit and
+                     name. If we don't, the price stays at 0.0, and
+                     in the onchange_product_id, the price is never computer.
+                     All that comes from upstream:
+                     https://github.com/odoo-dev/odoo/commit/7e454bef
+                     -->
+                <field name="product_id" on_change="onchange_product_id(parent.pricelist_id,product_id,0,product_uom,parent.partner_id, parent.date_order,parent.fiscal_position,date_planned,None,None,'draft',context)"/>
               </group>
               <group>
                 <label for="product_qty"/>
                 <div>
-                  <field name="product_qty" on_change="onchange_product_id(parent.pricelist_id,product_id,product_qty,product_uom,parent.partner_id,parent.date_order,parent.fiscal_position,date_planned,name,price_unit,'draft',context)" class="oe_inline"/>
-                  <field name="product_uom" groups="product.group_uom" on_change="onchange_product_uom(parent.pricelist_id,product_id,product_qty,product_uom,parent.partner_id, parent.date_order,parent.fiscal_position,date_planned,name,price_unit,'draft',context)" class="oe_inline"/>
+                  <field name="product_qty" on_change="onchange_product_id(parent.pricelist_id,product_id,product_qty,product_uom,parent.partner_id,parent.date_order,parent.fiscal_position,date_planned,None,None,'draft',context)" class="oe_inline"/>
+                  <field name="product_uom" groups="product.group_uom" on_change="onchange_product_uom(parent.pricelist_id,product_id,product_qty,product_uom,parent.partner_id, parent.date_order,parent.fiscal_position,date_planned,None,None,'draft',context)" class="oe_inline"/>
                 </div>
               </group>
             </group>
