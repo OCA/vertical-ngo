@@ -1291,12 +1291,12 @@ class LogisticsRequisitionSource(models.Model):
                 }
 
     @api.multi
-    def _prepare_duplicated_bid_line_data(self):
+    def _prepare_duplicated_bid_line_data(self, po_line):
         lrl = self.requisition_line_id
-        return {
-            'product_qty': lrl.requested_qty,
-            'date_planned': lrl.date_delivery,
-            }
+        data = {'date_planned': lrl.date_delivery}
+        if self.proposed_product_id == po_line.product_id:
+            data['product_qty'] = self.proposed_qty
+        return data
 
     @api.multi
     def _action_create_po_requisition(self, pricelist=None):
