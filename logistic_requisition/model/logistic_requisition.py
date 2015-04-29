@@ -676,11 +676,6 @@ class LogisticsRequisitionLine(models.Model):
             in the Line
         """
         sources = self.mapped('source_ids')
-        sources.filtered(lambda rec: rec.sourcing_method == 'procurement')
-        if not sources:
-            raise except_orm(_('No sourcing line found'),
-                             _('No sourcing lines with a Tender procurement '
-                               'method as were found, please create one.'))
         pricelist = self[0].requisition_id.pricelist_id or None
         return sources._action_create_po_requisition(pricelist=pricelist)
 
