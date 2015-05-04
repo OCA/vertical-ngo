@@ -200,6 +200,7 @@ class SaleOrderLine(models.Model):
     lr_source_id = fields.Many2one(
         'logistic.requisition.source',
         'Logistics Requisition Source',
+        readonly=True,
     )
     sourcing_method = fields.Selection(
         related='lr_source_id.sourcing_method',
