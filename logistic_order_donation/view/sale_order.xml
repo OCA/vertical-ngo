@@ -46,6 +46,10 @@
             position="attributes">
           <attribute name='context_ikd'>{'order_type': order_type}</attribute>
         </xpath>
+        <xpath expr="//field[@name='order_line']/form//field[@name='value_of_goods']"
+            position="attributes">
+            <attribute name="invisible"/>
+        </xpath>
       </field>
     </record>
 

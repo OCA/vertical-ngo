@@ -218,3 +218,43 @@ class SaleOrderLine(models.Model):
     sourced_by = fields.Many2one(
         domain="[('product_id', '=', product_id),"
                " ('order_id.state', 'in', ['draftpo', 'confirmed'])]")
+
+    def product_id_change_with_wh(self, cr, uid, ids,
+                                  pricelist, product,
+                                  qty=0,
+                                  uom=False,
+                                  qty_uos=0,
+                                  uos=False,
+                                  name='',
+                                  partner_id=False,
+                                  lang=False,
+                                  update_tax=True,
+                                  date_order=False,
+                                  packaging=False,
+                                  fiscal_position=False,
+                                  flag=False,
+                                  warehouse_id=False,
+                                  context=None):
+        res = super(SaleOrderLine, self).product_id_change_with_wh(
+            cr, uid, ids,
+            pricelist, product, qty, uom,
+            qty_uos, uos, name, partner_id,
+            lang, update_tax, date_order,
+            packaging, fiscal_position, flag,
+            warehouse_id,
+            context=context)
+
+        if 'price_unit' in res.get('value', {}):
+            # warehouse dispatch must be only a transfert of good value
+            # for products, we still want to charge services
+            if context.get('sourcing_method') == 'wh_dispatch':
+                product_model = self.pool['product.product']
+                product = product_model.browse(cr, uid, product,
+                                               context=context)
+                if product.type != 'service':
+                    source_id = context.get('lr_source_id')
+                    source = self.pool['logistic.requisition.source'].browse(
+                        cr, uid, source_id, context=context)
+                    if source.requisition_id.requisition_type == 'donor_stock':
+                        res['value']['price_unit'] = 0.0
+        return res

@@ -120,10 +120,17 @@ class LogisticsRequisitionCostEstimate(models.TransientModel):
     @api.model
     def _prepare_cost_estimate_line(self, sourcing):
         sale_line_obj = self.env['sale.order.line']
+        if (sourcing.requisition_id.requisition_type == 'donor_stock' and
+                sourcing.sourcing_method == 'wh_dispatch' and
+                sourcing.proposed_product_id.type != 'service'):
+            product_price = 0.0
+        else:
+            product_price = sourcing.unit_cost
         vals = {'product_id': sourcing.proposed_product_id.id,
                 'name': sourcing.requisition_line_id.description,
                 'lr_source_id': sourcing.id,
-                'price_unit': sourcing.unit_cost,
+                'price_unit': product_price,
+                'value_of_goods': sourcing.unit_cost,
                 'price_is': sourcing.price_is,
                 'product_uom_qty': sourcing.proposed_qty,
                 'product_uom': sourcing.proposed_uom_id.id,
@@ -144,9 +151,11 @@ class LogisticsRequisitionCostEstimate(models.TransientModel):
             partner_id=requisition.partner_id.id,
             qty=sourcing.proposed_qty,
             uom=sourcing.proposed_uom_id.id).get('value', {})
-        #  price_unit and type of the requisition line must be kept
+        #  price_unit and value of goods of the requisition source must be kept
         if 'price_unit' in onchange_vals:
             del onchange_vals['price_unit']
+        if 'value_of_goods' in onchange_vals:
+            del onchange_vals['value_of_goods']
         vals.update(onchange_vals)
         return vals
 
