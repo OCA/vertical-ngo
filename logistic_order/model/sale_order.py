@@ -184,6 +184,8 @@ class SaleOrderLine(models.Model):
         compute='_get_weight',
     )
 
+    value_of_goods = fields.Float()
+
     @api.one
     @api.depends('product_id.volume', 'product_uom_qty')
     def _get_volume(self):
@@ -193,6 +195,35 @@ class SaleOrderLine(models.Model):
     @api.depends('product_id.weight', 'product_uom_qty')
     def _get_weight(self):
         self.weight = self.product_id.weight * self.product_uom_qty
+
+    def product_id_change_with_wh(self, cr, uid, ids,
+                                  pricelist, product,
+                                  qty=0,
+                                  uom=False,
+                                  qty_uos=0,
+                                  uos=False,
+                                  name='',
+                                  partner_id=False,
+                                  lang=False,
+                                  update_tax=True,
+                                  date_order=False,
+                                  packaging=False,
+                                  fiscal_position=False,
+                                  flag=False,
+                                  warehouse_id=False,
+                                  context=None):
+        res = super(SaleOrderLine, self).product_id_change_with_wh(
+            cr, uid, ids,
+            pricelist, product, qty, uom,
+            qty_uos, uos, name, partner_id,
+            lang, update_tax, date_order,
+            packaging, fiscal_position, flag,
+            warehouse_id,
+            context=context)
+
+        if 'price_unit' in res.get('value', []):
+            res['value']['value_of_goods'] = res['value']['price_unit']
+        return res
 
 
 class mail_compose_message(models.Model):
