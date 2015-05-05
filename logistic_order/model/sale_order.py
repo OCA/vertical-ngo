@@ -175,7 +175,11 @@ class SaleOrderLine(models.Model):
         compute='_get_weight',
     )
 
-    value_of_goods = fields.Float()
+    # This field is hidden in logistic_order module but is required
+    # in logistic_order_donation and logistic_requistiion
+    value_of_goods = fields.Float(
+        help="This field represent the value of the goods and will be used for"
+             " reporting purpose (e.g mobilization table)")
 
     @api.one
     @api.depends('product_id.volume', 'product_uom_qty')
