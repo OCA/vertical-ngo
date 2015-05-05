@@ -17,7 +17,7 @@
         </field>
     </record>
 
-    <record id="view_order_form" model="ir.ui.view">
+    <record id="view_order_form1" model="ir.ui.view">
         <field name="name">sale.order.form</field>
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale_transport_multi_address.view_order_form"/>
@@ -57,8 +57,47 @@
               position="after">
               <field name="price_is"/>
           </xpath>
-          <xpath expr="//field[@name='order_line']/form//field[@name='delay']" position="after">
-              <field name="lr_source_id" groups="base.group_no_one"/>
+          <xpath expr="//field[@name='order_line']/form//field[@name='manually_sourced']" position="attributes">
+            <attribute name="attrs">{'invisible': [('sourcing_method', 'not in', ['procurement', 'fw_agreement', 'reuse_bid', 'other'])], 'invisible': [('sourcing_method', 'in', ['procurement', 'fw_agreement', 'reuse_bid'])]}</attribute>
+          </xpath>
+          <xpath expr="//field[@name='order_line']/form//field[@name='sourced_by']" position="attributes">
+            <attribute name="attrs">{'invisible': [('manually_sourced', '=', 1), ('sourcing_method', 'not in', ['procurement', 'fw_agreement', 'reuse_bid', 'other'])]}</attribute>
+          </xpath>
+          <xpath expr="//field[@name='order_line']/form//field[@name='route_id']" position="attributes">
+            <attribute name="attrs">{'invisible': [('sourcing_method', 'not in', ['procurement', 'fw_agreement', 'reuse_bid', 'other'])]}</attribute>
+          </xpath>
+        </field>
+    </record>
+
+    <record id="view_order_form2" model="ir.ui.view">
+        <field name="name">sale.order.form</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale_sourced_by_line.view_order_form_form"/>
+        <field name="arch" type="xml">
+          <xpath expr="//field[@name='order_line']/form//field[@name='warehouse_id']" position="attributes">
+            <attribute name="attrs">{'invisible': [('sourcing_method', 'not in', ['wh_dispatch', 'other'])], 'required': [('sourcing_method', '=', 'wh_dispatch')]}</attribute>
+          </xpath>
+        </field>
+    </record>
+
+    <record id="view_order_form3" model="ir.ui.view">
+        <field name="name">sale.order.form</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale_owner_stock_sourcing.view_order_form_inherit"/>
+        <field name="arch" type="xml">
+          <xpath expr="//field[@name='order_line']/form//field[@name='stock_owner_id']" position="attributes">
+            <attribute name="attrs">{'invisible': [('sourcing_method', 'not in', ['wh_dispatch', 'other'])]}</attribute>
+          </xpath>
+          <xpath expr="//field[@name='order_line']/form//field[@name='delay']/.." position="after">
+              <field name="lr_source_id"/>
+              <field name="sourcing_method"/>
+          </xpath>
+          <xpath expr="//field[@name='order_line']/form//field[@name='product_id']" position="attributes">
+            <attribute name="context_sourcing">{'sourcing_method': sourcing_method, 'lr_source_id': lr_source_id}</attribute>
+          </xpath>
+          <xpath expr="//field[@name='order_line']/form//field[@name='value_of_goods']"
+              position="attributes">
+              <attribute name="invisible"/>
           </xpath>
         </field>
     </record>

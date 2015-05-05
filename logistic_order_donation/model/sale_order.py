@@ -92,4 +92,12 @@ class SaleOrderLine(models.Model):
                     res['warning']['message'] = warning
                 else:
                     del res['warning']
+
+        if 'price_unit' in res.get('value', []):
+            if context.get('order_type') == 'donation':
+                product_model = self.pool['product.product']
+                product = product_model.browse(cr, uid, product,
+                                               context=context)
+                if product.type != 'service':
+                    res['value']['price_unit'] = 0.0
         return res
