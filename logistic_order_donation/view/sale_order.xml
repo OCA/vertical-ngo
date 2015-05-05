@@ -29,22 +29,22 @@
         <xpath
             expr="//field[@name='order_line']/form//field[@name='product_id']"
             position="attributes">
-          <attribute name='context_ikd'>{'order_type': order_type}</attribute>
+          <attribute name='context_ikd'>{'order_type': parent.order_type}</attribute>
         </xpath>
         <xpath
             expr="//field[@name='order_line']/tree//field[@name='product_id']"
             position="attributes">
-          <attribute name='context_ikd'>{'order_type': order_type}</attribute>
+          <attribute name='context_ikd'>{'order_type': parent.order_type}</attribute>
         </xpath>
         <xpath
             expr="//field[@name='order_line']/tree//field[@name='product_uom_qty']"
             position="attributes">
-          <attribute name='context_ikd'>{'order_type': order_type}</attribute>
+          <attribute name='context_ikd'>{'order_type': parent.order_type}</attribute>
         </xpath>
         <xpath
             expr="//field[@name='order_line']/form//field[@name='product_uos_qty']"
             position="attributes">
-          <attribute name='context_ikd'>{'order_type': order_type}</attribute>
+          <attribute name='context_ikd'>{'order_type': parent.order_type}</attribute>
         </xpath>
         <xpath expr="//field[@name='order_line']/form//field[@name='value_of_goods']"
             position="attributes">
