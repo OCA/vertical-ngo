@@ -99,7 +99,7 @@ class SaleOrder(models.Model):
                 po_lines -= pol
                 pol.unlink()
                 continue
-            data = source._prepare_duplicated_bid_line_data()
+            data = source._prepare_duplicated_bid_line_data(pol)
             pol.write(data)
 
         # Update source_by on sale order lines
