@@ -131,7 +131,7 @@
                 <group>
                   <group>
                     <field domain="[('type','=','purchase')]" name="pricelist_id" groups="product.group_purchase_pricelist" on_change="onchange_pricelist(pricelist_id, context)"/>
-                    <field name="currency_id" groups="base.group_multi_currency"/>
+                    <field name="currency_id" groups="base.group_multi_currency" readonly="True" />
                     <field name="company_id" groups="base.group_multi_company" widget="selection"/>
                     <field name="journal_id" invisible='1'/>
                   </group>
