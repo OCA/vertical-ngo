@@ -57,7 +57,7 @@
               position="after">
               <field name="price_is"/>
           </xpath>
-          <xpath expr="//field[@name='order_line']/form//field[@name='delay']" position="after">
+          <xpath expr="//field[@name='order_line']/form//field[@name='delay']/.." position="after">
               <field name="lr_source_id"/>
               <field name="sourcing_method"/>
           </xpath>
