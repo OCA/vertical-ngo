@@ -57,10 +57,6 @@
               position="after">
               <field name="price_is"/>
           </xpath>
-          <xpath expr="//field[@name='order_line']/form//field[@name='delay']" position="after">
-              <field name="lr_source_id" groups="base.group_no_one"/>
-              <field name="sourcing_method"/>
-          </xpath>
           <xpath expr="//field[@name='order_line']/form//field[@name='manually_sourced']" position="attributes">
             <attribute name="attrs">{'invisible': [('sourcing_method', 'not in', ['procurement', 'fw_agreement', 'reuse_bid', 'other'])], 'invisible': [('sourcing_method', 'in', ['procurement', 'fw_agreement', 'reuse_bid'])]}</attribute>
           </xpath>
@@ -91,6 +87,17 @@
         <field name="arch" type="xml">
           <xpath expr="//field[@name='order_line']/form//field[@name='stock_owner_id']" position="attributes">
             <attribute name="attrs">{'invisible': [('sourcing_method', 'not in', ['wh_dispatch', 'other'])]}</attribute>
+          </xpath>
+          <xpath expr="//field[@name='order_line']/form//field[@name='delay']/.." position="after">
+              <field name="lr_source_id"/>
+              <field name="sourcing_method"/>
+          </xpath>
+          <xpath expr="//field[@name='order_line']/form//field[@name='product_id']" position="attributes">
+            <attribute name="context_sourcing">{'sourcing_method': sourcing_method, 'lr_source_id': lr_source_id}</attribute>
+          </xpath>
+          <xpath expr="//field[@name='order_line']/form//field[@name='value_of_goods']"
+              position="attributes">
+              <attribute name="invisible"/>
           </xpath>
         </field>
     </record>

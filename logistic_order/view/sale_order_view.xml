@@ -128,6 +128,11 @@
           <field name="weight"/>
         </xpath>
 
+        <xpath expr="//field[@name='order_line']/form//field[@name='price_unit']"
+            position="after">
+            <field name="value_of_goods" invisible="1"/>
+        </xpath>
+
         <!-- hide taxes -->
         <xpath expr="//page[@string='Order Lines']/field[@name='order_line']/form//field[@name='tax_id']" position="attributes">
           <attribute name="invisible" eval="1"/>
