@@ -39,7 +39,7 @@
               <label for="origin" class="oe_edit_only oe_inline"/>
               <h1>
                 <label string="," attrs="{'invisible':[('origin','=',False)]}"/>
-                <field name="origin" class="oe_inline" placeholder="e.g. PO0025"/>
+                <field name="origin" class="oe_inline" placeholder="e.g. PO0025" attrs="{'readonly': [('state', '!=', 'draft')]}" />
               </h1>
             </div>
             <!-- hidden by purchase_requisition_bid_selection -->
@@ -151,12 +151,13 @@
                   </group>
                 </group>
                 <group string="Transport Documents">
-                  <field name="transport_document_ids" nolabel="1" colspan="4"/>
+                  <field name="transport_document_ids" nolabel="1" colspan="4" attrs="{'readonly': [('state', '!=', 'draft')]}" />
                 </group>
                 <group string="Delivery Remarks">
                   <field name="delivery_remark"
                     colspan="4"
                     nolabel="1"
+                    attrs="{'readonly': [('state', '!=', 'draft')]}"
                     class="oe_inline"/>
                 </group>
               </page>
@@ -169,8 +170,8 @@
                     <field name="company_id" groups="base.group_multi_company" widget="selection" attrs="{'readonly': [('state','!=','draft')]}"/>
                   </group>
                   <group>
-                    <field name="req_payment_term_id"/>
-                    <field name="req_terms_of_payment"/>
+                    <field name="req_payment_term_id" attrs="{'readonly': [('state', '!=', 'draft')]}" />
+                    <field name="req_terms_of_payment" attrs="{'readonly': [('state', '!=', 'draft')]}" />
                     <field name="account_analytic_id" invisible="1"/>
                   </group>
                 </group>
