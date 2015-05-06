@@ -364,8 +364,7 @@
         </xpath>
 
         <field name="product_id" position="attributes">
-          <!-- TODO investigate context_extended -->
-          <attribute name="context_extended">{'order_type': parent.type}</attribute>
+          <attribute name="context_extended">{'order_type': parent.type, 'portfolio_id': parent.portfolio_id, 'pricelist_id': parent.pricelist_id}</attribute>
         </field>
 
         <field name="product_qty" position="attributes">
