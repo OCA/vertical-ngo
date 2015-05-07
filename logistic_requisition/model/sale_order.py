@@ -197,6 +197,7 @@ class SaleOrderLine(models.Model):
         help="When the price is an estimation, the final price may change. "
              "I.e. it is not based on a request for quotation.",
         default='fixed')
+
     lr_source_id = fields.Many2one(
         'logistic.requisition.source',
         'Logistics Requisition Source',

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data noupdate="0">
+
+    <record id="view_order_form" model="ir.ui.view">
+      <field name="name">sale.order.form</field>
+      <field name="model">sale.order</field>
+      <field name="inherit_id" ref="logistic_requisition.view_order_form1"/>
+      <field name="arch" type="xml">
+        <xpath expr="//field[@name='order_line']" position="attributes">
+          <attribute name="context_link_ikd_req">{'default_order_type': order_type}</attribute>
+        </xpath>
+        <xpath
+            expr="//field[@name='order_line']/form//field[@name='sourcing_method']"
+            position="attributes">
+          <attribute name="attrs">{'invisible': [('order_type', '=', 'donation')]}</attribute>
+        </xpath>
+        <!-- add donation for visibility and requirement of route_id -->
+        <xpath expr="//field[@name='order_line']/form//field[@name='route_id']" position="attributes">
+          <attribute name="attrs">{'invisible': [('sourcing_method', 'not in', ['procurement', 'fw_agreement', 'reuse_bid', 'donation', 'other'])], 'required': [('sourcing_method', '=', 'donation')]}</attribute>
+        </xpath>
+        <xpath
+            expr="//field[@name='order_line']/form//field[@name='sourcing_method']"
+            position="after">
+          <field name="order_type" invisible="1"/>
+          <field name="sourcing_method_donation" attrs="{'invisible': [('order_type', '!=', 'donation')]}"/>
+        </xpath>
+      </field>
+    </record>
+
+  </data>
+</openerp>
