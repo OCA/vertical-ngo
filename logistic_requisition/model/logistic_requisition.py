@@ -101,6 +101,7 @@ class LogisticsRequisition(models.Model):
         states=REQ_STATES)
     consignee_id = fields.Many2one(
         'res.partner', 'Consignee',
+        domain=[('is_consignee', '=', True)],
         states=REQ_STATES)
     consignee_shipping_id = fields.Many2one(
         'res.partner', 'Delivery Address',
