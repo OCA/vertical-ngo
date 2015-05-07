@@ -93,7 +93,7 @@
               </tr>
             </table>
             <t t-if="o.shipping_note and o.note">
-              <table id="remarks" class="table table-bordered" width="100%">
+              <table id="remarks" class="table table-bordered" style="page-break-inside: avoid" width="100%">
                 <tr>
                   <t t-if="o.shipping_note">
                     <th>Delivery/shipping remarks</th>
