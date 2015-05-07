@@ -39,8 +39,6 @@ class LogisticsRequisitionLine(models.Model):
         req_date = datetime.strptime(self.requisition_id.date, DATETIME_FORMAT)
 
         suitable_agreements = Agreement.search([
-            ('incoterm_id', '=', self.requisition_id.incoterm_id.id),
-            ('incoterm_address', '=', self.requisition_id.incoterm_address),
             ('portfolio_id', '!=', False),
         ]).filtered(
             lambda a: a.portfolio_id.is_suitable_for(req_date,
@@ -50,9 +48,5 @@ class LogisticsRequisitionLine(models.Model):
 
         if suitable_agreements:
             new_source.sourcing_method = 'fw_agreement'
-            if len(suitable_agreements) == 1:
-                new_source.framework_agreement_id = suitable_agreements
-                new_source.portfolio_id = suitable_agreements.portfolio_id
-                new_source.onchange_agreement()
 
         return new_source
