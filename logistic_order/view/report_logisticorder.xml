@@ -11,9 +11,11 @@
       </xpath>
 
       <xpath expr='//div[@t-if="o.date_order" and @class="col-xs-3"]' position="replace">
+        <div t-if="o.date_order" class="col-xs-3">
           <strong t-if="o.state not in ['progress','manual','done']">Date:</strong>
           <strong t-if="o.state in ['progress','manual','done']">Order Date:</strong>
           <p t-field="o.date_order"/>
+        </div>
       </xpath>
 
       <xpath expr='//strong[text()="Salesperson:"]' position="replace">
