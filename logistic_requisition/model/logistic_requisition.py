@@ -677,11 +677,6 @@ class LogisticsRequisitionLine(models.Model):
             in the Line
         """
         sources = self.mapped('source_ids')
-        sources.filtered(lambda rec: rec.sourcing_method == 'procurement')
-        if not sources:
-            raise except_orm(_('No sourcing line found'),
-                             _('No sourcing lines with a Tender procurement '
-                               'method as were found, please create one.'))
         pricelist = self[0].requisition_id.pricelist_id or None
         return sources._action_create_po_requisition(pricelist=pricelist)
 
@@ -1301,25 +1296,20 @@ class LogisticsRequisitionSource(models.Model):
 
     @api.multi
     def _action_create_po_requisition(self, pricelist=None):
-        purch_req_obj = self.env['purchase.requisition']
-        purch_req_lines = []
-        if not next((source for source in self
-                     if source.sourcing_method == 'procurement'), None):
+        tender_sources = self.filtered(
+            lambda s: s.sourcing_method == 'procurement'
+        )
+        if not tender_sources:
             raise except_orm(_('There should be at least one selected'
                                ' line with procurement method Procurement'),
                              _('Please correct selection'))
-        for source in self:
-            if source.sourcing_method not in ('other', 'procurement'):
-                raise except_orm(_('Selected line procurement method should'
-                                   ' be procurement or other'),
-                                 _('Please correct selection'))
-            line_vals = source._prepare_po_requisition_line()
-            purch_req_lines.append(line_vals)
-        vals = self._prepare_po_requisition(purch_req_lines,
-                                            pricelist=pricelist)
-        purch_req = purch_req_obj.create(vals)
+        tender_lines = [s._prepare_po_requisition_line()
+                        for s in tender_sources]
+        tender_vals = tender_sources._prepare_po_requisition(
+            tender_lines, pricelist=pricelist)
+        purch_req = self.env['purchase.requisition'].create(tender_vals)
         purch_req.onchange_dest_address_id()  # set the correct picking type
-        self.write({'po_requisition_id': purch_req.id})
+        tender_sources.write({'po_requisition_id': purch_req.id})
         return purch_req
 
     @api.multi
