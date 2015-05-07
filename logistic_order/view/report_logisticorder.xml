@@ -16,6 +16,10 @@
           <p t-field="o.date_order"/>
       </xpath>
 
+      <xpath expr='//strong[text()="Salesperson:"]' position="replace">
+        <strong>Prepared by:</strong>
+      </xpath>
+
       <xpath expr='//div[@t-if="o.payment_term" and @class="col-xs-3"]' position="after">
         <div t-if="o.date_validity" class="col-xs-3">
           <strong>Validity:</strong>
