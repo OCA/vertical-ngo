@@ -458,7 +458,7 @@ class LogisticsRequisitionLine(models.Model):
     requested_qty = fields.Float(
         'Quantity',
         states=REQUEST_STATES,
-        digits_compute=dp.get_precision('Product UoM'),
+        digits=dp.get_precision('Product UoM'),
         default=1.0)
     requested_uom_id = fields.Many2one('product.uom',
                                        'Product UoM',
@@ -467,7 +467,7 @@ class LogisticsRequisitionLine(models.Model):
     amount_total = fields.Float(
         compute='_get_total_cost',
         string='Total Amount',
-        digits_compute=dp.get_precision('Account'),
+        digits=dp.get_precision('Account'),
         store=True
     )
     date_delivery = fields.Date(
@@ -964,7 +964,7 @@ class LogisticsRequisitionSource(models.Model):
     proposed_qty = fields.Float(
         'Proposed Qty',
         states=SOURCED_STATES,
-        digits_compute=dp.get_precision('Product UoM'),
+        digits=dp.get_precision('Product UoM'),
         default=1)
     sourcing_method = fields.Selection(
         [('procurement', 'Go to Tender'),
@@ -994,11 +994,11 @@ class LogisticsRequisitionSource(models.Model):
     unit_cost = fields.Float(
         'Unit Cost',
         states=SOURCED_STATES,
-        digits_compute=dp.get_precision('Account'))
+        digits=dp.get_precision('Account'))
     total_cost = fields.Float(
         compute='_get_total_cost',
         string='Total Cost',
-        digits_compute=dp.get_precision('Account'),
+        digits=dp.get_precision('Account'),
         store=True)
     currency_id = fields.Many2one(
         related='requisition_line_id.requisition_id.currency_id',

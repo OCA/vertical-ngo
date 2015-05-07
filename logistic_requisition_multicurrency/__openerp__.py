@@ -21,7 +21,7 @@
 
 {"name": "Logistics Requisition - Multicurrency",
  "summary": "Multicurrency management for logistics requistion",
- "version": "0.1",
+ "version": "0.1.1",
  "author": "Camptocamp,Odoo Community Association (OCA)",
  "license": "AGPL-3",
  "category": "Purchase Management",

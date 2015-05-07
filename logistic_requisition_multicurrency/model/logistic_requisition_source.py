@@ -68,7 +68,7 @@ class LogisticsRequisitionSource(models.Model):
     total_cost_co = fields.Float(
         compute='_compute_prices_in_company_currency',
         string='Total Cost in Company currency',
-        digits_compute=dp.get_precision('Account'),
+        digits=dp.get_precision('Account'),
         store=True,
         help="Total cost converted to company currency using rates at "
              "requisition date"

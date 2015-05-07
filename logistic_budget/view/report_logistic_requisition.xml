@@ -5,7 +5,7 @@
 
       <xpath expr="//table[@class='table table-condensed']/thead/tr" position="inside">
         <th class="text-right">Budget unit price</th>
-        <th class="text-right">Total price</th>
+        <th class="text-right">Total budgetary limit</th>
       </xpath>
 
       <xpath expr="//table[@class='table table-condensed']/tbody/tr" position="inside">
