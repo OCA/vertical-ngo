@@ -35,6 +35,7 @@
           "view/sale_order_budget_update.xml",
           "view/sale_order.xml",
           "view/report_logistic_requisition.xml",
+          "view/report_saleorder.xml",
           "data/exceptions.xml",
           ],
  "auto_install": False,

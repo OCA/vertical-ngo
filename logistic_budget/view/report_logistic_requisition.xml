@@ -36,7 +36,7 @@
 
       <xpath expr="//table[@id='incoterm-info']" position="before">
 
-        <table class="table table-bordered" width="100%">
+        <table class="table table-bordered" id="budget_sign" width="100%">
           <tr>
             <th></th>
             <th><strong>Name:</strong></th>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+
+    <template id="report_saleorder_document" inherit_id="logistic_order.report_logistic_order_document">
+
+      <xpath expr='//p[@t-field="o.note"]' position="after">
+
+        <table class="table table-bordered" id="budget_sign" width="100%">
+          <tr>
+            <th></th>
+            <th><strong>Name:</strong></th>
+            <th><strong>Date:</strong></th>
+            <th><strong>Signature:</strong></th>
+          </tr>
+          <tr t-if="o.budget_holder_id">
+            <td><strong>Budget holder:</strong></td>
+            <td>
+              <span t-field="o.budget_holder_id"/>
+            </td>
+            <td>
+              <span t-if="o.date_budget_holder" t-field="o.date_budget_holder"/>
+              <span t-if="not o.date_budget_holder" class="input-lg col-xs-3"/>
+            </td>
+            <td class="input-lg col-xs-3"/>
+          </tr>
+          <tr t-if="o.finance_officer_id">
+            <td><strong>Finance Officer:</strong></td>
+            <td>
+              <span t-field="o.finance_officer_id"/>
+            </td>
+            <td>
+              <span t-if="o.date_finance_officer" t-field="o.date_finance_officer"/>
+              <span t-if="not o.date_finance_officer" class="input-lg col-xs-3"/>
+            </td>
+            <td class="input-lg col-xs-3"/>
+          </tr>
+        </table>
+      </xpath>
+
+    </template>
+
+  </data>
+</openerp>
