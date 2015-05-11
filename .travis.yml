@@ -1,8 +1,13 @@
-sudo: required
 language: python
 
 python:
   - "2.7"
+
+addons:
+  apt:
+    packages:
+      - expect-dev
+      - python-lxml
 
 env:
   - VERSION="8.0" LINT_CHECK="1"
@@ -17,7 +22,8 @@ virtualenv:
   system_site_packages: true
 
 install:
-  - git clone https://github.com/OCA/maintainer-quality-tools.git -b master ${HOME}/maintainer-quality-tools
+#  - git clone https://github.com/OCA/maintainer-quality-tools.git -b master ${HOME}/maintainer-quality-tools
+  - git clone https://github.com/savoirfairelinux/maintainer-quality-tools.git -b containers ${HOME}/maintainer-quality-tools
   - export PATH=${HOME}/maintainer-quality-tools/travis:${PATH}
   - travis_install_nightly
 
