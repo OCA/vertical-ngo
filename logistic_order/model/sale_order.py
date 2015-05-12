@@ -162,6 +162,23 @@ class SaleOrder(models.Model):
     def action_accepted(self):
         self.write({'state': 'accepted'})
 
+    @api.multi
+    def copy_quotation(self):
+        """Copy the quotation and open it in the current form view.
+
+        Do not specify the view, so that the inherited one is chosen."""
+        new_estimate = self.copy()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Cost Estimate'),
+            'res_model': 'sale.order',
+            'res_id': new_estimate.id,
+            'view_type': 'form',
+            'view_mode': 'form',
+            'target': 'current',
+            'nodestroy': True,
+        }
+
 
 class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
