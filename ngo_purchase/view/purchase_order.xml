@@ -55,23 +55,23 @@
             </div>
             <group>
               <group>
-                <field name="partner_id" on_change="onchange_partner_id(partner_id, context)" context="{'search_default_supplier':1, 'default_supplier':1, 'default_customer':0}" domain="[('supplier','=',True)]"/>
-                <field name="for_agreement"/><!-- vertical-ngo/framework_agreement_requisition -->
+                <field name="partner_id" on_change="onchange_partner_id(partner_id, context)" context="{'search_default_supplier':1, 'default_supplier':1, 'default_customer':0}" domain="[('supplier','=',True)]" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                <field name="for_agreement" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" /><!-- vertical-ngo/framework_agreement_requisition -->
                 <field name="agreement_expected_date"
-                  attrs="{'invisible': [('for_agreement', '=', False)]}" />
+                  attrs="{'invisible': [('for_agreement', '=', False)], 'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
                 <field name="agreement_promised_date"
-                  attrs="{'invisible': [('for_agreement', '=', False)]}" />
+                  attrs="{'invisible': [('for_agreement', '=', False)], 'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
               </group>
               <group>
-                <field name="date_order"/>
-                <field name="partner_ref"/>
-                <field name="origin"/>
+                <field name="date_order" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                <field name="partner_ref" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                <field name="origin" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
               </group>
 
             </group>
             <notebook>
               <page string="Products">
-                <field name="order_line">
+                <field name="order_line" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" >
                   <tree string="Purchase Order Lines" editable="bottom">
                     <field name="product_id" on_change="onchange_product_id(parent.pricelist_id,product_id,0,False,parent.partner_id, parent.date_order,parent.fiscal_position,date_planned,name,False,parent.state,context)"/>
                     <field name="name" invisible="1"/>
@@ -97,8 +97,8 @@
               <page string="Transportation and Delivery">
                 <group>
                   <group>
-                    <field name="picking_type_id" on_change="1" domain="[('code','=','incoming')]" widget="selection" context="{'special_shortened_wh_name': True}" groups="stock.group_locations"/>
-                    <field name="location_id" groups="stock.group_locations"/>
+                    <field name="picking_type_id" on_change="1" domain="[('code','=','incoming')]" widget="selection" context="{'special_shortened_wh_name': True}" groups="stock.group_locations" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                    <field name="location_id" groups="stock.group_locations" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
                     <field name="related_location_id" invisible="1"/>
                     <!-- attrs and required domain removed by purchase_delivery_address -->
                     <!-- workaround odoo/odoo#2950 -->
@@ -106,64 +106,65 @@
                       name="dest_address_id"
                       on_change="1"
                       string="Delivery Address"
+                      attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}"
                       groups="stock.group_locations"/>
-                    <field name="origin_address_id"/>
-                    <field name="volume_estimated"/>
-                    <field name="weight_estimated"/>
+                    <field name="origin_address_id" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                    <field name="volume_estimated" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                    <field name="weight_estimated" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
                   </group>
                   <group>
-                    <field name="minimum_planned_date"/>
-                    <field name="shipped" groups="base.group_no_one"/>
-                    <field name="incoterm_id"/>
+                    <field name="minimum_planned_date" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                    <field name="shipped" groups="base.group_no_one" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                    <field name="incoterm_id" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
                     <!-- purchase-workflow/purchase_rfq_bid_workflow -->
-                    <field name="incoterm_address"/>
+                    <field name="incoterm_address" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
                   </group>
                 </group>
                 <!-- purchase-workflow/purchase_transport_document -->
                 <separator string="Transport Documents"/>
-                <field name="transport_document_ids"/>
+                <field name="transport_document_ids" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
                 <!-- purchase-workflow/purchase_requisition_bid_selection -->
                 <separator string="Delivery Remarks"/>
-                <field name="delivery_remark"/>
+                <field name="delivery_remark" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
               </page>
 
               <page string="Accounting and Currency">
                 <group>
                   <group>
                     <field domain="[('type','=','purchase')]" name="pricelist_id" groups="product.group_purchase_pricelist" on_change="onchange_pricelist(pricelist_id, context)"/>
-                    <field name="currency_id" groups="base.group_multi_currency" readonly="True" />
-                    <field name="company_id" groups="base.group_multi_company" widget="selection"/>
-                    <field name="journal_id" invisible='1'/>
+                    <field name="currency_id" groups="base.group_multi_currency" readonly="True" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                    <field name="company_id" groups="base.group_multi_company" widget="selection" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                    <field name="journal_id" invisible='1' attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
                   </group>
                   <group>
-                    <field name="payment_term_id" options="{'no_open': True, 'no_create': True}"/>
-                    <field name="terms_of_payment"/><!-- purchase-workflow/purchase_requisition_bid_selection -->
-                    <field name="fiscal_position" attrs="{'readonly': [('invoiced','=', True)]}" />
-                    <field name="invoice_method"/>
-                    <field name="invoiced"/>
+                    <field name="payment_term_id" options="{'no_open': True, 'no_create': True}" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                    <field name="terms_of_payment" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" /><!-- purchase-workflow/purchase_requisition_bid_selection -->
+                    <field name="fiscal_position" attrs="{'readonly': [('invoiced','=', True)], 'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                    <field name="invoice_method" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                    <field name="invoiced" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
                   </group>
                 </group>
               </page>
 
               <page string="Terms and Conditions">
-                <field name="notes" class="oe_inline" placeholder="Terms and conditions..."/>
+                <field name="notes" class="oe_inline" placeholder="Terms and conditions..." attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
               </page>
 
               <page string="Bid Information">
                 <group>
                   <group>
-                    <field name="requisition_id"/>
-                    <field name="req_bid_tendering_mode"/><!-- added related field -->
-                    <field name="tender_bid_receipt_mode"/><!-- purchase-workflow/purchase_requisition_bid_selection -->
+                    <field name="requisition_id" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                    <field name="req_bid_tendering_mode" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" /><!-- added related field -->
+                    <field name="tender_bid_receipt_mode" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" /><!-- purchase-workflow/purchase_requisition_bid_selection -->
                     <field name="bid_partial"/>
                   </group>
                   <group>
                     <field name="req_date_end"/><!-- added related field -->
-                    <field name="bid_date"/>
-                    <field name="bid_validity"/>
-                    <field name="country_of_origin"/><!-- purchase-workflow/purchase_requisition_bid_selection -->
-                    <field name="meets_specifications"/><!-- purchase-workflow/purchase_requisition_bid_selection -->
-                    <field name="bid_eligible"/><!-- purchase-workflow/purchase_requisition_bid_selection -->
+                    <field name="bid_date" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                    <field name="bid_validity" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                    <field name="country_of_origin" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" /><!-- purchase-workflow/purchase_requisition_bid_selection -->
+                    <field name="meets_specifications" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" /><!-- purchase-workflow/purchase_requisition_bid_selection -->
+                    <field name="bid_eligible" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" /><!-- purchase-workflow/purchase_requisition_bid_selection -->
                   </group>
                 </group>
               </page>
@@ -174,11 +175,11 @@
               <div colspan="4">
                 <label for="validator"/>
                 <field name="validator"
-                  class="oe_inline"/>
+                  class="oe_inline" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
                 <label string=" validated on "
-                  attrs="{'invisible': [('validator', '=', False)]}" />
+                  attrs="{'invisible': [('validator', '=', False)], 'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
                 <field name="date_approve"
-                  attrs="{'invisible': [('validator', '=', False)]}"
+                  attrs="{'invisible': [('validator', '=', False)], 'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}"
                   class="oe_inline"/>
               </div>
             </group>
@@ -211,7 +212,7 @@
       <field name="arch" type="xml">
 
         <field name="partner_id" position="after">
-          <field name="portfolio_id" />
+          <field name="portfolio_id" options="{'always_show_search_more': true}" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
         </field>
 
         <field name="pricelist_id" position="attributes">
@@ -237,7 +238,7 @@
 
         <xpath expr="//page[@string='Bid Information']" position="inside">
           <separator string="Internal remarks"/>
-          <field name="bid_internal_remark"/>
+          <field name="bid_internal_remark" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
         </xpath>
 
       </field>
