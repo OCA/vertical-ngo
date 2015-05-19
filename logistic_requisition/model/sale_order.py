@@ -187,6 +187,14 @@ class SaleOrder(models.Model):
 
         return action_dict
 
+    @api.model
+    def _get_date_planned(self, order, line, start_date):
+        if line.lr_source_id:
+            return line.lr_source_id.requisition_line_id.date_delivery
+        else:
+            return super(SaleOrder, self
+                         )._get_date_planned(order, line, start_date)
+
 
 class SaleOrderLine(models.Model):
     _inherit = "sale.order.line"
