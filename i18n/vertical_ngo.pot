@@ -1,0 +1,203 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* vertical_ngo
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 8.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-05-24 14:10+0000\n"
+"PO-Revision-Date: 2015-05-24 14:10+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: vertical_ngo
+#: help:ngo.config.settings,module_logistic_requisition:0
+msgid "A Logistics requisition express a need that is requested somewhere. It allows to manage the sourcing of the needs before making a cost estimate to the requestor."
+msgstr ""
+
+#. module: vertical_ngo
+#: field:ngo.config.settings,module_framework_agreement_sourcing:0
+msgid "Allow to source a logistics requisition with a framework agreement"
+msgstr ""
+
+#. module: vertical_ngo
+#: view:ngo.config.settings:vertical_ngo.view_ngo_configuration
+msgid "Apply"
+msgstr ""
+
+#. module: vertical_ngo
+#: view:ngo.config.settings:vertical_ngo.view_ngo_configuration
+msgid "Cancel"
+msgstr ""
+
+#. module: vertical_ngo
+#: model:ir.actions.act_window,name:vertical_ngo.action_ngo_configuration
+msgid "Configure NGO"
+msgstr ""
+
+#. module: vertical_ngo
+#: view:ngo.config.settings:vertical_ngo.view_ngo_configuration
+msgid "Configure NGO Verticalization"
+msgstr ""
+
+#. module: vertical_ngo
+#: field:ngo.config.settings,module_framework_agreement_requisition:0
+msgid "Create tenders to negociate a framework agreements"
+msgstr ""
+
+#. module: vertical_ngo
+#: field:ngo.config.settings,create_uid:0
+msgid "Created by"
+msgstr ""
+
+#. module: vertical_ngo
+#: field:ngo.config.settings,create_date:0
+msgid "Created on"
+msgstr ""
+
+#. module: vertical_ngo
+#: view:ngo.config.settings:vertical_ngo.view_ngo_configuration
+msgid "Features"
+msgstr ""
+
+#. module: vertical_ngo
+#: field:ngo.config.settings,id:0
+msgid "ID"
+msgstr ""
+
+#. module: vertical_ngo
+#: field:ngo.config.settings,write_uid:0
+msgid "Last Updated by"
+msgstr ""
+
+#. module: vertical_ngo
+#: field:ngo.config.settings,write_date:0
+msgid "Last Updated on"
+msgstr ""
+
+#. module: vertical_ngo
+#: view:ngo.config.settings:vertical_ngo.view_ngo_configuration
+msgid "Logistic Requisitions"
+msgstr ""
+
+#. module: vertical_ngo
+#: field:ngo.config.settings,module_logistic_budget:0
+msgid "Manage budget on logistics requisitions and cost estimates"
+msgstr ""
+
+#. module: vertical_ngo
+#: field:ngo.config.settings,module_logistic_requisition_donation:0
+msgid "Manage donor stock dispatches as logistics requisitions"
+msgstr ""
+
+#. module: vertical_ngo
+#: field:ngo.config.settings,module_logistic_order_donation:0
+msgid "Manage in-kind donations"
+msgstr ""
+
+#. module: vertical_ngo
+#: field:ngo.config.settings,module_logistic_requisition:0
+msgid "Manage logistics requisitions and logistics orders"
+msgstr ""
+
+#. module: vertical_ngo
+#: field:ngo.config.settings,module_logistic_order_multicurrency:0
+msgid "Manage multiple currencies for logistics orders"
+msgstr ""
+
+#. module: vertical_ngo
+#: field:ngo.config.settings,module_logistic_requisition_multicurrency:0
+msgid "Manage multiple currencies for logistics requisitions"
+msgstr ""
+
+#. module: vertical_ngo
+#: field:ngo.config.settings,module_ngo_purchase_requisition:0
+msgid "Manage purchase requisitions"
+msgstr ""
+
+#. module: vertical_ngo
+#: field:ngo.config.settings,module_ngo_purchase:0
+msgid "Manage purchases and framework agreements"
+msgstr ""
+
+#. module: vertical_ngo
+#: field:ngo.config.settings,module_ngo_shipment_plan:0
+msgid "Manage shipment plans"
+msgstr ""
+
+#. module: vertical_ngo
+#: model:ir.ui.menu,name:vertical_ngo.menu_ngo_configuration
+msgid "NGO"
+msgstr ""
+
+#. module: vertical_ngo
+#: view:ngo.config.settings:vertical_ngo.view_ngo_configuration
+msgid "Purchase Management"
+msgstr ""
+
+#. module: vertical_ngo
+#: view:ngo.config.settings:vertical_ngo.view_ngo_configuration
+msgid "Shipment"
+msgstr ""
+
+#. module: vertical_ngo
+#: help:ngo.config.settings,module_framework_agreement_requisition:0
+msgid "To allow your NGO to manage tenders when negociating framework agreements from possible suppliers."
+msgstr ""
+
+#. module: vertical_ngo
+#: help:ngo.config.settings,module_logistic_budget:0
+msgid "adds the notion of budget and budget holer on logistics requisitions and logistics orders."
+msgstr ""
+
+#. module: vertical_ngo
+#: help:ngo.config.settings,module_framework_agreement_sourcing:0
+msgid "if your NGO has framework agreements with suppliers which you use to source logistics requisitions."
+msgstr ""
+
+#. module: vertical_ngo
+#: help:ngo.config.settings,module_logistic_order_donation:0
+msgid "if your NGO has to manage logistics orders which are in-kind donations from other partners."
+msgstr ""
+
+#. module: vertical_ngo
+#: view:ngo.config.settings:vertical_ngo.view_ngo_configuration
+msgid "or"
+msgstr ""
+
+#. module: vertical_ngo
+#: help:ngo.config.settings,module_logistic_requisition_donation:0
+msgid "to create logistics requisition to dispatch stock stored in your warehouse and owned by other entities."
+msgstr ""
+
+#. module: vertical_ngo
+#: help:ngo.config.settings,module_logistic_order_multicurrency:0
+msgid "to display the amount of the logistics order in the company currency using the exchange rate at the date of the order."
+msgstr ""
+
+#. module: vertical_ngo
+#: help:ngo.config.settings,module_logistic_requisition_multicurrency:0
+msgid "to display the amounts on logistics requisitions in company currency.\n"
+"The amounts are converted from requisition currency to company currency at rates of requisition date."
+msgstr ""
+
+#. module: vertical_ngo
+#: help:ngo.config.settings,module_ngo_shipment_plan:0
+msgid "to follow the shipment of your logistics orders and manage transit locations."
+msgstr ""
+
+#. module: vertical_ngo
+#: help:ngo.config.settings,module_ngo_purchase:0
+msgid "to manage purchases with a RFQ / Bid workflow, and various international transport documents on your purchase orders."
+msgstr ""
+
+#. module: vertical_ngo
+#: help:ngo.config.settings,module_ngo_purchase_requisition:0
+msgid "to use the updated bid selection process"
+msgstr ""
+
