@@ -40,6 +40,7 @@
              "purchase_requisition_transport_document",
              "purchase_requisition_transport_multi_address",
              "sale_transport_multi_address",
+             "web_context_tunnel",
              ],
  "demo": ['data/logistic_requisition_demo.xml'],
  "data": ["wizard/assign_line_view.xml",

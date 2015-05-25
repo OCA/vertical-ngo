@@ -5,7 +5,7 @@
     <record id="view_order_form" model="ir.ui.view">
       <field name="name">sale.order.form</field>
       <field name="model">sale.order</field>
-      <field name="inherit_id" ref="logistic_requisition.view_order_form1"/>
+      <field name="inherit_id" ref="logistic_requisition.view_order_form3"/>
       <field name="arch" type="xml">
         <xpath expr="//field[@name='order_line']" position="attributes">
           <attribute name="context_link_ikd_req">{'default_order_type': order_type}</attribute>

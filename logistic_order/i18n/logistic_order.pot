@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 8.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-04-13 12:09+0000\n"
-"PO-Revision-Date: 2015-04-13 12:09+0000\n"
+"POT-Creation-Date: 2015-05-05 12:12+0000\n"
+"PO-Revision-Date: 2015-05-05 12:12+0000\n"
 "Last-Translator: <>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -86,7 +86,7 @@ msgid "INCOTERMS 2010"
 msgstr ""
 
 #. module: logistic_order
-#: code:addons/logistic_order/model/sale_order.py:125
+#: code:addons/logistic_order/model/sale_order.py:151
 #, python-format
 msgid "If this is not only for Cost Estimate, you must provide a Consignee"
 msgstr ""
@@ -170,6 +170,11 @@ msgid "Sales Order"
 msgstr ""
 
 #. module: logistic_order
+#: model:ir.model,name:logistic_order.model_sale_order_line
+msgid "Sales Order Line"
+msgstr ""
+
+#. module: logistic_order
 #: view:sale.order:logistic_order.view_sales_order_filter
 msgid "Search Order"
 msgstr ""
@@ -187,6 +192,11 @@ msgstr ""
 #. module: logistic_order
 #: view:website:sale.report_saleorder_document
 msgid "The pricing indications in this estimate are valid till:"
+msgstr ""
+
+#. module: logistic_order
+#: help:sale.order.line,value_of_goods:0
+msgid "This field represent the value of the goods and will be used for reporting purpose (e.g mobilization table)"
 msgstr ""
 
 #. module: logistic_order
@@ -220,8 +230,18 @@ msgid "Validity:"
 msgstr ""
 
 #. module: logistic_order
+#: field:sale.order.line,value_of_goods:0
+msgid "Value of goods"
+msgstr ""
+
+#. module: logistic_order
 #: view:website:sale.report_saleorder_document
 msgid "Volume"
+msgstr ""
+
+#. module: logistic_order
+#: field:sale.order,volume:0
+msgid "Volume (m³)"
 msgstr ""
 
 #. module: logistic_order
@@ -232,6 +252,11 @@ msgstr ""
 #. module: logistic_order
 #: view:website:sale.report_saleorder_document
 msgid "Weight"
+msgstr ""
+
+#. module: logistic_order
+#: field:sale.order,weight:0
+msgid "Weight (kg)"
 msgstr ""
 
 #. module: logistic_order
