@@ -18,8 +18,8 @@
         </div>
 
         <field name="minimum_planned_date" position="after">
-          <field name="transport_mode_id"/>
-          <field name="transport_vehicle_id"/>
+          <field name="transport_mode_id" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+          <field name="transport_vehicle_id" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
         </field>
 
       </field>
