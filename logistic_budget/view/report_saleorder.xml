@@ -6,7 +6,7 @@
 
       <xpath expr='//p[@t-field="o.note"]' position="after">
 
-        <table class="table table-bordered" id="budget_sign" width="100%">
+        <table class="table table-bordered" style="page-break-inside: avoid" id="budget_sign" width="100%">
           <tr>
             <th></th>
             <th><strong>Name:</strong></th>
@@ -24,6 +24,14 @@
             </td>
             <td class="input-lg col-xs-3"/>
           </tr>
+          <tr t-if="o.budget_holder_id and o.budget_holder_remark">
+            <td class="text-center">
+              Remarks:
+            </td>
+            <td colspan="3">
+              <span t-field="o.budget_holder_remark"/>
+            </td>
+          </tr>
           <tr t-if="o.finance_officer_id">
             <td><strong>Finance Officer:</strong></td>
             <td>
@@ -34,6 +42,14 @@
               <span t-if="not o.date_finance_officer" class="input-lg col-xs-3"/>
             </td>
             <td class="input-lg col-xs-3"/>
+          </tr>
+          <tr t-if="o.finance_officer_id and o.finance_officer_remark">
+            <td class="text-center">
+              Remarks:
+            </td>
+            <td colspan="3">
+              <span t-field="o.finance_officer_remark"/>
+            </td>
           </tr>
         </table>
       </xpath>
