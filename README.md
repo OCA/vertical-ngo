@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/OCA/vertical-ngo.svg?branch=7.0)](https://travis-ci.org/OCA/vertical-ngo)
-[![Coverage Status](https://coveralls.io/repos/OCA/vertical-ngo/badge.png?branch=7.0)](https://coveralls.io/r/OCA/vertical-ngo?branch=7.0)
+[![Coverage Status](https://coveralls.io/repos/OCA/vertical-ngo/badge.svg?branch=7.0)](https://coveralls.io/r/OCA/vertical-ngo?branch=7.0)
 
 
 This project aim to develop and publish all modules related to the need of humanitarian NGOs. It would cover the overall needs in terms of logistics, order management, accounting, transportation and distribution.
