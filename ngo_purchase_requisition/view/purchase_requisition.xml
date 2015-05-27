@@ -12,9 +12,10 @@
             <button type="object" name="ask_confirmation_to_close_selection" states="selected" string="Accept selection" class="oe_highlight"/>
             <button name="open_bid" states="in_progress" string="Close Call for Bids" class="oe_highlight"/>
             <!-- added by purchase_requisition_bid_selection -->
-            <button name="reopen_bid" states="selected" string="Re-Open Bids Selection"/>
+            <button name="reopen_bid" states="selected" string="Re-Open Bids Selection" groups="purchase_requisition.group_purchase_requisition_manager"/>
             <button name="tender_reset" states="cancel" string="Reset to Draft" type="object" />
             <button name="open_product_line" states="open" string="Choose product lines" type="object" class="oe_highlight" groups="purchase.group_advance_bidding" />
+            <button name="back_to_sent" states="open" string="Back to Confirmed" groups="purchase_requisition.group_purchase_requisition_manager"/>
             <!-- extended by purchase_requisition_bid_selection -->
             <button name="generate_po" states="closed" string="Generate PO" type="object" class="oe_highlight"/>
             <button name="cancel_requisition" states="draft,in_progress" string="Cancel Call"/>
