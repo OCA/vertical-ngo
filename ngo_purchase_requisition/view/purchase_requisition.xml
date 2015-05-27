@@ -54,7 +54,13 @@
               <group>
                 <field name="ordering_date" attrs="{'readonly': [('state','!=','draft')]}"/>
                 <field name="schedule_date" attrs="{'readonly': [('state','!=','draft')]}"/>
-                <field name="req_validity" attrs="{'readonly': [('state','!=','draft')]}"/>
+
+                <label for="req_validity" />
+                <div>
+                  <field name="req_validity" class="oe_inline" attrs="{'readonly': [('state','!=','draft')]}"/>
+                  <button name="ask_validity" class="oe_inline oe_link" type="object" string="(extend)" attrs="{'invisible': [('state', '=', 'draft')]}"/>
+                </div>
+
                 <field name="date_end" attrs="{'readonly': [('state','!=','draft')]}"/>
               </group>
               <group>
