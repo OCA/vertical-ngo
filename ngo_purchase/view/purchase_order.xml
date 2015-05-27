@@ -244,11 +244,11 @@
         </field>
 
         <field name="picking_type_id" position="attributes">
-          <attribute name="attrs">{'readonly': [('portfolio_id', '!=', False)]}</attribute>
+          <attribute name="attrs">{'readonly': ['|', ('portfolio_id', '!=', False), ('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}</attribute>
         </field>
 
         <field name="incoterm_id" position="attributes">
-          <attribute name="attrs">{'readonly': [('portfolio_id', '!=', False)]}</attribute>
+          <attribute name="attrs">{'readonly': ['|', ('portfolio_id', '!=', False), ('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}</attribute>
         </field>
 
         <xpath expr="//page[@string='Bid Information']" position="inside">
