@@ -132,7 +132,7 @@
                 <group>
                   <group>
                     <field domain="[('type','=','purchase')]" name="pricelist_id" groups="product.group_purchase_pricelist" on_change="onchange_pricelist(pricelist_id, context)"/>
-                    <field name="currency_id" groups="base.group_multi_currency" readonly="True" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                    <field name="currency_id" groups="base.group_multi_currency" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
                     <field name="company_id" groups="base.group_multi_company" widget="selection" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
                     <field name="journal_id" invisible='1' attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
                   </group>
