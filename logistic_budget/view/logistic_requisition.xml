@@ -34,6 +34,19 @@
                  <div class="oe_clear"/>
                  <group string="Validation">
                    <div colspan="4">
+                     <label for="requester_validator_id"/>
+                     <field name="requester_validator_id"
+                       on_change="onchange_validate(requester_validator_id, date_requester_validation, 'date_requester_validation')"
+                       class="oe_inline"/>
+                     <label string=" validated on "
+                       attrs="{'invisible': [('requester_validator_id', '=', False)]}" />
+                     <field name="date_requester_validation"
+                       attrs="{'invisible': [('requester_validator_id', '=', False)]}"
+                       class="oe_inline"/>
+                     <field name="requester_remark"
+                       attrs="{'invisible': [('requester_validator_id', '=', False)]}"/>
+                   </div>
+                   <div colspan="4">
                      <label for="budget_holder_id"/>
                      <field name="budget_holder_id"
                        on_change="onchange_validate(budget_holder_id, date_budget_holder, 'date_budget_holder')"

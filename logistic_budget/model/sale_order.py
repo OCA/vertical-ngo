@@ -22,6 +22,19 @@ from openerp.addons.logistic_order.model.sale_order import (
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
+    requester_validator_id = fields.Many2one(
+        'res.partner',
+        string='Requester',
+        states=base_logistics_order.LO_STATES,
+        copy=False)
+    date_requester_validation = fields.Datetime(
+        'Requester Validation Date',
+        states=base_logistics_order.LO_STATES,
+        copy=False)
+    requester_remark = fields.Text(
+        'Requester Remark',
+        states=base_logistics_order.LO_STATES,
+        copy=False)
     budget_holder_id = fields.Many2one(
         'res.users',
         string='Budget Holder',
@@ -55,6 +68,10 @@ class SaleOrder(models.Model):
     @api.depends('order_line.budget_tot_price')
     def _total_budget(self):
         self.total_budget = sum([l.budget_tot_price for l in self.order_line])
+
+    @api.onchange('requester_validator_id')
+    def onchange_set_date_requester_validation(self):
+        self.date_requester_validation = fields.Datetime.now()
 
     @api.onchange('budget_holder_id')
     def onchange_set_date_budget_holder(self):

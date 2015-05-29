@@ -43,6 +43,17 @@
             <th><strong>Date:</strong></th>
             <th><strong>Signature:</strong></th>
           </tr>
+          <tr>
+            <td><strong>Requester</strong></td>
+            <td>
+              <span t-field="o.requester_validator_id"/>
+            </td>
+            <td>
+              <span t-if="o.date_requester_validation" t-field="o.date_requester_validation"/>
+              <span t-if="not o.date_requester_validation" class="input-lg col-xs-3"/>
+            </td>
+            <td class="input-lg col-xs-3"/>
+          </tr>
           <tr t-if="o.budget_holder_id">
             <td><strong>Budget holder:</strong></td>
             <td>
