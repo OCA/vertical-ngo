@@ -40,6 +40,9 @@ class Source(orm.Model):
         related='portfolio_id.supplier_id',
         comodel_name='res.partner',
         string='Agreement Supplier')
+    selectable_portfolio_ids = fields.Many2many(
+        'framework.agreement.portfolio',
+        compute='_compute_selectable_portfolios')
 
     # ----------------- adapting source line to po --------------------------
     def _company(self, cr, uid, context):
@@ -319,52 +322,18 @@ class Source(orm.Model):
                 self.portfolio_id.supplier_id.id,
             )[self.framework_agreement_id.id]
 
-    # XXX disable automatic choice of agreement depending on other fields
-    # @api.onchange('sourcing_method', 'portfolio_id', 'proposed_qty',
-    #               'proposed_product_id')
-    def update_agreement(self):
-        """Update the choice of agreement depending on other fields.
-
-        Like in the purchase order with framework_agreement 2.0, we do not
-        choose automatically the cheapest agreement, except when there is only
-        one that is suitable.
-
-        If the current choice is suitable, keep it.
-
-        """
-        if (self.sourcing_method != 'fw_agreement' or
-                not self.proposed_product_id):
-            self.framework_agreement_id = False
-            return
-        Agreement = self.env['framework.agreement']
-        ag_domain = Agreement.get_agreement_domain(
-            self.proposed_product_id.id,
-            self.proposed_qty,
-            self.portfolio_id.id,
-            self.requisition_id.date,
-            self.requisition_id.incoterm_id.id,
-            self.requisition_id.incoterm_address,
-        )
-
-        good_agreements = Agreement.search(ag_domain)
-        if self.framework_agreement_id in good_agreements:
-            agreement = self.framework_agreement_id
-        else:
-            if len(good_agreements) == 1:
-                agreement = good_agreements
+    @api.multi
+    @api.depends('proposed_product_id', 'sourcing_method')
+    def _compute_selectable_portfolios(self):
+        if self.sourcing_method == 'fw_agreement':
+            if self.proposed_product_id:
+                proposed_template = self.proposed_product_id.product_tmpl_id
+                agreements = self.env['product.supplierinfo'].search([
+                    ('product_tmpl_id', '=', proposed_template.id),
+                    ('agreement_pricelist_id', '!=', False)
+                ]).mapped('agreement_pricelist_id')
+                portfolios = agreements.mapped('portfolio_id')
             else:
-                agreement = Agreement
+                portfolios = self.env['framework.agreement.portfolio']
 
-        if agreement:
-            self.unit_cost = agreement.get_price(self.proposed_qty,
-                                                 self.currency_id)
-        else:
-            self.unit_cost = 0.0
-
-        self.framework_agreement_id = agreement.id
-
-        self.total_cost = self.unit_cost * self.proposed_qty
-        self.price_is = 'fixed'
-        self._check_enought_qty(agreement)
-
-        return {'domain': {'framework_agreement_id': ag_domain}}
+            self.selectable_portfolio_ids = portfolios

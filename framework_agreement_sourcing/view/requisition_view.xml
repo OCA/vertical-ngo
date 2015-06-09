@@ -8,7 +8,9 @@
       <field name="arch" type="xml">
         <field name="unit_cost"
                position="before">
+          <field name="selectable_portfolio_ids" invisible="1"/>
           <field name="portfolio_id"
+                 domain="[('id', 'in', selectable_portfolio_ids[0][2])]"
                  attrs="{'required': [('sourcing_method', '=', 'fw_agreement')],
                         'invisible': [('sourcing_method', '!=', 'fw_agreement')]}" />
           <field name="framework_agreement_id"
