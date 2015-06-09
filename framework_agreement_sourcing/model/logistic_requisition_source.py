@@ -20,7 +20,7 @@
 ##############################################################################
 from itertools import chain
 
-from openerp import fields, api, osv
+from openerp import fields, api
 from openerp.osv import orm
 from openerp.tools.translate import _
 
@@ -31,18 +31,15 @@ class Source(orm.Model):
 
     _inherit = "logistic.requisition.source"
 
-    _columns = {
-        'portfolio_id': osv.fields.many2one('framework.agreement.portfolio',
-                                            'Agreement Portfolio'),
-        'framework_agreement_id': osv.fields.many2one('product.pricelist',
-                                                      'Agreement'),
-        'framework_agreement_po_id': osv.fields.many2one(
-            'purchase.order',
-            'Agreement Purchase'),
-        'supplier_id': osv.fields.related(
-            'portfolio_id', 'supplier_id',
-            type='many2one',  relation='res.partner',
-            string='Agreement Supplier')}
+    portfolio_id = fields.Many2one('framework.agreement.portfolio',
+                                   'Agreement Portfolio')
+    framework_agreement_id = fields.Many2one('product.pricelist', 'Agreement')
+    framework_agreement_po_id = fields.Many2one('purchase.order',
+                                                'Agreement Purchase')
+    supplier_id = fields.Many2one(
+        related='portfolio_id.supplier_id',
+        comodel_name='res.partner',
+        string='Agreement Supplier')
 
     # ----------------- adapting source line to po --------------------------
     def _company(self, cr, uid, context):
