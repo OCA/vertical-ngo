@@ -189,6 +189,7 @@ class Source(orm.Model):
                                          line_vals['price_unit'], False)
             source.write(
                 {'framework_agreement_po_id': po_id, 'unit_cost': price})
+        po_obj.propagate_agreement_fields(cr, uid, po_id, context)
         return po_id
 
     def make_purchase_order(self, cr, uid, ids, pricelist, context=None):
