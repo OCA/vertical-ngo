@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+  <data>
+
+    <record id="view_ngo_configuration" model="ir.ui.view">
+      <field name="name">Configure NGO</field>
+      <field name="model">ngo.config.settings</field>
+      <field name="arch" type="xml">
+        <form string="Configure NGO Verticalization"
+              class= "oe_form_configuration">
+          <header>
+            <button string="Apply"
+                    type="object"
+                    name="execute"
+                    class="oe_highlight"/>
+            or
+            <button string="Cancel"
+                    type="object"
+                    name="cancel"
+                    class="oe_link"/>
+          </header>
+          <separator string="Logistics Requisitions"/>
+          <group>
+            <label for="id" string="Features"/>
+            <div>
+              <div>
+                <field name="module_logistic_requisition"
+                       class="oe_inline"/>
+                <label for="module_logistic_requisition"/>
+              </div>
+
+              <div attrs="{'invisible': [('module_logistic_requisition','=',False)]}">
+                <field name="module_logistic_budget"
+                       class="oe_inline"/>
+                <label for="module_logistic_budget"/>
+              </div>
+              <div attrs="{'invisible': [('module_logistic_requisition','=',False)]}">
+                <field name="module_logistic_order_donation"
+                       class="oe_inline"/>
+                <label for="module_logistic_order_donation"/>
+              </div>
+              <div attrs="{'invisible': [('module_logistic_requisition','=',False)]}">
+                <field name="module_logistic_requisition_donation"
+                       class="oe_inline"/>
+                <label for="module_logistic_requisition_donation"/>
+              </div>
+              <div attrs="{'invisible': [('module_logistic_requisition','=',False)]}">
+                <field name="module_logistic_requisition_multicurrency"
+                       class="oe_inline"/>
+                <label for="module_logistic_requisition_multicurrency"/>
+              </div>
+              <div attrs="{'invisible': [('module_logistic_requisition','=',False)]}">
+                <field name="module_logistic_order_multicurrency"
+                       class="oe_inline"/>
+                <label for="module_logistic_order_multicurrency"/>
+              </div>
+            </div>
+          </group>
+           <separator string="Purchase Management"/>
+          <group>
+            <label for="id" string="Features"/>
+            <div>
+              <div>
+                <field name="module_ngo_purchase_requisition"
+                       class="oe_inline"/>
+                <label for="module_ngo_purchase_requisition"/>
+              </div>
+              <div>
+                <field name="module_ngo_purchase"
+                       class="oe_inline"/>
+                <label for="module_ngo_purchase"/>
+              </div>
+              <div>
+                <field name="module_framework_agreement_requisition"
+                       class="oe_inline"/>
+                <label for="module_framework_agreement_requisition"/>
+              </div>
+              <div attrs="{'invisible': [('module_logistic_requisition','=',False)]}">
+                <field name="module_framework_agreement_sourcing"
+                       class="oe_inline"/>
+                <label for="module_framework_agreement_sourcing"/>
+              </div>
+            </div>
+          </group>
+         <separator string="Shipment"/>
+          <group>
+            <label for="id" string="Features"/>
+            <div>
+              <div>
+                <field name="module_ngo_shipment_plan"
+                       class="oe_inline"/>
+                <label for="module_ngo_shipment_plan"/>
+              </div>
+            </div>
+          </group>
+        </form>
+      </field>
+    </record>
+
+    <record id="action_ngo_configuration" model="ir.actions.act_window">
+      <field name="name">Configure NGO</field>
+      <field name="type">ir.actions.act_window</field>
+      <field name="res_model">ngo.config.settings</field>
+      <field name="view_mode">form</field>
+      <field name="target">inline</field>
+    </record>
+
+    <menuitem id="menu_ngo_configuration"
+              name="NGO" parent="base.menu_config"
+              sequence="32"
+              action="action_ngo_configuration"/>
+
+
+</data>
+</openerp>
