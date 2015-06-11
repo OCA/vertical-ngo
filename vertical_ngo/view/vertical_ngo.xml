@@ -91,13 +91,6 @@
                        class="oe_inline"/>
                 <label for="module_ngo_shipment_plan"/>
               </div>
-<!--
-              <div>
-                <field name=""
-                       class="oe_inline"/>
-                <label for=""/>
-              </div>
--->
             </div>
           </group>
         </form>
