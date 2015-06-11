@@ -11,8 +11,8 @@ have sales that drive procurement, that drive purchase. With those modules, you
 record logistic requisition to capture the needs, you source them from one way
 or another (purchase, stock, donnation,..) and give back to the requestor the
 price, time and product information. If he agree with, then you confirm the
-requisition by creating an offer. The offer will drive all the necessary flow
-to deliver the good where they are needed. It also improve the purchase
+requisition by creating an offer. The offer will drive all the necessary flows
+to deliver the goods where they are needed. It also improves the purchase
 requisition flow to fit more with the NGO's problematic.
 
 In the future, it'll cover other NGO's specific needs such as the distribution,
@@ -28,6 +28,9 @@ You'll find here :
 
 Other related community project where we put some useful module for NGO as well
 -------------------------------------------------------------------------------
+
+ * https://github.com/OCA/stock-logistics-transport : module
+   `stock_route_transit`, `stock_shipment_management`, `transport_information`
 
  * https://github.com/OCA/stock-logistics-warehouse : module `stock_reserve`
    and `stock_reserve_sale`, `stock_location_ownership`
