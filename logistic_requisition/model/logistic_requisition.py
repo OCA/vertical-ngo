@@ -341,7 +341,7 @@ class LogisticsRequisition(models.Model):
     @api.multi
     def _get_relevant_purchases(self):
         sourced_lines = self.line_ids.filtered(
-            lambda rec: rec.state == 'Sourced'
+            lambda rec: rec.state in ('sourced', 'quoted')
             )
         purchases = sourced_lines.mapped(
             'source_ids.purchase_line_id.order_id'
