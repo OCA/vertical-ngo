@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    Author: Nicolas Bessi
+#    Author: Nicolas Bessi, Leonardo Pistone
 #    Copyright 2013-2015 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -19,7 +19,7 @@
 #
 ##############################################################################
 {'name': 'Sourcing with Framework Agreements',
- 'version': '2.0',
+ 'version': '3.0',
  'author': "Camptocamp,Odoo Community Association (OCA)",
  'maintainer': 'Camptocamp',
  'category': 'NGO',

@@ -10,7 +10,7 @@
           <separator string="Which pricelist / currency you want ?"/>
           <label string="You can only chose a pricelist with a currency that is included
             in the framewrok agreement you have chosen." colspan="4"/>
-          <field name="framework_currency_ids"/>
+          <separator string="TODO here you could choose framework_currency_ids"/>
           <field name="pricelist_id" domain="[('type','=','purchase')]"/>
 
           <group>

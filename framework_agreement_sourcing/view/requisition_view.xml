@@ -8,13 +8,13 @@
       <field name="arch" type="xml">
         <field name="unit_cost"
                position="before">
+          <field name="selectable_portfolio_ids" invisible="1"/>
           <field name="portfolio_id"
+                 domain="[('id', 'in', selectable_portfolio_ids[0][2])]"
                  attrs="{'required': [('sourcing_method', '=', 'fw_agreement')],
                         'invisible': [('sourcing_method', '!=', 'fw_agreement')]}" />
           <field name="framework_agreement_id"
-                 domain="[('draft', '=', False),
-                          ('product_id', '=', proposed_product_id),
-                          ('portfolio_id', '=', portfolio_id)]"
+                 domain="[('portfolio_id', '=', portfolio_id)]"
                  attrs="{'required': [('sourcing_method', '=', 'fw_agreement')],
                          'invisible': [('sourcing_method', '!=', 'fw_agreement')]}" />
           <field name="framework_agreement_po_id"
@@ -35,18 +35,6 @@
         </field>
       </field>
     </record>
-
-    <record model="ir.ui.view" id="view_logistic_requisition_line_form">
-        <field name="name">logistic.requisition.line.form</field>
-        <field name="model">logistic.requisition.line</field>
-        <field name="inherit_id" ref="logistic_requisition.view_logistic_requisition_line_form"/>
-        <field name="arch" type="xml">
-            <button name="button_create_po_requisition" states="assigned"
-                        string="Create Call for Bids"
-                        type="object" position="after">
-            </button>
-        </field>
-      </record>
 
   </data>
 </openerp>

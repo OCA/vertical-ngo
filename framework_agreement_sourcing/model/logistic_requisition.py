@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-##############################################################################
-#
-#    Author: Nicolas Bessi
+#    Author: Nicolas Bessi, Leonardo Pistone
 #    Copyright 2013-2015 Camptocamp SA
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -16,15 +14,13 @@
 #
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-##############################################################################
+from datetime import datetime
+
 from openerp import models, api
+from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DATETIME_FORMAT
 
 
 class LogisticsRequisitionLine(models.Model):
-
-    """Override to enable generation of source line"""
-
     _inherit = "logistic.requisition.line"
 
     @api.multi
@@ -36,18 +32,21 @@ class LogisticsRequisitionLine(models.Model):
         Note: older versions of the module had logic to automatically choose
         one or more agreements.
         """
+        Agreement = self.env['product.pricelist']
         _super = super(LogisticsRequisitionLine, self)
         new_source = _super._generate_default_source()
 
-        Agreement = self.env['framework.agreement']
-        ag_domain = Agreement.get_agreement_domain(
-            self.product_id.id,
-            self.requested_qty,
-            None,
-            self.requisition_id.date,
-            self.requisition_id.incoterm_id.id,
-            self.requisition_id.incoterm_address,
+        req_date = datetime.strptime(self.requisition_id.date, DATETIME_FORMAT)
+
+        suitable_agreements = Agreement.search([
+            ('portfolio_id', '!=', False),
+        ]).filtered(
+            lambda a: a.portfolio_id.is_suitable_for(req_date,
+                                                     self.product_id,
+                                                     self.requested_qty)
         )
-        if Agreement.search(ag_domain):
+
+        if suitable_agreements:
             new_source.sourcing_method = 'fw_agreement'
+
         return new_source

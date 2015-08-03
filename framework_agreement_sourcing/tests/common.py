@@ -16,19 +16,16 @@
 
 from datetime import timedelta, date
 from openerp import fields
-import openerp.tests.common as test_common
 from openerp.addons.logistic_requisition.tests import logistic_requisition
 from openerp.addons.framework_agreement.tests.common \
-    import BaseAgreementTestMixin
+    import AgreementTransactionCase
 
 
-class CommonSourcingSetUp(test_common.TransactionCase, BaseAgreementTestMixin):
+class CommonSourcingSetUp(AgreementTransactionCase):
 
     def setUp(self):
         super(CommonSourcingSetUp, self).setUp()
-        self.commonsetUp()
 
-        # new API
         self.Requisition = self.env['logistic.requisition']
 
         self.make_common_agreements()
@@ -88,71 +85,37 @@ class CommonSourcingSetUp(test_common.TransactionCase, BaseAgreementTestMixin):
         And one line of other product
 
         """
-        Portfolio = self.env['framework.agreement.portfolio']
-        start_date = date.today() + timedelta(days=10)
-        end_date = date.today() + timedelta(days=20)
 
-        # Agreement 1
-        agr = self.agreement_model.create({
-            'portfolio_id': self.portfolio.id,
-            'product_id': self.product.id,
-            'start_date': fields.Date.to_string(start_date),
-            'end_date': fields.Date.to_string(end_date),
-            'draft': False,
-            'delay': 5,
-            'quantity': 2000,
-        })
-
-        pl = self.agreement_pl_model.create({
-            'framework_agreement_id': agr.id,
-            'currency_id': self.ref('base.EUR')
-        })
-
-        self.agreement_line_model.create({
-            'framework_agreement_pricelist_id': pl.id,
-            'quantity': 0,
+        self.agreement.partnerinfo_ids.write({
+            'min_quantity': 0.,
             'price': 77.0,
         })
 
-        self.agreement_line_model.create({
-            'framework_agreement_pricelist_id': pl.id,
-            'quantity': 1000,
+        self.agreement.partnerinfo_ids.copy({
+            'min_quantity': 1000.,
             'price': 30.0,
         })
 
-        self.cheap_on_high_agreement = agr
-
-        self.portfolio_2 = Portfolio.create({
-            'name': '/',
+        self.portfolio_2 = self.Portfolio.create({
+            'name': 'second portfolio',
             'supplier_id': self.ref('base.res_partner_3'),
+            'start_date': fields.Date.to_string(self.start_date),
+            'end_date': fields.Date.to_string(self.end_date),
+            'line_ids': [(0, 0, {
+                'product_id': self.product.id,
+                'quantity': 1200.,
+            })],
         })
 
-        # Agreement 2
-        agr = self.agreement_model.create({
-            'portfolio_id': self.portfolio_2.id,
-            'product_id': self.product.id,
-            'start_date': fields.Date.to_string(start_date),
-            'end_date': fields.Date.to_string(end_date),
-            'draft': False,
-            'delay': 5,
-            'quantity': 1200,
-        })
+        self.portfolio_2.create_new_agreement()
+        self.agreement_2 = self.portfolio_2.pricelist_ids
 
-        pl = self.agreement_pl_model.create({
-            'framework_agreement_id': agr.id,
-            'currency_id': self.ref('base.EUR'),
-        })
-
-        self.agreement_line_model.create({
-            'framework_agreement_pricelist_id': pl.id,
-            'quantity': 0,
+        self.agreement_2.partnerinfo_ids.write({
+            'min_quantity': 0.,
             'price': 50.0,
         })
 
-        self.agreement_line_model.create({
-            'framework_agreement_pricelist_id': pl.id,
-            'quantity': 1000,
+        self.agreement_2.partnerinfo_ids.copy({
+            'min_quantity': 1000.,
             'price': 45.0,
         })
-
-        self.cheap_on_low_agreement = agr

@@ -55,12 +55,22 @@
             </div>
             <group>
               <group>
-                <field name="partner_id" on_change="onchange_partner_id(partner_id, context)" context="{'search_default_supplier':1, 'default_supplier':1, 'default_customer':0}" domain="[('supplier','=',True)]" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
-                <field name="for_agreement" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" /><!-- vertical-ngo/framework_agreement_requisition -->
+                <field name="partner_id"
+                       on_change="onchange_partner_id(partner_id, context)"
+                       context="{'search_default_supplier':1, 'default_supplier':1, 'default_customer':0}"
+                       domain="[('supplier','=',True)]"
+                       attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                <field name="pricelist_id"
+                       domain="[('type','=','purchase')]"
+                       attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}"
+                       groups="product.group_purchase_pricelist"
+                       on_change="onchange_pricelist(pricelist_id, context)"/>
+                <field name="for_agreement"
+                       attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" /><!-- vertical-ngo/framework_agreement_requisition -->
                 <field name="agreement_expected_date"
-                  attrs="{'invisible': [('for_agreement', '=', False)], 'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                       attrs="{'invisible': [('for_agreement', '=', False)], 'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
                 <field name="agreement_promised_date"
-                  attrs="{'invisible': [('for_agreement', '=', False)], 'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                       attrs="{'invisible': [('for_agreement', '=', False)], 'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
               </group>
               <group>
                 <field name="date_order" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
@@ -73,13 +83,19 @@
               <page string="Products">
                 <field name="order_line" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" >
                   <tree string="Purchase Order Lines" editable="bottom">
+                    <!-- quite surprisingly, we always pass None as price_unit
+                        and name. If we don't, the price stays at 0.0, and in
+                        the onchange_product_id, the price is never computer.
+                        All that comes from upstream:
+                        https://github.com/odoo-dev/odoo/commit/7e454bef
+                        -->
                     <field name="product_id" on_change="onchange_product_id(parent.pricelist_id,product_id,0,False,parent.partner_id, parent.date_order,parent.fiscal_position,date_planned,name,False,parent.state,context)"/>
                     <field name="name" invisible="1"/>
                     <field name="date_planned"/>
                     <field name="company_id" invisible="1"/>
                     <field name="account_analytic_id" groups="purchase.group_analytic_accounting" domain="[('type','not in',('view','template'))]"/>
-                    <field name="product_qty" on_change="onchange_product_id(parent.pricelist_id,product_id,product_qty,product_uom,parent.partner_id,parent.date_order,parent.fiscal_position,date_planned,name,price_unit,parent.state,context)"/>
-                    <field name="product_uom" groups="product.group_uom" on_change="onchange_product_uom(parent.pricelist_id,product_id,product_qty,product_uom,parent.partner_id, parent.date_order,parent.fiscal_position,date_planned,name,price_unit,parent.state,context)"/>
+                    <field name="product_qty" on_change="onchange_product_id(parent.pricelist_id,product_id,product_qty,product_uom,parent.partner_id,parent.date_order,parent.fiscal_position,date_planned,None,None,parent.state,context)"/>
+                    <field name="product_uom" groups="product.group_uom" on_change="onchange_product_uom(parent.pricelist_id,product_id,product_qty,product_uom,parent.partner_id, parent.date_order,parent.fiscal_position,date_planned,None,None,parent.state,context)"/>
                     <field name="price_unit"/>
                     <field name="price_subtotal"/>
                     <field name="state" invisible="1"/>
@@ -131,7 +147,6 @@
               <page string="Accounting and Currency">
                 <group>
                   <group>
-                    <field domain="[('type','=','purchase')]" name="pricelist_id" groups="product.group_purchase_pricelist" on_change="onchange_pricelist(pricelist_id, context)"/>
                     <field name="currency_id" groups="base.group_multi_currency" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
                     <field name="company_id" groups="base.group_multi_company" widget="selection" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
                     <field name="journal_id" invisible='1' attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
@@ -211,29 +226,29 @@
       <field name="inherit_id" ref="ngo_purchase.purchase_order_form" />
       <field name="arch" type="xml">
 
-        <field name="partner_id" position="after">
-          <field name="portfolio_id" options="{'always_show_search_more': true}" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+        <field name="pricelist_id" position="before">
+          <!-- option needs https://github.com/odoo/odoo/compare/odoo:8.0...lepistone:always-show-search-more -->
+          <field name="portfolio_id" options="{'always_show_search_more': true}"  attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}"/>
         </field>
 
         <field name="pricelist_id" position="attributes">
-          <attribute name="on_change">1</attribute>
+          <attribute name="on_change" eval="1"/>
+          <attribute name="domain">[('type','=','purchase'), ('portfolio_id', '=', portfolio_id)]</attribute>
+          <!-- option needs https://github.com/odoo/odoo/compare/odoo:8.0...lepistone:always-show-search-more -->
+          <attribute name="options">{'always_show_search_more': true}</attribute>
+          <attribute name="context">{'hide_portfolio': True}</attribute>
         </field>
 
         <field name="partner_id" position="attributes">
           <attribute name="context_agreement">{'portfolio_id': portfolio_id}</attribute>
         </field>
 
-        <field name="product_id" position="attributes">
-          <attribute name="context_agreement">{'agreement_id': framework_agreement_id, 'incoterm_id': parent.incoterm_id, 'currency_id': parent.currency_id, 'portfolio_id': parent.portfolio_id}</attribute>
+        <field name="picking_type_id" position="attributes">
+          <attribute name="attrs">{'readonly': ['|', ('portfolio_id', '!=', False), ('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}</attribute>
         </field>
 
-        <field name="product_qty" position="after">
-          <field name="portfolio_id" invisible="1"/> <!-- used by attrs below -->
-          <field name="framework_agreement_id" attrs="{'required': [('portfolio_id', '!=', False)], 'readonly': [('portfolio_id', '=', False)]}" />
-        </field>
-
-        <field name="product_qty" position="attributes">
-          <attribute name="context_agreement">{'agreement_id': framework_agreement_id, 'incoterm_id': parent.incoterm_id, 'currency_id': parent.currency_id, 'portfolio_id': parent.portfolio_id}</attribute>
+        <field name="incoterm_id" position="attributes">
+          <attribute name="attrs">{'readonly': ['|', ('portfolio_id', '!=', False), ('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}</attribute>
         </field>
 
         <xpath expr="//page[@string='Bid Information']" position="inside">
@@ -254,13 +269,19 @@
           <sheet>
             <group>
               <group>
-                <field name="product_id" on_change="onchange_product_id(parent.pricelist_id,product_id,0,product_uom,parent.partner_id, parent.date_order,parent.fiscal_position,date_planned,name,price_unit,'draft',context)"/>
+                <!-- quite surprisingly, we always pass None as price_unit and
+                     name. If we don't, the price stays at 0.0, and
+                     in the onchange_product_id, the price is never computer.
+                     All that comes from upstream:
+                     https://github.com/odoo-dev/odoo/commit/7e454bef
+                     -->
+                <field name="product_id" on_change="onchange_product_id(parent.pricelist_id,product_id,0,product_uom,parent.partner_id, parent.date_order,parent.fiscal_position,date_planned,None,None,parent.state,context)" context_extended="{'order_type': parent.type}"/>
               </group>
               <group>
                 <label for="product_qty"/>
                 <div>
-                  <field name="product_qty" on_change="onchange_product_id(parent.pricelist_id,product_id,product_qty,product_uom,parent.partner_id,parent.date_order,parent.fiscal_position,date_planned,name,price_unit,'draft',context)" class="oe_inline"/>
-                  <field name="product_uom" groups="product.group_uom" on_change="onchange_product_uom(parent.pricelist_id,product_id,product_qty,product_uom,parent.partner_id, parent.date_order,parent.fiscal_position,date_planned,name,price_unit,'draft',context)" class="oe_inline"/>
+                  <field name="product_qty" on_change="onchange_product_id(parent.pricelist_id,product_id,product_qty,product_uom,parent.partner_id,parent.date_order,parent.fiscal_position,date_planned,None,None,parent.state,context)" context_extended="{'order_type': parent.type}" class="oe_inline"/>
+                  <field name="product_uom" groups="product.group_uom" on_change="onchange_product_uom(parent.pricelist_id,product_id,product_qty,product_uom,parent.partner_id, parent.date_order,parent.fiscal_position,date_planned,None,None,parent.state,context)" context_extended="{'order_type': parent.type}" class="oe_inline"/>
                 </div>
               </group>
             </group>
@@ -352,8 +373,7 @@
         </xpath>
 
         <field name="product_id" position="attributes">
-          <!-- TODO investigate context_extended -->
-          <attribute name="context_extended">{'order_type': parent.type}</attribute>
+          <attribute name="context_extended">{'order_type': parent.type, 'portfolio_id': parent.portfolio_id, 'pricelist_id': parent.pricelist_id}</attribute>
         </field>
 
         <field name="product_qty" position="attributes">
@@ -381,38 +401,5 @@
       </field>
     </record>
 
-    <!-- purchase-workflow/framework_agreement -->
-    <record model="ir.ui.view" id="purchase_order_line_agreement_view_form">
-      <field name="name">purchase_order_line_agreement_view_form</field>
-      <field name="model">purchase.order.line</field>
-      <field name="inherit_id" ref="ngo_purchase.purchase_order_line_form"/>
-      <field name="arch" type="xml">
-
-        <field name="product_id" position="attributes">
-          <attribute name="context_agreement">{'agreement_id': framework_agreement_id, 'incoterm_id': parent.incoterm_id, 'currency_id': parent.currency_id, 'portfolio_id': parent.portfolio_id}</attribute>
-        </field>
-
-        <field name="product_id" position="after">
-          <field name="portfolio_id" invisible="1"/> <!-- used by attrs below -->
-          <field name="framework_agreement_id" attrs="{'required': [('portfolio_id', '!=', False)], 'readonly': [('portfolio_id', '=', False)]}" />
-        </field>
-
-        <field name="product_qty" position="attributes">
-          <attribute name="context_agreement">{'agreement_id': framework_agreement_id, 'incoterm_id': parent.incoterm_id, 'currency_id': parent.currency_id, 'portfolio_id': parent.portfolio_id}</attribute>
-        </field>
-
-      </field>
-    </record>
-
-    <record id="purchase_order_tree" model="ir.ui.view">
-      <field name="name">purchase.order.tree</field>
-      <field name="model">purchase.order</field>
-      <field name="inherit_id" ref="purchase.purchase_order_tree"/>
-      <field name="arch" type="xml">
-        <field name="amount_untaxed" position="attributes">
-          <attribute name="invisible">1</attribute>
-        </field>
-      </field>
-    </record>
   </data>
 </openerp>

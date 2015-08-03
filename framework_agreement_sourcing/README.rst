@@ -15,6 +15,11 @@ Also, since 2.0 the choice of which agreement to use for a sourcing is up to
 the user. The system will only propose an agreement if there is only one for
 the portfolio, date, incoterm, and product selected.
 
+Version 3.0, as you might expect, brings compatibility with version 3.0 of
+framework_agreement. This makes the concept of agreements closer to standard
+odoo pricelists, with the extra features of agreements added.
+
+Note that only for running unit tests, the mock module is needed.
 
 Bug Tracker
 ===========
@@ -23,7 +28,6 @@ Bugs are tracked on `GitHub Issues <https://github.com/OCA/vertical-ngo/issues>`
 In case of trouble, please check there if your issue has already been reported.
 If you spotted it first, help us smashing it by providing a detailed and welcomed feedback
 `here <https://github.com/OCA/vertical-ngo/issues/new?body=module:%20framework_agreement_sourcing%0Aversion:%208.0%0A%0A**Steps%20to%20reproduce**%0A-%20...%0A%0A**Current%20behavior**%0A%0A**Expected%20behavior**>`_.
-
 
 Credits
 =======

@@ -7,7 +7,7 @@
       <field name="inherit_id" ref="ngo_purchase_requisition.view_purchase_requisition_form"/>
       <field name="arch" type="xml">
         <field name="bid_receipt_mode" position="after">
-          <field name="framework_agreement_tender"/>
+          <field name="framework_agreement_tender" attrs="{'readonly': [('state', '!=', 'draft')]}" />
           <field
             name="agreement_end_date"
             attrs="{'invisible': [('framework_agreement_tender', '=', False)]}" />

@@ -26,7 +26,7 @@ class TestSourceToPo(CommonSourcingSetUp):
         self.agr_line = None
         self.wiz_model = self.env['logistic.requisition.source.create.agr.po']
         for line in lines:
-            if line.product_id == self.cheap_on_low_agreement.product_id:
+            if line.product_id == self.product:
                 self.agr_line = line
                 break
         self.assertTrue(self.agr_line, 'no agr line found')
@@ -35,29 +35,29 @@ class TestSourceToPo(CommonSourcingSetUp):
             if (line.product_id.id == self.product.id or
                     line.product_id.type == 'service'):
                 line._generate_sources()
-        sources = lines.mapped('source_ids')
-        self.assertEqual(len(sources), 2)
-        self.source_lines = sources
+        self.source_lines = lines.mapped('source_ids')
+        self.assertEqual(len(self.source_lines), 2)
         self.lta_source = next(x for x in self.source_lines
                                if x.sourcing_method == 'fw_agreement')
         self.other_source = next(x for x in self.source_lines
                                  if x.sourcing_method == 'other')
-        warehouse_id = self.ref('stock.warehouse0')
-        warehouse = self.env['stock.warehouse'].browse(warehouse_id)
-        self.wh = warehouse
+        self.wh = self.env.ref('stock.warehouse0')
 
-    def test_transform_source_to_agreement_wh_dest(self):
+    def XXX_unported_test_transform_source_to_agreement_wh_dest(self):
+        """This test is about the wizard to generate an agreement PO. Now the
+        PO is generated automatically when the cost estimate is accepted. It
+        should be adapted to that, and also take into account the new logic
+        for the agreement 3.0 (TL;DR the agreement is a special pricelist).
+
+        """
         # Set destination address
-        partner_vals = {
-            'name': 'Warehouse address',
-            }
-        partner_wh = self.env['res.partner'].create(partner_vals)
-        self.wh.partner_id = partner_wh
+        partner_wh = self.env['res.partner'].create({'name':
+                                                     'Warehouse address'})
+        self.wh.partner_id = self.agr_line.consignee_shipping_id = partner_wh
         picking_type_wh = self.ref('stock.picking_type_in')
-        self.agr_line.consignee_shipping_id = partner_wh
 
-        self.lta_source.framework_agreement_id = self.cheap_on_low_agreement
-        self.assertTrue(self.lta_source, 'no lta source found')
+        self.assertEqual(self.lta_source.framework_agreement_id,
+                         self.agreement_2)
         wiz = self.wiz_model.with_context({
             'active_model': 'logistic.requisition.source',
             'active_ids': [x.id for x in self.source_lines],
@@ -105,7 +105,8 @@ class TestSourceToPo(CommonSourcingSetUp):
         self.assertAlmostEqual(po_line.price_unit, 1.0)
         self.assertEqual(po_line.lr_source_line_id, self.other_source)
 
-    def test_transform_source_to_agreement_dropshipping(self):
+    def XXX_unported_test_transform_source_to_agreement_dropshipping(self):
+        """Same as the previous test."""
         # Set destination address
         partner_dropship = self.ref('base.res_partner_12')
         self.agr_line.consignee_shipping_id = partner_dropship

@@ -14,6 +14,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from openerp.tests.common import TransactionCase
+from mock import Mock
 
 
 class TestCheckSourcing(TransactionCase):
@@ -27,10 +28,13 @@ class TestCheckSourcing(TransactionCase):
 
     def test_agreement_sourcing_with_running_agreement_is_sourced(self):
         self.source.sourcing_method = 'fw_agreement'
-        self.source.framework_agreement_id = self.Agreement.new({
+        self.source.portfolio_id = self.Portfolio.new({
             'state': 'running',
         })
-        self.source.framework_agreement_id.available_quantity = 20
+        self.source.framework_agreement_id = self.Pricelist.new({})
+        product_line = Mock(available_quantity=20)
+        self.source.portfolio_id.get_line_for_product = Mock(
+            return_value=product_line)
         self.assertEquals([], self.source._check_sourcing())
 
     def test_other_sourcing_is_always_sourced(self):
@@ -46,5 +50,6 @@ class TestCheckSourcing(TransactionCase):
         """
         super(TestCheckSourcing, self).setUp()
         Source = self.env['logistic.requisition.source']
-        self.Agreement = self.env['framework.agreement']
+        self.Portfolio = self.env['framework.agreement.portfolio']
+        self.Pricelist = self.env['product.pricelist']
         self.source = Source.new({'proposed_qty': 1, 'unit_cost': 1})

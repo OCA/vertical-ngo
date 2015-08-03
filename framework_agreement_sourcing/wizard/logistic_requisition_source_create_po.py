@@ -31,11 +31,6 @@ class logistic_requisition_source_po_creator(orm.TransientModel):
         'pricelist_id': fields.many2one('product.pricelist',
                                         string='Pricelist / Currency',
                                         required=True),
-        'framework_currency_ids': fields.many2many(
-            'framework.agreement.pricelist',
-            rel='framework_agr_id_po_create_rel',
-            string='Available Currency',
-            readonly=True)
     }
 
     def _get_source_ids(self, cr, uid, context=None):

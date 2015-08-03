@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from openerp import models, api, exceptions, _, netsvc
+from openerp import models, api, netsvc
 from openerp.osv import orm
 
 
@@ -58,24 +58,7 @@ class sale_order_line(orm.Model):
     @api.multi
     def _make_source_fa_purchase_order(self):
         source = self.lr_source_id
-        pricelist = self.order_id.pricelist_id
-        order_currency = pricelist.currency_id
-        fa_currencies = (source
-                         .framework_agreement_id
-                         .framework_agreement_pricelist_ids
-                         .mapped('currency_id'))
-        if not fa_currencies:
-            raise exceptions.Warning(
-                _('No currency found for Framework agreement %s')
-                % source.framework_agreement_id)
-        if order_currency not in fa_currencies:
-            currency = fa_currencies[0]
-
-            pricelist = self.env['product.pricelist'].search(
-                [('currency_id', '=', currency.id),
-                 ('type', '=', 'purchase')],
-                limit=1)
-
+        pricelist = source.framework_agreement_id  # now this is the agreement
         source.make_purchase_order(pricelist)
 
     def button_confirm(self, cr, uid, ids, context=None):
