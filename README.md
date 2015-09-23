@@ -41,3 +41,31 @@ Other related community project where we put some useful module for NGO as well
  * https://github.com/OCA/sale-workflow : module `sale_validity`,
    `sale_quotation_sourcing`, `sale_sourced_by_line`, `sale_exception_nostock`,
    `sale_cancel_reason`, `partner_prepayment`
+
+[//]: # (addons)
+Available addons
+----------------
+addon | version | summary
+--- | --- | ---
+[framework_agreement_requisition](framework_agreement_requisition/) | 1.0 | Framework Agreement Negociation in the Tender
+[framework_agreement_sourcing](framework_agreement_sourcing/) | 2.0 | Sourcing with Framework Agreements
+[framework_agreement_sourcing_stock_route_transit](framework_agreement_sourcing_stock_route_transit/) | 0.1 | Sourcing for Framework Agreement with Transit routes
+[logistic_budget](logistic_budget/) | 2.3.1 | Logistics Budget
+[logistic_consignee](logistic_consignee/) | 0.1 | Deprecated: use purchase_requisition_transport_multi_address, purchase_transport_multi_address, sale_transport_multi_address, stock_transport_multi_address
+[logistic_order](logistic_order/) | 8.0.0.3.1 | Sales Order as Logistics Order
+[logistic_order_donation](logistic_order_donation/) | 0.2 | Sales Order as In-Kind Donations
+[logistic_order_donation_budget](logistic_order_donation_budget/) | 0.1 | Budget management for In-Kind Donations
+[logistic_order_donation_shipment_test](logistic_order_donation_shipment_test/) | 0.1 | Test coexistence of Shipment management and Logistic Order Donations
+[logistic_order_donation_transit](logistic_order_donation_transit/) | 0.1 | Transit management for Logistic Order Donations
+[logistic_order_multicurrency](logistic_order_multicurrency/) | 0.1 | Multicurrency management
+[logistic_order_requisition_donation](logistic_order_requisition_donation/) | 0.1 | Adapt views and fields
+[logistic_requisition](logistic_requisition/) | 1.4.1 | Logistics Requisition
+[logistic_requisition_department](logistic_requisition_department/) | 1.2 | Logistic Requisitions with Department Categorization
+[logistic_requisition_donation](logistic_requisition_donation/) | 0.1 | Manage Donor Warehouse Dispatch with Logistics Requisition
+[logistic_requisition_multicurrency](logistic_requisition_multicurrency/) | 0.1.1 | Multicurrency management for logistics requistion
+[ngo_purchase](ngo_purchase/) | 1.2 | Base Purchase Order view for NGO
+[ngo_purchase_requisition](ngo_purchase_requisition/) | 2.0 | Base Purchase Requisition view for NGO
+[ngo_shipment_plan](ngo_shipment_plan/) | 0.1 | Adaptations of Shipment Management for NGO
+[vertical_ngo](vertical_ngo/) | 0.1 | Odoo NGO Verticalization
+
+[//]: # (end addons)
