@@ -23,7 +23,7 @@
  "summary": "Deprecated: use purchase_requisition_transport_multi_address, "
             "purchase_transport_multi_address, sale_transport_multi_address, "
             "stock_transport_multi_address",
- "version": "0.1",
+ "version": "8.0.0.1.0",
  "author": "Camptocamp,Odoo Community Association (OCA)",
  "license": "AGPL-3",
  "category": "Logistics",

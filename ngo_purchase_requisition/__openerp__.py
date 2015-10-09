@@ -17,7 +17,7 @@
 
 {"name": "NGO - Purchase Requisition",
  "summary": "Base Purchase Requisition view for NGO",
- "version": "2.0",
+ "version": "8.0.2.0.0",
  "author": "Camptocamp,Odoo Community Association (OCA)",
  "license": "AGPL-3",
  "category": "Purchase Management",

@@ -17,7 +17,7 @@
 
 {
     'name': 'Logistic Requisitions with Department Categorization',
-    'version': '1.2',
+    'version': '8.0.1.2.0',
     "category": "Purchase Management",
     'author': "Camptocamp,Odoo Community Association (OCA)",
     "license": "AGPL-3",

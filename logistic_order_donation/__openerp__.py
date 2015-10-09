@@ -21,7 +21,7 @@
 
 {"name": "Logistics Order - Donation",
  "summary": "Sales Order as In-Kind Donations",
- "version": "0.2",
+ "version": "8.0.0.2.0",
  "author": "Camptocamp,Odoo Community Association (OCA)",
  "license": "AGPL-3",
  "category": "Purchase Management",

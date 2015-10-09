@@ -21,7 +21,7 @@
 
 {"name": "Logistics Order - Donation Transit management",
  "summary": "Transit management for Logistic Order Donations",
- "version": "0.1",
+ "version": "8.0.0.1.0",
  "author": "Camptocamp,Odoo Community Association (OCA)",
  "license": "AGPL-3",
  "category": "Purchase Management",

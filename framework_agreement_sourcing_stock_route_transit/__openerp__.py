@@ -19,7 +19,7 @@
 #
 ##############################################################################
 {'name': 'Sourcing for Framework Agreement with Transit routes',
- 'version': '0.1',
+ 'version': '8.0.0.1.0',
  "author": "Camptocamp,Odoo Community Association (OCA)",
  'maintainer': 'Camptocamp',
  'category': 'NGO',
