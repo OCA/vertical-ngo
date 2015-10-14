@@ -40,6 +40,6 @@
  "data": ["view/purchase_order.xml",
           ],
  "test": [],
- 'installable': True,
+ 'installable': False,
  'auto_install': False,
  }

@@ -36,6 +36,6 @@
           'view/logistic_requisition_source.xml',
           ],
  "test": [],
- 'installable': True,
+ 'installable': False,
  "auto_install": False,
  }

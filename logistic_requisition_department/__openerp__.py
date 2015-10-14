@@ -27,5 +27,5 @@
     'data': ['view/logistic_requisition.xml',
              'view/logistic_requisition_line.xml',
              'view/logistic_requisition_source.xml'],
-    'installable': True,
+    'installable': False,
 }

@@ -34,6 +34,6 @@
  "demo": [],
  "data": ['data/stock.xml',
           ],
- 'installable': True,
+ 'installable': False,
  "auto_install": True,
  }

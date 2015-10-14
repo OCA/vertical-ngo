@@ -27,6 +27,6 @@
  "depends": ["logistic_order_donation_transit",
              "stock_shipment_management",
              ],
- 'installable': True,
+ 'installable': False,
  "auto_install": False,
  }

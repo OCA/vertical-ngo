@@ -63,6 +63,6 @@ Contributors
           ],
  "test": ['test/test_report.yml',
           ],
- 'installable': True,
+ 'installable': False,
  "auto_install": False,
  }

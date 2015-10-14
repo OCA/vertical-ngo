@@ -67,6 +67,6 @@
           'test/logistic_requisition_report_test.yml',
           ],
  'css': ['static/src/css/logistic_requisition.css'],
- 'installable': True,
+ 'installable': False,
  'auto_install': False,
  }

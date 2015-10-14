@@ -30,7 +30,7 @@
  "demo": [],
  "data": ['view/vertical_ngo.xml',
           ],
- 'installable': True,
+ 'installable': False,
  "auto_install": False,
  "application": True
  }
