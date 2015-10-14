@@ -1,5 +1,5 @@
-[![Build Status](https://travis-ci.org/OCA/vertical-ngo.svg?branch=8.0)](https://travis-ci.org/OCA/vertical-ngo)
-[![Coverage Status](https://coveralls.io/repos/OCA/vertical-ngo/badge.svg?branch=8.0)](https://coveralls.io/r/OCA/vertical-ngo?branch=8.0)
+[![Build Status](https://travis-ci.org/OCA/vertical-ngo.svg?branch=9.0)](https://travis-ci.org/OCA/vertical-ngo)
+[![Coverage Status](https://coveralls.io/repos/OCA/vertical-ngo/badge.svg?branch=9.0)](https://coveralls.io/r/OCA/vertical-ngo?branch=9.0)
 
 
 This project aim to develop and publish all modules related to the need of
@@ -43,29 +43,4 @@ Other related community project where we put some useful module for NGO as well
    `sale_cancel_reason`, `partner_prepayment`
 
 [//]: # (addons)
-Available addons
-----------------
-addon | version | summary
---- | --- | ---
-[framework_agreement_requisition](framework_agreement_requisition/) | 8.0.1.0.0 | Framework Agreement Negociation in the Tender
-[framework_agreement_sourcing](framework_agreement_sourcing/) | 8.0.2.0.0 | Sourcing with Framework Agreements
-[framework_agreement_sourcing_stock_route_transit](framework_agreement_sourcing_stock_route_transit/) | 8.0.0.1.0 | Sourcing for Framework Agreement with Transit routes
-[logistic_budget](logistic_budget/) | 8.0.2.3.1 | Logistics Budget
-[logistic_consignee](logistic_consignee/) | 8.0.0.1.0 | Deprecated: use purchase_requisition_transport_multi_address, purchase_transport_multi_address, sale_transport_multi_address, stock_transport_multi_address
-[logistic_order](logistic_order/) | 8.0.0.3.1 | Sales Order as Logistics Order
-[logistic_order_donation](logistic_order_donation/) | 8.0.0.2.0 | Sales Order as In-Kind Donations
-[logistic_order_donation_budget](logistic_order_donation_budget/) | 8.0.0.1.0 | Budget management for In-Kind Donations
-[logistic_order_donation_shipment_test](logistic_order_donation_shipment_test/) | 8.0.0.1.0 | Test coexistence of Shipment management and Logistic Order Donations
-[logistic_order_donation_transit](logistic_order_donation_transit/) | 8.0.0.1.0 | Transit management for Logistic Order Donations
-[logistic_order_multicurrency](logistic_order_multicurrency/) | 8.0.0.1.0 | Multicurrency management
-[logistic_order_requisition_donation](logistic_order_requisition_donation/) | 8.0.0.1.0 | Adapt views and fields
-[logistic_requisition](logistic_requisition/) | 8.0.1.4.1 | Logistics Requisition
-[logistic_requisition_department](logistic_requisition_department/) | 8.0.1.2.0 | Logistic Requisitions with Department Categorization
-[logistic_requisition_donation](logistic_requisition_donation/) | 8.0.0.1.0 | Manage Donor Warehouse Dispatch with Logistics Requisition
-[logistic_requisition_multicurrency](logistic_requisition_multicurrency/) | 8.0.0.1.1 | Multicurrency management for logistics requistion
-[ngo_purchase](ngo_purchase/) | 8.0.1.2.0 | Base Purchase Order view for NGO
-[ngo_purchase_requisition](ngo_purchase_requisition/) | 8.0.2.0.0 | Base Purchase Requisition view for NGO
-[ngo_shipment_plan](ngo_shipment_plan/) | 8.0.0.1.0 | Adaptations of Shipment Management for NGO
-[vertical_ngo](vertical_ngo/) | 8.0.0.1.0 | Odoo NGO Verticalization
-
 [//]: # (end addons)
