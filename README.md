@@ -43,6 +43,7 @@ Other related community project where we put some useful module for NGO as well
    `sale_cancel_reason`, `partner_prepayment`
 
 [//]: # (addons)
+
 Available addons
 ----------------
 addon | version | summary
