@@ -1,46 +1,45 @@
 <?xml version="1.0"?>
-<openerp>
-  <data>
+<odoo>
 
-    <record model="ir.ui.view" id="view_purchase_order_line_tree">
-      <field name="name">purchase_order_line_tree</field>
-      <field name="model">purchase.order.line</field>
-      <field name="inherit_id" ref="purchase_requisition_bid_selection.view_purchase_order_line_tree"/>
-      <field name="arch" type="xml">
+    <record model="ir.ui.view" id="view_purchase_order_line_tree_inherited">
+        <field name="name">purchase_order_line_tree</field>
+        <field name="model">purchase.order.line</field>
+        <field name="inherit_id" ref="purchase.purchase_order_line_search" />
+        <field name="arch" type="xml">
 
-        <field name="name" position="after">
-          <field name="country_of_origin" invisible="not context.get('selection_view')"/>
+            <field name="order_id" position="after">
+                <field name="country_of_origin" />
+            </field>
+
+            <field name="partner_id" position="after">
+                <field name="meets_specifications" invisible="not context.get('selection_view')" />
+                <field name="bid_eligible" invisible="not context.get('selection_view')" />
+                <field name="incoterm_id" invisible="not context.get('selection_view')" />
+                <field name="incoterm_address" invisible="not context.get('selection_view')" />
+                <field name="date_planned" invisible="not context.get('selection_view')" />
+            </field>
+
+            <field name="product_id" position="before">
+                <field name="terms_of_payment" invisible="not context.get('selection_view')" />
+                <field name="payment_term_id" invisible="not context.get('selection_view')" />
+            </field>
+
         </field>
-
-        <field name="partner_id" position="after">
-          <field name="meets_specifications" invisible="not context.get('selection_view')"/>
-          <field name="bid_eligible" invisible="not context.get('selection_view')"/>
-          <field name="incoterm_id" invisible="not context.get('selection_view')"/>
-          <field name="incoterm_address" invisible="not context.get('selection_view')"/>
-          <field name="date_planned" invisible="not context.get('selection_view')"/>
-        </field>
-
-        <field name="product_qty" position="before">
-          <field name="terms_of_payment" invisible="not context.get('selection_view')"/>
-          <field name="payment_term_id" invisible="not context.get('selection_view')"/>
-        </field>
-
-      </field>
     </record>
 
-    <record model="ir.ui.view" id="view_purchase_order_line_search">
-      <field name="name">purchase_order_line_search</field>
-      <field name="model">purchase.order.line</field>
-      <field name="inherit_id" ref="purchase_requisition_bid_selection.view_purchase_order_line_search"/>
-      <field name="arch" type="xml">
-        <xpath expr="//group[@string='Group By']" position="after">
-          <group string="Columns">
-            <filter name="selection_view" string="Selection view" context="{'selection_view': True}" />
-          </group>
-        </xpath>
+    <record model="ir.ui.view" id="view_purchase_order_line_search_inherited">
+        <field name="name">purchase_order_line_search</field>
+        <field name="model">purchase.order.line</field>
+        <field name="inherit_id" ref="purchase.purchase_order_line_search" />
+        <field name="arch" type="xml">
+            <xpath expr="//search/filter[@name='hide_cancelled']" position="after">
+                <group string="Columns">
+                    <filter name="selection_view" string="Selection view"
+                        context="{'selection_view': True}" />
+                </group>
+            </xpath>
 
-      </field>
+        </field>
     </record>
 
-  </data>
-</openerp>
+</odoo>
