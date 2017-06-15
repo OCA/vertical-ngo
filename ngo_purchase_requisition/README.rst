@@ -10,4 +10,4 @@ Contributors
 ------------
 
 * Yannick Vaucher <yannick.vaucher@camptocamp.com>
-* Serpent Consulting Services Pvt Ltd. <serpentcs.com>
+* Serpent Consulting Services Pvt Ltd. <support@serpentcs.com>
