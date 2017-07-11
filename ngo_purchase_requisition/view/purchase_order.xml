@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <odoo>
 
-    <record model="ir.ui.view" id="view_purchase_order_line_tree_inherited">
+    <record model="ir.ui.view" id="view_purchase_order_line_tree">
         <field name="name">purchase_order_line_tree</field>
         <field name="model">purchase.order.line</field>
-        <field name="inherit_id" ref="purchase.purchase_order_line_search" />
+        <field name="inherit_id" ref="purchase.purchase_order_line_tree" />
         <field name="arch" type="xml">
 
             <field name="order_id" position="after">
@@ -27,7 +27,7 @@
         </field>
     </record>
 
-    <record model="ir.ui.view" id="view_purchase_order_line_search_inherited">
+    <record model="ir.ui.view" id="view_purchase_order_line_search">
         <field name="name">purchase_order_line_search</field>
         <field name="model">purchase.order.line</field>
         <field name="inherit_id" ref="purchase.purchase_order_line_search" />

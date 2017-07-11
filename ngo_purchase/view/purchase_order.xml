@@ -38,13 +38,15 @@
                 <sheet>
                     <div class="oe_button_box" name="button_box">
                         <button type="object" name="action_view_picking" class="oe_stat_button"
-                            icon="fa-truck" attrs="{'invisible': [('picking_ids', '=', 0)]}">
+                            icon="fa-truck"
+                            attrs="{'invisible':[('state', 'in', ('draft','sent','to approve')),('picking_ids','=',[])]}">
                             <field name="picking_count" widget="statinfo" string="Shipment"
                                 help="Incoming Shipments" />
                             <field name="picking_ids" invisible="1" />
                         </button>
-                        <button type="object" name="invoice_open" class="oe_stat_button"
-                            icon="fa-pencil-square-o" attrs="{'invisible': [('invoice_ids', '=', 0)]}">
+                        <button type="object" name="action_view_invoice" class="oe_stat_button"
+                            icon="fa-pencil-square-o"
+                            attrs="{'invisible':[('state', 'in', ('draft','sent','to approve')),('invoice_ids','=',[])]}">
                             <field name="invoice_count" widget="statinfo" string="Invoices" />
                             <field name='invoice_ids' invisible="1" />
                         </button>
@@ -102,7 +104,6 @@
                                         attrs="{'readonly': [('state', 'in', [('purchase', 'done', 'cancel')])]}" />
                                     <field name="price_unit" />
                                     <field name="price_subtotal" widget="monetary" />
-                                    <field name="state" invisible="1" />
                                 </tree>
                             </field>
                             <group class="oe_subtotal_footer oe_right">
@@ -172,6 +173,8 @@
                                         attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
                                     <field name="terms_of_payment"
                                         attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                                    <field name="fiscal_position_id"
+                                        attrs="{'readonly': [('invoice_status','=', True)], 'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
                                     <!--purchase-workflow/purchase_requisition_bid_selection -->
                                     <field name="invoice_status"
                                         attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
@@ -214,6 +217,19 @@
                             </group>
                         </page>
                     </notebook>
+                    <div class="oe_clear" />
+                    <group string="Validation">
+                        <div colspan="4">
+                            <label for="create_uid" />
+                            <field name="create_uid" class="oe_inline"
+                                attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                            <label string=" validated on "
+                                attrs="{'invisible': [('validator', '=', False)], 'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                            <field name="date_approve"
+                                attrs="{'invisible': [('validator', '=', False)], 'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}"
+                                class="oe_inline" />
+                        </div>
+                    </group>
                 </sheet>
                 <div class="oe_chatter">
                     <field name="message_follower_ids" widget="mail_followers" />
@@ -247,21 +263,30 @@
             </field>
 
             <field name="product_id" position="attributes">
-                <attribute name="context_agreement">{'agreement_id': framework_agreement_id,'incoterm_id': parent.incoterm_id, 'currency_id': parent.currency_id, 'portfolio_id': parent.portfolio_id}</attribute>
+                <attribute name="context_agreement">{'agreement_id':
+                    framework_agreement_id,'incoterm_id': parent.incoterm_id,
+                    'currency_id': parent.currency_id, 'portfolio_id':
+                    parent.portfolio_id}
+                </attribute>
             </field>
 
             <field name="product_qty" position="after">
                 <field name="portfolio_id" invisible="1" /> <!-- used by attrs below -->
-                <field name="framework_agreement_id" attrs="{'required': [('portfolio_id', '!=', False)], 'readonly': [('portfolio_id', '=', False)]}" />
+                <field name="framework_agreement_id"
+                    attrs="{'required': [('portfolio_id', '!=', False)], 'readonly': [('portfolio_id', '=', False)]}" />
             </field>
 
             <field name="product_qty" position="attributes">
-                <attribute name="context_agreement">{'agreement_id': framework_agreement_id, 'incoterm_id': parent.incoterm_id, 'currency_id': parent.currency_id, 'portfolio_id': parent.portfolio_id}</attribute>
+                <attribute name="context_agreement">{'agreement_id': framework_agreement_id,
+                    'incoterm_id': parent.incoterm_id, 'currency_id':
+                    parent.currency_id, 'portfolio_id': parent.portfolio_id}
+                </attribute>
             </field>
 
             <xpath expr="//page[1]" position="inside">
                 <separator string="Internal remarks" />
-                <field name="bid_internal_remark" attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                <field name="bid_internal_remark"
+                    attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
             </xpath>
         </field>
     </record>
@@ -277,7 +302,8 @@
                         <group>
                             <label for="product_qty" />
                             <div>
-                                <field name="product_uom" groups="product.group_uom" class="oe_inline" />
+                                <field name="product_uom" groups="product.group_uom"
+                                    class="oe_inline" />
                             </div>
                         </group>
                     </group>
@@ -290,22 +316,19 @@
                         </group>
                         <group>
                             <field name="date_planned" widget="date" />
-                            <field name="company_id" groups="base.group_multi_company" widget="selection" />
+                            <field name="company_id" groups="base.group_multi_company"
+                                widget="selection" />
                         </group>
                         <group string="Accounting">
-                            <field name="account_analytic_id" colspan="2" groups="purchase.group_analytic_accounting" />
+                            <field name="account_analytic_id" colspan="2"
+                                groups="purchase.group_analytic_accounting" />
                         </group>
                     </group>
-                    <notebook>
-                        <page string="Invoices and Incoming Shipments">
-                            <field name="invoice_lines" />
-                            <field name="move_ids" />
-                        </page>
-                        <!-- add field from purchase_requisition_bid_selection -->
-                        <page string="Remarks / Conditions">
-                            <field name="remark" />
-                        </page>
-                    </notebook>
+                    <field name="name" />
+                    <separator string="Manual Invoices" />
+                    <field name="invoice_lines" />
+                    <separator string="Stock Moves" />
+                    <field name="move_ids" />
                 </sheet>
             </form>
         </field>
@@ -327,7 +350,8 @@
             </xpath>
 
             <xpath expr="//field[@name='state']" position="attributes">
-                <attribute name="statusbar_visible">draft,sent,bid,draftpo,approved,done</attribute>
+                <attribute name="statusbar_visible">draft,sent,bid,draftpo,approved,done
+                </attribute>
             </xpath>
 
             <xpath expr="//button[@name='button_cancel']" position="attributes">
@@ -336,7 +360,8 @@
             </xpath>
 
             <xpath expr="//button[@name='action_rfq_send']" position="after">
-                <button name="wkf_send_rfq" states="draftpo" string="Send Draft PO by Email" type="object" context="{'send_rfq':True}" />
+                <button name="wkf_send_rfq" states="draftpo" string="Send Draft PO by Email"
+                    type="object" context="{'send_rfq':True}" />
             </xpath>
 
             <xpath expr="//button[@name='button_confirm']" position="attributes">
@@ -356,13 +381,15 @@
 
             <button name="button_cancel" position="attributes">
                 <!-- draftbid,draftpo added -->
-                <attribute name="states">draft,confirmed,sent,bid,draftbid,draftpo,approved,except_picking,except_invoice</attribute>
+                <attribute name="states">draft,confirmed,sent,bid,draftbid,draftpo,approved,except_picking,except_invoice
+                </attribute>
             </button>
 
             <xpath expr="//button[@name='button_confirm']" position="after">
                 <!-- FIXME confusing button name -->
                 <button name="draft_po" states="draft" string="Convert to PO" />
-                <button name="draft_po" states="bid" string="Convert to PO" class="oe_highlight" />
+                <button name="draft_po" states="bid" string="Convert to PO"
+                    class="oe_highlight" />
             </xpath>
 
             <field name="product_id" position="attributes">
@@ -381,14 +408,17 @@
     <record model="ir.ui.view" id="view_purchase_order_form">
         <field name="name">purchase.order.inherit</field>
         <field name="model">purchase.order</field>
-        <field name="inherit_id" ref="ngo_purchase.purchase_rfq_bid_workflow_view_purchase_order_form" />
+        <field name="inherit_id"
+            ref="ngo_purchase.purchase_rfq_bid_workflow_view_purchase_order_form" />
         <field name="arch" type="xml">
             <xpath expr="//button[@name='draft_po'][1]" position="attributes">
-                <attribute name="attrs">{'invisible':['|',('requisition_id','!=',False)]}</attribute>
+                <attribute name="attrs">{'invisible':['|',('requisition_id','!=',False)]}
+                </attribute>
             </xpath>
 
             <xpath expr="//button[@name='draft_po'][2]" position="attributes">
-                <attribute name="attrs">{'invisible':['|',('requisition_id','!=',False)]}</attribute>
+                <attribute name="attrs">{'invisible':['|',('requisition_id','!=',False)]}
+                </attribute>
             </xpath>
 
         </field>
@@ -401,16 +431,26 @@
         <field name="inherit_id" ref="purchase.purchase_order_line_form2" />
         <field name="arch" type="xml">
 
-            <xpath expr="//form/sheet/group/group/field[@name='product_id']" position="attributes">
-                <attribute name="context_agreement">{'agreement_id': framework_agreement_id,'incoterm_id': parent.incoterm_id, 'currency_id': parent.currency_id, 'portfolio_id': parent.portfolio_id}</attribute>
+            <xpath expr="//form/sheet/group/group/field[@name='product_id']"
+                position="attributes">
+                <attribute name="context_agreement">{'agreement_id':
+                    framework_agreement_id,'incoterm_id': parent.incoterm_id,
+                    'currency_id': parent.currency_id, 'portfolio_id':
+                    parent.portfolio_id}
+                </attribute>
             </xpath>
             <field name="product_id" position="after">
                 <field name="portfolio_id" invisible="1" /> <!-- used by attrs below -->
-                <field name="framework_agreement_id" attrs="{'required': [('portfolio_id', '!=', False)], 'readonly': [('portfolio_id', '=', False)]}" />
+                <field name="framework_agreement_id"
+                    attrs="{'required': [('portfolio_id', '!=', False)], 'readonly': [('portfolio_id', '=', False)]}" />
             </field>
 
             <field name="product_qty" position="attributes">
-                <attribute name="context_agreement">{'agreement_id': framework_agreement_id,'incoterm_id': parent.incoterm_id, 'currency_id':parent.currency_id, 'portfolio_id': parent.portfolio_id}</attribute>
+                <attribute name="context_agreement">{'agreement_id':
+                    framework_agreement_id,'incoterm_id': parent.incoterm_id,
+                    'currency_id':parent.currency_id, 'portfolio_id':
+                    parent.portfolio_id}
+                </attribute>
             </field>
         </field>
     </record>

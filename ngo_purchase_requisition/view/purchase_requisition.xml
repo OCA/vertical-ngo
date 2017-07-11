@@ -170,4 +170,16 @@
         </field>
     </record>
 
+    <!-- hidden by purchase_requisition_bid_selection -->
+    <record model="ir.ui.view" id="view_purchase_requisition_type_tree">
+        <field name="name">purchase.requisition.type.tree</field>
+        <field name="model">purchase.requisition.type</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="exclusive" invisible="1"/>
+                </group>
+            </form>
+        </field>
+    </record>
 </odoo>
