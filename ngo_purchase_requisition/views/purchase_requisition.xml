@@ -177,7 +177,7 @@
         <field name="arch" type="xml">
             <form>
                 <group>
-                    <field name="exclusive" invisible="1"/>
+                    <field name="exclusive"/>
                 </group>
             </form>
         </field>
