@@ -20,6 +20,9 @@
                 <field name="amount_untaxed" position="attributes">
                     <attribute name="groups">account_tax_hide.group_show_taxes</attribute>
                 </field>
+                <field name="fiscal_position" position="attributes">
+                    <attribute name="groups">account_tax_hide.group_show_taxes</attribute>
+                </field>
             </field>
         </record>
     </data>
