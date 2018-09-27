@@ -1,0 +1,34 @@
+sudo: false
+cache: pip
+
+addons:
+  apt:
+    packages:
+      - expect-dev  # provides unbuffer utility
+      - python-lxml # because pip installation is slow
+
+language: python
+
+python:
+  - "3.5"
+
+env:
+  - VERSION="12.0" LINT_CHECK="1"
+  - VERSION="12.0" ODOO_REPO="OCA/OCB" EXCLUDE="logistic_consignee,framework_agreement_sourcing_stock_route_transit" LINT_CHECK="0"
+  - VERSION="12.0" ODOO_REPO="OCA/OCB" INCLUDE="framework_agreement_sourcing_stock_route_transit" LINT_CHECK="0"
+  - VERSION="12.0" ODOO_REPO="odoo/odoo" EXCLUDE="logistic_consignee,framework_agreement_sourcing_stock_route_transit" LINT_CHECK="0"
+  - VERSION="12.0" ODOO_REPO="OCA/OCB" INCLUDE="logistic_consignee" LINT_CHECK="0"
+  - VERSION="12.0" ODOO_REPO="odoo/odoo" INCLUDE="framework_agreement_sourcing_stock_route_transit" LINT_CHECK="0"
+  - VERSION="12.0" ODOO_REPO="odoo/odoo" INCLUDE="logistic_consignee" LINT_CHECK="0"
+
+
+install:
+  - git clone https://github.com/OCA/maintainer-quality-tools.git -b master ${HOME}/maintainer-quality-tools
+  - export PATH=${HOME}/maintainer-quality-tools/travis:${PATH}
+  - travis_install_nightly
+
+script:
+  - travis_run_tests
+
+after_success:
+  coveralls
