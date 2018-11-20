@@ -12,6 +12,8 @@
         'account',
     ],
     "data": [
+        "views/account_move.xml",
+        "views/account_move_line.xml",
         "security/res_groups.xml",
         "data/ir_ui_menu.xml",
         "views/product_template.xml",
