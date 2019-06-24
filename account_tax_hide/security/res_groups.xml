@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+        <record id="group_show_taxes" model="res.groups">
+            <field name="category_id" ref="base.module_category_accounting_and_finance" />
+            <field name="name">Show taxes</field>
+        </record>
+    </data>
+</openerp>
