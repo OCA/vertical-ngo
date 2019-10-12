@@ -41,5 +41,3 @@ Other related community project where we put some useful module for NGO as well
  * https://github.com/OCA/sale-workflow : module `sale_validity`,
    `sale_quotation_sourcing`, `sale_sourced_by_line`, `sale_exception_nostock`,
    `sale_cancel_reason`, `partner_prepayment`
-
-
