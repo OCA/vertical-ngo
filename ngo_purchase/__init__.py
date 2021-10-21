@@ -1,2 +1,4 @@
 # -*- coding: utf-8 -*-
-from . import model
+# See LICENSE file for full copyright and licensing details.
+
+from . import models

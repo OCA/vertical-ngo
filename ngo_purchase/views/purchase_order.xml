@@ -1,0 +1,468 @@
+<odoo>
+    <record id="purchase_order_form" model="ir.ui.view">
+        <field name="name">purchase.order.form</field>
+        <field name="model">purchase.order</field>
+        <field name="arch" type="xml">
+            <form string="Purchase Order">
+                <header>
+                    <button name="action_rfq_send" states="draft" string="Send RFQ by Email"
+                        type="object" context="{'send_rfq':True}" class="oe_highlight" />
+                    <button name="action_rfq_send" states="sent" string="Re-Send RFQ by Email"
+                        type="object" context="{'send_rfq':True}" />
+                    <button name="print_quotation" string="Print RFQ" type="object"
+                        states="draft" class="oe_highlight" groups="base.group_user" />
+                    <button name="print_quotation" string="Print RFQ" type="object"
+                        states="sent" groups="base.group_user" />
+                    <button name="button_confirm" type="object" states="draft"
+                        string="Confirm Order" id="draft_confirm" />
+                    <button name="button_confirm" type="object" states="sent"
+                        string="Confirm Order" class="oe_highlight" id="bid_confirm" />
+                    <button name="button_approve" type="object" states='to approve'
+                        string="Approve Order" class="oe_highlight" groups="purchase.group_purchase_manager" />
+                    <button name="action_rfq_send" states="purchase" string="Send PO by Email"
+                        type="object" context="{'send_rfq':False}" />
+                    <button name="action_view_picking" string="Receive Products"
+                        class="oe_highlight" type="object"
+                        attrs="{'invisible': ['|', '|' , ('is_shipped', '=', True), ('state','not in', ('done')), ('picking_count', '=', 0)]}" />
+                    <button name="button_draft" states="cancel" string="Set to Draft"
+                        type="object" />
+                    <button name="button_cancel" states="draft,to approve,sent"
+                        string="Cancel" type="object" />
+                    <button name="button_done" type="object" string="Lock"
+                        states="purchase" />
+                    <button name="button_unlock" type="object" string="Unlock"
+                        states="done" groups="purchase.group_purchase_manager" />
+                    <field name="state" widget="statusbar" statusbar_visible="draft,sent,purchase"
+                        readonly="1" />
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button type="object" name="action_view_picking" class="oe_stat_button"
+                            icon="fa-truck"
+                            attrs="{'invisible':[('state', 'in', ('draft','sent','to approve')),('picking_ids','=',[])]}">
+                            <field name="picking_count" widget="statinfo" string="Shipment"
+                                help="Incoming Shipments" />
+                            <field name="picking_ids" invisible="1" />
+                        </button>
+                        <button type="object" name="action_view_invoice" class="oe_stat_button"
+                            icon="fa-pencil-square-o"
+                            attrs="{'invisible':[('state', 'in', ('draft','sent','to approve')),('invoice_ids','=',[])]}">
+                            <field name="invoice_count" widget="statinfo" string="Invoices" />
+                            <field name='invoice_ids' invisible="1" />
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <!-- purchase-work flow/purchase_rfq_bid_workflow -->
+                            <field name="type" nolabel="1" class="oe_inline" />
+                            <label string=" " />
+                            <!-- end -->
+                            <field name="name" class="oe_inline" readonly="1" />
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="partner_id"
+                                context="{'search_default_supplier':1, 'default_supplier':1, 'default_customer':0}"
+                                domain="[('supplier','=',True)]"
+                                attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                            <field name="for_agreement"
+                                attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                            <field name="agreement_expected_date"
+                                attrs="{'invisible': [('for_agreement', '=', False)], 'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                            <field name="agreement_promised_date"
+                                attrs="{'invisible': [('for_agreement', '=', False)], 'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                        </group>
+                        <group>
+                            <field name="date_order"
+                                attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                            <field name="partner_ref"
+                                attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                            <field name="origin"
+                                attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                        </group>
+
+                    </group>
+                    <notebook>
+                        <page string="Products">
+                            <field name="order_line"
+                                attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}">
+                                <tree string="Purchase Order Lines" editable="bottom">
+                                    <field name="state" invisible="1" />
+                                    <field name="product_id"
+                                        context="{'partner_id':parent.partner_id, 'quantity':product_qty,'uom':product_uom, 'company_id': parent.company_id}"
+                                        attrs="{'readonly': [('state', 'in', [('purchase', 'to approve','done', 'cancel')])]}" />
+                                    <field name="name" invisible="1" />
+                                    <field name="date_planned" />
+                                    <field name="company_id" invisible="1" />
+                                    <field name="account_analytic_id" context="{'default_partner_id':parent.partner_id}"
+                                        groups="purchase.group_analytic_accounting" />
+                                    <field name="product_qty" />
+                                    <field name="qty_received" invisible="not context.get('show_purchase', False)" />
+                                    <field name="qty_invoiced" invisible="not context.get('show_purchase', False)" />
+                                    <field name="product_uom" groups="product.group_uom"
+                                        attrs="{'readonly': [('state', 'in', [('purchase', 'done', 'cancel')])]}" />
+                                    <field name="price_unit" />
+                                    <field name="price_subtotal" widget="monetary" />
+                                </tree>
+                            </field>
+                            <group class="oe_subtotal_footer oe_right">
+                                <div class="oe_subtotal_footer_separator oe_inline">
+                                    <label for="amount_total" />
+                                </div>
+                                <field name="amount_total" nolabel="1"
+                                    class="oe_subtotal_footer_separator" widget="monetary" />
+                            </group>
+                        </page>
+                        <page string="Transportation and Delivery">
+                            <group>
+                                <group>
+                                    <field name="picking_type_id" domain="[('code','=','incoming')]"
+                                        widget="selection" context="{'special_shortened_wh_name': True}"
+                                        groups="stock.group_locations"
+                                        attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                                    <field name="default_location_dest_id_usage" invisible="1" />
+                                    <field name="dest_address_id" string="Delivery Address"
+                                        attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}"
+                                        groups="stock.group_locations" />
+                                    <!-- attrs and required domain removed by purchase_delivery_address -->
+                                    <!-- workaround odoo/odoo#2950 -->
+                                    <field name="origin_address_id"
+                                        attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                                    <field name="volume_estimated"
+                                        attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                                    <field name="weight_estimated"
+                                        attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                                </group>
+                                <group>
+                                    <field name="date_planned"
+                                        attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                                    <field name="date_approve" groups="base.group_no_one"
+                                        attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                                    <field name="incoterm_id"
+                                        attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                                    <!-- purchase-workflow/purchase_rfq_bid_workflow -->
+                                    <field name="incoterm_address"
+                                        attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                                </group>
+                            </group>
+                            <!-- purchase-workflow/purchase_transport_document -->
+                            <separator string="Transport Documents" />
+                            <field name="transport_document_ids"
+                                attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                            <!-- purchase-workflow/purchase_requisition_bid_selection -->
+                            <separator string="Delivery Remarks" />
+                            <field name="delivery_remark"
+                                attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                        </page>
+                        <page string="Accounting and Currency">
+                            <group>
+                                <group>
+                                    <field domain="[('type','=','purchase')]" name="pricelist_id"
+                                        groups="product.group_purchase_pricelist" />
+                                    <field name="currency_id" groups="base.group_multi_currency"
+                                        attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                                    <field name="company_id" groups="base.group_multi_company"
+                                        widget="selection"
+                                        attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                                    <field name="is_shipped" invisible='1'
+                                        attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                                </group>
+                                <group>
+                                    <field name="payment_term_id" options="{'no_open': True, 'no_create': True}"
+                                        attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                                    <field name="terms_of_payment"
+                                        attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                                    <field name="fiscal_position_id"
+                                        attrs="{'readonly': [('invoice_status','=', True)], 'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                                    <!--purchase-workflow/purchase_requisition_bid_selection -->
+                                    <field name="invoice_status"
+                                        attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Terms and Conditions">
+                            <field name="notes" class="oe_inline" placeholder="Terms and conditions..."
+                                attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                        </page>
+                        <page string="Bid Information">
+                            <group>
+                                <group>
+                                    <field name="requisition_id"
+                                        attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                                    <field name="req_bid_tendering_mode"
+                                        attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                                    <!-- added related field -->
+                                    <field name="tender_bid_receipt_mode"
+                                        attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                                    <!--purchase-workflow/purchase_requisition_bid_selection -->
+                                    <field name="bid_partial" />
+                                </group>
+                                <group>
+                                    <field name="req_date_end" /><!-- added related field -->
+                                    <field name="date_approve"
+                                        attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                                    <field name="bid_validity"
+                                        attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                                    <field name="country_of_origin"
+                                        attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                                    <!--purchase-workflow/purchase_requisition_bid_selection -->
+                                    <field name="meets_specifications"
+                                        attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                                    <!-- purchase-workflow/purchase_requisition_bid_selection -->
+                                    <field name="bid_eligible"
+                                        attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                                    <!--purchase-workflow/purchase_requisition_bid_selection -->
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                    <div class="oe_clear" />
+                    <group string="Validation">
+                        <div colspan="4">
+                            <label for="create_uid" />
+                            <field name="create_uid" class="oe_inline"
+                                attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                            <label string=" validated on "
+                                attrs="{'invisible': [('validator', '=', False)], 'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+                            <field name="date_approve"
+                                attrs="{'invisible': [('validator', '=', False)], 'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}"
+                                class="oe_inline" />
+                        </div>
+                    </group>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers" />
+                    <field name="message_ids" widget="mail_thread" />
+                </div>
+            </form>
+        </field>
+    </record>
+    <record id="view_purchase_order_filter_ngo_purchase_order"
+        model="ir.ui.view">
+        <field name="name">purchase.order.list.select</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.view_purchase_order_filter" />
+        <field name="arch" type="xml">
+            <field name="name" position="after">
+                <field name="origin" string="Origin" />
+            </field>
+        </field>
+    </record>
+
+    <!-- Purchase inheritances -->
+    <!-- purchase-workflow/framework_agreement -->
+    <record id="add_onchange_on_purchase_order_form" model="ir.ui.view">
+        <field name="name">add onchange on purchase form</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="ngo_purchase.purchase_order_form" />
+        <field name="arch" type="xml">
+
+            <field name="partner_id" position="attributes">
+                <attribute name="context_agreement">{'portfolio_id': portfolio_id}</attribute>
+            </field>
+
+            <field name="product_id" position="attributes">
+                <attribute name="context_agreement">{'agreement_id':
+                    framework_agreement_id,'incoterm_id': parent.incoterm_id,
+                    'currency_id': parent.currency_id, 'portfolio_id':
+                    parent.portfolio_id}
+                </attribute>
+            </field>
+
+            <field name="product_qty" position="after">
+                <field name="portfolio_id" invisible="1" /> <!-- used by attrs below -->
+                <field name="framework_agreement_id"
+                    attrs="{'required': [('portfolio_id', '!=', False)], 'readonly': [('portfolio_id', '=', False)]}" />
+            </field>
+
+            <field name="product_qty" position="attributes">
+                <attribute name="context_agreement">{'agreement_id': framework_agreement_id,
+                    'incoterm_id': parent.incoterm_id, 'currency_id':
+                    parent.currency_id, 'portfolio_id': parent.portfolio_id}
+                </attribute>
+            </field>
+
+            <xpath expr="//page[1]" position="inside">
+                <separator string="Internal remarks" />
+                <field name="bid_internal_remark"
+                    attrs="{'readonly': [('state', 'not in', ['draft', 'draftbid', 'draftpo'])]}" />
+            </xpath>
+        </field>
+    </record>
+
+    <record id="purchase_order_line_form2" model="ir.ui.view">
+        <field name="name">ngo.purchase.order.line.form</field>
+        <field name="model">purchase.order.line</field>
+        <field name="priority" eval="10" />
+        <field name="arch" type="xml">
+            <form string="Purchase Order Line">
+                <sheet>
+                    <group>
+                        <group>
+                            <label for="product_qty" />
+                            <div>
+                                <field name="product_uom" groups="product.group_uom"
+                                    class="oe_inline" />
+                            </div>
+                        </group>
+                    </group>
+                    <label for="name" />
+                    <field name="name" />
+                    <group>
+                        <group>
+                            <field name="price_unit" />
+                            <field name="price_subtotal" />
+                        </group>
+                        <group>
+                            <field name="date_planned" widget="date" />
+                            <field name="company_id" groups="base.group_multi_company"
+                                widget="selection" />
+                        </group>
+                        <group string="Accounting">
+                            <field name="account_analytic_id" colspan="2"
+                                groups="purchase.group_analytic_accounting" />
+                        </group>
+                    </group>
+                    <field name="name" />
+                    <separator string="Manual Invoices" />
+                    <field name="invoice_lines" />
+                    <separator string="Stock Moves" />
+                    <field name="move_ids" />
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- purchase-workflow/purchase_rfq_bid_workflow -->
+    <record model="ir.ui.view"
+        id="purchase_rfq_bid_workflow_view_purchase_order_form">
+        <field name="name">purchase.order.form.inherit</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form" />
+        <field name="arch" type="xml">
+
+            <xpath expr="//sheet/div[@class='oe_title']/h1" position="after">
+                <h2 attrs="{'invisible': [('state', '!=', 'cancel')]}">
+                    <label for="cancel_reason_id" string="Reason for Cancellation:" />
+                    <field name="cancel_reason_id" class="oe_inline" />
+                </h2>
+            </xpath>
+
+            <xpath expr="//field[@name='state']" position="attributes">
+                <attribute name="statusbar_visible">draft,sent,bid,draftpo,approved,done
+                </attribute>
+            </xpath>
+
+            <xpath expr="//button[@name='button_cancel']" position="attributes">
+                <attribute name="states">cancel,draftpo</attribute>
+                <attribute name="string">Reset to Draft RFQ</attribute>
+            </xpath>
+
+            <xpath expr="//button[@name='action_rfq_send']" position="after">
+                <button name="wkf_send_rfq" states="draftpo" string="Send Draft PO by Email"
+                    type="object" context="{'send_rfq':True}" />
+            </xpath>
+
+            <xpath expr="//button[@name='button_confirm']" position="attributes">
+                <attribute name="string">Bid Encoded</attribute>
+                <attribute name="type">object</attribute>
+                <attribute name="states">sent,draftbid</attribute>
+            </xpath>
+
+            <xpath expr="//button[@name='button_confirm']" position="attributes">
+                <attribute name="states">draftpo</attribute>
+            </xpath>
+
+            <xpath expr="//button[@name='button_confirm']" position="attributes">
+                <attribute name="states">draftpo</attribute>
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <button name="button_cancel" position="attributes">
+                <!-- draftbid,draftpo added -->
+                <attribute name="states">draft,confirmed,sent,bid,draftbid,draftpo,approved,except_picking,except_invoice
+                </attribute>
+            </button>
+
+            <xpath expr="//button[@name='button_confirm']" position="after">
+                <!-- FIXME confusing button name -->
+                <button name="draft_po" states="draft" string="Convert to PO" />
+                <button name="draft_po" states="bid" string="Convert to PO"
+                    class="oe_highlight" />
+            </xpath>
+
+            <field name="product_id" position="attributes">
+                <!-- TODO investigate context_extended -->
+                <attribute name="context_extended">{'order_type': parent.type}</attribute>
+            </field>
+
+            <field name="product_qty" position="attributes">
+                <attribute name="context_extended">{'order_type': parent.type}</attribute>
+            </field>
+        </field>
+    </record>
+
+
+    <!-- purchase-workflow/purchase_requisition_bid_selection -->
+    <record model="ir.ui.view" id="view_purchase_order_form">
+        <field name="name">purchase.order.inherit</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id"
+            ref="ngo_purchase.purchase_rfq_bid_workflow_view_purchase_order_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='draft_po'][1]" position="attributes">
+                <attribute name="attrs">{'invisible':['|',('requisition_id','!=',False)]}
+                </attribute>
+            </xpath>
+
+            <xpath expr="//button[@name='draft_po'][2]" position="attributes">
+                <attribute name="attrs">{'invisible':['|',('requisition_id','!=',False)]}
+                </attribute>
+            </xpath>
+
+        </field>
+    </record>
+
+    <!-- purchase-workflow/framework_agreement -->
+    <record model="ir.ui.view" id="purchase_order_line_agreement_view_form">
+        <field name="name">purchase_order_line_agreement_view_form</field>
+        <field name="model">purchase.order.line</field>
+        <field name="inherit_id" ref="purchase.purchase_order_line_form2" />
+        <field name="arch" type="xml">
+
+            <xpath expr="//form/sheet/group/group/field[@name='product_id']"
+                position="attributes">
+                <attribute name="context_agreement">{'agreement_id':
+                    framework_agreement_id,'incoterm_id': parent.incoterm_id,
+                    'currency_id': parent.currency_id, 'portfolio_id':
+                    parent.portfolio_id}
+                </attribute>
+            </xpath>
+            <field name="product_id" position="after">
+                <field name="portfolio_id" invisible="1" /> <!-- used by attrs below -->
+                <field name="framework_agreement_id"
+                    attrs="{'required': [('portfolio_id', '!=', False)], 'readonly': [('portfolio_id', '=', False)]}" />
+            </field>
+
+            <field name="product_qty" position="attributes">
+                <attribute name="context_agreement">{'agreement_id':
+                    framework_agreement_id,'incoterm_id': parent.incoterm_id,
+                    'currency_id':parent.currency_id, 'portfolio_id':
+                    parent.portfolio_id}
+                </attribute>
+            </field>
+        </field>
+    </record>
+
+    <record id="purchase_order_tree" model="ir.ui.view">
+        <field name="name">purchase.order.tree</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_tree" />
+        <field name="arch" type="xml">
+            <field name="amount_untaxed" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+        </field>
+    </record>
+</odoo>
