@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+        <record id="invoice_form" model="ir.ui.view">
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_form" />
+            <field name="arch" type="xml">
+                <field name="invoice_line_tax_id" position="attributes">
+                    <attribute name="groups">account_tax_hide.group_show_taxes</attribute>
+                </field>
+                <field name="amount_tax" position="attributes">
+                    <attribute name="groups">account_tax_hide.group_show_taxes</attribute>
+                </field>
+                <field name="tax_line" position="attributes">
+                    <attribute name="groups">account_tax_hide.group_show_taxes</attribute>
+                </field>
+                <field name="fiscal_position" position="attributes">
+                    <attribute name="groups">account_tax_hide.group_show_taxes</attribute>
+                </field>
+                <xpath expr="//field[@name='amount_tax']/preceding-sibling::div[1]" position="attributes">
+                    <attribute name="groups">account_tax_hide.group_show_taxes</attribute>
+                </xpath>
+            </field>
+        </record>
+        <record id="invoice_supplier_form" model="ir.ui.view">
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_supplier_form" />
+            <field name="arch" type="xml">
+                <field name="invoice_line_tax_id" position="attributes">
+                    <attribute name="groups">account_tax_hide.group_show_taxes</attribute>
+                </field>
+                <field name="amount_tax" position="attributes">
+                    <attribute name="groups">account_tax_hide.group_show_taxes</attribute>
+                </field>
+                <xpath expr="//field[@name='tax_line']/ancestor::div[1]" position="attributes">
+                    <attribute name="groups">account_tax_hide.group_show_taxes</attribute>
+                </xpath>
+                <xpath expr="//field[@name='amount_tax']/preceding-sibling::div[1]" position="attributes">
+                    <attribute name="groups">account_tax_hide.group_show_taxes</attribute>
+                </xpath>
+                <field name="fiscal_position" position="attributes">
+                    <attribute name="groups">account_tax_hide.group_show_taxes</attribute>
+                </field>
+            </field>
+        </record>
+    </data>
+</openerp>
